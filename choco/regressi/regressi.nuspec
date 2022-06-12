@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>regressi</id>
+    <version>4.8.0</version>
+    <packageSourceUrl>https://jean-michel-millet.pagesperso-orange.fr/choco/regressip.zip</packageSourceUrl>
+    <owners>Jean-Michel Millet</owners>
+    <title>Regressi (Install)</title>
+    <authors>Jean-Michel Millet</authors>
+    <projectUrl>http://regressi.fr/</projectUrl>
+    <iconUrl>https://jean-michel-millet.pagesperso-orange.fr/images/regressi.png</iconUrl>
+    <copyright>2022 Jean-Michel Millet</copyright>
+    <licenseUrl>https://jean-michel-millet.pagesperso-orange.fr/licence.html</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>-->
+    <projectSourceUrl>https://jean-michel-millet.pagesperso-orange.fr/source/regressis.zip</projectSourceUrl>
+    <docsUrl>https://jean-michel-millet.pagesperso-orange.fr/documentation/regressi.pdf</docsUrl>
+    <mailingListUrl>https://framalistes.org/sympa/info/regressi</mailingListUrl>
+    <bugTrackerUrl>regressi@orange.fr</bugTrackerUrl>
+    <tags>regressi traitement de données expérimentales</tags>
+    <summary>4.8.0</summary>
+    <description>Régressi est un logiciel de traitement (et de simulation) utilisé 
+pour traiter des séries de mesure.</description>
+    <releaseNotes>https://jean-michel-millet.pagesperso-orange.fr/miseajour2008.html</releaseNotes>
+  
+    <dependencies>
+       <dependency id="chocolatey-core.extension" version="1.1.0" />
+    </dependencies> 
+ 
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
