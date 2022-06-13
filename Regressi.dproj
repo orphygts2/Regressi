@@ -109,20 +109,19 @@
         <PF_UWPPackageName>64844Jean-MichelMillet.Regressi</PF_UWPPackageName>
         <PF_UWPPackageDisplayName>Regressi</PF_UWPPackageDisplayName>
         <BT_BuildType>Debug</BT_BuildType>
-        <DCC_DcuOutput>\\Mac\Home\Documents\Embarcadero\Regressiffmpeg\Win32\Release\</DCC_DcuOutput>
-        <DCC_UnitSearchPath>\\Mac\Home\Documents\Embarcadero\Studio\Projets\tpapro_5.00\source;\\Mac\Home\Documents\Embarcadero\Studio\Projets\FitsJMM;\\Mac\Home\Documents\Embarcadero\Studio\Projets\Parser10;\\Mac\Home\Documents\Embarcadero\Studio\Projets\WlanAPI;\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun;\\Mac\Home\Documents\Embarcadero\Studio\Projets\ffmpegVcl;\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun\Python\Core;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_DcuOutput>\\Mac\Home\Documents\Github\z\Regressi\Win32\</DCC_DcuOutput>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=Evariste;FileDescription=Traitements de données, fitting curve;FileVersion=4.8.4.0;InternalName=Regressi;LegalCopyright=Evariste;LegalTrademarks=Evariste;OriginalFilename=Regressi;ProductName=Regressi;ProductVersion=4.1;Comments=Traitement de données, fitting curve, dérivation;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <UWP_DelphiLogo44>Regressi44x44.png</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>Logo150x150.png</UWP_DelphiLogo150>
+        <UWP_DelphiLogo150>Regressi150x150.png</UWP_DelphiLogo150>
         <DCC_MaxStackSize>16777216</DCC_MaxStackSize>
         <DCC_MinStackSize>1048576</DCC_MinStackSize>
         <VerInfo_MinorVer>8</VerInfo_MinorVer>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <DCC_ExeOutput>\\Mac\Home\Documents\Embarcadero\Regressiffmpeg\</DCC_ExeOutput>
-        <Icon_MainIcon>Regressi_Icon3.ico</Icon_MainIcon>
+        <DCC_ExeOutput>\\Mac\Home\Documents\Github\z\Regressi\</DCC_ExeOutput>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <Icon_MainIcon>Regressi.ico</Icon_MainIcon>
         <VerInfo_Release>4</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
@@ -319,37 +318,15 @@
         <DCCReference Include="OptionsAffModeleU.pas">
             <Form>OptionsAffModeleDlg</Form>
         </DCCReference>
-        <DCCReference Include="Images\WavMain.pas">
-            <Form>WaveForm</Form>
-        </DCCReference>
-        <DCCReference Include="Images\TestInWav.pas">
-            <Form>TestWavDlg</Form>
-        </DCCReference>
         <DCCReference Include="Images\grapheu.pas"/>
         <DCCReference Include="FusionU.pas">
             <Form>FusionDlg</Form>
-        </DCCReference>
-        <DCCReference Include="Images\ChronoBitmap.pas">
-            <Form>ChronoForm</Form>
-        </DCCReference>
-        <DCCReference Include="Images\ChronoEch.pas">
-            <Form>EchelleMecaBmpDlg</Form>
-        </DCCReference>
-        <DCCReference Include="Images\CourbesU.pas">
-            <Form>CourbesForm</Form>
-        </DCCReference>
-        <DCCReference Include="Images\courbesEch.pas">
-            <Form>EchelleBmpDlg</Form>
         </DCCReference>
         <DCCReference Include="selColonne.pas">
             <Form>SelectColonneDlg</Form>
         </DCCReference>
         <DCCReference Include="pageechant.pas">
             <Form>PageEchantillonDlg</Form>
-        </DCCReference>
-        <DCCReference Include="Images\interfMain.pas">
-            <Form>OptiqueForm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="savemodele.pas">
             <Form>SaveModeleDlg</Form>
@@ -361,10 +338,6 @@
         </DCCReference>
         <DCCReference Include="coord3D.pas">
             <Form>Fcoordonnees3D</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Images\ChronoU.pas">
-            <Form>VideoChronoForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="pagedistrib.pas">
@@ -380,63 +353,88 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="mathml_Presentation.pas"/>
-        <DCCReference Include="Images\loupeU.pas">
-            <Form>LoupeForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="hdf5dll.pas"/>
         <DCCReference Include="modeleNum.pas"/>
-        <DCCReference Include="Images\RollingShutterU.pas">
-            <Form>RollingShutterForm</Form>
-        </DCCReference>
         <DCCReference Include="Images\RollingShutterCalc.pas"/>
-        <DCCReference Include="Images\Videoffmpeg.pas">
-            <Form>ffmpegForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="EphemerU.pas">
             <Form>EphemerForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="filerw3U.pas"/>
-        <DCCReference Include="arduino\ArduinoCfg.pas">
-            <Form>ArduinoDlg</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="arduino\ArduinoOscilloCfg.pas">
-            <Form>ArduinoOscilloDlg</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="arduino\arduinoU.pas">
-            <Form>ArduinoForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="arduino\arduinoWifi.pas">
-            <Form>ArduinoWifiForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="arduino\ArduinoWifiCfg.pas">
-            <Form>ArduinoWifiDlg</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="arduino\arduinoWifiDirect.pas">
-            <Form>ArduinoWifiDirectForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="arduino\ArduinoWifiDirectCfg.pas">
-            <Form>ArduinoWifiDirectDlg</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="arduino\arduinoGraphe.pas"/>
-        <DCCReference Include="arduino\arduinoOscillo.pas">
-            <Form>ArduinoOscilloForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="FormBaseU.pas">
             <Form>FormBase</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Images\captureCamera.pas">
+        <DCCReference Include="arduinoOscillo.pas">
+            <Form>ArduinoOscilloForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="ArduinoOscilloCfg.pas">
+            <Form>ArduinoOscilloDlg</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="arduinoU.pas">
+            <Form>ArduinoForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="arduinoWifi.pas">
+            <Form>ArduinoWifiForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="ArduinoWifiCfg.pas">
+            <Form>ArduinoWifiDlg</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="arduinoWifiDirect.pas">
+            <Form>ArduinoWifiDirectForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="ChronoBitmap.pas">
+            <Form>ChronoForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="ChronoEch.pas">
+            <Form>EchelleMecaBmpDlg</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="ChronoU.pas">
+            <Form>VideoChronoForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="courbesEch.pas">
+            <Form>EchelleBmpDlg</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="CourbesU.pas">
+            <Form>CourbesForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="interfMain.pas">
+            <Form>OptiqueForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="loupeU.pas">
+            <Form>LoupeForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="RollingShutterU.pas">
+            <Form>RollingShutterForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="TestInWav.pas">
+            <Form>TestWavDlg</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="WavMain.pas">
+            <Form>WaveForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Videoffmpeg.pas">
+            <Form>ffmpegForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="captureCamera.pas">
             <Form>VideoForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
@@ -581,13 +579,6 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Logo150x150.png" Configuration="Release" Class="UWP_DelphiLogo150">
-                    <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo150x150.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="Logo44x44.png" Configuration="Debug" Class="UWP_DelphiLogo44">
                     <Platform Name="Win32">
                         <RemoteDir>Assets\</RemoteDir>
@@ -622,6 +613,13 @@
                 <DeployFile LocalName="Regressi.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>Regressi.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Regressi150x150.png" Configuration="Release" Class="UWP_DelphiLogo150">
+                    <Platform Name="Win32">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo150x150.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
