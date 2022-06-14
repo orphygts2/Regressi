@@ -16,22 +16,17 @@ File_13=TSourceModule,'C:\Users\JMM\Documents\Embarcadero\Studio\Projets\Regress
 File_14=TSourceModule,'C:\Users\JMM\Documents\Embarcadero\Studio\Projets\RegressiStore\choixmodele.pas',0,1,1,1,1,0,0,,
 
 [Modules]
-Module0=\\Mac\Home\Documents\Github\z\Regressi\regutil.pas
-Module1=\\Mac\Home\Documents\Github\z\Regressi\about.pas
-Count=2
+Module0=\\Mac\Home\Documents\Github\z\Regressi\about.pas
+Count=1
 EditWindowCount=1
-
-[\\Mac\Home\Documents\Github\z\Regressi\regutil.pas]
-ModuleType=TSourceModule
 
 [\\Mac\Home\Documents\Github\z\Regressi\about.pas]
 ModuleType=TSourceModule
 
 [EditWindow0]
-ViewCount=2
-CurrentEditView=\\Mac\Home\Documents\Github\z\Regressi\regutil.pas
+ViewCount=1
+CurrentEditView=\\Mac\Home\Documents\Github\z\Regressi\about.pas
 View0=0
-View1=1
 PercentageSizes=1
 Create=1
 Visible=1
@@ -50,13 +45,13 @@ BorlandEditorCodeExplorer=BorlandEditorCodeExplorer@EditWindow0
 TopPanelSize=0
 LeftPanelSize=1895
 LeftPanelClients=PropertyInspector,DockSite3
-LeftPanelData=00000800010100000000AD1100000000000001670700000000000001000000005A0E000009000000446F636B536974653301000000006D1F00001100000050726F7065727479496E73706563746F72FFFFFFFF
+LeftPanelData=00000800010100000000C81300000000000001670700000000000001000000005A0E000009000000446F636B536974653301000000002B2300001100000050726F7065727479496E73706563746F72FFFFFFFF
 RightPanelSize=1998
 RightPanelClients=DockSite2,DockSite4
-RightPanelData=00000800010100000000AD1100000000000001CE0700000000000001000000004912000009000000446F636B536974653201000000006D1F000009000000446F636B5369746534FFFFFFFF
-BottomPanelSize=903
+RightPanelData=00000800010100000000C81300000000000001CE0700000000000001000000004912000009000000446F636B536974653201000000002B23000009000000446F636B5369746534FFFFFFFF
+BottomPanelSize=0
 BottomPanelClients=DockSite1,MessageView
-BottomPanelData=0000080001020100000009000000446F636B536974653103450000000000000287030000000000000100000000034500000F0000004D65737361676556696577466F726DFFFFFFFF
+BottomPanelData=0000080001020200000009000000446F636B53697465310F0000004D65737361676556696577466F726D1534000000000000022506000000000000FFFFFFFF
 BottomMiddlePanelSize=0
 BottomMiddlePanelClients=DockSite0,GraphDrawingModel
 BottomMiddelPanelData=0000080001020200000009000000446F636B536974653010000000477261706844726177696E67566965779C1D00000000000002F506000000000000FFFFFFFF
@@ -71,17 +66,6 @@ LeftCol=1
 Elisions=
 Bookmarks=
 EditViewName=Borland.FormDesignerView
-
-[View1]
-CustomEditViewType=TEditView
-Module=\\Mac\Home\Documents\Github\z\Regressi\regutil.pas
-CursorX=8
-CursorY=16
-TopLine=1
-LeftCol=1
-Elisions=
-Bookmarks=
-EditViewName=\\Mac\Home\Documents\Github\z\Regressi\regutil.pas
 
 [Watches]
 Count=0
@@ -164,18 +148,18 @@ StayOnTop=0
 [MessageView]
 PercentageSizes=1
 Create=1
-Visible=1
+Visible=0
 Docked=1
 State=0
 Left=0
-Top=56
-Width=9938
-Height=729
+Top=0
+Width=2770
+Height=843
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=9938
-ClientHeight=729
-TBDockHeight=729
+ClientWidth=2770
+ClientHeight=843
+TBDockHeight=843
 LRDockWidth=2770
 Dockable=1
 StayOnTop=0
@@ -189,11 +173,11 @@ State=0
 Left=0
 Top=0
 Width=1998
-Height=3261
+Height=4246
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1998
-ClientHeight=3261
+ClientHeight=4246
 TBDockHeight=7154
 LRDockWidth=1998
 Dockable=1
@@ -208,11 +192,11 @@ State=0
 Left=0
 Top=1114
 Width=1895
-Height=4296
+Height=5282
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1895
-ClientHeight=4296
+ClientHeight=5282
 TBDockHeight=9011
 LRDockWidth=1895
 Dockable=1
@@ -221,8 +205,8 @@ SplitPos=111
 
 [PropInspDesignerSelection]
 ArrangeBy=Name
-SelectedItem=Caption,
-ExpandedItems=Anchors=0,"Concepteur LiveBindings=0",Constraints=0,Font=0,LiveBindings=0,Margins=0
+SelectedItem=Action,
+ExpandedItems=Anchors=0,BorderIcons=0,"Concepteur LiveBindings=0",Constraints=0,CustomTitleBar=0,Font=0,GlassFrame=0,ActiveControl=0
 
 [frmDesignPreview]
 PercentageSizes=1
@@ -698,11 +682,11 @@ State=0
 Left=0
 Top=1404
 Width=1998
-Height=3261
+Height=4246
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1998
-ClientHeight=3261
+ClientHeight=4246
 TBDockHeight=9011
 LRDockWidth=1998
 Dockable=1
