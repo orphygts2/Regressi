@@ -4,8 +4,8 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>regressi</id>
-    <version>4.8.0</version>
-    <packageSourceUrl>https://jean-michel-millet.pagesperso-orange.fr/choco/regressip.zip</packageSourceUrl>
+    <version>4.8.4</version>
+    <packageSourceUrl>https://github.com/orphygts2/Regressi/tree/master/choco/regressi</packageSourceUrl>
     <owners>Jean-Michel Millet</owners>
     <title>Regressi (Install)</title>
     <authors>Jean-Michel Millet</authors>
@@ -14,12 +14,12 @@
     <copyright>2022 Jean-Michel Millet</copyright>
     <licenseUrl>https://jean-michel-millet.pagesperso-orange.fr/licence.html</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>-->
-    <projectSourceUrl>https://jean-michel-millet.pagesperso-orange.fr/source/regressis.zip</projectSourceUrl>
+    <projectSourceUrl>https://github.com/orphygts2/Regressi</projectSourceUrl>
     <docsUrl>https://jean-michel-millet.pagesperso-orange.fr/documentation/regressi.pdf</docsUrl>
     <mailingListUrl>https://framalistes.org/sympa/info/regressi</mailingListUrl>
     <bugTrackerUrl>regressi@orange.fr</bugTrackerUrl>
     <tags>regressi traitement de données expérimentales</tags>
-    <summary>4.8.0</summary>
+    <summary>4.8.4</summary>
     <description>Régressi est un logiciel de traitement (et de simulation) utilisé 
 pour traiter des séries de mesure.</description>
     <releaseNotes>https://jean-michel-millet.pagesperso-orange.fr/miseajour2008.html</releaseNotes>
