@@ -1,4 +1,4 @@
-﻿
+
 $ErrorActionPreference = 'Stop';
 $toolsDir   = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $url        = 'https://jean-michel-millet.pagesperso-orange.fr/zip/regressi-mpeg-setup.msi'
@@ -11,7 +11,7 @@ $packageArgs = @{
 
   softwareName  = 'Regressi*'
 
-  checksum      = 'A3766122DC344A5117F05277902094ED5F4CD980FD7BDB0F38EB3F8F2C343BD9'
+  checksum      = '9D52F3E5BD0D75EB19D19CA12E1CF7E6FA93B323036D55BAD07C491AAAEF37EC'
   checksumType  = 'sha256'
 
   silentArgs    = "/qn /norestart /l*v `"$($env:TEMP)\$($packageName).$($env:chocolateyPackageVersion).MsiInstall.log`""
