@@ -4,33 +4,22 @@
   <metadata>
     <id>regressi</id>
     <version>4.8.0</version>
-    <packageSourceUrl>https://github.com/orphygts2/Regressi/choco</packageSourceUrl>
+    <packageSourceUrl>https://github.com/orphygts2/Regressi/tree/master/choco/regressi</packageSourceUrl>
     <owners>Jean-Michel Millet</owners>
     <title>Regressi (Install)</title>
     <authors>Jean-Michel Millet</authors>
-    <projectUrl>http://regressi.fr/</projectUrl>
+    <projectUrl>https://jean-michel-millet.pagesperso-orange.fr/regressi.html</projectUrl>
     <iconUrl>https://jean-michel-millet.pagesperso-orange.fr/images/regressi.png</iconUrl>
     <copyright>2022 Jean-Michel Millet</copyright>
     <licenseUrl>https://jean-michel-millet.pagesperso-orange.fr/licence.html</licenseUrl>
-    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/orphygts2/Regressi</projectSourceUrl>
     <docsUrl>https://jean-michel-millet.pagesperso-orange.fr/documentation/regressi.pdf</docsUrl>
     <mailingListUrl>https://framalistes.org/sympa/info/regressi</mailingListUrl>
-    <bugTrackerUrl>regressi@orange.fr</bugTrackerUrl>
     <tags>regressi fit</tags>
     <summary>Regressi</summary>
     <description>Traitements de données de mesures physiques</description>
     <releaseNotes>https://jean-michel-millet.pagesperso-orange.fr/miseajour2008.html</releaseNotes>
-
-    <dependencies>
-      <dependency id="" version="__MINIMUM_VERSION__" />
-      <dependency id="" version="[__EXACT_VERSION__]" />
-      <dependency id="" version="[_MIN_VERSION_INCLUSIVE, MAX_VERSION_INCLUSIVE]" />
-      <dependency id="" version="[_MIN_VERSION_INCLUSIVE, MAX_VERSION_EXCLUSIVE)" />
-      <dependency id="" />
-      <dependency id="chocolatey-core.extension" version="1.1.0" />
-    </dependencies>
-  
     </metadata>
   <files>
       <file src="tools\**" target="tools" />
