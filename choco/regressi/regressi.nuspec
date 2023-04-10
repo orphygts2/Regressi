@@ -13,12 +13,12 @@
     <licenseUrl>https://jean-michel-millet.pagesperso-orange.fr/licence.html</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/orphygts2/Regressi</projectSourceUrl>
-    <packageSourceUrl>https://github.com/orphygts2/Regressi/choco</packageSourceUrl>-->
+    <packageSourceUrl>https://github.com/orphygts2/Regressi/choco</packageSourceUrl>
     <docsUrl>https://jean-michel-millet.pagesperso-orange.fr/documentation/regressi.pdf</docsUrl>
     <mailingListUrl>https://framalistes.org/sympa/info/regressi</mailingListUrl>
     <tags>regressi fit</tags>
     <summary>Regressi</summary>
-    <description>_Traitements de données de mesures physiques</description>
+    <description>Traitements de données de mesures physiques. Data processing of physical measurements</description>
     <releaseNotes>https://jean-michel-millet.pagesperso-orange.fr/miseajour2008.html</releaseNotes>
   </metadata>
   <files>
