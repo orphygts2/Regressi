@@ -194,7 +194,8 @@ begin // ParamEtPrec
    if incertType
       then precLoc := incertParam[k]
       else precLoc := incert95Param[k];
-   expValeurIng := 3*floor(log10(valeurLoc)/3);
+ //  expValeurIng := 3*floor(log10(valeurLoc)/3);
+   expValeurIng := floor(log10(valeurLoc));
    CoeffValeur := dix(-expValeurIng);
    Decimales := precisionMaxIncert;
    if k<=NbreParam[ParamNormal] then with Parametres[ParamNormal,k] do begin
@@ -204,11 +205,16 @@ begin // ParamEtPrec
            expPrec := floor(log10(precLoc));
            expValeur := floor(log10(valeurLoc));
            Decimales := expValeur-expPrec;
-           premierChiffre := floor(precLoc*dix(-expPrec));
-           if premierChiffre<7 then // deux chiffres si premier chiffre (1,2,3,4) selon CEA
-           // 10 % de précision sur l'incertitude
-           // On passe à 1,2,3,4,5,6)
-              inc(decimales);
+           case chiffreSignif of
+               CSeduscol : inc(decimales);
+               CSgum : begin
+                  premierChiffre := floor(precLoc*dix(-expPrec));
+                  if premierChiffre<4 then inc(decimales);
+         // deux chiffres si premier chiffre (1,2,3) selon CEA / GUM
+         // 10 % de précision sur l'incertitude
+               end;
+               CS1 : ;
+           end;
            if Decimales>precisionMaxIncert then Decimales := PrecisionMaxIncert;
            decimales := decimales - expValeur + expValeurIng;
            if decimales<0 then decimales := 0;
@@ -225,7 +231,10 @@ begin // ParamEtPrec
    tampon := FloatToStrF(valeurLoc,ffFixed,Decimales+3,Decimales);
    if paramAjustes then if precOK
       then begin
-         tamponPrec := FloatToStrF(precLoc*CoeffValeur,ffFixed,Decimales+4,Decimales);
+         precOK := abs(precLoc/valeurLoc)>PrecisionMaxParam;
+         if precOK
+            then tamponPrec := FloatToStrF(precLoc*CoeffValeur,ffFixed,Decimales+4,Decimales)
+            else tamponPrec := ' ?!';
          tampon := tampon+' ±'+tamponPrec;
       end
       else tampon := tampon+' ??';
@@ -263,8 +272,16 @@ begin // ParamEtPrec
            expPrec := floor(log10(precLoc));
            expValeur := floor(log10(valeurLoc));
            Decimales := expValeur-expPrec;
-           premierChiffre := floor(precLoc*dix(-expPrec));
-           if premierChiffre<3 then inc(decimales); // deux chiffres pour 0,13 ou 0,24
+           case chiffreSignif of
+               CSeduscol : inc(decimales);
+               CSgum : begin
+                   premierChiffre := floor(precLoc*dix(-expPrec));
+                   if premierChiffre<4 then inc(decimales);
+         // deux chiffres si premier chiffre (1,2,3) selon CEA
+         // 10 % de précision sur l'incertitude
+               end;
+               CS1 : ;
+           end;
            if Decimales>precisionMaxIncert then Decimales := PrecisionMaxIncert;
            decimales := decimales - expValeur + expValeurIng;
            if decimales<0 then decimales := 0;
@@ -304,7 +321,7 @@ var puissValeur : shortInt;
     PrecOk : boolean;
     valeurLoc,precLoc : double;
 begin // ParamNum
-   if k<=NbreParam[ParamNormal] then with Parametres[ParamNormal,k] do begin
+   if k<=NbreParam[ParamNormal] then with Parametres[ParamNormal,k] do begin   (*à voir*)
       valeurLoc := valeurParam[ParamNormal,k];
       precLoc := incertParam[k];
       Precision := 0;

@@ -36,6 +36,8 @@ object PrintDlg: TPrintDlg
     Font.Style = []
     ParentFont = False
     TabOrder = 0
+    ExplicitLeft = 262
+    ExplicitHeight = 671
     object CopiesLabel: TLabel
       Left = 32
       Top = 358
@@ -87,23 +89,9 @@ object PrintDlg: TPrintDlg
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Cancel = True
-      Caption = '&Abandon'
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000010000000000000000000
-        BF0000BF000000BFBF00BF000000BF00BF00BFBF0000C0C0C000808080000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00777888877777
-        8877777700007770888777778887777700007911088877910888777700007911
-        0088879100888777000079111008891110087777000079911108911111007777
-        0000779111101111110777770000777911111111077777770000777991111111
-        8777777700007777991111108877777700007777791111108887777700007777
-        7911111088877777000077777911111108887777000077779111991100888777
-        0000777911108991100888770000777911187799110088870000777111187779
-        1110888700007771110777779111087700007779997777777991777700007777
-        77777777779977770000}
+      Kind = bkCancel
       Margin = 2
-      ModalResult = 2
+      NumGlyphs = 2
       Spacing = -1
       TabOrder = 1
       IsControl = True
@@ -118,21 +106,9 @@ object PrintDlg: TPrintDlg
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = '&Aide'
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000010000000000000000000
-        8000008000000080800080000000800080008080000080808000C0C0C0000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00888888888888
-        8888888800008888888888888888888800008888888887778888888800008888
-        8888600788888888000088888888E60788888888000088888888EE6888888888
-        000088888888877788888888000088888888600788888888000088888888E607
-        78888888000088888888E660778888880000888888888E660778888800008888
-        888878E660778888000088888880778E660788880000888888660778E6078888
-        0000888888E66077E608888800008888888E660066688888000088888888E666
-        6E8888880000888888888EEEE888888800008888888888888888888800008888
-        88888888888888880000}
+      Kind = bkHelp
       Margin = 2
+      NumGlyphs = 2
       Spacing = -1
       TabOrder = 2
       OnClick = HelpBtnClick
@@ -150,6 +126,7 @@ object PrintDlg: TPrintDlg
       Align = alBottom
       Caption = 'Imprimer'
       TabOrder = 3
+      ExplicitTop = 438
       object DateCB: TCheckBox
         Left = 16
         Top = 32
@@ -219,6 +196,8 @@ object PrintDlg: TPrintDlg
     Margins.Bottom = 6
     Align = alClient
     TabOrder = 1
+    ExplicitWidth = 262
+    ExplicitHeight = 671
     object GrandeursCB: TCheckBox
       Left = 16
       Top = 16
@@ -243,6 +222,8 @@ object PrintDlg: TPrintDlg
       Align = alBottom
       Caption = '&Variables'
       TabOrder = 1
+      ExplicitTop = 100
+      ExplicitWidth = 260
       object TableauVariabCB: TCheckBox
         Left = 16
         Top = 32
@@ -305,6 +286,8 @@ object PrintDlg: TPrintDlg
       Align = alBottom
       Caption = '&Param'#232'tres'
       TabOrder = 2
+      ExplicitTop = 290
+      ExplicitWidth = 260
       object GrapheParamCB: TCheckBox
         Left = 16
         Top = 72
@@ -354,6 +337,8 @@ object PrintDlg: TPrintDlg
       Align = alBottom
       Caption = 'Fourier'
       TabOrder = 3
+      ExplicitTop = 442
+      ExplicitWidth = 260
       object TableauFourierCB: TCheckBox
         Left = 16
         Top = 32
@@ -397,6 +382,8 @@ object PrintDlg: TPrintDlg
       Align = alBottom
       Caption = 'Statistique'
       TabOrder = 4
+      ExplicitTop = 556
+      ExplicitWidth = 260
       object TableauStatCB: TCheckBox
         Left = 16
         Top = 32
@@ -435,6 +422,8 @@ object PrintDlg: TPrintDlg
     Align = alBottom
     Caption = 'En-t'#234'te d'#39'impression'
     TabOrder = 4
+    ExplicitTop = 851
+    ExplicitWidth = 526
     object EnteteEdit: TEdit
       Left = 2
       Top = 38
@@ -446,6 +435,7 @@ object PrintDlg: TPrintDlg
       Margins.Bottom = 6
       Align = alClient
       TabOrder = 0
+      ExplicitWidth = 522
       ExplicitHeight = 44
     end
   end
@@ -461,6 +451,8 @@ object PrintDlg: TPrintDlg
     Align = alBottom
     Caption = 'Imprimante'
     TabOrder = 3
+    ExplicitTop = 671
+    ExplicitWidth = 526
     object PrinterBtn: TSpeedButton
       Left = 480
       Top = 28
@@ -510,6 +502,8 @@ object PrintDlg: TPrintDlg
     Margins.Bottom = 6
     Align = alBottom
     TabOrder = 2
+    ExplicitTop = 767
+    ExplicitWidth = 526
     object PagesBtn: TSpeedButton
       Left = 480
       Top = 20

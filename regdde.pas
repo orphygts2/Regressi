@@ -50,8 +50,9 @@ type
     procedure MemoAddComm(const Astr : string);
     function ChercheEnTeteVellman : boolean;
     Procedure ExtraitVellman;
-    Function ExtraitEphemerides : boolean;
+    Function ExtraitEphemerides(isMiriade : boolean) : boolean;
     Procedure ExtraitCassy(ajout : boolean);
+    procedure verifLigneChrome(var ligne : string);
   public
      donnees : TstringList;
      Procedure RazRTF;
@@ -2016,61 +2017,11 @@ begin // AjouteColPageCourante
 end; // AjouteColPageCourante
 
 Function TformDDE.ImporteFichierTableur(const NomFichier : string) : boolean;
+var isMiriade : boolean;
 
 Function IsFichierEphemerides : boolean;
 var ligne : string;
-
-procedure verifChrome;
-var termine : boolean;
-    posAccent : integer;
-begin
-        repeat
-             termine := true;
-             posAccent := pos('Ã¨',ligne);
-             if posAccent>0 then begin
-                delete(ligne,posAccent,1);
-                ligne[posAccent] := 'è';
-                termine := false;
-             end;
-             posAccent := pos('Ã©',ligne);
-             if posAccent>0 then begin
-                delete(ligne,posAccent,1);
-                ligne[posAccent] := 'é';
-                termine := false;
-             end;
-             posAccent := pos('â€“',ligne);
-             if posAccent>0 then begin
-                delete(ligne,posAccent,2);
-                ligne[posAccent] := '-';
-                termine := false;
-             end;
-             posAccent := pos('Ã‰',ligne);
-             if posAccent>0 then begin
-                delete(ligne,posAccent,1);
-                ligne[posAccent] := 'É';
-                termine := false;
-             end;
-             posAccent := pos('Â°',ligne);
-             if posAccent>0 then begin
-                delete(ligne,posAccent,1);
-                termine := false;
-             end;
-             posAccent := pos('â€²',ligne);
-             if posAccent>0 then begin
-                delete(ligne,posAccent,2);
-                ligne[posAccent] := '''';
-                termine := false;
-             end;
-             posAccent := pos('â€³',ligne);
-             if posAccent>0 then begin
-                delete(ligne,posAccent,2);
-                ligne[posAccent] := '"';
-                termine := false;
-             end;
-        until termine;
-end;
-
-var compteur,count : integer;
+    compteur,count : integer;
     extension : string;
 begin
    result := false;
@@ -2078,10 +2029,12 @@ begin
    if extension<>'.TXT' then exit;
    AssignFile(fichier,NomFichier);
    Reset(fichier);
-   compteur := 0;count := 0;
+   compteur := 0;
+   count := 0;
+   isMiriade := false;
    repeat
          readln(fichier,ligne);
-         verifChrome;
+         verifLigneChrome(ligne);
          if pos('Éphémérides',ligne)>0 then inc(compteur);
          if pos('Héliocentre',ligne)>0 then inc(compteur);
          if pos('Corps du système solaire',ligne)>0 then inc(compteur);
@@ -2090,6 +2043,15 @@ begin
          if pos('Époque',ligne)>0 then inc(compteur);
          if pos('Astrométrique',ligne)>0 then inc(compteur);
          if pos('Colonnes',ligne)>0 then inc(compteur);
+         // Miriade
+         if pos('Planetary_Theory',ligne)>0 then inc(compteur);
+         if pos('targetType',ligne)>0 then inc(compteur);
+         if pos('Miriade',ligne)>0 then begin
+            inc(compteur);
+            isMiriade := true;
+         end;
+         if pos('Time_Scale',ligne)>0 then inc(compteur);
+         if pos('Coordinates',ligne)>0 then inc(compteur);
          inc(count);
    until eof(fichier) or (compteur>4) or (count>7);
    result := compteur>4;
@@ -2147,7 +2109,7 @@ begin
      if IsFichierEphemerides then begin
         ModeAcquisition := AcqFichier;
         donnees.LoadFromFile(nomFichier);
-        result := extraitEphemerides;
+        result := extraitEphemerides(isMiriade);
         exit;
      end;
      try
@@ -2159,7 +2121,7 @@ begin
         end;
      end;
      try
-      if GetData
+     if GetData
          then result := true
          else strErreurFichier := erFormat;
      ModeAcquisition := AcqFichier;
@@ -2322,7 +2284,6 @@ begin with ClientDDE do
              Lance;
         end;
 end;
-
 
 procedure TFormDDE.AjouteMemo(Amemo : TcustomMemo);
 var i : integer;
@@ -2670,8 +2631,7 @@ begin with pages[pageCourante] do begin
     until j=NbreLigne;
 end end; // extraitRepere
 
-
-function TFormDDE.ExtraitEphemerides : boolean;
+function TFormDDE.ExtraitEphemerides(isMiriade : boolean) : boolean;
 const iDate = 0;
 
 var DateStr,HeureStr : string;
@@ -2679,7 +2639,7 @@ var DateStr,HeureStr : string;
     l : integer;
     NbreVoies : integer;
     Voies : array[indiceVoieEph] of TvoieEph;
-    HelioCentrique,AngulaireGlb : boolean;
+    HelioCentrique,Ecliptique,AngulaireGlb : boolean;
     iDistance : integer;
     iX,iY,iZ : integer;
     iLongitude : integer;
@@ -2690,12 +2650,20 @@ var DateStr,HeureStr : string;
     VoiesString : TstringList;
     LigneCourante : string;
 
-Procedure SepareVirgule;
+Procedure SepareLigne(separe : char);
+var i : integer;
 begin
     voiesString.Clear;
-    voiesString.Delimiter := ' ';
+    voiesString.Delimiter := separe;
+    voiesString.strictDelimiter := true;
     trim(ligneCourante);
     voiesString.DelimitedText:= ligneCourante;
+    i := 0;
+    while i<voiesString.count do begin
+          if voiesString[i]=''
+             then voiesString.Delete(i)
+             else inc(i)
+    end;
 end;
 
 procedure Recupere;
@@ -2777,6 +2745,7 @@ Function RecupereAngle(chaine : string) : string;
 var c : integer;
     items : array[1..3] of string;
     zz : string;
+    itemsS : TstringList;
 begin
     if (pos('°',chaine)>0) or (pos('''',chaine)>0)
     then begin // sexagésimal
@@ -2795,6 +2764,13 @@ begin
           end;
        end;
     result := SexVersDecEph(Items[1],Items[2],Items[3]);
+    end
+    else if (pos(' ',chaine)>0) then begin  // miriade 4 5 6 = 4°5'6"
+        itemsS := TstringList.Create;
+        itemsS.Delimiter := ' ';
+        itemsS.DelimitedText := chaine;
+        result := SexVersDecEph(ItemsS[0],ItemsS[1],ItemsS[2]);
+        itemsS.Free;
     end
     else begin // décimal
         result := chaine;
@@ -2874,7 +2850,7 @@ begin
                 end;
                 if (nomMaj='Y') or (nomMaj='PY') then begin
                   iY := i;
-                  nom := 'z';
+                  nom := 'y';
                 end;
                 if (nomMaj='Z') or (nomMaj='PZ') then begin
                   iZ := i;
@@ -2901,6 +2877,7 @@ begin
             iLongitude := i;
             utile := true;
             nom := lambdaMin;
+            unite := '°';
         end;
         if nomMaj='UTC' then begin
             signif := 'Temps universel coordonné (heure en fraction de jour)';
@@ -2916,6 +2893,7 @@ begin
         if nom='h' then begin
            signif := 'Hauteur compté de 0 à 90° à partir de l''horizon';
            utile := true;
+           unite := '°';
         end;
         if nom='H' then begin
            signif := 'Angle horaire';
@@ -2924,16 +2902,19 @@ begin
         if nomMaj='AZ' then begin
            signif := 'azimut compté de 0 à 360° à partir du nord';
            utile := true;
+           unite := '°';
         end;
-        if (nomMaj='LAT') or (nom=beta) then begin
+        if (pos('LAT',nomMaj)=1) or (nom=beta) then begin
               signif := 'Latitude';
               angulaire := true;
               utile := true;
               nom := beta;
+              unite := '°';
         end;
         if nomMaj='PHASE' then begin
            signif := 'angle de phase en degré';
            utile := true;
+           unite := '°';
         end;
         if (nomMaj='DEC') or (nom=deltaMin) then begin
               signif := 'Déclinaison';
@@ -2941,6 +2922,7 @@ begin
               angulaireGlb := true;
               utile := true;
               nom := deltaMin;
+              unite := '°';
         end;
         if (nomMaj='RA') or (nom=alpha) then begin
               signif := 'ascension droite';
@@ -2949,6 +2931,7 @@ begin
               angulaireGlb := true;
               iLongitude := i;
               nom := alpha;
+              unite := '°';
         end;
         if (nomMaj='MV') or (nomMaj='VMAG') then begin
            signif := 'magnitude visuelle apparente';
@@ -2964,7 +2947,7 @@ begin
               else signif := 'distance à la terre en unité astronomique';
         end;
     end;// for i
-end;
+end; // verifNOms
 
 Function ChercheVariablesCB(l : integer) : boolean;
 var i : integer;
@@ -2977,7 +2960,7 @@ begin
        utile := false;
        angulaire := false;
     end;
-    separeVirgule;
+    separeLigne(' ');
     NbreVoies := voiesString.Count;
     if NbreVoies>MaxVoiesEph then NbreVoies := MaxVoiesEph;
     for i := 0 to pred(NbreVoies) do
@@ -2989,10 +2972,10 @@ Procedure ChercheUnitesCB(l : integer);
 var i : integer;
 begin
     ligneCourante := donnees[l];
-    separeVirgule;
+    separeLigne(' ');
     if voiesString.count<NbreVoies then begin
        ligneCourante := 'undefined '+ligneCourante;
-       separeVirgule;
+       separeLigne(' ');
     end;
     for i := 0 to pred(NbreVoies) do
         voies[i].unite := voiesString[i];
@@ -3040,13 +3023,13 @@ begin
        if (pos('Options',LigneCourante)>0)
           then
           else if (pos('Colonnes',LigneCourante)>0) then
-          else if (pos('$$',LigneCourante)>0) then result := true  // SOE Start of Entry
+          else if (pos('$$SOE',LigneCourante)>0) then result := true  // SOE Start of Entry
           else if (pos('Corps',LigneCourante)>0) then begin  // targetName
-              separeVirgule;
+              separeLigne(' ');
               for i := 0 to voiesString.Count-2 do begin
                   posparO := pos(':',voiesString[i]);
                   if posParO>0 then begin
-                     Commentaire := voiesString[i+1];
+                     Commentaire := commentaire+voiesString[i+1];
                      break;
                   end;
               end;
@@ -3072,12 +3055,67 @@ begin
           end;
        inc(l);
     until result or (l>=donnees.count);
-    if not result then begin
+    if result then verifNoms
+    else begin
        showMessage('Impossible de décoder');
        acqFaite := false;
     end
-    else verifNoms;
 end; // analyseEnteteTxt
+
+function analyseEnTeteMiriade(var l : integer) : boolean;
+var posParO,posParF : integer;
+    i : integer;
+begin
+    l := 0;
+    result := false;
+    commentaire := '';
+    repeat
+       LigneCourante := donnees[l];
+       separeLigne(',');
+       if (pos('# Nb rows',LigneCourante)>0)
+          then result := true
+          else for i := 1 to voiesString.Count-1 do begin
+              if (pos('targetName',voiesString[i])>0) then begin
+                 //  posParO := pos(':',voiesString[i]);
+                   commentaire := commentaire+voiesString[i];
+              end;
+              if (pos('frameCentre',voiesString[i])>0) then begin
+                 helioCentrique := (pos('liocent',LigneCourante)>0); // Sinon géocentrique
+                 if helioCentrique
+                    then commentaire := commentaire+' ; héliocentrique'
+                    else commentaire := commentaire+' ; géocentrique'
+              end;
+              if (pos('Coordinate',voiesString[i])>0) then begin
+                 ecliptique := (pos('clipt',LigneCourante)>0); // Sinon équatorial
+                 if ecliptique
+                    then commentaire := commentaire+' ; écliptique'
+                    else commentaire := commentaire+' ; équatorial'
+              end;
+          end;
+       inc(l);
+    until result or (l>=donnees.count);
+    if result then begin
+             LigneCourante := donnees[l];
+             inc(l);
+             separeLigne(',');
+             nbreVoies := voiesString.Count-1;
+             for i := 1 to voiesString.Count-1 do begin // 0 = nom planète
+                 voies[i-1].Nom := trim(voiesString[i]);
+                 voies[i-1].unite := '';
+                 posParO := pos('(',voiesString[i]);
+                 posParF := pos(')',voiesString[i]);
+                 if (posParO>0) and (posParF>0) then begin
+                    voies[i-1].unite := copy(voiesString[i],posParO+1,posParF-posParO-1);
+                    voies[i-1].nom := trim(copy(voiesString[i],1,posParO-1));
+                 end;
+             end;
+             verifNoms;
+    end
+    else begin
+       showMessage('Impossible de décoder');
+       acqFaite := false;
+    end
+end; // analyseEnteteMiriade
 
 procedure chercheData(l0 : integer);
 var dateCourante : double;
@@ -3086,10 +3124,15 @@ begin
     nbreData := 0;
     l := l0;
     while (l<donnees.count) and
-          (length(donnees[l])>16) and
-          (charInSet(donnees[l][1],['0'..'9'])) do begin
+          (length(donnees[l])>16)  do begin
          ligneCourante := donnees[l];
-         separeVirgule;
+         if isMiriade
+            then begin
+               separeLigne(',');
+               voiesString.delete(0);
+            end
+            else separeLigne(' ');
+         if charInSet(voiesString[0][1],['0'..'9',' ']) then
          for i := 0 to pred(NbreVoies) do with voies[i] do begin
              if nom='t' then begin
                 RecupereDateHeure(voiesString[i]);
@@ -3125,59 +3168,14 @@ begin
          inc(NbreData);
          inc(l);
     end;
-end;
+end; // chercheData
 
 procedure verifChrome;
 var i : integer;
-    termine : boolean;
-    posAccent : integer;
 begin
     for I := 0 to pred(donnees.Count) do begin
         ligneCourante := donnees[i];
-        repeat
-             termine := true;
-             posAccent := pos('Ã¨',ligneCourante);
-             if posAccent>0 then begin
-                delete(ligneCourante,posAccent,1);
-                ligneCourante[posAccent] := 'è';
-                termine := false;
-             end;
-             posAccent := pos('Ã©',ligneCourante);
-             if posAccent>0 then begin
-                delete(ligneCourante,posAccent,1);
-                ligneCourante[posAccent] := 'é';
-                termine := false;
-             end;
-             posAccent := pos('â€“',ligneCourante);
-             if posAccent>0 then begin
-                delete(ligneCourante,posAccent,2);
-                ligneCourante[posAccent] := '-';
-                termine := false;
-             end;
-             posAccent := pos('Ã‰',ligneCourante);
-             if posAccent>0 then begin
-                delete(ligneCourante,posAccent,1);
-                ligneCourante[posAccent] := 'É';
-                termine := false;
-             end;
-             posAccent := pos('Â°',ligneCourante);
-             if posAccent>0 then begin
-                delete(ligneCourante,posAccent,1);
-                termine := false;
-             end;
-             posAccent := pos('â€²',ligneCourante);
-             if posAccent>0 then begin
-                delete(ligneCourante,posAccent,2);
-                ligneCourante[posAccent] := '''';
-                termine := false;
-             end;
-             posAccent := pos('â€³',ligneCourante);
-             if posAccent>0 then begin
-                delete(ligneCourante,posAccent,2);
-                ligneCourante[posAccent] := '"';
-                termine := false;
-             end;
-        until termine;
+        verifLigneChrome(ligneCourante);
         donnees[i] := ligneCourante;
     end;
 end;
@@ -3192,6 +3190,7 @@ begin // ExtraitEphemerides
     iDistance := 3;
     Commentaire := '';
     heliocentrique := true;
+    ecliptique := true;
     angulaireGlb := true;
     nbreData := 0;
     nbreVoies := 0;
@@ -3212,7 +3211,9 @@ begin // ExtraitEphemerides
 
     if donnees.count<2 then goto fin;
     VerifChrome;
-    if not analyseEnTeteTxt(l) then goto fin;
+    if isMiriade
+       then begin if not analyseEnTeteMiriade(l) then goto fin end
+       else begin if not analyseEnTeteTxt(l) then goto fin end;
     chercheData(l);
     AcqFaite := (NbreVoies>1) and (NbreData>2);
     if acqfaite then begin
@@ -3227,6 +3228,57 @@ begin // ExtraitEphemerides
     VoieHeureTexte.free;
     for v := 0 to MaxVoiesEph do Voies[v].free;
 end;// ExtraitEphemerides
+
+procedure TFormDDE.verifLigneChrome(var ligne : string);
+var termine : boolean;
+    posAccent : integer;
+begin
+        repeat
+             termine := true;
+             posAccent := pos('Ã¨',ligne);
+             if posAccent>0 then begin
+                delete(ligne,posAccent,1);
+                ligne[posAccent] := 'è';
+                termine := false;
+             end;
+             posAccent := pos('Ã©',ligne);
+             if posAccent>0 then begin
+                delete(ligne,posAccent,1);
+                ligne[posAccent] := 'é';
+                termine := false;
+             end;
+             posAccent := pos('â€“',ligne);
+             if posAccent>0 then begin
+                delete(ligne,posAccent,2);
+                ligne[posAccent] := '-';
+                termine := false;
+             end;
+             posAccent := pos('Ã‰',ligne);
+             if posAccent>0 then begin
+                delete(ligne,posAccent,1);
+                ligne[posAccent] := 'É';
+                termine := false;
+             end;
+             posAccent := pos('Â°',ligne);
+             if posAccent>0 then begin
+                delete(ligne,posAccent,1);
+                termine := false;
+             end;
+             posAccent := pos('â€²',ligne);
+             if posAccent>0 then begin
+                delete(ligne,posAccent,2);
+                ligne[posAccent] := '''';
+                termine := false;
+             end;
+             posAccent := pos('â€³',ligne);
+             if posAccent>0 then begin
+                delete(ligne,posAccent,2);
+                ligne[posAccent] := '"';
+                termine := false;
+             end;
+        until termine;
+end;
+
 
 end.
 

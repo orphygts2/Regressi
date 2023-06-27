@@ -116,6 +116,7 @@ TFcoordonneesPhys = class(TForm)
     ImageCollectionPoint: TImageCollection;
     VirtualImageListLigne: TVirtualImageList;
     VirtualImageListPoint: TVirtualImageList;
+    UniteImposeeBtn: TBitBtn;
     procedure MemeXCBClick(Sender: TObject);
     procedure MemeEchelleCBClick(Sender: TObject);
     procedure OrthonormeCBClick(Sender: TObject);
@@ -171,6 +172,7 @@ TFcoordonneesPhys = class(TForm)
     procedure CouleursSpectreCBClick(Sender: TObject);
     procedure OptionsBtnClick(Sender: TObject);
     procedure CouleurPointEditExit(Sender: TObject);
+    procedure UniteImposeeBtnClick(Sender: TObject);
   private
     ListeVar : TstrListe;
     CourbeCourante : TindiceOrdonnee;
@@ -197,7 +199,7 @@ var
 
 implementation
 
-uses Valeurs, optionsVitesse, indicateurU, options, optcolordlg;
+uses Valeurs, optionsVitesse, indicateurU, options, optcolordlg, unitGraphe;
 
 {$R *.DFM}
 
@@ -292,6 +294,19 @@ begin
   timer.Enabled := false;
   // problème non compris de rafraichissement de TPageControl
   // on force le rafraichissement
+end;
+
+procedure TFcoordonneesPhys.UniteImposeeBtnClick(Sender: TObject);
+var code : integer;
+begin
+    if unitGrapheDlg=nil then application.createForm(TunitGrapheDlg,unitGrapheDlg);
+    with unitGrapheDlg do begin
+         code := indexNom(listeX.text);
+         varX := grandeurs[code];
+         code := indexNom(listeY.text);
+         varY := grandeurs[code];
+    end;
+    unitGrapheDlg.ShowModal;
 end;
 
 procedure TFcoordonneesPhys.PagesBtnClick(Sender: TObject);

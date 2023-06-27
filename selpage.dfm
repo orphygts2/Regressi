@@ -5,7 +5,7 @@ object SelectPageDlg: TSelectPageDlg
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'Choix des pages actives'
-  ClientHeight = 460
+  ClientHeight = 464
   ClientWidth = 958
   Color = clBtnFace
   Constraints.MinHeight = 320
@@ -20,7 +20,7 @@ object SelectPageDlg: TSelectPageDlg
   PixelsPerInch = 192
   TextHeight = 36
   object OKBtn: TBitBtn
-    Left = 728
+    Left = 730
     Top = 8
     Width = 220
     Height = 54
@@ -28,30 +28,16 @@ object SelectPageDlg: TSelectPageDlg
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
-    Caption = '&OK'
-    Default = True
-    Glyph.Data = {
-      66010000424D6601000000000000760000002800000014000000140000000100
-      040000000000F000000000000000000000001000000000000000000000000000
-      8000008000000080800080000000800080008080000080808000C0C0C0000000
-      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-      3333333300003333333333333333333300003333333333333333333300003333
-      333333333333333300003333333A0333333333330000333333AAA03333333333
-      0000333333AAA03333333333000033333AAAAA033333333300003333AAAAAA03
-      3333333300003337AA03AAA0333333330000337A03333AA03333333300003333
-      33333AAA0333333300003333333333AA03333333000033333333333AA0333333
-      00003333333333337A033333000033333333333337A033330000333333333333
-      333AA33300003333333333333333333300003333333333333333333300003333
-      33333333333333330000}
+    Kind = bkOK
     Margin = 2
-    ModalResult = 1
+    NumGlyphs = 2
     Spacing = -1
     TabOrder = 0
     OnClick = OKBtnClick
     IsControl = True
   end
   object CancelBtn: TBitBtn
-    Left = 728
+    Left = 730
     Top = 212
     Width = 220
     Height = 54
@@ -59,30 +45,16 @@ object SelectPageDlg: TSelectPageDlg
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
-    Cancel = True
-    Caption = '&Abandon'
-    Glyph.Data = {
-      66010000424D6601000000000000760000002800000014000000140000000100
-      040000000000F000000000000000000000001000000010000000000000000000
-      BF0000BF000000BFBF00BF000000BF00BF00BFBF0000C0C0C000808080000000
-      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00777888877777
-      8877777700007770888777778887777700007911088877910888777700007911
-      0088879100888777000079111008891110087777000079911108911111007777
-      0000779111101111110777770000777911111111077777770000777991111111
-      8777777700007777991111108877777700007777791111108887777700007777
-      7911111088877777000077777911111108887777000077779111991100888777
-      0000777911108991100888770000777911187799110088870000777111187779
-      1110888700007771110777779111087700007779997777777991777700007777
-      77777777779977770000}
+    Kind = bkCancel
     Margin = 2
-    ModalResult = 2
+    NumGlyphs = 2
     Spacing = -1
     TabOrder = 1
     IsControl = True
   end
   object AllBtn: TBitBtn
-    Left = 728
-    Top = 292
+    Left = 730
+    Top = 282
     Width = 220
     Height = 54
     Margins.Left = 6
@@ -107,8 +79,8 @@ object SelectPageDlg: TSelectPageDlg
     OnClick = AllBtnClick
   end
   object OneBtn: TBitBtn
-    Left = 728
-    Top = 348
+    Left = 730
+    Top = 342
     Width = 220
     Height = 54
     Margins.Left = 6
@@ -136,7 +108,7 @@ object SelectPageDlg: TSelectPageDlg
     Left = 0
     Top = 0
     Width = 722
-    Height = 414
+    Height = 418
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -144,10 +116,11 @@ object SelectPageDlg: TSelectPageDlg
     Align = alLeft
     ItemHeight = 36
     TabOrder = 4
+    ExplicitHeight = 461
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 414
+    Top = 418
     Width = 958
     Height = 46
     Margins.Left = 6
@@ -160,10 +133,12 @@ object SelectPageDlg: TSelectPageDlg
     SimplePanel = True
     UseSystemFont = False
     Visible = False
+    ExplicitTop = 461
+    ExplicitWidth = 944
   end
   object AllOKBtn: TBitBtn
     Left = 730
-    Top = 64
+    Top = 68
     Width = 220
     Height = 54
     Margins.Left = 6
@@ -190,7 +165,7 @@ object SelectPageDlg: TSelectPageDlg
   end
   object OneOKBtn: TBitBtn
     Left = 730
-    Top = 120
+    Top = 128
     Width = 220
     Height = 54
     Margins.Left = 6

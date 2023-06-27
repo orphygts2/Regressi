@@ -8,10 +8,10 @@ uses Windows, Classes, Graphics, Forms, Controls, Menus, ExtCtrls,
      StdCtrls, Grids, Messages, printers, actnList,
      Vcl.htmlHelpViewer,
      indicateurU, constreg, maths, regutil, uniteKer, statCalc,
-     compile, graphKer, modeleGr, aidekey, GripSplitter,
+     compile, graphKer, modeleGr, aidekey, GripSplitter, testContour,
      Xml.xmldom, Xml.XMLIntf, Xml.XMLDoc,
      Vcl.Buttons, Vcl.BaseImageCollection, Vcl.ImageCollection,
-  Vcl.VirtualImageList;
+     Vcl.VirtualImageList;
 
 type
   TnbreGraphe = (UnGr,DeuxGrVert,DeuxGrHoriz);
@@ -297,6 +297,9 @@ type
     LabelDistance: TLabel;
     ImageCollection1: TImageCollection;
     ImageList1: TVirtualImageList;
+    OptionsItemBis: TMenuItem;
+    Enregistrergraphe1: TMenuItem;
+    ContourMenu: TMenuItem;
     procedure PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure ZoomAvantItemClick(Sender: TObject);
@@ -438,6 +441,7 @@ type
     procedure ExitMonteCarloItemClick(Sender: TObject);
     procedure memoResultatMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
+    procedure Convergence(Sender: TObject);
   private
       Sizing : boolean;
       grandeurBoutonDroit : boolean; // clic sur TButton avec bouton droit
@@ -498,6 +502,9 @@ type
       ParamAnimCourant : integer;
       ParamEditCourant : integer;
 // Fin data animation
+      suiteValeurParam : array[1..2] of array[0..maxValeurParam] of double;
+      NbreSuiteValeurParam : integer;
+// pour tracé de convergence de modélisation
       procedure SetAnimTemporelle;
       Procedure SetAnimManuelle;
       procedure CalculeAnimTemporelle;
@@ -1411,8 +1418,9 @@ begin // MouseDown
        curModele,curXmaxi,curXMini,curYmaxi,curYMini : ;
        curZoomAv,curBornes : zoneZoom := rect(X,Y,X,Y);
        curLigne,curTexte : with dessinCourant do  begin
-           if (ogAnalyseurLogique in optionGraphe) then
-               iMonde := mondeProche(x,y);
+           if (ogAnalyseurLogique in optionGraphe)
+              then iMonde := mondeProche(x,y)
+              else iMonde := mondeY;
            affectePosition(x,y,sdPoint1,shift);
            x2i := x1i;
            y2i := y1i;
@@ -2423,6 +2431,18 @@ begin  // arrive après le dimensionnement
        ToolBarGraphe.List := (CopierBtn.Left+CopierBtn.width)<PanelCentral.width
 end;
 
+procedure TFgrapheVariab.Convergence(Sender: TObject);
+var i : integer;
+begin
+     if ConvergenceModeleForm=nil then Application.CreateForm(TConvergenceModeleForm,ConvergenceModeleForm);
+     for i := 0 to  NbreSuiteValeurParam do begin
+       ConvergenceModeleForm.valeurX[i] := suiteValeurParam[1][i];
+       ConvergenceModeleForm.valeurY[i] := suiteValeurParam[1][i];
+     end;
+     ConvergenceModeleForm.NbreValeurParam := NbreSuiteValeurParam;
+     ConvergenceModeleForm.Show;
+end;
+
 procedure TFgrapheVariab.CoordonneesItemClick(Sender: TObject);
 var oldnomx,oldnomy : string;
 begin
@@ -2746,9 +2766,6 @@ begin // WMRegMaj
           MajPolice : begin
              setTaillePolice;
              Graphes[1].Modif := [];
-             j := 16*abs(Font.Height);
-             if panelModele.width<j then
-                panelModele.width := j;
              exit;
           end;
           MajPreferences : begin
@@ -3402,8 +3419,11 @@ with pages[pageCourante] do begin
           end;
           if AffIncertParam in [i95,iBoth] then begin
              Ajoute(stIntervalle95,clBlack,'');
-             for i := 1 to NbreParam[paramNormal] do
+             for i := 1 to NbreParam[paramNormal] do begin
                  Ajoute(ParamEtPrec(i,false),clBlack,'');
+                 if abs(incert95Param[i]/ValeurParam[paramNormal,i])<PrecisionMaxParam then
+                    Ajoute(stTropPrecis,clRed,'');
+             end;
           end;
           if not withPvaleur then begin
              for i := 1 to NbreParam[paramNormal] do
@@ -3430,8 +3450,11 @@ with pages[pageCourante] do begin
           end;
           if AffIncertParam in [iType,iBoth] then begin
               Ajoute(stIncertitudeType,clBlack,'');
-              for i := 1 to NbreParam[paramNormal] do
+              for i := 1 to NbreParam[paramNormal] do begin
                   Ajoute(ParamEtPrec(i,true),clBlack,'');
+                  if abs(incertParam[i]/ValeurParam[paramNormal,i])<PrecisionMaxParam then
+                     Ajoute(stTropPrecis,clRed,'');
+              end;
           end;
           verifAleatoire;
        end
@@ -3461,6 +3484,7 @@ begin
      if not(ajuste) and
        ( (OmManuel in Graphes[1].OptionModele) or
          splitterModele.snapped) then exit;
+     if ajuste then NbreSuiteValeurParam := 0;
      Screen.cursor := crHourGlass;
      PanelAjuste.enabled := true;
      if not (ModeleDefini in etatModele) then begin
@@ -6448,11 +6472,13 @@ end; // TitreAnimCBClick
 
 procedure TFgrapheVariab.OptionsItemClick(Sender: TObject);
 var code : integer;
+    num : integer;
 begin
+     num := (sender as TMenuItem).tag;
      OptionsVitesseDlg := TOptionsVitesseDlg.create(self);
-     code := grapheCourant.coordonnee[1].codeX;
+     code := grapheCourant.coordonnee[num].codeX;
      OptionsVitesseDlg.grandeurX := grandeurs[code];
-     code := grapheCourant.coordonnee[1].codeY;
+     code := grapheCourant.coordonnee[num].codeY;
      OptionsVitesseDlg.grandeurY := grandeurs[code];
      if OptionsVitesseDlg.showModal=mrOK then PaintBox1.invalidate;
      OptionsVitesseDlg.free;
@@ -6820,7 +6846,7 @@ begin with grapheCourant do begin
       include(menuPermis,imVitesse);
       complement := '';
       indexX := indexNom(coordonnee[j].nomX);
-      if (indexX=0) and (NbreOrdonnee=2) and (j=1) then begin
+      if (indexX=0) and (NbreOrdonnee=2) and (j=1) then begin // x(t),y(t) transformé en y(x)
           coordonnee[1].nomX := coordonnee[1].nomY;
           indexX := indexNom(coordonnee[1].nomX);
           coordonnee[1].nomY := coordonnee[2].nomY;
@@ -6840,14 +6866,13 @@ begin with grapheCourant do begin
          exclude(coordonnee[j].trace,trAcceleration);
          exit;
       end;
-      indexvX := IndexVitesse(grandeurs[indexX].nom);
+      indexvX := IndexVitesse(coordonnee[j].nomX);
       creationvX := indexvX=GrandeurInconnue;
       if creationvX
          then nomVitesseX := AddVitesse(coordonnee[j].nomX)
          else nomVitesseX := grandeurs[indexvX].nom;
-      if length(nomVitesseX)>2
-         then complement := copy(nomVitesseX,3,length(nomVitesseX)-2)
-         else complement := '';
+      if length(nomVitesseX)>2 then
+         complement := copy(nomVitesseX,3,length(nomVitesseX)-2);
       indexvY := IndexVitesse(grandeurs[indexY].nom);
       creationvY := indexvY=GrandeurInconnue;
       if creationvY
@@ -6860,9 +6885,6 @@ begin with grapheCourant do begin
          if creationaX
             then nomAccelerationX := AddAcceleration(coordonnee[j].nomX,nomVitesseX)
             else nomAccelerationX := grandeurs[indexaX].nom;
-         if length(nomVitesseX)>2
-           then complement := copy(nomVitesseX,3,length(nomVitesseX)-2)
-           else complement := '';
          indexaY := IndexAcceleration(grandeurs[indexY].nom);
          creationaY := indexaY=GrandeurInconnue;
          if creationaY
@@ -6900,6 +6922,7 @@ begin // VecteursItemClick
 end;// VecteursItemClick
 
 procedure TFgrapheVariab.VecteursMenuPopup(Sender: TObject);
+var codeX,codeY : integer;
 begin
   inherited;
   with grapheCourant do begin
@@ -6907,8 +6930,20 @@ begin
        (coordonnee[1].nomX<>coordonnee[2].nomX) and
        (coordonnee[2].codeX<>grandeurInconnue);
        filDeFerItem.checked := filDeFer;
-  end;
-end;
+       if filDeFerItem.visible then begin
+            codeX := coordonnee[1].codeX;
+            codeY := coordonnee[1].codeY;
+            OptionsItem.Caption := 'Options '+grandeurs[codeX].nom+','+grandeurs[codeY].nom;
+            codeX := coordonnee[2].codeX;
+            codeY := coordonnee[2].codeY;
+            OptionsItemBis.Caption := 'Options '+grandeurs[codeX].nom+','+grandeurs[codeY].nom;
+            OptionsItemBis.visible := true;
+       end
+       else begin
+            OptionsItem.Caption := 'Options';
+            OptionsItemBis.visible := false;
+       end;
+end end;
 
 procedure TFgrapheVariab.AbscisseCBClick(Sender: TObject);
 var indexV,j : integer;
@@ -7416,8 +7451,8 @@ begin
         end;
      case curseur of
           curReticule : FinReticuleItem.caption := Fincaption+'réticule libre';
-          curReticuleModele : FinReticuleItem.caption := Fincaption+'réticule données';
-          curReticuleData : FinReticuleItem.caption := Fincaption+'réticule modèle';
+          curReticuleModele : FinReticuleItem.caption := Fincaption+'réticule modèle';
+          curReticuleData : FinReticuleItem.caption := Fincaption+'réticule données';
           curEquivalence : FinReticuleItem.caption := Fincaption+'équivalence';
           else FinReticuleItem.caption := '';
      end;
@@ -7745,40 +7780,49 @@ begin with graphes[1] do begin
       if OptionsAffModeleDlg=nil then
          Application.createForm(TOptionsAffModeleDlg,OptionsAffModeleDlg);
       OptionsAffModeleDlg.isGlobal := false;
-      OptionsAffModeleDlg.showModal;
-      nouveauDessin := true;
-      dessin := nil;// pour le compilateur
-      for i := 0 to pred(Dessins.count) do
-         if dessins[i].isTexte and
-            (pos('%M',dessins[i].texte[0])>0) then begin
+      if OptionsAffModeleDlg.showModal=mrOK then begin
+         nouveauDessin := true;
+         dessin := nil;// pour le compilateur
+         for i := 0 to pred(Dessins.count) do
+           if dessins[i].isTexte and
+              (pos('%M',dessins[i].texte[0])>0) then begin
                dessin := dessins[i];
                nouveauDessin := false;
-            end;
-      if nouveauDessin then Dessin := Tdessin.create(graphes[1]);
-      with Dessin do begin
-           texte.Clear;
-           isTexte := true;
-           //centre := false;
-           avecCadre := true;
-           avecLigneRappel := false;
-           hauteur := 4;
-           vertical := false;
-           pen.color := couleurModele[1];
-           identification := identNone;
-           paramModeleBrut := true;
-           with monde[mondeX] do x1 := (mini+maxi)/2;
-           with monde[mondeY] do y1 := maxi-(maxi-mini)/32;
-           x2 := x1;
-           y2 := y1;
-           numPage := 0; // pageCourante
-           for i := 1 to NbreModele do
+              end;
+         if nouveauDessin then Dessin := Tdessin.create(graphes[1]);
+         with Dessin do begin
+            texte.Clear;
+            isTexte := true;
+            //centre := false;
+            avecCadre := true;
+            avecLigneRappel := false;
+            hauteur := 4;
+            vertical := false;
+            pen.color := couleurModele[1];
+            identification := identNone;
+            paramModeleBrut := true;
+            with monde[mondeX] do x1 := (mini+maxi)/2;
+            with monde[mondeY] do y1 := maxi-(maxi-mini)/32;
+            x2 := x1;
+            y2 := y1;
+            numPage := 0; // pageCourante
+            for i := 1 to NbreModele do
                if OptionsAffModeleDlg.listeModeleBox.checked[i-1] then
                   texte.Add('%M'+intToStr(i));
-           for i := 1 to NbreParam[paramNormal] do
+            for i := 1 to NbreParam[paramNormal] do
                if OptionsAffModeleDlg.listeParamBox.checked[i-1] then
                   texte.Add('%P'+intToStr(i));
+         end;
+         if nouveauDessin then dessins.add(Dessin);
+      end
+      else begin
+          i := 0;
+          while (i<dessins.count) do
+              if dessins[i].isTexte and
+                 (pos('%M',dessins[i].texte[0])>0)
+                 then Dessins.remove(dessins[i])
+                 else inc(i);
       end;
-      if nouveauDessin then dessins.add(Dessin);
       PaintBox1.invalidate;
 end end; // addModele
 
@@ -8035,6 +8079,7 @@ begin
          VerifMemo(MemoModele);
          majModelePermis := true;
          verifMemo(memoResultat);
+         panelModele.width := 16*abs(Font.Height);
          AjustePanelModele;
 end;
 

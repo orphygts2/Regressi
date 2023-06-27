@@ -298,6 +298,9 @@ Begin // TranslateExpression
                 cosHyper: result := '\cosh ('+X+')';
                 sinHyper: result := '\sinh ('+X+')';
                 tanHyper: result := '\tanh ('+X+')';
+                ArgCosHyper: result := '\acosh ('+X+')';
+                ArgSinHyper: result := '\asinh ('+X+')';
+                ArgTanHyper: result := '\atanh ('+X+')';
                 NotFunction,FonctInconnue: result := '?';
                 CodeGamma: result := '\Gamma ('+X+')';
                 CodeFact: result := X+'!';
@@ -519,6 +522,9 @@ begin
 end;
 
 initialization
+{$IFDEF Debug}
+   ecritDebug('initialization latex');
+{$ENDIF}
      latexStr := TstringList.create
 
 finalization

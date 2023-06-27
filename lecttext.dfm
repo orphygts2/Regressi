@@ -5,26 +5,29 @@ object LectureTexteDlg: TLectureTexteDlg
   BorderIcons = [biHelp]
   BorderStyle = bsDialog
   Caption = 'Texte'
-  ClientHeight = 343
-  ClientWidth = 430
+  ClientHeight = 685
+  ClientWidth = 874
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
+  Font.Height = -26
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = True
   Position = poOwnerFormCenter
   OnActivate = FormActivate
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  PixelsPerInch = 96
-  TextHeight = 17
+  PixelsPerInch = 192
+  TextHeight = 36
   object OKBtn: TBitBtn
-    Left = 324
-    Top = 24
-    Width = 100
-    Height = 27
+    Left = 648
+    Top = 48
+    Width = 200
+    Height = 54
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = '&OK'
     Kind = bkOK
     Margin = 2
@@ -35,10 +38,14 @@ object LectureTexteDlg: TLectureTexteDlg
     IsControl = True
   end
   object CancelBtn: TBitBtn
-    Left = 324
-    Top = 96
-    Width = 100
-    Height = 27
+    Left = 648
+    Top = 192
+    Width = 200
+    Height = 54
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = '&Abandon'
     Kind = bkCancel
     Margin = 2
@@ -48,10 +55,14 @@ object LectureTexteDlg: TLectureTexteDlg
     IsControl = True
   end
   object HelpBtn: TBitBtn
-    Left = 324
-    Top = 160
-    Width = 100
-    Height = 27
+    Left = 648
+    Top = 320
+    Width = 200
+    Height = 54
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Kind = bkHelp
     Margin = 2
     NumGlyphs = 2
@@ -63,35 +74,48 @@ object LectureTexteDlg: TLectureTexteDlg
   object PageControl: TPageControl
     Left = 0
     Top = 0
-    Width = 313
-    Height = 343
+    Width = 626
+    Height = 685
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     ActivePage = OptionsTab
     Align = alLeft
     TabOrder = 3
     object TexteTab: TTabSheet
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = 'Texte'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label5: TLabel
         Left = 0
-        Top = 220
-        Width = 305
-        Height = 17
+        Top = 437
+        Width = 610
+        Height = 36
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Align = alBottom
         Caption = 'Syntaxe des options'
-        ExplicitWidth = 117
+        ExplicitTop = 438
+        ExplicitWidth = 229
       end
       object Edit: TMemo
         Left = 0
         Top = 0
-        Width = 305
-        Height = 81
+        Width = 610
+        Height = 162
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Align = alTop
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -13
+        Font.Height = -26
         Font.Name = 'Segoe UI'
         Font.Style = []
         MaxLength = 255
@@ -100,30 +124,47 @@ object LectureTexteDlg: TLectureTexteDlg
       end
       object PageGB: TGroupBox
         Left = 0
-        Top = 144
-        Width = 305
-        Height = 76
+        Top = 285
+        Width = 610
+        Height = 152
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Align = alBottom
         TabOrder = 1
+        ExplicitTop = 286
         object Label4: TLabel
-          Left = 8
-          Top = 48
-          Width = 194
-          Height = 17
+          Left = 16
+          Top = 96
+          Width = 380
+          Height = 36
+          Margins.Left = 6
+          Margins.Top = 6
+          Margins.Right = 6
+          Margins.Bottom = 6
           Caption = 'Page nulle signifie page courante'
         end
         object Label3: TLabel
-          Left = 8
-          Top = 17
-          Width = 40
-          Height = 17
+          Left = 16
+          Top = 34
+          Width = 76
+          Height = 36
+          Margins.Left = 6
+          Margins.Top = 6
+          Margins.Right = 6
+          Margins.Bottom = 6
           Caption = 'Page : '
         end
         object NumeroPageSE: TSpinEdit
-          Left = 54
-          Top = 15
-          Width = 54
-          Height = 27
+          Left = 108
+          Top = 30
+          Width = 108
+          Height = 47
+          Margins.Left = 6
+          Margins.Top = 6
+          Margins.Right = 6
+          Margins.Bottom = 6
           MaxValue = 0
           MinValue = 0
           TabOrder = 0
@@ -132,14 +173,18 @@ object LectureTexteDlg: TLectureTexteDlg
       end
       object Memo: TMemo
         Left = 0
-        Top = 237
-        Width = 305
-        Height = 74
+        Top = 473
+        Width = 610
+        Height = 148
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Align = alBottom
         Enabled = False
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -22
         Font.Name = 'Segoe UI'
         Font.Style = []
         Lines.Strings = (
@@ -155,58 +200,93 @@ object LectureTexteDlg: TLectureTexteDlg
     object OptionsTab: TTabSheet
       HelpType = htKeyword
       HelpKeyword = 'Options texte'
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = 'Options'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object LabelTaille: TLabel
-        Left = 8
-        Top = 58
-        Width = 142
-        Height = 17
+        Left = 16
+        Top = 120
+        Width = 274
+        Height = 36
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Caption = 'Taille (en % du graphe) :'
       end
       object CouleurComboLabel: TLabel
-        Left = 8
-        Top = 88
-        Width = 174
-        Height = 17
+        Left = 16
+        Top = 176
+        Width = 343
+        Height = 36
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Caption = 'Couleur du texte et des lignes'
       end
+      object Label6: TLabel
+        Left = 432
+        Top = 120
+        Width = 69
+        Height = 36
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
+        Caption = 'Trait : '
+      end
       object CadreCB: TCheckBox
-        Left = 8
-        Top = 8
-        Width = 73
-        Height = 17
+        Left = 16
+        Top = 16
+        Width = 146
+        Height = 34
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Caption = '&Cadre'
         TabOrder = 0
       end
       object LigneRappelCB: TCheckBox
-        Left = 80
-        Top = 8
-        Width = 129
-        Height = 17
+        Left = 160
+        Top = 16
+        Width = 258
+        Height = 34
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Caption = '&Ligne de rappel'
         TabOrder = 1
       end
       object VerticalCB: TCheckBox
-        Left = 216
-        Top = 8
-        Width = 81
-        Height = 17
+        Left = 432
+        Top = 16
+        Width = 162
+        Height = 34
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Caption = '&Vertical'
         TabOrder = 2
       end
       object SpinEditHauteur: TSpinEdit
-        Left = 190
-        Top = 56
-        Width = 52
-        Height = 31
+        Left = 310
+        Top = 114
+        Width = 80
+        Height = 56
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -16
+        Font.Height = -32
         Font.Name = 'Segoe UI'
         Font.Style = []
         MaxValue = 20
@@ -216,18 +296,27 @@ object LectureTexteDlg: TLectureTexteDlg
         Value = 3
       end
       object CouleurCombo: TColorBox
-        Left = 190
-        Top = 88
-        Width = 110
+        Left = 380
+        Top = 176
+        Width = 220
         Height = 22
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Style = [cbStandardColors, cbExtendedColors, cbPrettyNames]
+        ItemHeight = 32
         TabOrder = 4
       end
       object MotifRG: TRadioGroup
         Left = 0
-        Top = 111
-        Width = 305
-        Height = 90
+        Top = 221
+        Width = 610
+        Height = 180
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Align = alBottom
         Caption = '&Motif'
         Columns = 2
@@ -241,27 +330,40 @@ object LectureTexteDlg: TLectureTexteDlg
         TabOrder = 5
       end
       object OpaqueCB: TCheckBox
-        Left = 8
-        Top = 32
-        Width = 105
-        Height = 17
+        Left = 16
+        Top = 64
+        Width = 210
+        Height = 34
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Caption = 'Fond opaque'
         TabOrder = 6
         OnClick = OpaqueCBClick
       end
       object OpaqueColorBox: TColorBox
-        Left = 190
-        Top = 32
-        Width = 110
+        Left = 380
+        Top = 64
+        Width = 220
         Height = 22
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Style = [cbStandardColors, cbExtendedColors, cbPrettyNames]
+        ItemHeight = 32
         TabOrder = 7
       end
       object TitreRG: TRadioGroup
         Left = 0
-        Top = 251
-        Width = 305
-        Height = 60
+        Top = 501
+        Width = 610
+        Height = 120
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Align = alBottom
         Caption = 'Position du texte d'#233'finie selon'
         Items.Strings = (
@@ -271,37 +373,53 @@ object LectureTexteDlg: TLectureTexteDlg
       end
       object GroupBox2: TGroupBox
         Left = 0
-        Top = 201
-        Width = 305
-        Height = 50
+        Top = 401
+        Width = 610
+        Height = 100
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
         Align = alBottom
         Caption = 'Position du motif'
         TabOrder = 9
         object Label1: TLabel
-          Left = 10
-          Top = 18
-          Width = 8
-          Height = 17
+          Left = 20
+          Top = 36
+          Width = 15
+          Height = 36
+          Margins.Left = 6
+          Margins.Top = 6
+          Margins.Right = 6
+          Margins.Bottom = 6
           Caption = 'X'
         end
         object Label2: TLabel
-          Left = 173
-          Top = 18
-          Width = 7
-          Height = 17
+          Left = 346
+          Top = 36
+          Width = 14
+          Height = 36
+          Margins.Left = 6
+          Margins.Top = 6
+          Margins.Right = 6
+          Margins.Bottom = 6
           Caption = 'Y'
         end
         object Xcb: TComboBox
           Tag = 1
-          Left = 33
-          Top = 18
-          Width = 80
-          Height = 23
+          Left = 66
+          Top = 36
+          Width = 160
+          Height = 40
+          Margins.Left = 6
+          Margins.Top = 6
+          Margins.Right = 6
+          Margins.Bottom = 6
           Style = csDropDownList
           DropDownCount = 10
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -12
+          Font.Height = -24
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
@@ -309,20 +427,45 @@ object LectureTexteDlg: TLectureTexteDlg
         end
         object Ycb: TComboBox
           Tag = 1
-          Left = 191
-          Top = 18
-          Width = 80
-          Height = 23
+          Left = 382
+          Top = 36
+          Width = 160
+          Height = 40
+          Margins.Left = 6
+          Margins.Top = 6
+          Margins.Right = 6
+          Margins.Bottom = 6
           Style = csDropDownList
           DropDownCount = 10
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -12
+          Font.Height = -24
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
         end
+      end
+      object penwidthSE: TSpinEdit
+        Left = 523
+        Top = 114
+        Width = 60
+        Height = 56
+        Hint = 'Epaisseur des traits'
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -32
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        MaxValue = 5
+        MinValue = 1
+        ParentFont = False
+        TabOrder = 10
+        Value = 1
       end
     end
   end

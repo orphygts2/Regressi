@@ -4,8 +4,8 @@ object OptionsAffModeleDlg: TOptionsAffModeleDlg
   HelpContext = 55
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   Caption = 'Affichage mod'#233'lisation'
-  ClientHeight = 618
-  ClientWidth = 652
+  ClientHeight = 616
+  ClientWidth = 624
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

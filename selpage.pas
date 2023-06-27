@@ -55,21 +55,19 @@ begin
          PageListBox.Items.Add(IntToStr(p)+' : '+labelConst+commentaireP);
          PageListBox.checked[p-1] := active;
      end;
-     hauteur := NbrePages*22+60;
+     hauteur := NbrePages*hauteurColonne+60;
      if statusBar.Visible
         then begin
-           hauteur := hauteur + 30;
-           if hauteur<260 then hauteur := 260;
+           hauteur := hauteur + statusBar.height;
+           if hauteur<550 then hauteur := 550;
         end
-        else if hauteur<240 then hauteur := 240;
-     if hauteur>420
-         then height := 420
-         else height := hauteur;
+        else if hauteur<500 then hauteur := 500;
+     height := hauteur;
 end;
 
 procedure TSelectPageDlg.FormCreate(Sender: TObject);
 begin
- ResizeButtonImagesforHighDPI(self);
+   ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TSelectPageDlg.OKBtnClick(Sender: TObject);

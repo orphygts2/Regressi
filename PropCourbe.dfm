@@ -34,6 +34,7 @@ object PropCourbeForm: TPropCourbeForm
     FixedCols = 0
     FixedRows = 0
     TabOrder = 1
+    ExplicitWidth = 558
     ColWidths = (
       200
       200)
@@ -56,6 +57,7 @@ object PropCourbeForm: TPropCourbeForm
     Align = alTop
     Caption = 'Lissage'
     TabOrder = 2
+    ExplicitWidth = 558
     object Label2: TLabel
       Left = 16
       Top = 48
@@ -103,6 +105,7 @@ object PropCourbeForm: TPropCourbeForm
     Align = alTop
     Caption = 'M'#233'thode de calcul de la d'#233'riv'#233'e'
     TabOrder = 4
+    ExplicitWidth = 558
     object Label1: TLabel
       Left = 16
       Top = 40
@@ -151,6 +154,7 @@ object PropCourbeForm: TPropCourbeForm
         '&Cubique')
       TabOrder = 1
       OnClick = DegreRGClick
+      ExplicitWidth = 554
     end
     object NbreSpinButton: TSpinButton
       Left = 396
@@ -268,6 +272,7 @@ object PropCourbeForm: TPropCourbeForm
     Align = alTop
     Caption = 'Lissage par une B-spline'
     TabOrder = 3
+    ExplicitWidth = 558
     object Label3: TLabel
       Left = 16
       Top = 48
@@ -316,6 +321,7 @@ object PropCourbeForm: TPropCourbeForm
     Align = alTop
     Caption = 'Variable texte'
     TabOrder = 5
+    ExplicitWidth = 558
     object LabelTaille: TLabel
       Left = 16
       Top = 40
@@ -397,6 +403,7 @@ object PropCourbeForm: TPropCourbeForm
     Align = alTop
     TabOrder = 0
     Text = 'CourbeEdit'
+    ExplicitWidth = 558
   end
   object Panel1: TPanel
     Left = 0
@@ -410,6 +417,8 @@ object PropCourbeForm: TPropCourbeForm
     Align = alBottom
     Caption = 'Panel1'
     TabOrder = 6
+    ExplicitTop = 839
+    ExplicitWidth = 558
     object ExitBtn: TBitBtn
       Left = 186
       Top = 16
@@ -419,21 +428,8 @@ object PropCourbeForm: TPropCourbeForm
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = '&Fermer'
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000000000000000000000000
-        80000080000000808000800000008000800080800000C0C0C000808080000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-        3333333300003333333333333333333300003333333333333333333300003333
-        3333333333333333000033333339033333333333000033333399903333333333
-        0000333333999033333333330000333339999903333333330000333399999903
-        3333333300003338990399903333333300003389033339903333333300003333
-        3333399903333333000033333333339903333333000033333333333990333333
-        0000333333333333890333330000333333333333389033330000333333333333
-        3339933300003333333333333333333300003333333333333333333300003333
-        33333333333333330000}
-      ModalResult = 1
+      Kind = bkOK
+      NumGlyphs = 2
       TabOrder = 0
       OnClick = ExitBtnClick
     end

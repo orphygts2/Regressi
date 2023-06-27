@@ -13,8 +13,8 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
-    procedure Rond;
   public
+    procedure Rond;
   end;
 
 var
@@ -28,7 +28,6 @@ procedure TLoupeForm.FormCreate(Sender: TObject);
 begin
     paintBox.Cursor := crNone;
     cursor := crNone;
-    rond;
 end;
 
 procedure TLoupeForm.FormDestroy(Sender: TObject);
@@ -39,11 +38,10 @@ end;
 procedure TLoupeForm.Rond;
 var regionCercle : hRgn;
 begin
-  regionCercle := createEllipticRgn(0, 0, width, height);
-  setWindowRgn(self.handle, regionCercle, true);
-  deleteObject(regionCercle);
+    regionCercle := createEllipticRgn(0, 0, width, height);
+    setWindowRgn(self.handle, regionCercle, true);
+    deleteObject(regionCercle);
 end;
-
 
 end.
 

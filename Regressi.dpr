@@ -65,42 +65,46 @@ uses
   latexreg in 'latexreg.pas' {LatexDlg},
   aidekey in 'aidekey.pas',
   OptionsAffModeleU in 'OptionsAffModeleU.pas' {OptionsAffModeleDlg},
+  WavMain in 'Images\WavMain.pas' {WaveForm},
+  TestInWav in 'Images\TestInWav.pas' {TestWavDlg},
   grapheu in 'Images\grapheu.pas',
   FusionU in 'FusionU.pas' {FusionDlg},
+  ChronoBitmap in 'Images\ChronoBitmap.pas' {ChronoForm},
+  ChronoEch in 'Images\ChronoEch.pas' {EchelleMecaBmpDlg},
+  CourbesU in 'Images\CourbesU.pas' {CourbesForm},
+  courbesEch in 'Images\courbesEch.pas' {EchelleBmpDlg},
   selColonne in 'selColonne.pas' {SelectColonneDlg},
   pageechant in 'pageechant.pas' {PageEchantillonDlg},
+  interfMain in 'Images\interfMain.pas' {OptiqueForm},
   savemodele in 'savemodele.pas' {SaveModeleDlg},
   graph3D in 'graph3D.pas' {fgraphe3D},
   coord3D in 'coord3D.pas' {Fcoordonnees3D},
+  ChronoU in 'Images\ChronoU.pas' {VideoChronoForm},
   pagedistrib in 'pagedistrib.pas' {PageDistribDlg},
   coordEuler in 'coordEuler.pas' {FcoordonneesEuler},
   graphEuler in 'graphEuler.pas' {FgrapheEuler},
   mathml_Presentation in 'mathml_Presentation.pas',
+  loupeU in 'Images\loupeU.pas' {LoupeForm},
   hdf5dll in 'hdf5dll.pas',
   modeleNum in 'modeleNum.pas',
+  RollingShutterU in 'Images\RollingShutterU.pas' {RollingShutterForm},
   RollingShutterCalc in 'Images\RollingShutterCalc.pas',
+  Videoffmpeg in 'Images\Videoffmpeg.pas' {ffmpegForm},
   EphemerU in 'EphemerU.pas' {EphemerForm},
   filerw3U in 'filerw3U.pas',
+  ArduinoCfg in 'arduino\ArduinoCfg.pas' {ArduinoDlg},
+  ArduinoOscilloCfg in 'arduino\ArduinoOscilloCfg.pas' {ArduinoOscilloDlg},
+  arduinoU in 'arduino\arduinoU.pas' {ArduinoForm},
+  arduinoWifi in 'arduino\arduinoWifi.pas' {ArduinoWifiForm},
+  ArduinoWifiCfg in 'arduino\ArduinoWifiCfg.pas' {ArduinoWifiDlg},
+  arduinoWifiDirect in 'arduino\arduinoWifiDirect.pas' {ArduinoWifiDirectForm},
+  ArduinoWifiDirectCfg in 'arduino\ArduinoWifiDirectCfg.pas' {ArduinoWifiDirectDlg},
   arduinoGraphe in 'arduino\arduinoGraphe.pas',
-  FormBaseU in 'FormBaseU.pas' {FormBase},
-  arduinoOscillo in 'arduinoOscillo.pas' {ArduinoOscilloForm},
-  ArduinoOscilloCfg in 'ArduinoOscilloCfg.pas' {ArduinoOscilloDlg},
-  arduinoU in 'arduinoU.pas' {ArduinoForm},
-  arduinoWifi in 'arduinoWifi.pas' {ArduinoWifiForm},
-  ArduinoWifiCfg in 'ArduinoWifiCfg.pas' {ArduinoWifiDlg},
-  arduinoWifiDirect in 'arduinoWifiDirect.pas' {ArduinoWifiDirectForm},
-  ChronoBitmap in 'ChronoBitmap.pas' {ChronoForm},
-  ChronoEch in 'ChronoEch.pas' {EchelleMecaBmpDlg},
-  ChronoU in 'ChronoU.pas' {VideoChronoForm},
-  courbesEch in 'courbesEch.pas' {EchelleBmpDlg},
-  CourbesU in 'CourbesU.pas' {CourbesForm},
-  interfMain in 'interfMain.pas' {OptiqueForm},
-  loupeU in 'loupeU.pas' {LoupeForm},
-  RollingShutterU in 'RollingShutterU.pas' {RollingShutterForm},
-  TestInWav in 'TestInWav.pas' {TestWavDlg},
-  WavMain in 'WavMain.pas' {WaveForm},
-  Videoffmpeg in 'Videoffmpeg.pas' {ffmpegForm},
-  captureCamera in 'captureCamera.pas' {VideoForm};
+  arduinoOscillo in 'arduino\arduinoOscillo.pas' {ArduinoOscilloForm},
+  captureCamera in 'Images\captureCamera.pas' {VideoForm},
+  unitGraphe in 'unitGraphe.pas' {unitGrapheDlg},
+  contour in 'contour.pas',
+  TestContour in 'TestContour.pas' {ConvergenceModeleForm};
 
 {$R *.RES}
 
@@ -114,23 +118,6 @@ begin
   Application.CreateForm(TindicateurDlg, indicateurDlg);
   Application.CreateForm(TConstanteUnivDlg, ConstanteUnivDlg);
   Application.CreateForm(TFcoordonneesPhys, FcoordonneesPhys);
-  Application.CreateForm(TArduinoOscilloForm, ArduinoOscilloForm);
-  Application.CreateForm(TArduinoOscilloDlg, ArduinoOscilloDlg);
-  Application.CreateForm(TArduinoForm, ArduinoForm);
-  Application.CreateForm(TArduinoWifiForm, ArduinoWifiForm);
-  Application.CreateForm(TArduinoWifiDlg, ArduinoWifiDlg);
-  Application.CreateForm(TArduinoWifiDirectForm, ArduinoWifiDirectForm);
-  Application.CreateForm(TChronoForm, ChronoForm);
-  Application.CreateForm(TEchelleMecaBmpDlg, EchelleMecaBmpDlg);
-  Application.CreateForm(TVideoChronoForm, VideoChronoForm);
-  Application.CreateForm(TEchelleBmpDlg, EchelleBmpDlg);
-  Application.CreateForm(TCourbesForm, CourbesForm);
-  Application.CreateForm(TOptiqueForm, OptiqueForm);
-  Application.CreateForm(TLoupeForm, LoupeForm);
-  Application.CreateForm(TRollingShutterForm, RollingShutterForm);
-  Application.CreateForm(TTestWavDlg, TestWavDlg);
-  Application.CreateForm(TWaveForm, WaveForm);
-  Application.CreateForm(TffmpegForm, ffmpegForm);
-  Application.CreateForm(TVideoForm, VideoForm);
+  Application.CreateForm(TConvergenceModeleForm, ConvergenceModeleForm);
   Application.Run;
 end.

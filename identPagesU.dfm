@@ -4,23 +4,26 @@ object ChoixIdentPagesDlg: TChoixIdentPagesDlg
   ActiveControl = OKBtn
   BorderStyle = bsDialog
   Caption = 'Options d'#39'identification de pages'
-  ClientHeight = 201
-  ClientWidth = 257
+  ClientHeight = 402
+  ClientWidth = 542
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
-  Font.Height = -13
+  Font.Height = -26
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
-  PixelsPerInch = 96
-  TextHeight = 17
+  PixelsPerInch = 192
+  TextHeight = 36
   object OKBtn: TBitBtn
-    Left = 147
-    Top = 19
-    Width = 100
-    Height = 27
+    Left = 294
+    Top = 38
+    Width = 200
+    Height = 54
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = '&OK'
     Kind = bkOK
     Margin = 2
@@ -30,10 +33,14 @@ object ChoixIdentPagesDlg: TChoixIdentPagesDlg
     IsControl = True
   end
   object CancelBtn: TBitBtn
-    Left = 147
-    Top = 116
-    Width = 100
-    Height = 27
+    Left = 294
+    Top = 232
+    Width = 200
+    Height = 54
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = '&Abandon'
     Kind = bkCancel
     Margin = 2
@@ -43,43 +50,59 @@ object ChoixIdentPagesDlg: TChoixIdentPagesDlg
     IsControl = True
   end
   object CommentaireCB: TCheckBox
-    Left = 4
-    Top = 151
-    Width = 130
-    Height = 17
+    Left = 8
+    Top = 302
+    Width = 260
+    Height = 34
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = 'Commentaire'
     Checked = True
     State = cbChecked
     TabOrder = 1
   end
   object ParamGB: TGroupBox
-    Left = 4
+    Left = 8
     Top = 0
-    Width = 130
-    Height = 145
+    Width = 260
+    Height = 290
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = 'Param'#232'tres'
     TabOrder = 0
     object ListeConstBox: TCheckListBox
       Left = 2
-      Top = 19
-      Width = 126
-      Height = 124
+      Top = 38
+      Width = 256
+      Height = 250
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
-      Font.Height = -13
+      Font.Height = -26
       Font.Name = 'Segoe UI'
       Font.Style = []
-      ItemHeight = 17
+      ItemHeight = 36
       ParentFont = False
       TabOrder = 0
     end
   end
   object NewIdentPageCB: TCheckBox
-    Left = 4
-    Top = 176
-    Width = 130
-    Height = 17
+    Left = 8
+    Top = 352
+    Width = 260
+    Height = 34
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = 'panneau lat'#233'ral'
     Checked = True
     State = cbChecked

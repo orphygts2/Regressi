@@ -5,64 +5,93 @@ object PageEchantillonDlg: TPageEchantillonDlg
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   BorderStyle = bsDialog
   Caption = 'R'#233#233'chantillonnage'
-  ClientHeight = 249
-  ClientWidth = 383
+  ClientHeight = 498
+  ClientWidth = 794
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
-  Font.Height = -13
+  Font.Height = -26
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
-  PixelsPerInch = 96
-  TextHeight = 17
+  PixelsPerInch = 192
+  TextHeight = 36
   object LabelY: TLabel
-    Left = 8
-    Top = 114
-    Width = 4
-    Height = 17
+    Left = 16
+    Top = 228
+    Width = 7
+    Height = 36
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
   end
   object LabelX: TLabel
-    Left = 8
-    Top = 88
-    Width = 4
-    Height = 17
+    Left = 16
+    Top = 176
+    Width = 7
+    Height = 36
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
   end
   object Label3: TLabel
-    Left = 8
-    Top = 11
-    Width = 145
-    Height = 17
+    Left = 16
+    Top = 22
+    Width = 287
+    Height = 36
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = 'R'#233#233'chantillonnage selon '
   end
   object LabelPage: TLabel
-    Left = 8
-    Top = 34
-    Width = 67
-    Height = 17
+    Left = 16
+    Top = 68
+    Width = 126
+    Height = 36
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = 'de la page '
   end
   object EditX: TEdit
-    Left = 168
-    Top = 8
-    Width = 73
-    Height = 25
+    Left = 336
+    Top = 16
+    Width = 146
+    Height = 44
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     TabOrder = 0
   end
   object Panel1: TPanel
-    Left = 264
+    Left = 556
     Top = 0
-    Width = 119
-    Height = 249
+    Width = 238
+    Height = 498
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Align = alRight
     TabOrder = 1
+    ExplicitLeft = 542
+    ExplicitHeight = 497
     object HelpBtn: TBitBtn
-      Left = 9
-      Top = 152
-      Width = 100
-      Height = 27
+      Left = 18
+      Top = 304
+      Width = 200
+      Height = 54
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Kind = bkHelp
       Margin = 2
       NumGlyphs = 2
@@ -72,10 +101,14 @@ object PageEchantillonDlg: TPageEchantillonDlg
       IsControl = True
     end
     object CancelBtn: TBitBtn
-      Left = 9
-      Top = 80
-      Width = 100
-      Height = 27
+      Left = 18
+      Top = 160
+      Width = 200
+      Height = 54
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = '&Abandon'
       Kind = bkCancel
       Margin = 2
@@ -85,10 +118,14 @@ object PageEchantillonDlg: TPageEchantillonDlg
       IsControl = True
     end
     object OKBtn: TBitBtn
-      Left = 9
-      Top = 8
-      Width = 100
-      Height = 27
+      Left = 18
+      Top = 16
+      Width = 200
+      Height = 54
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = '&OK'
       Kind = bkOK
       Margin = 2
@@ -100,31 +137,47 @@ object PageEchantillonDlg: TPageEchantillonDlg
     end
   end
   object GroupBox1: TGroupBox
-    Left = 1
-    Top = 137
-    Width = 257
-    Height = 107
+    Left = 2
+    Top = 274
+    Width = 514
+    Height = 214
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = 'Changement du nombre de points'
     TabOrder = 2
     object Label2: TLabel
-      Left = 70
-      Top = 50
-      Width = 102
-      Height = 17
+      Left = 140
+      Top = 100
+      Width = 200
+      Height = 36
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = 'Nouveau nombre'
     end
     object Label1: TLabel
-      Left = 70
-      Top = 24
-      Width = 87
-      Height = 17
+      Left = 140
+      Top = 48
+      Width = 170
+      Height = 36
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = 'Nombre actuel'
     end
     object NmesSpin: TSpinButton
-      Left = 234
-      Top = 46
-      Width = 20
-      Height = 27
+      Left = 468
+      Top = 92
+      Width = 40
+      Height = 54
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       DownGlyph.Data = {
         7E040000424D7E04000000000000360400002800000009000000060000000100
         0800000000004800000000000000000000000001000000000000000000000000
@@ -206,14 +259,18 @@ object PageEchantillonDlg: TPageEchantillonDlg
       OnUpClick = NmesSpinUpClick
     end
     object NewNmesEdit: TEdit
-      Left = 180
-      Top = 46
-      Width = 52
-      Height = 25
+      Left = 360
+      Top = 92
+      Width = 104
+      Height = 44
       Hint = 'Nombre de points'
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
-      Font.Height = -13
+      Font.Height = -26
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
@@ -221,15 +278,19 @@ object PageEchantillonDlg: TPageEchantillonDlg
       TabOrder = 2
     end
     object OldNmesEdit: TEdit
-      Left = 180
-      Top = 18
-      Width = 52
-      Height = 25
+      Left = 360
+      Top = 36
+      Width = 104
+      Height = 44
       Hint = 'Nombre de points'
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Enabled = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
-      Font.Height = -13
+      Font.Height = -26
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
@@ -237,13 +298,17 @@ object PageEchantillonDlg: TPageEchantillonDlg
       TabOrder = 1
     end
     object UnsurNSE: TSpinEdit
-      Left = 111
-      Top = 70
-      Width = 41
-      Height = 31
+      Left = 222
+      Top = 140
+      Width = 82
+      Height = 56
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
-      Font.Height = -16
+      Font.Height = -32
       Font.Name = 'Segoe UI'
       Font.Style = []
       MaxValue = 16
@@ -254,20 +319,28 @@ object PageEchantillonDlg: TPageEchantillonDlg
       OnChange = UnsurNSEChange
     end
     object UnsurNCB: TCheckBox
-      Left = 13
-      Top = 74
-      Width = 97
-      Height = 17
+      Left = 26
+      Top = 148
+      Width = 194
+      Height = 34
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = 'Un point sur'
       TabOrder = 4
       OnClick = UnsurNCBClick
     end
   end
   object EditComment: TEdit
-    Left = 8
-    Top = 57
-    Width = 250
-    Height = 25
+    Left = 16
+    Top = 114
+    Width = 500
+    Height = 44
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     TabOrder = 3
   end
 end

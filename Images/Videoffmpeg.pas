@@ -91,6 +91,7 @@ type
     Status: TStatusBar;
     ImageCollection1: TImageCollection;
     VirtualImageList1: TVirtualImageList;
+    CibleLabel: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure RegressiBtnClick(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
@@ -150,7 +151,7 @@ type
     BorneSelect : TstyleDrag;
     LongueurEchelle : double;
     DureeImage : double;
-    bitmapC : Tbitmap;
+    bitmapOrigin : Tbitmap;
     signeY : integer;
     Nmes : integer;
     Largeur,Hauteur : integer;
@@ -164,7 +165,7 @@ type
     pasZoom : single; // entre bitmap et écran
     zoomBmp : single; // entre video et bitmap
     BlueCibleChrono,RedCibleChrono,GreenCibleChrono : array[0..maxPoints] of integer;
-    bitmapFin,bitmapInit : TBitmap;
+    bitmapC,bitmapFin,bitmapInit : TBitmap; // pour Chrono
     nomFichierChrono : string;
     dureeSec : single;
     angleX : double;
@@ -175,8 +176,8 @@ type
     FPreview : TAVPreview;
     methode : Tmethode;
     rotation : integer;
- //   temps : TvecteurOptique;
     nomOriginal : string;
+    zoomEffectue : boolean;
     procedure setBoutons;
     procedure EnregistrePoint;
     procedure SetCurseur(Acursor : Tcursor);
@@ -199,7 +200,7 @@ type
     procedure ChronoInit;
     procedure updatePreview(index : integer);
     function getNomImage(index : integer) : string;
-    procedure upDateImage(const NomImage : string);
+    procedure upDateImage(const NomImage : string;zoomForce : boolean);
     procedure upDateCourant;
     procedure EffectuerZoom;
   public
@@ -214,14 +215,12 @@ var
 implementation
 
 uses regmain, regdde, graphvar, chronoU, ChronoBitmap, loupeU, rollingShutterU, avlib,
-     // capturePS, captureAV
      captureCamera, aideKey;
 
 const
       hintBorne : array[TStyleDrag] of string =
                (hClicDroitAvi, '', hOrigineMove, hDebutEchelle, hFinEchelle,
                 hCibleAuto, '', hAxeX, hAxeY,'',hLectureAvi);
-      loupeSizeDef = 100;
 
 {$R *.DFM}
 
@@ -268,7 +267,7 @@ begin
     Fichier := TMemIniFile.create(NomFichierIni);
     videoDir := Fichier.readString(stAvi,stRepertoire,videoDir);
     OpenDialog.filterIndex := Fichier.readInteger(stAvi,'FilterIndex',1);
-    MethodeRG.itemIndex := Fichier.readInteger(stAvi,'Methode',0);
+    MethodeRG.itemIndex := Fichier.readInteger(stAvi,'Methode',1);
     RollingShutterSE.value := Fichier.readInteger(stAvi,'RollingShutter',0);
     NimagesSE.value := Fichier.readInteger(stAvi,'NImages',1);
     TraceEchCB.checked := Fichier.readBool(stAvi,'TraceEchelle',true);
@@ -276,12 +275,12 @@ begin
     EtiquetteCB.checked := Fichier.readBool(stAvi,'Etiquette',true);
     couleurAxeCB.selected := Fichier.readInteger(stAvi,'CouleurEchelle',clBlack);
     bitmapC := Tbitmap.create;
+    bitmapOrigin := Tbitmap.create;
     couleur[0] := couleurAxeCB.selected;
     for j := 1 to maxPoints do
         Couleur[j] := Fichier.readInteger(stAvi,stCouleur+intToStr(j),clBlack);
     CouleurPointsCB.selected := Couleur[1];
-    if LoupeForm=nil then
-       Application.CreateForm(TLoupeForm, LoupeForm);
+    LoupeForm := TLoupeForm.Create(self);
     altitudeCB.checked := Fichier.readBool(stAvi,'Altitude',true);
     if altitudeCB.checked
         then SigneY := -1
@@ -297,8 +296,6 @@ begin
     LoupeForm.paintBox.onMouseDown := paintBoxMouseDown;
     LoupeForm.paintBox.onMouseMove := paintBoxMouseMove;
     LoupeForm.onKeyDown := formKeyDown;
-    LoupeForm.Height := loupeSizeDef;
-    LoupeForm.Width := loupeSizeDef;
     LoupeForm.Hide;
     ResizeButtonImagesforHighDPI(self);
  //   Grid.DefaultRowHeight := hauteurColonne;
@@ -337,13 +334,13 @@ end;
 procedure TffmpegForm.rotateMoinsBtnClick(Sender: TObject);
 var deltaRotation : integer;
 
-procedure ChangeZoom;
-var oldZoomBmp,coeff : single;
+  procedure ChangeZoom;
+  var oldZoomBmp,coeff : single;
     S : single;
     i : TstyleDrag;
     x,y : single;
     dx,dy : single;
-begin
+  begin
     oldZoomBmp := zoomBmp;
     effectuerZoom;
     coeff := zoomBmp/oldZoomBmp;
@@ -366,9 +363,9 @@ begin
     end;
     imageVersEcran;
     TrackBarChange(Sender);
-end;
+  end;
 
-begin
+begin // rotateMoinsClick
     deltaRotation := (sender as TSpeedButton).tag;
     rotation := rotation+deltaRotation;
     if rotation>2 then dec(rotation,4);
@@ -507,16 +504,16 @@ begin
             end
             else begin
                 OrigineTempsBtn.style := tbsButton;
-                OrigineTempsBtn.Hint := 'L''image courante sera l''origine des temps';
+                OrigineTempsBtn.Hint := trOrigineTemps;
             end;
-end;
+end; // EnregistrePoint
 
 procedure TffmpegForm.OuvreFichier(const Anom : string);
 
-Procedure RecopieLocal;
-var nomCourt : string;
+  Procedure RecopieLocal;
+  var nomCourt : string;
     src,dest : Pchar;
-begin
+  begin
      if Anom[1]<>'C' then begin
         nomCourt := extractFileName(Anom);
         removeBackSlash(tempDirReg);
@@ -534,13 +531,13 @@ begin
         NomFichier := ANom;
         NomCopie := '';
      end;
-end;
+  end;
 
-procedure RecupereData;
+  procedure RecupereData;
 
-function GetDosOutput(CommandLine: string): string;
+  function GetDosOutput(CommandLine: string): string;
 // Run a DOS program and retrieve its output dynamically while it is running.
-var
+  var
   SecAtrrs: TSecurityAttributes;
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
@@ -550,7 +547,7 @@ var
   BytesRead: Cardinal;
   WorkDir: string;
   Handle: Boolean;
-begin
+  begin
   Result := '';
   with SecAtrrs do begin
     nLength := SizeOf(SecAtrrs);
@@ -590,41 +587,41 @@ begin
   finally
     CloseHandle(StdOutPipeRead);
   end;
-end;
+  end;
 
-procedure RecupereOrientation;
-var info, param, nomffProbe : string;
-begin
-   nomffProbe := '"'+extractFilePath(application.exeName)+'ffprobe.exe"';
-   param := ' -loglevel error -select_streams v:0 -show_entries stream_tags=rotate -of default=nw=1:nk=1 "'+nomFichier+'"';
-   info := GetDosOutput(nomffProbe+param);
-   rotation := 0;
-   if pos('90',info)>0 then rotation := 1;
-   if pos('270',info)>0 then rotation := -1;
-   if pos('180',info)>0 then rotation := 2;
-end;
+  procedure RecupereOrientation;
+  var info, param, nomffProbe : string;
+  begin
+     nomffProbe := '"'+extractFilePath(application.exeName)+'ffprobe.exe"';
+     param := ' -loglevel error -select_streams v:0 -show_entries stream_tags=rotate -of default=nw=1:nk=1 "'+nomFichier+'"';
+     info := GetDosOutput(nomffProbe+param);
+     rotation := 0;
+     if pos('90',info)>0 then rotation := 1;
+     if pos('270',info)>0 then rotation := -1;
+     if pos('180',info)>0 then rotation := 2;
+  end;
 
-procedure RecupereProbe;
-begin
+  procedure RecupereProbe;
+  begin
       FProbe.FileName := NomFichier;
       FProbe.Active := true;
       largeur := FProbe.VideoWidth;
       hauteur := FProbe.VideoHeight;
       DureeImage := 1/FProbe.videoframeRate;
       DureeSec := FProbe.Duration;
-end;
+  end;
 
-procedure RecuperePreview;
-begin
+  procedure RecuperePreview;
+  begin
       FPreview.inputFile := NomFichier;
       FPreview.Active := true;
       largeur := Fpreview.VideoWidth;
       hauteur := Fpreview.VideoHeight;
       DureeImage := 1/Fpreview.videoFrameRate;
       DureeSec := Fpreview.Duration;
-end;
+  end;
 
-begin
+  begin // recupereData
           imageCourante := '';
           tempsLabel.Caption  := '';
           trackBar.tag := 1;
@@ -641,7 +638,7 @@ begin
           trackBar.tag := 0;
           angleX := 0;
           RazAxes.Caption := 'Axes';
-          RazAxes.hint := 'Orientation des axes';
+          RazAxes.hint := trOrientationAxes;
           RazAxes.imageIndex := 16;
           if abs(rotation)=1 then swap(largeur,hauteur);
           EffectuerZoom;
@@ -655,7 +652,7 @@ begin
           imageVersEcran;
           LabelFPS.Caption := '  '+ intToStr(round(1/dureeImage))+' img/s ';
           magnet := Largeur div 100;
-end;
+  end; // recupereData
 
 var i,j : integer;
     blocage : boolean;
@@ -698,14 +695,14 @@ begin // ouvreFichier
      end;
      setBoutons;
      if FPreview.active or Fprobe.Active then begin
-        labelAttente.Caption := ' Initialisation, patientez … ';
+        labelAttente.Caption := hInitPatience;
         blocage := TrackBar.Max>60*15; // 1 minute à 15 img/sec
         suivantBtn.Enabled := blocage;
         precedentBtn.Enabled := blocage;
         rewindBtn.Enabled := blocage;
         toolBarBoutons.Enabled := blocage;
      // boutons interdits de manière à être sûr de créer toutes les images
-     // timerPlayVideo.Interval := 1000 div 30;  // 30 img/sec
+        timerPlayVideo.Interval := round(dureeImage*1.25*1000);
         timerPlayVideo.Enabled := true;
         methodeRG.enabled := false;
         debutPlayVideo := now;
@@ -739,11 +736,11 @@ begin
     if angleX=0
        then begin
            RazAxes.caption := 'Axes';
-           RazAxes.hint := 'Orientatiuon des axes';
+           RazAxes.hint := trOrientationAxes;
        end
        else begin
            RazAxes.caption := 'RàZ axes';
-           RazAxes.hint := 'Axes parallèles aux côtés de la video';
+           RazAxes.hint := trAxesParalleles;
        end;
     NbreSE.enabled := OK  and (borneSelect<>bsMesure);
     RazBtn.enabled := OK and (borneSelect<>bsMesure) and (nmes>0);
@@ -781,20 +778,37 @@ var i,j : integer;
 begin
 if MesureBtn.down
   then begin
+     calcEchelle;
+     correctionRS.RSvalue := RollingShutterSE.value;
+     correctionRS.NPoints := NbreSE.value;
+     correctionRS.hauteur := hauteur;
+     correctionRS.angleX := angleX;
+     correctionRS.signeY := signeY;
+     correctionRS.incertXY := IncertitudeSE.value;
+     Grid.ColCount := NbreSE.value*2+1;
+     if NbreSE.value=1
+          then begin
+            Grid.cells[1,0] := 'x(m)';
+            Grid.cells[2,0] := 'y(m)';
+          end
+          else for j := 1 to NbreSE.value do begin
+            Grid.cells[2*j-1,0] := 'x'+intToStr(j)+'(m)';
+            Grid.cells[2*j,0] := 'y'+intToStr(j)+'(m)';
+          end;
+     for i := 2 to pred(Grid.rowCount) do
+         for j := 0 to pred(grid.colCount) do
+             Grid.cells[j,i] := '';
   if MesureAutoCB.checked
     then begin
        nomFichierChrono := Tpath.combine(tempDirReg,'regressi.bmp');
+{$IFDEF Debug}
+       ecritDebug('début MesureBtnClick');
+       ecritDebug('nomFichierChrono');
+{$ENDIF}
        lanceChrono;
     end
     else begin
       setBorne(bsMesure);
-      calcEchelle;
-      correctionRS.RSvalue := RollingShutterSE.value;
-      correctionRS.NPoints := NbreSE.value;
-      correctionRS.hauteur := hauteur;
-      correctionRS.angleX := angleX;
-      correctionRS.signeY := signeY;
-      correctionRS.incertXY := IncertitudeSE.value;
       Nmes := 0;
       if OrigineMobileCB.checked
         then begin
@@ -812,20 +826,7 @@ if MesureBtn.down
         MesureBtn.Hint := hStopMes;
         MesureBtn.imageIndex := 1;
         MesureBtn.Caption := stStop;
-        Grid.ColCount := NbreSE.value*2+1;
-        if NbreSE.value=1
-          then begin
-            Grid.cells[1,0] := 'x(m)';
-            Grid.cells[2,0] := 'y(m)';
-          end
-          else for j := 1 to NbreSE.value do begin
-            Grid.cells[2*j-1,0] := 'x'+intToStr(j)+'(m)';
-            Grid.cells[2*j,0] := 'y'+intToStr(j)+'(m)';
-          end;
     end;
-    for i := Nmes+2 to pred(Grid.rowCount) do
-        for j := 0 to pred(grid.colCount) do
-            Grid.cells[j,i] := '';
   end
   else begin
      setBorne(bsNone);
@@ -835,6 +836,7 @@ if MesureBtn.down
      if MesureAutoCB.checked and (borneSelect=bsChrono) then saveChronoPhoto;
   end;
   setBoutons;
+  if (borneSelect<>bsNone) and not zoomEffectue then updateCourant;
 end;
 
 procedure TffmpegForm.UndoBtnClick(Sender: TObject);
@@ -898,12 +900,12 @@ end;
 
 procedure TffmpegForm.TraceGrid;
 
-function GetCouleurGrid(Acol : integer) : TColor;
-begin
-if ACol=0
+  function GetCouleurGrid(Acol : integer) : TColor;
+  begin
+  if ACol=0
      then result := clBlack
      else result := couleur[(ACol+1) div 2];
-case result of
+  case result of
     clMaroon: ;
     clGreen: ;
     clOlive: ;
@@ -918,8 +920,8 @@ case result of
     clAqua,clSkyBlue: Result := clBlue;
     clMedGray: Result := clGray;
     else Result := clBlack;
-end; // case
-end;
+  end; // case
+  end;
 
 var i,j : integer;
 begin
@@ -1005,6 +1007,7 @@ begin
         LoupeForm := nil;
      end;
      bitmapC.free;
+     bitmapOrigin.free;
      FPreview.Active:=false;
      FPreview.InputFile:='';
      FProbe.Active:=false;
@@ -1076,14 +1079,14 @@ end;
 procedure TffmpegForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 
-procedure Loupe;
-var gainLoupe, LoupeSize : integer;
-    Xleft,Xright,Ytop,Ybottom : integer;
+  procedure Loupe;
+  var gainLoupe, LoupeSize : integer;
+    xLeft,xRight,yTop,yBottom : integer;
     demiHauteur : integer;
 
-procedure reperage;
-var ecart : integer;
-begin
+  procedure reperage;
+  var ecart : integer;
+  begin
     ecart := gainLoupe*(LoupeSize div 3);
     LoupeForm.PaintBox.canvas.pen.color := couleurAxeCB.selected;
     LoupeForm.PaintBox.canvas.pen.style := psSolid;
@@ -1112,64 +1115,66 @@ begin
         LoupeForm.PaintBox.canvas.lineto(demiHauteurLoupe,2);
         LoupeForm.PaintBox.canvas.lineto(demiHauteurLoupe+4,10);
     end;
-end;
+  end;
 
-procedure Efface;
-begin
-     if (Ybottom>0) or (Ytop>0) or  (Xleft>0) or (Xright>0) then begin
+  procedure Efface;
+  begin
+     if (yBottom<>yTop) or (xLeft<>xRight) then begin
         LoupeForm.PaintBox.canvas.brush.Color := LoupeForm.transparentColorValue;
         LoupeForm.PaintBox.canvas.brush.style := bsSolid;
      end;
-     if (Ytop>0) or (ybottom>0) then
-        LoupeForm.PaintBox.canvas.FillRect(rect(0,ytop,LoupeForm.width,ybottom));
-     if (xleft>0) or (xright>0) then
-        LoupeForm.PaintBox.canvas.FillRect(rect(xleft,0,xright,LoupeForm.height));
-end;
+     if (yTop<>yBottom) then
+        LoupeForm.PaintBox.canvas.FillRect(rect(0,yTop,LoupeForm.width,yBottom));
+     if (xleft<>xright) then
+        LoupeForm.PaintBox.canvas.FillRect(rect(xLeft,0,xRight,LoupeForm.height));
+  end;
 
-var
+  var
    X1,Y1,X2,Y2 : integer;
    decaleX,decaleY : integer;
    aPoint : TPoint;
-begin
+  begin
    imgPreview.OnMouseMove := nil;
    loupeForm.paintBox.OnMouseMove := nil; // mise à jour longue ...
    gainLoupe := zoomUD.value;
-   demiHauteur := LoupeSizeDef div gainLoupe div 2;
+   LoupeSize := screen.height div 10;
+   demiHauteur := LoupeSize div gainLoupe div 2;
    demiHauteurLoupe := demiHauteur*gainLoupe;
    LoupeSize := demiHauteur*2+1;
    LoupeForm.width := gainLoupe*loupeSize;
    LoupeForm.height := LoupeForm.width;
+   LoupeForm.rond;
    X1 := X-demiHauteur;
    Y1 := Y-demiHauteur;
    X2 := X+demiHauteur;
    Y2 := Y+demiHauteur;
-   Xleft := 0;Xright := 0;
-   Ytop := 0;Ybottom := 0;
+   xLeft := 0;xRight := 0;
+   yTop := 0;yBottom := 0;
    decaleX := 0;decaleY := 0;
    if Y1<0 then begin
-      Ybottom := -Y1*gainLoupe;
+      yBottom := -Y1*gainLoupe;
       Y1 := 0;
       decaleY := Ybottom;
    end;
    if X1<0 then begin
-      Xright := -X1*gainLoupe;
+      xRight := -X1*gainLoupe;
       X1 := 0;
       decaleX := Xright;
    end;
    if Y2>hauteurAff then begin
-      Ybottom := loupeForm.Height;
-      Ytop := loupeForm.Height-(Y2-hauteurAff)*gainLoupe;
+      yBottom := loupeForm.Height;
+      yTop := loupeForm.Height-(Y2-hauteurAff)*gainLoupe;
       Y2 := hauteurAff;
    end;
    if X2>largeurAff then begin
-      Xright := loupeForm.width;
-      Xleft := loupeForm.width-(X2-largeurAff)*gainLoupe;
+      xRight := loupeForm.width;
+      xLeft := loupeForm.width-(X2-largeurAff)*gainLoupe;
       X2 := largeurAff;
    end;
    bitmapLoupe.Width := X2-X1;
    bitmapLoupe.Height := Y2-Y1;
    bitmapLoupe.canvas.CopyRect(rect(0,0,X2-X1,Y2-Y1),
-            imgPreview.picture.Bitmap.canvas,
+            bitmapOrigin.canvas,
             rect(round(X1/pasZoom),round(Y1/pasZoom),
                  round(X2/pasZoom),round(Y2/pasZoom)));
    aPoint := imgPreview.clientToScreen(Point(x,y));
@@ -1188,7 +1193,7 @@ begin
       loupeForm.paintBox.Cursor := crNone;
       loupeForm.show;
    end;
-end; // loupe
+  end; // loupe
 
 var BS : TstyleDrag;
 begin
@@ -1220,7 +1225,7 @@ begin
    if (borneSelect in [bsMesure,bsOrigine,bsEchelle1,bsEchelle2,bsAxeX,bsAxeY,bsChronoInit])
       then Loupe
       else cacheLoupe;
-end;  // mouseMove
+end; // mouseMove
 
 procedure TffmpegForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
@@ -1252,6 +1257,7 @@ begin
       ImgPreview.hint := hint;
       panelVideo.Hint := hint;
       Status.Panels[2].Text := hint;
+      if (borneSelect<>bsNone) and not zoomEffectue then updateCourant;
     end;
 end;
 
@@ -1307,6 +1313,9 @@ end;
 
 procedure TffmpegForm.TimerChronoTimer(Sender: TObject);
 begin
+{$IFDEF Debug}
+    ecritDebug('appel timerChrono');
+{$ENDIF}
     suivantBtnClick(sender);
 end;
 
@@ -1340,42 +1349,44 @@ end;
 procedure TffmpegForm.TrackBarChange(Sender: TObject);
 var nomImage : string;
 
-procedure UpdatePreviewTB;
-begin
-   case methode of
+  procedure UpdatePreviewTB;
+  begin
+     case methode of
         mPreview : begin
            FPreview.TimeStamp := trackBar.Position*dureeImage;
            imgPreview.Picture.Assign(FPreview.Bitmap);
            if (nomImage<>'') then FPreview.Bitmap.SaveToFile(nomImage);
+           bitmapOrigin.Canvas.Draw(0,0,FPreview.bitmap);
         end;
         mProbe : begin
            FProbe.TimeStamp := Round(trackBar.Position*dureeImage*AV_TIME_BASE);
            imgPreview.Picture.Assign(FProbe.Bitmap);
            if (nomImage<>'') then Fprobe.Bitmap.SaveToFile(nomImage);
+           bitmapOrigin.Canvas.Draw(0,0,FProbe.bitmap);
         end;
-   end;
-   imageCourante := nomImage;
-   if borneSelect in [bsChrono,bsChronoInit] then begin
+     end;
+     imageCourante := nomImage;
+     if borneSelect in [bsChrono,bsChronoInit] then begin
         bitmapC.Canvas.CopyMode := cmSrcCopy;
         case methode of
             mPreview : bitmapC.Canvas.Draw(0,0,FPreview.bitmap);
             mProbe : bitmapC.Canvas.Draw(0,0,FProbe.bitmap);
         end;
-   end;
-   case borneSelect of
-      bsChrono : AffecteChrono;
-      bsChronoInit : ;
-      bsPlay : ;
-      else dessineImage;
-   end;
-end;
+     end;
+     case borneSelect of
+        bsChrono : AffecteChrono;
+        bsChronoInit : ;
+        bsPlay : ;
+        else dessineImage;
+     end;
+  end;
 
 begin
    if (TrackBar.Tag = 0) and (FPreview.Active or FProbe.active) then begin
-       nomImage := getNomImage(trackBar.Position);
-       if (nomImage='') or not FileExists(nomImage)
+      nomImage := getNomImage(trackBar.Position);
+      if (nomImage='') or not FileExists(nomImage)
           then UpdatePreviewTB
-          else updateImage(nomImage);
+          else updateImage(nomImage,trackBar.Position=0);
       if trackBar.Position>=trackBar.max then begin
          timerPlayImages.Enabled := false;
          timerPlayVideo.Enabled := false;
@@ -1387,7 +1398,7 @@ begin
       Screen.Cursor := crDefault;
       tempsLabel.Caption := FloatToStrF(trackBar.Position*dureeImage,ffFixed,5,3)+'/'+IntToStr(ceil(DureeSec))+' s ';
    end;
-end;
+end; // trackbarChange
 
 procedure TffmpegForm.OrigineItemClick(Sender: TObject);
 begin
@@ -1401,7 +1412,7 @@ begin
 if OrigineTempsBtn.style=tbsCheck
    then if OrigineTempsBtn.down
         then begin
-            ShowMessage('Cliquer sur le point enregistré (ou la ligne du tableau) qui sera l''origine des temps');
+            ShowMessage(msgOrigineTemps);
             hint := hOrigineT;
             status.Panels[2].Text := hOrigineT;
             setCurseur(crOrigineTemps);
@@ -1503,21 +1514,12 @@ begin
     P.x := RazAxes.left;
     P := ToolBarBoutons.ClientToScreen(P);
     EchelleMenu.Popup(P.x,P.y);
-    (*
-     angleX := 0;
-     pointRepere[bsAxeX] := pointRepere[bsOrigine];
-     pointRepere[bsAxeY] := pointRepere[bsOrigine];
-     pointRepere[bsAxeX].Offset(largeur div 4,0);
-     pointRepere[bsAxeY].Offset(0,-largeur div 4);
-     ImageVersEcran;
-     updateCourant;
-    *)
 end;
 
 procedure TffmpegForm.RazBtnClick(Sender: TObject);
 var i,j : integer;
 begin
-     if MessageDlg('Suppression des données',mtConfirmation,[mbYes,mbNo],0)=mrYes then begin
+     if MessageDlg(OkDelAllData,mtConfirmation,[mbYes,mbNo],0)=mrYes then begin
          for i := 0 to nmes do
            for j := 0 to pred(grid.ColCount) do
                Grid.cells[j,i+1] := '';
@@ -1593,27 +1595,27 @@ end;
 procedure TffmpegForm.VideRepertoire;
 var info : TSearchRec;
 begin
-   try
-  if findFirst(TPath.combine(tempDirReg,'*.bmp'),faAnyFile,Info)=0 then begin
+  try
+    if findFirst(TPath.combine(tempDirReg,'*.bmp'),faAnyFile,Info)=0 then begin
       repeat
          if (Info.attr and faDirectory)<>faDirectory then
             deleteFile(Tpath.combine(tempDirReg,Info.Name));
       until FindNext(Info)<>0;
       FindClose(info);
     end;
-  if (NomCopie<>'') and fileExists(nomCopie) then begin
+    if (NomCopie<>'') and fileExists(nomCopie) then begin
        deleteFile(nomCopie);
        nomCopie := '';
-  end;
-  if (NomFichierChrono<>'') and
-     fileExists(NomFichierChrono) and
-     (extractFilePath(NomFichierChrono)=tempDirReg) then begin
+    end;
+    if (NomFichierChrono<>'') and
+       fileExists(NomFichierChrono) and
+       (extractFilePath(NomFichierChrono)=tempDirReg) then begin
          deleteFile(nomFichierChrono);
-  end;
+    end;
   except
      showMessage('Changer le répertoire temporaire : '+tempDirReg+' protégé ?');
   end;
- end;
+end;
 
 procedure TffmpegForm.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
   Rect: TRect; State: TGridDrawState);
@@ -1640,15 +1642,15 @@ var imgCanvas : TCanvas;
 
 Procedure TraceLigne(x1,y1,x2,y2 : single);
 begin
-      ImgCanvas.moveto(round(x1),round(y1));
-      ImgCanvas.lineto(round(x2),round(y2));
+    ImgCanvas.moveto(round(x1),round(y1));
+    ImgCanvas.lineto(round(x2),round(y2));
 end;
 
-Procedure TraceRepere(i : integer);
-var Apoint : TPointF;
-begin
-Apoint := correctionRS.XY[0,i];
-with Apoint do begin
+  Procedure TraceRepere(i : integer);
+  var Apoint : TPointF;
+  begin
+  Apoint := correctionRS.XY[0,i];
+  with Apoint do begin
          Imgcanvas.pen.Color := couleurAxeCB.selected;
          TraceLigne(x-4*Magnet,y,x+4*Magnet,y);  // axe X
 // flèche X
@@ -1658,22 +1660,22 @@ with Apoint do begin
 // flèche Y
          TraceLigne(x,y+4*signeY*Magnet,x-magnet,y+2*signeY*Magnet);
          traceLigne(x,y+4*signeY*Magnet,x+magnet,y+2*signeY*Magnet);
-end end;
+  end end;
 
-Procedure TraceCroix(Apoint : TpointF);
-begin
+  Procedure TraceCroix(Apoint : TpointF);
+  begin
       traceLigne(Apoint.x-Magnet+1,Apoint.y,Apoint.x+Magnet,Apoint.y);
       traceLigne(Apoint.x,Apoint.y-Magnet+1,Apoint.x,Apoint.y+Magnet);
-end;
+  end;
 
-Procedure TraceOrigine;
+  Procedure TraceOrigine;
 
-function rayonOptimal(angle : double;x0,y0 : single) : single;
-var rC,ro,rD : integer;
+  function rayonOptimal(angle : double;x0,y0 : single) : single;
+  var rC,ro,rD : integer;
 
-function Cherchex(y1 : single) : integer;
-var x1 : single;
-begin
+  function Cherchex(y1 : single) : integer;
+  var x1 : single;
+  begin
      try
      x1 := x0+(y1-y0)/tan(angle);
      if isInfinite(x1) or (x1<0) or (x1>largeur)
@@ -1682,11 +1684,11 @@ begin
      except
      result := rD;
      end;
-end;
+  end;
 
-function Cherchey(x1 : single) : integer;
-var y1 : single;
-begin
+  function Cherchey(x1 : single) : integer;
+  var y1 : single;
+  begin
      try
      y1 := y0+(x1-x0)*tan(angle);
      if isInfinite(y1) or (y1<0) or (y1>hauteur)
@@ -1695,7 +1697,7 @@ begin
      except
      result := rD;
      end;
-end;
+  end;
 
 begin
      if largeur<hauteur then rD := largeur else rD := hauteur;
@@ -1709,13 +1711,13 @@ begin
      result := ro;
 end;// rayonOptimal
 
-procedure TraceFleche(angle : double);
-    var
+  procedure TraceFleche(angle : double);
+  var
       PE: TPoint; // centre puis extrémité de la base de la flèche
       deltaX, deltaY: integer;
       Points:  array[0..2] of Tpoint; // Flèche
       hFleche,rayon : single;
-begin
+  begin
        rayon := rayonOptimal(angle,PointRepere[bsOrigine].x,PointRepere[bsOrigine].y)*0.95;
        PE.x := round(PointRepere[bsOrigine].x);
        PE.y := round(PointRepere[bsOrigine].y);
@@ -1735,7 +1737,7 @@ begin
        PE.offset(+2*deltaY,-2*deltaX);
        Points[2] := PE;
        ImgCanvas.Polygon(Points);
-end;
+  end;
 
 begin  // traceOrigine
          if borneSelect=bsOrigine then exit;
@@ -1764,10 +1766,10 @@ begin  // traceOrigine
          end;
 end; // traceOrigine
 
-Procedure TraceEchelle;
-var angleLoc : integer;
-    P1,P2 : TPointF;
-begin
+  Procedure TraceEchelle;
+  var angleLoc : integer;
+      P1,P2 : TPointF;
+  begin
       if borneSelect=bsEchelle1
          then begin
               P1 := PointRepere[bsEchelle2];
@@ -1794,7 +1796,7 @@ begin
                         round((PointRepere[bsEchelle1].Y+PointRepere[bsEchelle2].Y)/2),
                         echelleEDit.text+' m');
       ImgCanvas.font.orientation := 0;
-end;
+  end;
 
 var i,j : integer;
     texte : string;
@@ -1858,8 +1860,8 @@ var couleurC,LcouleurInit : TRGBtriple;
     xAttendu,yAttendu : integer;
     DeltaX,DeltaY : integer;
     x0,y0 : integer;
-    ecartMin : integer;
     RedCible, BlueCible, GreenCible : integer;
+    ecartMin : integer;
 
 procedure EnregistrePointChrono(p : integer);
 // on affine autour de x0, y0
@@ -1870,6 +1872,9 @@ var xMin,xMax : integer;
     largeurCible,hauteurCible : integer;
     scanLineFin : pRGBTripleArray;
 begin
+{$IFDEF Debug}
+    ecritDebug('début enregistrePointChrono');
+{$ENDIF}
     largeurCible := largeur div 24; // zone de recherche
     hauteurCible := hauteur div 24;
     correctionRS.XY[p,Nmes].x := x0;
@@ -1922,6 +1927,9 @@ var resolutionCible : integer;
     procheAttendu,prochePrec : boolean;
     LigneProcheAttendu,LigneProchePrec : boolean;
 begin
+{$IFDEF Debug}
+    ecritDebug('début chercheMobile');
+{$ENDIF}
 resolutionCible := resolutionCibleMin;
 repeat
     EcartMin := resolutionCible;
@@ -1956,45 +1964,52 @@ repeat
     result := (x0>0) and (y0>0);
     inc(resolutionCible,pasCouleur);
 until result or (resolutionCible>resolutionCibleMax);
+{$IFDEF Debug}
+    ecritDebug('sortie cherchemobile: trouve = '+stOuiNon[result]);
+{$ENDIF}
 end; // chercheMobile
 
 function chercheFixe : boolean;
 var ecartCible : integer;
     xc,yc : integer;
     resolutionCible : integer;
-    LigneProcheAttendu,LigneProchePrec : boolean;
-    procheAttendu,prochePrec : boolean;
 begin
+{$IFDEF Debug}
+    ecritDebug('début chercheFixe');
+{$ENDIF}
     resolutionCible := resolutionCibleMin;
     repeat
-    EcartMin := resolutionCible;
-    for yc := 0 to pred(hauteur) do begin
-        LigneProcheAttendu := abs(yc-yAttendu)<deltaY;
-        LigneProchePrec := abs(yc-yPrec)<deltaY;
-        scanLineC := bitmapC.scanLine[yc];
-        for xc := 0 to pred(largeur) do begin
-            procheAttendu := (abs(xc-xAttendu)<deltaX) and ligneProcheAttendu;
-            prochePrec := (abs(xc-xPrec)<deltaX) and ligneProchePrec;
-            if (procheAttendu or prochePrec) then begin
-              couleurC := scanLineC[xc];
-              ecartCible := abs(BlueCible-integer(couleurC.rgbtBlue))+
-                            abs(GreenCible-integer(couleurC.rgbtGreen))+
-                            abs(RedCible-integer(couleurC.rgbtRed));
-              if ecartCible<ecartMin then begin // couleur=couleurCible
-                 ecartMin := ecartCible;
-                 x0 := xc;y0 := yc;
-              end;
-            end;// proche
-        end;// for xc
-    end;// for yc
-    result := (x0>0) and (y0>0);
-    inc(resolutionCible,pasCouleur);
-until result or (resolutionCible>resolutionCibleMax);
+       EcartMin := resolutionCible;
+       for yc := 0 to pred(hauteur) do
+          if abs(yc-yPrec)<deltaY then begin
+            scanLineC := bitmapC.scanLine[yc];
+            for xc := 0 to pred(largeur) do begin
+              if abs(xc-xPrec)<deltaX then begin
+                couleurC := scanLineC[xc];
+                ecartCible := abs(BlueCible-integer(couleurC.rgbtBlue))+
+                              abs(GreenCible-integer(couleurC.rgbtGreen))+
+                              abs(RedCible-integer(couleurC.rgbtRed));
+                if ecartCible<ecartMin then begin // couleur=couleurCible
+                   ecartMin := ecartCible;
+                   x0 := xc;y0 := yc;
+                end;
+              end;// proche
+          end;// for xc
+       end;// for yc
+       result := (x0>0) and (y0>0);
+       inc(resolutionCible,pasCouleur);
+    until result or (resolutionCible>resolutionCibleMax);
+{$IFDEF Debug}
+    ecritDebug('sortie chercheFixe : trouve = '+stOuiNon[result]);
+{$ENDIF}
 end;
 
 var trouve,trouveGlb : boolean;
     p,p0 : integer;
 begin // AffecteChrono
+{$IFDEF Debug}
+    ecritDebug('affecteChrono ; point = '+IntToStr(nmes));
+{$ENDIF}
     timerChrono.Enabled := false;
     DeltaX := largeur div 10; // zone de recherche
     DeltaY := hauteur div 10;
@@ -2017,7 +2032,7 @@ begin // AffecteChrono
           xAttendu := xPrec;
        end;
        trouve := chercheMobile;
-       if not trouve then chercheFixe;
+       if not trouve then trouve := chercheFixe;
        if trouve then begin
           inc(ecartMin,pasCouleur);
           enregistrePointChrono(p);
@@ -2081,8 +2096,6 @@ end;
 
 procedure TffmpegForm.CaptureBtnClick(Sender: TObject);
 begin
-     //if capturePSForm=nil then Application.CreateForm(TcapturePSForm,capturePSForm);
-     //capturePSForm.Show;
      if videoForm=nil then Application.CreateForm(TvideoForm,videoForm);
      videoForm.Show;
 end;
@@ -2097,20 +2110,22 @@ var
     xCible,yCible : integer;
     RedCible, BlueCible, GreenCible : integer;
 begin
+{$IFDEF Debug}
+         ecritDebug('début initmesure');
+{$ENDIF}
      correctionRS.Temps[0] := trackBar.Position*dureeImage;
      correctionRS.XY[pointCourant,0] := pointRepere[bsChronoInit];
-     Grid.ColCount := 1+2*NbreSE.value;
-     Grid.cells[1,0] := 'x(m)';
-     Grid.cells[2,0] := 'y(m)';
-     RedCible := 0;
-     BlueCible := 0;
-     GreenCible := 0;
+     Grid.cells[pointCourant*2-1,1] := correctionRS.strX(pointCourant,0);
+     Grid.cells[pointCourant*2,1] := correctionRS.strY(pointCourant,0);
      xCible := round(pointRepere[bsChronoInit].x);
      if xcible<1 then xcible := 1;
      if xcible>(largeur-2) then xcible := largeur-2;
      yCible := round(pointRepere[bsChronoInit].y);
      if ycible<1 then ycible := 1;
      if ycible>(hauteur-2) then ycible := hauteur-2;
+     RedCible := 0;
+     BlueCible := 0;
+     GreenCible := 0;
      for yc := yCible-1 to yCible+1 do begin
          scanLine := BitmapC.scanLine[yc];
          for xc := xCible-1 to xCible+1 do begin
@@ -2123,6 +2138,10 @@ begin
      RedCibleChrono[pointCourant] := RedCible div 9;
      BlueCibleChrono[pointCourant] := BlueCible div 9;
      GreenCibleChrono[pointCourant] := GreenCible div 9;
+{$IFDEF Debug}
+         ecritDebug('couleurs : '+intToStr(redcible)+' '+intToStr(bluecible)+' '+intToStr(greencible));
+{$ENDIF}
+     cibleLabel.Visible := false;
      setBoutons;
 end;
 
@@ -2136,6 +2155,9 @@ begin
            panelVideo.Hint := hChronoEnCours;
            Nmes := 1;
            calcEchelle;
+{$IFDEF Debug}
+         ecritDebug('timerChrono enabled');
+{$ENDIF}
            timerChrono.enabled := true;
            stopBtn.Enabled := true;
         end
@@ -2143,8 +2165,11 @@ begin
            inc(pointCourant);
            P := TPoint.create(largeurAff div 4,hauteurAff div 3);
            P := ImgPreview.ClientToScreen(P);
-           if pointCourant=1 then MessageDlgPos(trCibleAuto,mtConfirmation,[mbOK],0,P.x,P.y);
-           if pointCourant=2 then MessageDlgPos(trCible2Auto,mtConfirmation,[mbOK],0,P.x,P.y);
+           if pointCourant=1 then cibleLabel.Caption := trCibleAuto;
+           if pointCourant=2 then cibleLabel.Caption := trCible2Auto;
+           cibleLabel.Visible := true;
+           cibleLabel.left := P.x;
+           cibleLabel.top := P.y;
         end;
 end; //ChronoInit
 
@@ -2232,15 +2257,15 @@ end;
     end;
 
     procedure TffmpegForm.Image2Click(Sender: TObject);
-begin
-    if nomOriginal = '' then exit;
-    if OKReg('Problème de lecture ? On essaie l''autre méthode ?',Help_video) then begin
-       if MethodeRG.itemIndex=0
-          then MethodeRG.itemIndex := 1
-          else MethodeRG.itemIndex := 0;
-       ouvreFichier(nomOriginal);
+    begin
+       if nomOriginal = '' then exit;
+       if OKReg('Problème de lecture ? On essaie l''autre méthode ?',Help_video) then begin
+          if MethodeRG.itemIndex=0
+            then MethodeRG.itemIndex := 1
+            else MethodeRG.itemIndex := 0;
+           ouvreFichier(nomOriginal);
+       end;
     end;
-end;
 
 procedure TffmpegForm.ImageVersEcran;
     var i : TstyleDrag;
@@ -2249,10 +2274,10 @@ procedure TffmpegForm.ImageVersEcran;
            e_pointRepere[i] := pointRepere[i]*pasZoom;
     end;
 
-  procedure TffmpegForm.CorrigeAxes;
-  var angleLoc : double;
-      longueur : integer;
-  begin  // Angle est l'angle informatique Y vers le bas donc positif=sens horaire
+procedure TffmpegForm.CorrigeAxes;
+var angleLoc : double;
+    longueur : integer;
+begin  // AngleLoc est l'angle informatique Y vers le bas donc positif=sens horaire
       if borneSelect=bsAxeX then begin // rendre les axes perpendiculaires
            angleLoc := arcTan2(e_pointRepere[bsAxeX].y-e_pointRepere[bsOrigine].y,
                                e_pointRepere[bsAxeX].x-e_pointRepere[bsOrigine].x);
@@ -2277,28 +2302,29 @@ procedure TffmpegForm.ImageVersEcran;
            e_pointRepere[bsAxeY].y := e_pointRepere[bsOrigine].y+signeY*round(longueur*cos(angleX));
       end;
       razAxes.Enabled := true;//angleX<>0;
-  end;
+end; // CorrigeAxes
 
-  function TffmpegForm.getNomImage(index : integer) : string;
-  var numero : string;
-  begin
+function TffmpegForm.getNomImage(index : integer) : string;
+var numero : string;
+begin
      result := '';
      if (index<TrackBar.Min) or (index>TrackBar.max) then exit;
      numero := intToStr(index);
      while length(numero)<3 do
            numero := '0'+numero;
      result := Tpath.combine(tempDirReg,'test'+numero+'.bmp');
-  end;
+end;
 
-  procedure TffmpegForm.updateImage(const nomImage : string);
-  begin
+procedure TffmpegForm.updateImage(const nomImage : string;zoomForce : boolean);
+begin
     if not (FPreview.Active or FProbe.active) then exit;
     bitmapC.loadFromFile(nomImage);
-    if rotation<>0 then
-       rotateBitmap2(bitmapC,rotation);
-    if ZoomBmp>1 then zoom_lineaire(bitmapC,ZoomBmp);
+    if rotation<>0 then rotateBitmap2(bitmapC,rotation);
+    zoomEffectue := (ZoomBmp>1) and ((borneSelect<>bsNone) or zoomForce);
+    if ZoomEffectue then zoom_lineaire(bitmapC,ZoomBmp);
     ImgPreview.Stretch := ZoomBmp>1;
-    imGPreview.Picture.Assign(bitmapC);
+    imgPreview.Picture.Assign(bitmapC);
+    bitmapOrigin.assign(bitmapC);
     case borneSelect of
        bsChrono : AffecteChrono;
        bsChronoInit :;
@@ -2306,19 +2332,33 @@ procedure TffmpegForm.ImageVersEcran;
        else dessineImage;
     end;
     imageCourante := nomImage;
-  end; // updateImage
+end; // updateImage
 
-   procedure TffmpegForm.updateCourant;
-   begin
+procedure TffmpegForm.updateCourant;
+begin
+      if not (FPreview.Active or FProbe.active) then exit;
       if imageCourante=''
          then updatePreview(trackBar.Position)
-         else updateImage(imageCourante);
-   end;
+         else if not zoomEffectue
+             then updateImage(imageCourante,true)
+             else begin
+               imgPreview.Picture.Assign(bitmapC);
+               case borneSelect of
+                  bsChrono : AffecteChrono;
+                  bsChronoInit : ;
+                  bsPlay : ;
+                  else dessineImage;
+                end;
+             end;
+end;
 
   procedure TffmpegForm.lanceChrono;
   var P : TPoint;
       i,j : integer;
   begin
+{$IFDEF Debug}
+         ecritDebug('début lancechrono');
+{$ENDIF}
          setBorne(bsChronoInit);
          calcEchelle;
          correctionRS.RSvalue := RollingShutterSE.value;
@@ -2339,23 +2379,36 @@ procedure TffmpegForm.ImageVersEcran;
          if origineMobileCB.checked
             then begin
                pointCourant := 0;
-               MessageDlgPos(trOrigineAuto,mtConfirmation,[mbOK],0,P.x,P.y);
+               cibleLabel.caption := trOrigineAuto;
+               cibleLabel.Left := P.X;
+               cibleLabel.Top := P.Y;
+               cibleLabel.visible := true;
             end
             else begin
                pointCourant := 1;
-               MessageDlgPos(trCibleAuto,mtConfirmation,[mbOK],0,P.x,P.y);
+               cibleLabel.caption := trCibleAuto;
+               cibleLabel.Left := P.X;
+               cibleLabel.Top := P.Y;
+               cibleLabel.visible := true;
             end;
+{$IFDEF Debug}
+         ecritDebug('création bitmap');
+{$ENDIF}
          bitmapInit := Tbitmap.create;
          bitmapFin := Tbitmap.create;
          bitmapInit.assign(bitmapC);
          bitmapFin.assign(bitmapC);
-         if VideoChronoForm=nil then
+         if VideoChronoForm=nil then begin
              Application.createForm(TVideoChronoForm,VideoChronoForm);
+{$IFDEF Debug}
+         ecritDebug('création videoChronoform');
+{$ENDIF}
+         end;
          VideoChronoForm.image1.picture.assign(bitmapInit);
          MesureBtn.Hint := hStopMes;
          MesureBtn.imageIndex := 1;
          MesureBtn.Caption := stStop;
-         Grid.ColCount := 3;
+         Grid.ColCount := NbreSE.value*2+1;
          Grid.cells[1,0] := 'x(m)';
          Grid.cells[2,0] := 'y(m)';
          for i := 1 to pred(Grid.rowCount) do
@@ -2406,6 +2459,9 @@ begin
 end;
 
 initialization
+{$IFDEF Debug}
+   ecritDebug('initialization videoffmpeg');
+{$ENDIF}
    FFMPEG_DLL_PATH := ExtractFilePath(application.exeName);
 
 end.

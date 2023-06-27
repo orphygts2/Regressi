@@ -6,26 +6,29 @@ object SavePositionDlg: TSavePositionDlg
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   BorderStyle = bsDialog
   Caption = 'Sauvegarde de la position'
-  ClientHeight = 191
-  ClientWidth = 461
+  ClientHeight = 382
+  ClientWidth = 950
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
-  Font.Height = -13
+  Font.Height = -26
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   ShowHint = True
   OnActivate = FormActivate
   OnCreate = FormCreate
-  PixelsPerInch = 96
-  TextHeight = 17
+  PixelsPerInch = 192
+  TextHeight = 36
   object OKBtn: TBitBtn
-    Left = 356
-    Top = 8
-    Width = 100
-    Height = 27
+    Left = 712
+    Top = 16
+    Width = 200
+    Height = 54
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = '&OK'
     Kind = bkOK
     Margin = 2
@@ -36,10 +39,14 @@ object SavePositionDlg: TSavePositionDlg
     IsControl = True
   end
   object CancelBtn: TBitBtn
-    Left = 356
-    Top = 64
-    Width = 100
-    Height = 27
+    Left = 712
+    Top = 128
+    Width = 200
+    Height = 54
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = '&Abandon'
     Kind = bkCancel
     Margin = 2
@@ -51,37 +58,54 @@ object SavePositionDlg: TSavePositionDlg
   object GroupBox1: TGroupBox
     Left = 0
     Top = 0
-    Width = 353
-    Height = 191
+    Width = 706
+    Height = 382
     Hint = '|Cocher les param'#232'tres '#224' sauvegarder'
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Align = alLeft
     Caption = 'Param'#232'tres '#224' sauver'
     ParentShowHint = False
     ShowHint = True
     TabOrder = 2
+    ExplicitHeight = 381
     object Label1: TLabel
-      Left = 160
-      Top = 10
-      Width = 29
-      Height = 17
+      Left = 320
+      Top = 20
+      Width = 56
+      Height = 36
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = 'Nom'
     end
     object Label2: TLabel
-      Left = 240
-      Top = 10
-      Width = 70
-      Height = 17
+      Left = 480
+      Top = 20
+      Width = 140
+      Height = 36
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = 'Signification'
     end
     object ParamListBox: TCheckListBox
       Left = 2
-      Top = 19
-      Width = 151
-      Height = 170
+      Top = 38
+      Width = 302
+      Height = 324
       Hint = '|Cocher les param'#232'tres '#224' sauvegarder'
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Align = alLeft
       IntegralHeight = True
-      ItemHeight = 32
+      ItemHeight = 64
       Items.Strings = (
         'x'
         'y'
@@ -92,81 +116,125 @@ object SavePositionDlg: TSavePositionDlg
       TabOrder = 0
     end
     object Edit1: TEdit
-      Left = 158
-      Top = 26
-      Width = 64
-      Height = 25
+      Left = 316
+      Top = 52
+      Width = 128
+      Height = 44
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       TabOrder = 1
     end
     object Edit2: TEdit
-      Left = 158
-      Top = 58
-      Width = 64
-      Height = 25
+      Left = 316
+      Top = 116
+      Width = 128
+      Height = 44
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       TabOrder = 2
     end
     object Edit3: TEdit
-      Left = 158
-      Top = 90
-      Width = 64
-      Height = 25
+      Left = 316
+      Top = 180
+      Width = 128
+      Height = 44
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       TabOrder = 3
     end
     object Edit4: TEdit
-      Left = 158
-      Top = 122
-      Width = 64
-      Height = 25
+      Left = 316
+      Top = 244
+      Width = 128
+      Height = 44
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       TabOrder = 4
     end
     object Edit5: TEdit
-      Left = 226
-      Top = 26
-      Width = 120
-      Height = 25
+      Left = 452
+      Top = 52
+      Width = 240
+      Height = 44
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       TabOrder = 5
     end
     object Edit6: TEdit
-      Left = 226
-      Top = 58
-      Width = 120
-      Height = 25
+      Left = 452
+      Top = 116
+      Width = 240
+      Height = 44
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       TabOrder = 6
     end
     object Edit7: TEdit
-      Left = 226
-      Top = 90
-      Width = 120
-      Height = 25
+      Left = 452
+      Top = 180
+      Width = 240
+      Height = 44
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       TabOrder = 7
     end
     object Edit8: TEdit
-      Left = 226
-      Top = 122
-      Width = 120
-      Height = 25
+      Left = 452
+      Top = 244
+      Width = 240
+      Height = 44
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       TabOrder = 8
     end
     object Edit9: TEdit
-      Left = 158
-      Top = 154
-      Width = 64
-      Height = 25
+      Left = 316
+      Top = 308
+      Width = 128
+      Height = 44
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       TabOrder = 9
     end
     object Edit10: TEdit
-      Left = 225
-      Top = 154
-      Width = 120
-      Height = 25
+      Left = 450
+      Top = 308
+      Width = 240
+      Height = 44
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       TabOrder = 10
     end
   end
   object HelpBtn: TBitBtn
-    Left = 356
-    Top = 120
-    Width = 100
-    Height = 25
+    Left = 712
+    Top = 240
+    Width = 200
+    Height = 50
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Kind = bkHelp
     NumGlyphs = 2
     TabOrder = 3

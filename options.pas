@@ -157,6 +157,8 @@ type
     PythonDllPathEdit: TEdit;
     PythonDllPathBtn: TSpeedButton;
     RazDllPythonPath: TSpeedButton;
+    Label22: TLabel;
+    Label23: TLabel;
     procedure NbreSpinButtonDownClick(Sender: TObject);
     procedure NbreSpinButtonUpClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -852,7 +854,7 @@ begin
   GridPrint := ini.ReadBool(stPrint,stGrille,GridPrint);
   fontSizeMemo := ini.ReadInteger(stFonte,'TailleMemo',fontSizeMemo);
   TexteGrapheSize := ini.ReadInteger(stFonte,'TexteGraphe',TexteGrapheSize);
-  if texteGrapheSize>8 then texteGrapheSize := 5;
+  if texteGrapheSize>8 then texteGrapheSize := 3;
   NbreTexteMax := ini.ReadInteger(stGraphe,'NbreTexte',NbreTexteMax);
   DimPointVGA := ini.ReadInteger('Point','Taille',3);
   penWidthVGA := 1;
@@ -980,7 +982,7 @@ begin
   if avecChi2 then avecEllipse := true;
   fontSizeMemo := Rini.ReadInteger(stFonte,'TailleMemo',12);
   reperePage := TreperePage(Rini.ReadInteger(stGraphe,'ReperePage',ord(SPcouleur)));
-  TexteGrapheSize := Rini.ReadInteger(stFonte,'TexteGraphe',5);
+  TexteGrapheSize := Rini.ReadInteger(stFonte,'TexteGraphe',3);
   NbreTexteMax := Rini.ReadInteger(stGraphe,'NbreTexte',NbreTexteMax);
   MaxCopiesPrinter := Rini.ReadInteger(stPrint,'Copies',1);
   GridPrint := Rini.ReadBool(stPrint,stGrille,false);

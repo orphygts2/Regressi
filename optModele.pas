@@ -54,6 +54,7 @@ type
     IncertParamRG: TRadioGroup;
     ModelePourCentCB: TCheckBox;
     BandePredictionCB: TCheckBox;
+    ChiffreSignifRG: TRadioGroup;
     procedure FormActivate(Sender: TObject);
     procedure HelpBtnClick(Sender: TObject);
     procedure OKBtnClick(Sender: TObject);
@@ -95,10 +96,10 @@ begin
      RecuitCB.checked := Recuit;
      chi2CB.visible := (imLycee in menuPermis);
      chi2CB.checked := avecChi2 and chi2CB.visible;
-   //  optionsBtn.Visible := optionsPermises;
      modelePourCentCB.Checked := modelePourCent;
      modeleManuelCB.checked := avecModeleManuel;
      incertParamRG.itemIndex := ord(AffIncertParam);
+     chiffreSignifRG.itemIndex := ord(ChiffreSignif);
      with TabSheet3 do
         for i := 0 to pred(controlCount) do
            if controls[i] is TcolorBox then begin
@@ -146,6 +147,7 @@ begin
     ajusteOrigine := ajusteOrigineCB.Checked;
     avecModeleManuel := modeleManuelCB.checked;
     AffIncertParam := TAffIncertParam(incertParamRG.itemIndex);
+    ChiffreSignif := TChiffreSignif(chiffreSignifRG.itemIndex)
 end;
 
 procedure TOptionModeleDlg.AfficheCorrelClick(Sender: TObject);

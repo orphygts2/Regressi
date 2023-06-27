@@ -205,6 +205,7 @@ end;
 
 var i,coeffDelta : integer;
     mecaOK,avecIncert : boolean;
+    avecUniteGraphe : boolean;
 begin // ecritEnTete
    writeln(fichier,'EVARISTE REGRESSI WINDOWS 1.0');
    writeln(fichier,symbReg,NbreVariab,' NOM VAR');
@@ -217,11 +218,21 @@ begin // ecritEnTete
    if Fvaleurs.deltaBtn.down then CoeffDelta := 2 else CoeffDelta := 1;
    for i := 0 to pred(NbreVariab) do
        writeln(fichier,Fvaleurs.GridVariab.colWidths[i*coeffDelta+1]);
+   avecUniteGraphe := false;
    writeln(fichier,symbReg,NbreVariab,' UNITE VAR');
-   for i := 0 to pred(NbreVariab) do
+   for i := 0 to pred(NbreVariab) do begin
        if grandeurs[indexVariab[i]].UniteDonnee
           then ecritChaineRW3(grandeurs[indexVariab[i]].nomUnite)
           else writeln(fichier);
+       if grandeurs[indexVariab[i]].UniteGrapheImposee then avecUniteGraphe := true;
+   end;
+   if avecUniteGraphe  then begin
+      writeln(fichier,symbReg,NbreVariab,' UNITE GRAPHE');
+      for i := 0 to pred(NbreVariab) do
+          if grandeurs[indexVariab[i]].UniteGrapheImposee
+            then ecritChaineRW3(grandeurs[indexVariab[i]].UniteGraphe)
+            else writeln(fichier);
+   end;
    if indexTri<>0 then begin
       writeln(fichier,symbReg,'1 GrandeurTri');
       ecritChaineRW3(nomGrandeurTri);
@@ -691,6 +702,7 @@ procedure litListe;
 
 Procedure litLargeurVariab(imax : integer);
 var i : integer;
+    largeurDefaut : integer;
 begin
     try
     for i := 0 to pred(imax) do begin
@@ -699,6 +711,9 @@ begin
            largeurColonneTexte := largeurColonnesVariab[i];
         litLigneWin;
     end;
+    largeurDefaut := largeurColonnesVariab[1];
+    for i := imax to maxGrandeurs do
+        largeurColonnesVariab[i] := largeurDefaut;
     FValeurs.MajWidthsVariab := true;
     except
     end;
@@ -860,6 +875,16 @@ var i : integer;
 begin
      for i := iDebut to pred(iDebut+Nbrei) do begin
          grandeurs[i].NomUnite := ligneWin;
+         litLigneWinU
+     end;
+end;
+
+procedure litUniteGraphe(iDebut,Nbrei : integer);
+var i : integer;
+begin
+     for i := iDebut to pred(iDebut+Nbrei) do begin
+         grandeurs[i].UniteGraphe := ligneWin;
+         grandeurs[i].UniteGrapheImposee := grandeurs[i].UniteGraphe<>'';
          litLigneWinU
      end;
 end;
@@ -1126,6 +1151,7 @@ begin
          53 : litIncertitudeB(Nligne);
          54 : litLargeurVariab(Nligne);
     //     55 : litLargeurConst(Nligne);
+         56 : litUniteGraphe(0,Nligne);
    end;
 end;
 
@@ -1164,6 +1190,7 @@ begin
        if Pos('CONST',ligneWin)<>0 then litChoix(6)
        else if Pos('VAR',ligneWin)<>0 then litChoix(7)
        else if Pos('PARAM',ligneWin)<>0 then litChoix(28)
+       else if Pos('GRAPHE',ligneWin)<>0 then litChoix(56)
        else litChoix(0)
     end
     else if Pos('FORMAT',ligneWin)<>0 then begin
@@ -1780,5 +1807,13 @@ except
 end;
 Screen.cursor := crDefault;
 end; // LitCalcul
+
+Initialization
+{$IFDEF Debug}
+   ecritDebug('initialization filerw3');
+{$ENDIF}
+var i : integer;
+     for i := 0 to maxGrandeurs do
+         largeurColonnesVariab[i] := 128;
 
 end.

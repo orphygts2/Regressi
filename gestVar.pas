@@ -1320,9 +1320,9 @@ begin with grandeurs[index] do begin
          affecteVariableE(i);
          try
             valeur[i] := calcule(fonct.calcul);
+            CalculIncertitudeFonct(valIncert[i]);
             if uniteSIGlb and uniteImposee then
                valeur[i] := valeur[i]/coeffSI;
-            CalculIncertitudeFonct(valIncert[i]);
          except
             on E:exception do begin
                derniereErreur := E.message;
@@ -1362,7 +1362,8 @@ begin with grandeurs[index] do begin
            grandeurs[cIndice].valeurCourante := 0;
            try
            valeurCourante := calcule(fonct.calcul);
-           if uniteSIGlb and uniteImposee then valeurCourante := valeurCourante*coeffSI;
+           if uniteSIGlb and uniteImposee then
+              valeurCourante := valeurCourante*coeffSI;
            except on E:exception do begin
               derniereErreur := E.message;
               valeurCourante := Nan;
@@ -1373,7 +1374,8 @@ begin with grandeurs[index] do begin
            grandeurs[cIndice].valeurCourante := 0;
            try
            valeurCourante :=  calcule(fonct.calcul);
-           if uniteSIGlb and uniteImposee then valeurCourante := valeurCourante*coeffSI;
+           if uniteSIGlb and uniteImposee then
+              valeurCourante := valeurCourante*coeffSI;
            except
                on E:exception do begin
                   derniereErreur := E.message;

@@ -7,8 +7,8 @@ object fgrapheParam: TfgrapheParam
   VertScrollBar.Visible = False
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   Caption = 'Graphe des param'#232'tres'
-  ClientHeight = 1160
-  ClientWidth = 2180
+  ClientHeight = 1158
+  ClientWidth = 2152
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -59,13 +59,14 @@ object fgrapheParam: TfgrapheParam
     Left = 0
     Top = 0
     Width = 460
-    Height = 1160
+    Height = 1158
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alLeft
     TabOrder = 0
+    ExplicitHeight = 1157
     object PanelAjuste: TPanel
       Left = 1
       Top = 222
@@ -1379,7 +1380,7 @@ object fgrapheParam: TfgrapheParam
       Left = 1
       Top = 691
       Width = 458
-      Height = 468
+      Height = 466
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -1388,11 +1389,12 @@ object fgrapheParam: TfgrapheParam
       Caption = 'R'#233'sultats de la mod'#233'lisation'
       PopupMenu = PopupMenuModele
       TabOrder = 2
+      ExplicitHeight = 465
       object memoResultat: TRichEdit
         Left = 2
         Top = 38
         Width = 454
-        Height = 428
+        Height = 426
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -1410,6 +1412,7 @@ object fgrapheParam: TfgrapheParam
         ScrollBars = ssVertical
         TabOrder = 0
         WordWrap = False
+        ExplicitHeight = 425
       end
     end
     object ToolBarModele: TToolBar
@@ -1493,8 +1496,8 @@ object fgrapheParam: TfgrapheParam
   object PanelCourbe: TPanel
     Left = 486
     Top = 0
-    Width = 1694
-    Height = 1160
+    Width = 1666
+    Height = 1158
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -1503,11 +1506,13 @@ object fgrapheParam: TfgrapheParam
     BevelOuter = bvNone
     Color = clWindow
     TabOrder = 1
+    ExplicitWidth = 1652
+    ExplicitHeight = 1157
     object PaintBox: TPaintBox
       Left = 0
       Top = 135
-      Width = 1694
-      Height = 965
+      Width = 1666
+      Height = 963
       Hint = '|Utiliser le clic droit pour ouvrir le menu local'
       Margins.Left = 6
       Margins.Top = 6
@@ -1537,7 +1542,14 @@ object fgrapheParam: TfgrapheParam
       Margins.Bottom = 6
       Caption = 'LabelErreur'
       Color = clInfoBk
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -26
+      Font.Name = 'Segoe UI'
+      Font.Style = []
       ParentColor = False
+      ParentFont = False
+      Transparent = False
       Visible = False
     end
     object LabelX: TLabel
@@ -1577,7 +1589,7 @@ object fgrapheParam: TfgrapheParam
     object ToolBarGr: TToolBar
       Left = 0
       Top = 0
-      Width = 1694
+      Width = 1666
       Height = 89
       Margins.Left = 6
       Margins.Top = 6
@@ -1588,7 +1600,6 @@ object fgrapheParam: TfgrapheParam
       ButtonHeight = 83
       ButtonWidth = 117
       Color = clGradientInactiveCaption
-      DrawingStyle = dsGradient
       Flat = False
       GradientEndColor = clSkyBlue
       HotTrackColor = clAqua
@@ -1598,6 +1609,7 @@ object fgrapheParam: TfgrapheParam
       ShowCaptions = True
       TabOrder = 0
       Wrapable = False
+      ExplicitWidth = 1652
       object CurseurBtn: TToolButton
         Left = 0
         Top = 0
@@ -1759,10 +1771,10 @@ object fgrapheParam: TfgrapheParam
     object ToolBarGrandeurs: TToolBar
       Left = 0
       Top = 89
-      Width = 1694
+      Width = 1666
       Height = 46
-      Cursor = crDrag
-      Hint = 'Glisser d'#233'placer pour d'#233'finir les coordonn'#233'es'
+      Cursor = crHandPoint
+      Hint = 'Cliquer pour d'#233'finir les ordonn'#233'es'
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -1775,6 +1787,7 @@ object fgrapheParam: TfgrapheParam
       ShowCaptions = True
       TabOrder = 1
       Wrapable = False
+      ExplicitWidth = 1652
       object ToolButton1: TToolButton
         Tag = 7
         Left = 0
@@ -1786,7 +1799,6 @@ object fgrapheParam: TfgrapheParam
         Margins.Bottom = 6
         AutoSize = True
         Caption = 'ToolButton1'
-        DragMode = dmAutomatic
         ImageIndex = 0
         Style = tbsTextButton
         OnClick = ToolButton1Click
@@ -1802,7 +1814,6 @@ object fgrapheParam: TfgrapheParam
         Margins.Bottom = 6
         AutoSize = True
         Caption = 'ToolButton2'
-        DragMode = dmAutomatic
         ImageIndex = 1
         Style = tbsTextButton
         OnClick = ToolButton1Click
@@ -1818,7 +1829,6 @@ object fgrapheParam: TfgrapheParam
         Margins.Bottom = 6
         AutoSize = True
         Caption = 'ToolButton3'
-        DragMode = dmAutomatic
         ImageIndex = 2
         Style = tbsTextButton
         OnClick = ToolButton1Click
@@ -1834,7 +1844,6 @@ object fgrapheParam: TfgrapheParam
         Margins.Bottom = 6
         AutoSize = True
         Caption = 'ToolButton5'
-        DragMode = dmAutomatic
         ImageIndex = 3
         Style = tbsTextButton
         OnClick = ToolButton1Click
@@ -1850,7 +1859,6 @@ object fgrapheParam: TfgrapheParam
         Margins.Bottom = 6
         AutoSize = True
         Caption = 'ToolButton6'
-        DragMode = dmAutomatic
         ImageIndex = 4
         Style = tbsTextButton
         OnClick = ToolButton1Click
@@ -1866,7 +1874,6 @@ object fgrapheParam: TfgrapheParam
         Margins.Bottom = 6
         AutoSize = True
         Caption = 'ToolButton7'
-        DragMode = dmAutomatic
         ImageIndex = 5
         Style = tbsTextButton
         OnClick = ToolButton1Click
@@ -1882,12 +1889,12 @@ object fgrapheParam: TfgrapheParam
         Margins.Bottom = 6
         AutoSize = True
         Caption = 'ToolButton8'
-        DragMode = dmAutomatic
         ImageIndex = 6
         Style = tbsTextButton
         OnClick = ToolButton1Click
       end
       object ToolButton11: TToolButton
+        Tag = 10
         Left = 1050
         Top = 0
         Cursor = crHandPoint
@@ -1897,12 +1904,12 @@ object fgrapheParam: TfgrapheParam
         Margins.Bottom = 6
         AutoSize = True
         Caption = 'ToolButton10'
-        DragMode = dmAutomatic
         ImageIndex = 7
         Style = tbsTextButton
         OnClick = ToolButton1Click
       end
       object ToolButton12: TToolButton
+        Tag = 9
         Left = 1214
         Top = 0
         Cursor = crHandPoint
@@ -1912,9 +1919,11 @@ object fgrapheParam: TfgrapheParam
         Margins.Bottom = 6
         Caption = 'ToolButton11'
         ImageIndex = 8
+        Style = tbsTextButton
         OnClick = ToolButton1Click
       end
       object ToolButton13: TToolButton
+        Tag = 8
         Left = 1374
         Top = 0
         Cursor = crHandPoint
@@ -1924,13 +1933,14 @@ object fgrapheParam: TfgrapheParam
         Margins.Bottom = 6
         Caption = 'ToolButton12'
         ImageIndex = 9
+        Style = tbsTextButton
         OnClick = ToolButton1Click
       end
     end
     object TempsTB: TTrackBar
       Left = 0
-      Top = 1100
-      Width = 1694
+      Top = 1098
+      Width = 1666
       Height = 60
       Margins.Left = 6
       Margins.Top = 6
@@ -1942,7 +1952,8 @@ object fgrapheParam: TfgrapheParam
       ThumbLength = 40
       TickMarks = tmTopLeft
       OnChange = TempsTBChange
-      ExplicitTop = 1080
+      ExplicitTop = 1097
+      ExplicitWidth = 1652
     end
   end
   object EditBidon: TEdit
@@ -1960,7 +1971,7 @@ object fgrapheParam: TfgrapheParam
     Left = 460
     Top = 0
     Width = 26
-    Height = 1160
+    Height = 1158
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -1975,6 +1986,7 @@ object fgrapheParam: TfgrapheParam
     Beveled = True
     Color = clHotLight
     ParentColor = False
+    ExplicitHeight = 1157
   end
   object PopupMenuAxes: TPopupMenu
     OnPopup = PopupMenuAxesPopup

@@ -235,7 +235,6 @@ end end; // calcFonctionGlb
         Correct := F.correct;
         Adaptable := F.adaptable;
         UniteImposee := F.uniteImposee;
-        PrefixeImpose := F.PrefixeImpose;
         UniteDonnee := F.uniteDonnee;
    end; // calcGrandeur
 
@@ -498,23 +497,15 @@ begin
           correct := Uloc.correct;
           adaptable := Uloc.adaptable;
           sansDim := Uloc.sansDim;
-          if Uloc.uniteImposee and not Uloc.prefixeImpose
+          if uniteSIglb
              then begin
-                 nomUnite := Uloc.nomUnite;
-                 uniteImposee := true;
-                 prefixeImpose := false;
-             end
-             else if uniteSIglb
-                  then begin
                       puissance := 0;
                       uniteImposee := false;
-                      prefixeImpose := false;
                       nomUnite := NomAff(0);
                       coeffSI := 1; { TODO : coeffSI param }
-                  end
-                  else begin
+             end
+             else begin
                       uniteImposee := Uloc.uniteImposee;
-                      prefixeImpose := Uloc.prefixeImpose;
                       if uniteImposee
                          then imposeNomUnite(Uloc.nomUnite)
                          else imposeNomUnite(NomAff(0));
@@ -1018,8 +1009,7 @@ begin
       if valeurA=nil
          then valeurCourante := valeur[indice]
          else valeurCourante := valeurA[indice];
-      if uniteSIGlb and
-        (fonct.genreC=G_experimentale) then
+      if uniteSIGlb and (puissance<>0) then        // **** (fonct.genreC=G_experimentale)
             valeurCourante := valeurCourante*coeffSI;
   end;
   grandeurs[cIndice].valeurCourante := indice;
@@ -1970,7 +1960,7 @@ begin
   end;
   if uniteSIGlb then for i := 0 to pred(NbreVariab) do
   with grandeurs[indexVariab[i]] do
-      if (fonct.genreC=G_experimentale) then begin
+      if (puissance<>0) then begin   // ****  (fonct.genreC=G_experimentale)
              valeurCourante := valeurCourante*coeffSI;
              if not isNan(incertCourante) then
                 incertCourante := incertCourante*coeffSI;
@@ -2056,6 +2046,18 @@ Function derive(F : Pelement ) : Pelement;
               tanHyper : tampon := genFonction(inverse,
                         genFonction(carre,
                         genFonction(cosHyper,copie(operand))));
+              ArgCosHyper : tampon := genFonction(inverse,
+                           genFonction(racine,genOperateur('-',
+                              genFonction(carre,copie(operand)),
+                              pointeurUn)));
+              ArgSinHyper : tampon := genFonction(inverse,
+                    genFonction(racine,genOperateur('+',
+                              pointeurUn,
+                              genFonction(carre,copie(operand)))));
+              ArgTanHyper : tampon := genFonction(inverse,
+                        genFonction(racine,genOperateur('-',
+                              pointeurUn,
+                              genFonction(carre,copie(operand)))));
               sexaToDeci : tampon := pointeurUn;
               codeBruit : tampon := pointeurZero; // ??
               else tampon := pointeurZero;
@@ -2696,34 +2698,38 @@ end;
 var incA,incB : double;
 begin
     if (IncertCalcA.expression='')
-              then begin
-                   incA := 0;
-                   if (IncertCalcB.expression='')
+          then begin
+               incA := 0;
+               if (IncertCalcB.expression='')
                    then exit
                    else incB := calcIncLoc(IncertCalcB.calcul);
-              end
-              else begin
-                  incA := calcIncLoc(IncertCalcA.calcul);
-                  if (IncertCalcB.expression='')
+          end
+          else begin
+               incA := calcIncLoc(IncertCalcA.calcul);
+               if (IncertCalcB.expression='')
                   then incB := 0
                   else incB := calcIncLoc(IncertCalcB.calcul);
-              end;
+          end;
     Avaleur := sqrt(sqr(incB)+sqr(incA));
 end;
 
 procedure TGrandeur.CalculIncertitudeFonct(var Avaleur : double);
 begin
-              if IncertCalcA.calcul<>nil then begin
-                 try
-                 Avaleur := calcule(IncertCalcA.calcul)
-                 except
-                    on E:exception do begin
-                       derniereErreur := E.message;
-                       Avaleur := Nan;
-                    end;
-                 end
-              end
-              else Avaleur := Nan
+    if IncertCalcA.calcul<>nil
+       then begin
+            try
+               Avaleur := calcule(IncertCalcA.calcul);
+               if uniteSIGlb and uniteImposee then begin
+                  Avaleur := Avaleur/coeffSI;
+            end;
+            except
+                  on E:exception do begin
+                     derniereErreur := E.message;
+                     Avaleur := Nan;
+                  end;
+            end
+       end
+       else Avaleur := Nan
 end;
 
 // genere.pas pour compile.pas

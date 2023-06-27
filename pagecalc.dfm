@@ -6,24 +6,27 @@ object PageCalcDlg: TPageCalcDlg
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   BorderStyle = bsDialog
   Caption = 'Cr'#233'ation d'#39'une page calcul'#233'e'
-  ClientHeight = 280
-  ClientWidth = 308
+  ClientHeight = 560
+  ClientWidth = 644
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
-  Font.Height = -13
+  Font.Height = -26
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
-  PixelsPerInch = 96
-  TextHeight = 17
+  PixelsPerInch = 192
+  TextHeight = 36
   object OKBtn: TBitBtn
-    Left = 196
-    Top = 8
-    Width = 100
-    Height = 27
+    Left = 392
+    Top = 16
+    Width = 200
+    Height = 54
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = '&OK'
     Kind = bkOK
     Margin = 2
@@ -34,10 +37,14 @@ object PageCalcDlg: TPageCalcDlg
     IsControl = True
   end
   object CancelBtn: TBitBtn
-    Left = 196
-    Top = 56
-    Width = 100
-    Height = 27
+    Left = 392
+    Top = 112
+    Width = 200
+    Height = 54
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = '&Abandon'
     Kind = bkCancel
     Margin = 2
@@ -48,10 +55,14 @@ object PageCalcDlg: TPageCalcDlg
     IsControl = True
   end
   object HelpBtn: TBitBtn
-    Left = 196
-    Top = 104
-    Width = 100
-    Height = 27
+    Left = 392
+    Top = 208
+    Width = 200
+    Height = 54
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Kind = bkHelp
     Margin = 2
     NumGlyphs = 2
@@ -61,10 +72,14 @@ object PageCalcDlg: TPageCalcDlg
     IsControl = True
   end
   object CalculRG: TRadioGroup
-    Left = 4
-    Top = 4
-    Width = 173
-    Height = 153
+    Left = 8
+    Top = 8
+    Width = 346
+    Height = 306
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = 'Type de calcul'
     ItemIndex = 0
     Items.Strings = (
@@ -79,46 +94,74 @@ object PageCalcDlg: TPageCalcDlg
   end
   object GroupBox: TGroupBox
     Left = 0
-    Top = 198
-    Width = 308
-    Height = 82
+    Top = 396
+    Width = 644
+    Height = 164
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Align = alBottom
     Caption = 'Expression de la nouvelle page'
     TabOrder = 2
+    ExplicitTop = 395
+    ExplicitWidth = 630
     object LabelFonction: TLabel
-      Left = 16
-      Top = 56
-      Width = 212
-      Height = 17
+      Left = 32
+      Top = 112
+      Width = 410
+      Height = 36
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = 'par ex. : page(1)/page(2)+2*page(3)'
     end
     object EditExp: TEdit
-      Left = 8
-      Top = 24
-      Width = 233
-      Height = 25
+      Left = 16
+      Top = 48
+      Width = 466
+      Height = 44
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       TabOrder = 0
     end
   end
   object VariabExpGB: TGroupBox
     Left = 0
-    Top = 158
-    Width = 308
-    Height = 40
+    Top = 316
+    Width = 644
+    Height = 80
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Align = alBottom
     TabOrder = 1
+    ExplicitTop = 315
+    ExplicitWidth = 630
     object EditFixe: TLabel
-      Left = 156
-      Top = 16
-      Width = 36
-      Height = 17
+      Left = 312
+      Top = 32
+      Width = 71
+      Height = 36
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = 'temps'
     end
     object Label1: TLabel
-      Left = 11
-      Top = 16
-      Width = 127
-      Height = 17
+      Left = 22
+      Top = 32
+      Width = 250
+      Height = 36
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = 'Grandeur commune : '
     end
   end

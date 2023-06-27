@@ -1,6 +1,4 @@
 // equival.pas = include graphker
-
-const taillePointEq = 3;
 var v11,ph11,v22,ph22 : double;
     vee,phee : double;
 
@@ -116,12 +114,12 @@ begin with Fgraphe do begin
      end;
 end end;
 
-procedure TgrapheReg.traceUneCourbe(xvecteur,yvecteur : Tvecteur;N,N0 : integer;aColor : Tcolor);
+procedure TgrapheReg.traceCourbeEquivalence(xvecteur,yvecteur : Tvecteur;N,N0 : integer);
 var i,j : integer;
     xi,yi : integer;
     pointOK : boolean;
 begin
-     createPen(psSolid,1,aColor);
+     createPen(psSolid,penWidth,couleurMethodeTangente);
      i := 0;
      repeat
         windowXY(xvecteur[i],yvecteur[i],mondeY,xi,yi);
@@ -239,7 +237,7 @@ begin
                Neq := i;
             end;
          end;
-         Fgraphe.traceUneCourbe(xvecteur2,yvecteur2,NbrePointDeriveeLisse,Neq,clSilver);
+         Fgraphe.traceCourbeEquivalence(xvecteur2,yvecteur2,NbrePointDeriveeLisse,Neq);
       end;
 end;
 
@@ -409,14 +407,14 @@ begin // affineEquivalence
                 ve := (StoechBecherGlb*x1+StoechBuretteGlb*x2)/(StoechBecherGlb+StoechBuretteGlb);
                 pHe := (StoechBecherGlb*y1+StoechBuretteGlb*y2)/(StoechBecherGlb+StoechBuretteGlb);
            end;
-           Fgraphe.traceUneCourbe(modeleAvant.xl,modeleAvant.yl,NbrePointDeriveeLisse,NbrePointDeriveeLisse div 2,CouleurMethodeTangente);
-           Fgraphe.traceUneCourbe(modeleApres.xl,modeleApres.yl,NbrePointDeriveeLisse,N2modele,CouleurMethodeTangente);
+           Fgraphe.traceCourbeEquivalence(modeleAvant.xl,modeleAvant.yl,NbrePointDeriveeLisse,NbrePointDeriveeLisse div 2);
+           Fgraphe.traceCourbeEquivalence(modeleApres.xl,modeleApres.yl,NbrePointDeriveeLisse,N2modele);
          //  if not chercheInflexionVerticale then
            if not chercheInflexion then chercheIntersection;
     end
     else begin
-        Fgraphe.traceUneCourbe(xvecteur1,yvecteur1,NbrePointDeriveeLisse,NbrePointDeriveeLisse div 2,CouleurMethodeTangente);
-        Fgraphe.traceUneCourbe(xvecteur2,yvecteur2,NbrePointDeriveeLisse,N2,CouleurMethodeTangente);
+        Fgraphe.traceCourbeEquivalence(xvecteur1,yvecteur1,NbrePointDeriveeLisse,NbrePointDeriveeLisse div 2);
+        Fgraphe.traceCourbeEquivalence(xvecteur2,yvecteur2,NbrePointDeriveeLisse,N2);
       //  if not chercheInflexionVerticale then
         if not chercheInflexion then chercheIntersection;
     end;
@@ -428,7 +426,7 @@ var ecart,x3,x4,y3,y4 : double;
     posTrait : integer;
     signe : integer;
     couleur : Tcolor;
-    i : integer;
+//    i : integer;
 begin // Tequivalence.draw
 with Fgraphe do begin
      if LigneRappel in [lrXdeY,lrEquivalenceManuelle]

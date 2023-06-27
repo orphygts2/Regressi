@@ -22,6 +22,7 @@ type
     DebugLabel: TLabel;
     Image1: TImage;
     Label3: TLabel;
+    Win64Label: TLabel;
     procedure VersionBtnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
@@ -45,6 +46,9 @@ procedure TAboutBox.FormCreate(Sender: TObject);
 begin
 {$IFDEF win64}
     productName.Caption := 'Regressi/ffmpeg 64 bits';
+    Win64Label.Visible := true;
+{$ELSE}
+    Win64Label.Visible := false;
 {$ENDIF}
 {$IFDEF Debug}
     DebugLabel.Visible := true;

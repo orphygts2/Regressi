@@ -3,8 +3,8 @@ object FRegressiMain: TFRegressiMain
   Top = 279
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   Caption = 'Regressi'
-  ClientHeight = 1610
-  ClientWidth = 2022
+  ClientHeight = 1590
+  ClientWidth = 1742
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -50,7 +50,7 @@ object FRegressiMain: TFRegressiMain
   object PanelStatut: TPanel
     Left = 0
     Top = 0
-    Width = 2022
+    Width = 1742
     Height = 60
     Margins.Left = 6
     Margins.Top = 6
@@ -61,6 +61,7 @@ object FRegressiMain: TFRegressiMain
     BevelOuter = bvNone
     TabOrder = 0
     Visible = False
+    ExplicitWidth = 1756
     object GrandeursBtn: TSpeedButton
       Left = 168
       Top = 0
@@ -156,7 +157,7 @@ object FRegressiMain: TFRegressiMain
     object GrapheConstBtn: TSpeedButton
       Left = 968
       Top = 0
-      Width = 200
+      Width = 220
       Height = 60
       Hint = '|Fen'#234'tre graphique des param'#232'tres'
       HelpKeyword = 'Fen'#234'tre param'#232'tres'
@@ -175,10 +176,9 @@ object FRegressiMain: TFRegressiMain
       Margin = 2
       Visible = False
       OnClick = GrapheConstBtnClick
-      ExplicitHeight = 80
     end
     object FocusAcquisitionBtn: TSpeedButton
-      Left = 1168
+      Left = 1188
       Top = 0
       Width = 200
       Height = 60
@@ -198,6 +198,7 @@ object FRegressiMain: TFRegressiMain
       Margin = 2
       Visible = False
       OnClick = FocusAcquisitionBtnClick
+      ExplicitLeft = 1168
       ExplicitHeight = 80
     end
     object EnregistreBtn: TSpeedButton
@@ -255,7 +256,7 @@ object FRegressiMain: TFRegressiMain
       ExplicitHeight = 36
     end
     object graphe3DBtn: TSpeedButton
-      Left = 1568
+      Left = 1588
       Top = 0
       Width = 200
       Height = 60
@@ -290,7 +291,7 @@ object FRegressiMain: TFRegressiMain
       ExplicitHeight = 80
     end
     object GrapheEulerBtn: TSpeedButton
-      Left = 1368
+      Left = 1388
       Top = 0
       Width = 200
       Height = 60
@@ -317,7 +318,7 @@ object FRegressiMain: TFRegressiMain
   object PanelPage: TPanel
     Left = 0
     Top = 60
-    Width = 2022
+    Width = 1742
     Height = 52
     Margins.Left = 6
     Margins.Top = 6
@@ -332,6 +333,7 @@ object FRegressiMain: TFRegressiMain
     ParentCtl3D = False
     TabOrder = 1
     Visible = False
+    ExplicitWidth = 1756
     object PageDebutBtn: TSpeedButton
       Left = 1
       Top = 1
@@ -514,7 +516,7 @@ object FRegressiMain: TFRegressiMain
     object CommentaireEdit: TEdit
       Left = 527
       Top = 1
-      Width = 1492
+      Width = 1240
       Height = 48
       Hint = 'Commentaire|Commentaire de la page courante (modifiable)'
       Margins.Left = 6
@@ -525,13 +527,14 @@ object FRegressiMain: TFRegressiMain
       AutoSelect = False
       TabOrder = 2
       OnChange = CommentaireEditChange
+      ExplicitWidth = 1226
       ExplicitHeight = 44
     end
   end
   object CommPagePanel: TPanel
     Left = 0
     Top = 112
-    Width = 2022
+    Width = 1742
     Height = 48
     Margins.Left = 6
     Margins.Top = 6
@@ -541,10 +544,11 @@ object FRegressiMain: TFRegressiMain
     AutoSize = True
     TabOrder = 2
     Visible = False
+    ExplicitWidth = 1756
     object CommPageEdit: TEdit
       Left = 1
       Top = 1
-      Width = 2020
+      Width = 1768
       Height = 46
       Hint = 'Commentaire|Commentaire de la page '
       Margins.Left = 6
@@ -554,6 +558,7 @@ object FRegressiMain: TFRegressiMain
       Align = alClient
       TabOrder = 0
       OnChange = CommPageEditChange
+      ExplicitWidth = 1754
     end
   end
   object MainMenu: TMainMenu

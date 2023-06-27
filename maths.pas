@@ -74,6 +74,8 @@ Function MyCos(x : double) : double;
 Function ASin(x : double) : double;
 Function ACos(x : double) : double;
 Function ATh(x : double) : double;
+Function ACh(x : double) : double;
+Function ASh(x : double) : double;
 Function Identite(x : double) : double;
 Function Nul(x : double) : double;
 Function Arg(x : double) : double;
@@ -619,6 +621,16 @@ end;
 Function Ath(x: double): double;
 begin
   result := arcTanh(x)
+end;
+
+Function ACh(x: double): double;
+begin
+  result := arcCosh(x)
+end;
+
+Function ASh(x: double): double;
+begin
+  result := arcSinh(x)
 end;
 
 const

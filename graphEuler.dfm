@@ -63,6 +63,7 @@ object FgrapheEuler: TFgrapheEuler
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitHeight = 1221
     object PanelAjuste: TPanel
       Left = 0
       Top = 690
@@ -838,6 +839,11 @@ object FgrapheEuler: TFgrapheEuler
         Margins.Right = 6
         Margins.Bottom = 6
         Align = alBottom
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -26
+        Font.Name = 'Segoe UI'
+        Font.Style = []
         ParentFont = False
         TabOrder = 0
         WordWrap = False
@@ -1375,6 +1381,7 @@ object FgrapheEuler: TFgrapheEuler
       Align = alClient
       Caption = 'R'#233'sultats de la mod'#233'lisation'
       TabOrder = 2
+      ExplicitHeight = 335
       object memoResultat: TRichEdit
         Left = 2
         Top = 38
@@ -1385,11 +1392,17 @@ object FgrapheEuler: TFgrapheEuler
         Margins.Right = 6
         Margins.Bottom = 6
         Align = alClient
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -26
+        Font.Name = 'Segoe UI'
+        Font.Style = []
         ParentFont = False
         ReadOnly = True
         ScrollBars = ssBoth
         TabOrder = 0
         WordWrap = False
+        ExplicitHeight = 295
       end
     end
   end
@@ -1406,6 +1419,8 @@ object FgrapheEuler: TFgrapheEuler
     BevelOuter = bvNone
     Color = clWindow
     TabOrder = 1
+    ExplicitWidth = 1172
+    ExplicitHeight = 1221
     object PanelPrinc: TPanel
       Tag = 1
       Left = 0
@@ -1422,8 +1437,8 @@ object FgrapheEuler: TFgrapheEuler
       OnMouseDown = FormMouseDown
       OnMouseMove = FormMouseMove
       OnMouseUp = FormMouseUp
-      ExplicitTop = 50
-      ExplicitHeight = 1128
+      ExplicitWidth = 1172
+      ExplicitHeight = 1121
       object PaintBoxPrinc: TPaintBox
         Tag = 1
         Left = 1
@@ -1473,6 +1488,8 @@ object FgrapheEuler: TFgrapheEuler
       ParentFont = True
       UseSystemFont = False
       Visible = False
+      ExplicitTop = 1177
+      ExplicitWidth = 1172
     end
     object ToolBar: TToolBar
       Left = 0
@@ -1488,7 +1505,6 @@ object FgrapheEuler: TFgrapheEuler
       ButtonWidth = 176
       Color = clBtnFace
       Customizable = True
-      DrawingStyle = dsGradient
       EdgeBorders = [ebTop, ebBottom]
       GradientEndColor = clSkyBlue
       HideClippedButtons = True
@@ -1497,6 +1513,7 @@ object FgrapheEuler: TFgrapheEuler
       ShowCaptions = True
       TabOrder = 1
       Wrapable = False
+      ExplicitWidth = 1172
       object CoordonneesBtn: TToolButton
         Left = 0
         Top = 0

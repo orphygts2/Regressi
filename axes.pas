@@ -94,10 +94,12 @@ begin // traceTitreAxe
            then N := g.fonct.expression
            else N := g.nom;
         with monde[m] do begin
-        if graduation=gInv then N := '1/'+N;
+ //       if graduation=gInv then N := '1/'+N;
         if graduation=gdB
            then U := '/dB'
-           else U := g.UniteAxe(Fexposant);
+           else if axe.UniteGrapheImposee
+              then U := '/'+g.uniteGraphe
+              else U := g.UniteAxe(Fexposant);
         if (m=mondeY) and (courbes[0].trace=[trResidus]) then begin
             if not(typeResidu=residuN) then U := '';// adimensionnée;
             case typeResidu of

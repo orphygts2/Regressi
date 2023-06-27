@@ -32,7 +32,8 @@ object Fcoordonnees3D: TFcoordonnees3D
     Margins.Bottom = 6
     Align = alRight
     TabOrder = 0
-    ExplicitLeft = 703
+    ExplicitLeft = 589
+    ExplicitHeight = 441
     object OKBtn: TBitBtn
       Left = 12
       Top = 34
@@ -42,23 +43,9 @@ object Fcoordonnees3D: TFcoordonnees3D
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = '&OK'
-      Default = True
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000000000000000000000000
-        8000008000000080800080000000800080008080000080808000C0C0C0000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-        3333333300003333333333333333333300003333333333333333333300003333
-        333333333333333300003333333A0333333333330000333333AAA03333333333
-        0000333333AAA03333333333000033333AAAAA033333333300003333AAAAAA03
-        3333333300003337AA03AAA0333333330000337A03333AA03333333300003333
-        33333AAA0333333300003333333333AA03333333000033333333333AA0333333
-        00003333333333337A033333000033333333333337A033330000333333333333
-        333AA33300003333333333333333333300003333333333333333333300003333
-        33333333333333330000}
+      Kind = bkOK
       Margin = 2
-      ModalResult = 1
+      NumGlyphs = 2
       Spacing = -1
       TabOrder = 0
       OnClick = OKBtnClick
@@ -73,23 +60,9 @@ object Fcoordonnees3D: TFcoordonnees3D
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Cancel = True
-      Caption = '&Abandon'
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000010000000000000000000
-        BF0000BF000000BFBF00BF000000BF00BF00BFBF0000C0C0C000808080000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00777888877777
-        8877777700007770888777778887777700007911088877910888777700007911
-        0088879100888777000079111008891110087777000079911108911111007777
-        0000779111101111110777770000777911111111077777770000777991111111
-        8777777700007777991111108877777700007777791111108887777700007777
-        7911111088877777000077777911111108887777000077779111991100888777
-        0000777911108991100888770000777911187799110088870000777111187779
-        1110888700007771110777779111087700007779997777777991777700007777
-        77777777779977770000}
+      Kind = bkCancel
       Margin = 2
-      ModalResult = 2
+      NumGlyphs = 2
       Spacing = -1
       TabOrder = 1
       IsControl = True
@@ -109,7 +82,8 @@ object Fcoordonnees3D: TFcoordonnees3D
     ParentShowHint = False
     ShowHint = True
     TabOrder = 1
-    ExplicitWidth = 703
+    ExplicitWidth = 589
+    ExplicitHeight = 441
     object AbscisseGB: TGroupBox
       Left = 0
       Top = 0
@@ -122,7 +96,7 @@ object Fcoordonnees3D: TFcoordonnees3D
       Align = alTop
       Caption = 'Abscisse'
       TabOrder = 0
-      ExplicitWidth = 703
+      ExplicitWidth = 589
       object LabelZeroX: TLabel
         Left = 200
         Top = 28
@@ -175,7 +149,7 @@ object Fcoordonnees3D: TFcoordonnees3D
       Align = alTop
       Caption = 'Ordonn'#233'e (en profondeur)'
       TabOrder = 2
-      ExplicitWidth = 703
+      ExplicitWidth = 589
       object labelZeroY: TLabel
         Left = 200
         Top = 28
@@ -242,7 +216,8 @@ object Fcoordonnees3D: TFcoordonnees3D
       Align = alClient
       Caption = 'Options ligne'
       TabOrder = 3
-      ExplicitWidth = 703
+      ExplicitWidth = 589
+      ExplicitHeight = 129
       object LabelWidth: TLabel
         Left = 240
         Top = 56
@@ -302,7 +277,7 @@ object Fcoordonnees3D: TFcoordonnees3D
       Align = alTop
       Caption = 'Cote verticale'
       TabOrder = 1
-      ExplicitWidth = 703
+      ExplicitWidth = 589
       object Label1: TLabel
         Left = 200
         Top = 28

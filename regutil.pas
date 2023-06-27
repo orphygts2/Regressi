@@ -5,14 +5,14 @@ interface
 uses
   System.UITypes, System.Types, system.IOutils, System.StrUtils,
   system.Inifiles, system.SysUtils,
-  Windows, Messages, Classes, Dialogs,
-  Graphics, printers, controls, grids, clipBrd, forms,
+  Windows, Messages, Classes, Dialogs, Forms,
+  Graphics, printers, controls, grids, clipBrd,
   Math, StdCtrls, comctrls, richedit, registry, shlObj,
   Vcl.FileCtrl, Vcl.graphUtil,
   Xml.xmldom, Xml.XMLIntf, Xml.XMLDoc,
   constreg, maths,
   //Winapi.GDIPAPI,
-  pngImage,
+  pngImage, gripSplitter,
   OOmisc, adport, lnswin32, awuser,
   VCL.buttons,vcl.samples.spin;
 
@@ -293,7 +293,7 @@ var
         AffIncertParam : TAffIncertParam = i95;
         FontSizeMemo : integer = 12;
         grapheClip : TgrapheClipBoard;
-        TexteGrapheSize : integer = 5;
+        TexteGrapheSize : integer = 3;
         RappelTroisGraphes : boolean = true;
         CoeffEllipse : double = 1.0;
         ModeleFacteurQualite : boolean = true; // sinon facteur d'amortissement Q=1/2m
@@ -390,6 +390,8 @@ function FichierGroupe : String;
 Procedure RemoveBackSlash(var aPath : String);
 procedure VerifMemo(memo: TRichEdit);
 Function isCaracGrandeur(carac : char) : boolean;
+Function isCaracUnite(carac : char) : boolean;
+Procedure convertitExpUnite(var unite : string);
 Function isLettre(carac : char) : boolean;
 function litColor(couleurDefaut : TColor) : Tcolor;
 function SelectDir(var aDirectory : string) : boolean;
@@ -1197,34 +1199,32 @@ Function StrSexaToDeci(Nombre : String) : double;
 var posDegre,posSeconde,posMinute,posPoint : integer;
     degre,minute,seconde : integer;
 begin
+     nombre := trim(nombre);
      posDegre := pos('°',nombre);
+     if posDegre=0 then posDegre := pos(' ',nombre);  // Miriade
      posMinute := pos('''',nombre);
+     if posMinute=0 then posMinute := pos(' ',nombre,posDegre+2);  // Miriade
      posSeconde := pos('"',nombre);
-     if posSeconde=0 then begin
-        posSeconde := pos('''''',nombre);
-        if posSeconde>0 then begin
-             nombre[posSeconde] := '"';
-             delete(nombre,posSeconde+1,1);
-        end;
-     end;
+     if posSeconde=0 then posSeconde := pos('''''',nombre);
+     if posSeconde>0 then delete(nombre,posSeconde,length(nombre)-posSeconde);
      posPoint := pos('.',nombre);
      if posPoint>0 then delete(nombre,posPoint,length(nombre));
-     if (posDegre>0) or (posMinute>0) or (posSeconde>0) then begin
-                  if posDegre>0
-                     then degre := strToInt(copy(nombre,1,posDegre-1))
-                     else degre := 0;
-                  if posMinute>0
-                     then minute := strToInt(copy(nombre,posDegre+1,posMinute-posDegre-1))
-                     else begin
-                        posMinute := posDegre;
-                        minute := 0;
-                     end;
-                  if posSeconde>0
-                     then seconde := strToInt(copy(nombre,posMinute+1,posSeconde-posMinute-1))
-                     else seconde := 0;
-                  if degre<0
-                    then result := degre-minute/60-seconde/60/60
-                    else result := degre+minute/60+seconde/60/60;
+     if (posDegre>0) or (posMinute>0) then begin
+             if posDegre>0
+                then degre := strToInt(trim(copy(nombre,1,posDegre-1)))
+                else degre := 0;
+             if posMinute>0
+                then minute := strToInt(trim(copy(nombre,posDegre+1,posMinute-posDegre-1)))
+                else begin
+                     posMinute := posDegre;
+                     minute := 0;
+                end;
+             if posMinute<length(nombre)
+                then seconde := strToInt(trim(copy(nombre,posMinute+1,length(nombre)-posMinute)))
+                else seconde := 0;
+             if degre<0
+                then result := degre-minute/60-seconde/60/60
+                else result := degre+minute/60+seconde/60/60;
      end // posDegre <> 0
      else result := getFloat(nombre);
 end; // StrSexaToDeci
@@ -2343,6 +2343,39 @@ begin
          charInset(carac,SuiteCaracGrandeur);
 end;
 
+Function isCaracUnite(carac : char) : boolean;
+const caracUnite: TSysCharSet =
+      ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'l', 'k', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'y', 'z',
+       'A', 'B', 'C', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'S', 'T', 'V', 'W', 'Y', 'Z',
+       '°', '-', '/', 'µ', '^',
+       '1', '2', '3'];
+begin
+    result := charInset(carac,CaracUnite);
+    if not result then
+       if carac=OmegaMaj then begin
+            result := true;
+            exit;
+       end;
+end;
+
+Procedure convertitExpUnite(var unite : string);
+var i : integer;
+    caracCourant : char;
+    numero : integer;
+begin
+    for i := 1 to length(unite) do begin
+        caracCourant := unite[i];
+        if caracCourant = '-' then
+           Unite[i] := moinsExp;
+         if caracCourant = '+' then
+            Unite[i] := plusExp;
+         if charInSet(caracCourant,chiffre) then begin
+            numero := strToInt(Unite[i]);
+            Unite[i] := chiffreExp[numero];
+         end;
+    end;
+end;
+
 procedure ecritChaineRW3(const s : string);
 var sRW3 : shortString;
 
@@ -2479,7 +2512,7 @@ Largeur, Hauteur : integer;
 X, Y : integer; //coordonnées image source
 I, J : integer; //coordonnées image destination
 Diff0,Diff1,Diff2,Diff3 : single; //distance pour l'interpolation bilinéaire
-DX0,DX1,DX2,DX3, DY0,DY1,DY2,DY3 : single; //coordonnees image source (points voisins, reelles)
+DX0, DX1, DY0, DY2 : single; //coordonnees image source (points voisins, reelles)
 X0,X1,X2,X3, Y0,Y1,Y2,Y3 : integer;  //coordonnees image source (points voisins, entieres)
 XR, YR : double; //coordonnees image source (reelles)
 R0,R1,R2,R3 : integer;
@@ -2516,11 +2549,9 @@ BEGIN
        YR := Max(YR, 0);
        DY0 := YR - Floor(YR);
        Y0 := Trunc(Floor(YR));
-       DY1 := DY0;
        Y1 := Y0;
        DY2 := 1 - DY0;
        Y2 := Y0 + 1;
-       DY3 := DY2;
        Y3 := Y2;
        FOR I := 0 TO BMPF.Width - 1 DO BEGIN
           XR := -0.5 + I / zoom;
@@ -2539,14 +2570,12 @@ BEGIN
             X0 := Trunc(Floor(XR));
  	          DX1 := 1 - DX0;
             X1 := X0 + 1;
- 	          DX2 := DX0;
-            X2 := X0;
- 	          DX3 := DX1;
+ 	          X2 := X0;
             X3 := X1;
 
 	          IF (DX0 = 0) THEN BEGIN  // 2 points sur verticale
-		          Diff0 := 1 / Sqrt( DX0*DX0 + DY0*DY0 );
-		          Diff2 := 1 / Sqrt( DX2*DX2 + DY2*DY2 );
+		          Diff0 := 1 / Abs(DY0);
+		          Diff2 := 1 / Abs(DY2);
 		          V := 1/(Diff0 + Diff2);
 
 		          R0 := TabScanlineBMP[Y0,X0].RGBTRed;
@@ -2562,8 +2591,8 @@ BEGIN
 		          TabScanlineBMPF[I].RGBTBlue  := Trunc((B0*Diff0 + B2*Diff2)*V);
 		        END
             ELSE IF (DY0 = 0) THEN BEGIN // 2 points sur horizontale
-		          Diff0 := 1 / Sqrt (DX0*DX0 + DY0*DY0);
-		          Diff1 := 1 / Sqrt (DX1*DX1 + DY1*DY1);
+		          Diff0 := 1 / Abs(DX0);
+		          Diff1 := 1 / Abs(DX1);
 		          V := 1/(Diff0 + Diff1);
 
 		          R0 := TabScanlineBMP[Y0,X0].RGBTRed;
@@ -2580,9 +2609,9 @@ BEGIN
             END
             ELSE BEGIN
 		          Diff0 := 1 / Sqrt( DX0*DX0 + DY0*DY0);
-		          Diff1 := 1 / Sqrt( DX1*DX1 + DY1*DY1);
-		          Diff2 := 1 / Sqrt( DX2*DX2 + DY2*DY2);
-		          Diff3 := 1 / Sqrt( DX3*DX3 + DY3*DY3);
+		          Diff1 := 1 / Sqrt( DX1*DX1 + DY0*DY0);
+		          Diff2 := 1 / Sqrt( DX0*DX0 + DY2*DY2);
+		          Diff3 := 1 / Sqrt( DX1*DX1 + DY2*DY2);
 		          V := 1/(Diff0 + Diff1 + Diff2 + Diff3);
 
               R0 := TabScanlineBMP[Y0,X0].RGBTRed;
@@ -2703,7 +2732,7 @@ end;
 {$IFDEF Debug}
 procedure ecritDebug(s : string);
 begin
-      exit;
+//      exit;
       append(fichierDebug);
       writeln(fichierDebug,s);
       flush(fichierDebug);
@@ -2738,12 +2767,12 @@ var
   b : TBitmap;
   i : integer;
 
-  (*
-procedure ResizeToolBar(var tb : TToolBar);
+(*
+procedure ResizeToolBar(const tb : TToolBar);
 begin
       tb.Font.Height := Screen.PixelsPerInch div 6;
 end;
-  *)
+*)
 
   (*
   procedure ResizeGlyph(const sb : TSpeedButton; const bb : TBitBtn);
@@ -2813,21 +2842,29 @@ end;
     end;
   end; //ResizeGlyphBB
 
+  procedure ResizeGripSplitter(const gs:TGripSplitter);
+  begin
+       gs.Width := Screen.PixelsPerInch div 4;
+  end;
+
+(*
   procedure ResizeGrid(bb : TStringGrid);
   begin
        bb.DefaultRowHeight := hauteurColonne;
   end;
+*)
 
 begin
   if Screen.PixelsPerInch = 96 then Exit;
 
   for i := 0 to -1 + container.ControlCount do begin
-     if container.Controls[i] IS TBitBtn then ResizeGlyphBB(TBitBtn(container.Controls[i]));
-     if container.Controls[i] IS TSpeedButton then ResizeGlyphSB(TSpeedButton(container.Controls[i]));
-     if container.Controls[i] IS TSpinEdit then continue;
-     if container.Controls[i] IS TSpinButton then continue;
-     if container.Controls[i] IS TToolbar then continue;// ResizeToolBar(TToolBar(container.Controls[i]));
-     if container.Controls[i] IS TStringGrid then continue;//ResizeGrid(TStringGrid(container.Controls[i]));
+     if container.Controls[i] is TBitBtn then ResizeGlyphBB(TBitBtn(container.Controls[i]));
+     if container.Controls[i] is TGripSplitter then ResizeGripSplitter(TGripSplitter(container.Controls[i]));
+     if container.Controls[i] is TSpeedButton then ResizeGlyphSB(TSpeedButton(container.Controls[i]));
+     if container.Controls[i] is TSpinEdit then continue;
+     if container.Controls[i] is TSpinButton then continue;
+  //   if container.Controls[i] is TToolbar then ResizeToolBar(TToolBar(container.Controls[i]));
+  //   if container.Controls[i] is TStringGrid then ResizeGrid(TStringGrid(container.Controls[i]));
      if container.Controls[i] is TWinControl then
         ResizeButtonImagesforHighDPI(TWinControl(container.Controls[i]));
   end;
@@ -2835,6 +2872,7 @@ begin
 end; // ResizeButtonImagesforHighDPI
 
 Initialization
+
      ExemplesDir := extractFilePath(application.ExeName)+'Exemples\';
      DocRegPdf := changeFileExt(application.ExeName,'.pdf');
      DocRegWord := changeFileExt(application.ExeName,'.odt');
@@ -2876,7 +2914,8 @@ Initialization
 {$IFDEF Debug}
       assignFile(fichierDebug,mesDocsDir+'Regressi.txt');
       rewrite(fichierDebug);
-      writeln(fichierDebug,'Regressi ffmpeg 08/03/2022');
+      writeln(fichierDebug,'Regressi ffmpeg 08/03/2023');
+      writeln(fichierDebug,'Initialisation regutil');
       flush(fichierDebug);
       closeFile(fichierDebug);
 {$ENDIF}

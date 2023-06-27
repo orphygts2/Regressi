@@ -26,7 +26,8 @@ object AideDlg: TAideDlg
     Lines.Strings = (
       
         'ConfigRegressi.exe permet d'#39'imposer une configuration par d'#233'faut' +
-        ' au d'#233'marrage de Regressi sur une machine.'
+        ' au d'#233'marrage de Regressi sur une '
+      'machine.'
       
         'Cela n'#39'est utile que si chaque utilisateur se connecte sous une ' +
         'session diff'#233'rente. '
@@ -56,14 +57,16 @@ object AideDlg: TAideDlg
       ''
       
         'Vous pouvez donc transporter une configuration d'#39'un ordinateur '#224 +
-        ' un autre en transportant le fichier regressi.ini '
+        ' un autre en transportant le fichier '
+      'regressi.ini '
       
         'du r'#233'pertoire de regressi (par d'#233'faut c:\Program Files\Evariste\' +
         'Regressi)'
       ''
       
         'Vous pouvez d'#233'sormais indiquer le r'#233'pertoire de donn'#233'es "'#224' la ma' +
-        'in"  pour le cas o'#249' le r'#233'pertoire de l'#39'utilisateur '
+        'in"  pour le cas o'#249' le r'#233'pertoire de '
+      'l'#39'utilisateur '
       'ne serait pas  accessible/d'#233'fini.')
     TabOrder = 0
   end

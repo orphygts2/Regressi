@@ -987,7 +987,7 @@ BEGIN
       {$ifdef Win32}
          Result := pSC.SetFormat(ppmt^);
       {$else}
-         Result := pSC.SetFormat(ppmt);
+         Result := pSC.SetFormat(ppmt^);
       {$endif}
   end;
 

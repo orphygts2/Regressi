@@ -3,13 +3,14 @@ unit CourbesU;
 interface
 
 uses
-  Windows, SysUtils, Messages,  Classes,  Graphics, Controls,  Forms,  Dialogs,
-  StdCtrls,  ExtCtrls,  Buttons,  Printers,  Math, ComCtrls, clipbrd,
+  Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, Buttons, Printers, Math, Vcl.ComCtrls, clipbrd,
   jpeg, gifimg, pngimage, inifiles,
-  vcl.HtmlHelpViewer,
+  Vcl.HtmlHelpViewer,
   Menus, Spin, ImgList, ToolWin, grids,
   constreg, grapheU, regUtil,
-  system.Types, System.ImageList, Vcl.Mask, Vcl.BaseImageCollection,
+  system.Types, System.ImageList,
+  Vcl.Mask, Vcl.BaseImageCollection,
   Vcl.ImageCollection, Vcl.VirtualImageList;
 
 const
@@ -84,7 +85,9 @@ type
     procedure FormResize(Sender: TObject);
     procedure ToolButton1Click(Sender: TObject);
     procedure TimerMoveTimer(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
   private
+    penWidth : integer;
     e_PointRepere : TarrayPoint;
     PointRepere : TarrayPoint;
     BorneSelect,oldBorne : TstyleDrag;
@@ -605,9 +608,11 @@ end; // traceFleche
 
 begin
        PaintBox.canvas.pen.color := couleur[0];
+       PaintBox.canvas.pen.width := penWidth;
        TraceFleche(e_PointRepere[bsOrigine],e_PointRepere[bsEchelle2]);
        TraceFleche(e_PointRepere[bsOrigine],e_PointRepere[bsEchelle1]);
        TraceCroix(e_PointRepere[bsOrigine],magnet);
+       PaintBox.canvas.pen.width := 1;
 end; // traceBorne
 
 Procedure ImageVersEcran;
@@ -1040,6 +1045,11 @@ end;
 procedure TCourbesForm.SignifEditChange(Sender: TObject);
 begin
   signif[objetCourant] := signifEdit.text
+end;
+
+procedure TCourbesForm.FormActivate(Sender: TObject);
+begin
+   penWidth := screen.Width div 1920;
 end;
 
 procedure TCourbesForm.FormClose(Sender: TObject; var Action: TCloseAction);

@@ -109,5 +109,8 @@ begin
 end;
 
 initialization
+{$IFDEF Debug}
+   ecritDebug('initialization oneinst');
+{$ENDIF}
   EnsureSingleInstance
 end.

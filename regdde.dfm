@@ -4,8 +4,8 @@ object FormDDE: TFormDDE
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Regressi'
-  ClientHeight = 446
-  ClientWidth = 452
+  ClientHeight = 444
+  ClientWidth = 424
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

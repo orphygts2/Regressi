@@ -165,7 +165,9 @@ begin with pages[pageCourante],fonctionTheorique[m] do begin
            exit;
       end;
       if  uniteSIGlb and
-         (grandeurs[indexY].fonct.genreC=G_experimentale)
+         ((grandeurs[indexY].fonct.genreC=G_experimentale)
+ //         or ((grandeurs[indexY].fonct.genreC=G_fonction) and grandeurs[indexY].prefixeImpose)  /// new
+         )
           then begin
                coeffSI := grandeurs[indexY].coeffSI;
                sommeCarreY := sommeCarreY*sqr(coeffSI);
@@ -430,6 +432,7 @@ begin with pages[pageCourante] do begin
     end;
     if (i1>Maxi_i1) and avecMessage then afficheErreur(erTimeOut,HELP_Timeout);
     result := true;
+    calculPrecision;
 end end; // LevenbergMarquardt
 
 Function EffectueGaussNewton : boolean;
@@ -496,6 +499,7 @@ begin with pages[pageCourante] do begin
     until (i1>Maxi_i1) or stable;
     if (i1>Maxi_i1) and avecMessage then afficheErreur(erTimeOut,HELP_Timeout);
     result := true;
+    calculPrecision;
 end end; // EffectueGaussNewton
 
 var iParam,iRecuit,iRecuitMax : integer;

@@ -39,6 +39,8 @@ type
     NumeroPageSE: TSpinEdit;
     Label3: TLabel;
     Label5: TLabel;
+    penwidthSE: TSpinEdit;
+    Label6: TLabel;
     procedure FormActivate(Sender: TObject);
     procedure HelpBtnClick(Sender: TObject);
     procedure OKBtnClick(Sender: TObject);
@@ -83,9 +85,10 @@ with dessinLoc do begin
      LigneRappelCB.visible := notSousDessin;
      MotifRG.Visible := notSousDessin;
      CouleurCombo.Visible := notSousDessin;
-     CouleurComboLabel.Visible := notSousDessin;          
-     TexteTab.TabVisible := notSousDessin;
+     CouleurComboLabel.Visible := notSousDessin;
      CouleurCombo.selected := pen.color;
+     penwidthSE.value := pen.width;
+     TexteTab.TabVisible := notSousDessin;
      SpinEditHauteur.text := IntToStr(hauteur);
      opaqueCB.checked := IsOpaque;
      OpaqueColorBox.selected := CouleurFond;
@@ -133,6 +136,7 @@ end;
 procedure TLectureTexteDlg.OKBtnClick(Sender: TObject);
 begin with dessinLoc do begin
             pen.color := CouleurCombo.selected;
+            pen.width := penwidthSE.value;
             IsOpaque := opaqueCB.checked;
             isTitre := TitreRG.itemIndex<>0;
             CouleurFond := colorToRGB(OpaqueColorBox.selected);

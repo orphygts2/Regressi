@@ -3,8 +3,8 @@ object AboutBox: TAboutBox
   Top = 117
   BorderStyle = bsDialog
   Caption = 'A propos'
-  ClientHeight = 526
-  ClientWidth = 754
+  ClientHeight = 509
+  ClientWidth = 732
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -19,8 +19,8 @@ object AboutBox: TAboutBox
   object PanelCop: TPanel
     Left = 0
     Top = 0
-    Width = 754
-    Height = 526
+    Width = 732
+    Height = 509
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -33,6 +33,8 @@ object AboutBox: TAboutBox
     Padding.Right = 16
     Padding.Bottom = 16
     TabOrder = 0
+    ExplicitWidth = 746
+    ExplicitHeight = 510
     object ProgramIcon: TImage
       Left = 16
       Top = 16
@@ -940,7 +942,7 @@ object AboutBox: TAboutBox
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'Version 4.8.4 ; Delphi 11 ; 07/06/2022'
+      Caption = 'Version 4.8.9 ; Delphi 11 ; 01/06/2023'
     end
     object Email: TLabel
       Left = 16
@@ -965,8 +967,8 @@ object AboutBox: TAboutBox
       Caption = 'Liste Regressi : https://framalistes.org/sympa/info/regressi'
     end
     object DebugLabel: TLabel
-      Left = 264
-      Top = 322
+      Left = 16
+      Top = 324
       Width = 87
       Height = 36
       Margins.Left = 6
@@ -983,7 +985,7 @@ object AboutBox: TAboutBox
       Visible = False
     end
     object Image1: TImage
-      Left = 618
+      Left = 631
       Top = 16
       Width = 80
       Height = 80
@@ -1067,8 +1069,26 @@ object AboutBox: TAboutBox
       Margins.Bottom = 6
       Caption = 'Pour me contacter '#233'viter d'#39'utiliser @laposte.net'
     end
+    object Win64Label: TLabel
+      Left = 502
+      Top = 324
+      Width = 201
+      Height = 36
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
+      Caption = 'Windows 64 bits'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -26
+      Font.Name = 'Segoe UI'
+      Font.Style = [fsBold]
+      ParentFont = False
+      Visible = False
+    end
     object OKButton: TBitBtn
-      Left = 162
+      Left = 200
       Top = 368
       Width = 290
       Height = 54
@@ -1076,30 +1096,16 @@ object AboutBox: TAboutBox
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = '&OK'
-      Default = True
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000000000000000000000000
-        8000008000000080800080000000800080008080000080808000C0C0C0000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-        3333333300003333333333333333333300003333333333333333333300003333
-        333333333333333300003333333A0333333333330000333333AAA03333333333
-        0000333333AAA03333333333000033333AAAAA033333333300003333AAAAAA03
-        3333333300003337AA03AAA0333333330000337A03333AA03333333300003333
-        33333AAA0333333300003333333333AA03333333000033333333333AA0333333
-        00003333333333337A033333000033333333333337A033330000333333333333
-        333AA33300003333333333333333333300003333333333333333333300003333
-        33333333333333330000}
+      Kind = bkOK
       Margin = 2
-      ModalResult = 1
+      NumGlyphs = 2
       Spacing = -1
       TabOrder = 0
       IsControl = True
     end
   end
   object VersionBtn: TBitBtn
-    Left = 162
+    Left = 200
     Top = 434
     Width = 290
     Height = 54

@@ -9,7 +9,7 @@ uses Windows, Classes, Graphics, Forms, Controls, StdCtrls, ShellApi,
   vcl.HtmlHelpViewer,
   aideKey, OleCtrls, SHDocVw, Variants,
   system.Types, System.ImageList, system.UITypes,
-  PythonVersions, PythonEngine, PythonGUIInputOutput,
+  PythonVersions, PythonEngine,
   Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection;
 
 type
@@ -206,11 +206,8 @@ type
     ConstGlbEdit: TRichEdit;
     ToolButton76: TToolButton;
     PythonTS: TTabSheet;
-    PythonEngine1: TPythonEngine;
-    PythonModule1: TPythonModule;
     CalcPythonBtn: TButton;
     MemoResultat: TMemo;
-    PythonGUIInputOutput1: TPythonGUIInputOutput;
     Panel3: TPanel;
     PythonVersionLabel: TLabel;
     cbPyVersions: TComboBox;
@@ -231,6 +228,13 @@ type
     VirtualImageList1: TVirtualImageList;
     MemoSource: TRichEdit;
     NumeroLigneMemo: TRichEdit;
+    PythonModule1: TPythonModule;
+    PythonEngine1: TPythonEngine;
+    PythonInputOutput1: TPythonInputOutput;
+    ToolButton71: TToolButton;
+    ToolButton77: TToolButton;
+    ToolButton78: TToolButton;
+    ToolButton79: TToolButton;
     procedure gridVariabKeyPress(Sender: TObject; var Key: Char);
     procedure FermeBtnClick(Sender: TObject);
     procedure DeleteBtnClick(Sender: TObject);
@@ -347,6 +351,8 @@ type
     procedure effaceConsoleBtnClick(Sender: TObject);
     procedure MemoSourceKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure PythonInputOutput1SendUniData(Sender: TObject;
+      const Data: string);
  private
      triTexte : boolean;
      ColPermise : array[0..1] of TsetGrandeur;
@@ -680,11 +686,12 @@ begin
       if (NbreVariab>0) and (pageCourante>0) then affichePage;
       Screen.Cursor := crDefault;
    end;
+   RazBtn.visible := (modeAcquisition=AcqClavier);
    DeleteVarBtn.visible := NbreVariabExp>0;
    TriBtn.visible := pages[pageCourante].experimentale;
    TriBtn.hint := htriData;
    DelLinesBtn.visible := true;
-   DeltaBtn.visible := TriBtn.visible;
+//   DeltaBtn.visible := TriBtn.visible;
    AddPageBtn.visible := ModeAcquisition in [AcqClavier,AcqClipBoard,AcqSimulation,AcqCan,AcqFichier];
    case modeAcquisition of
         AcqCan : AddPageBtn.Hint := 'Acquisition par '+ChangeFileExt(ExtractFileName(nomExeAcquisition),'');
@@ -900,10 +907,10 @@ begin
    if (NbreConst + NbreParam[paramNormal])>0 then afficheConstantes;
    GridParamGlb.visible := false;
    if (NbreConstGlb+NbreParam[paramGlb])>0 then afficheConstGlb;
-   TriBtn.visible := NbrePages>2;
-   TriBtn.hint := htriPage;
+   TriPageBtn.visible := NbrePages>2;
+   TriPageBtn.hint := htriPage;
    DeleteParamBtn.visible := NbreConstExp>0;
-   DeltaBtn.visible := ModeAcquisition<>AcqSimulation;
+//   DeltaParamBtn.visible := ModeAcquisition<>AcqSimulation;
 end;// TraceGridParam
 
 procedure TFValeurs.GrecBtnClick(Sender: TObject);
@@ -1000,11 +1007,6 @@ end; // AddBtn
 
 procedure TFValeurs.TraceGrid;
 begin
-     TriBtn.visible := false;
-     RazBtn.visible := (modeAcquisition=AcqClavier) and
-          (feuillets.ActivePage<>variabSheet);
-     DelLinesBtn.visible := false;
-     AddPageBtn.visible := pageCourante>0;
      if Feuillets.ActivePage=variabSheet then traceGridVariab;
      if Feuillets.ActivePage=paramSheet then traceGridParam;
 end;
@@ -1528,7 +1530,7 @@ begin
              MajSimulation := false;
              Recompiler := false;
              MajTimer.enabled := false;
-             MajBtn.ImageIndex := 16;             
+             MajBtn.ImageIndex := 16;
              if NbrePages>0 then MajBtnClick(nil);
              MajGridVariab := true;
              AfficheDelta;
@@ -2289,7 +2291,7 @@ end;
 
 procedure TFValeurs.FormDeactivate(Sender: TObject);
 begin
-     if not compilationEnCours and
+                if not compilationEnCours and
         MajTimer.enabled and
         (pageCourante>0) then
          MajBtnClick(sender);
@@ -2618,10 +2620,47 @@ begin
 end;
 
 procedure TFValeurs.FeuilletsChange(Sender: TObject);
-Var PyVersion : TPythonVersion;
-    Py3264Glb : boolean;
+
+function verifPython : boolean;
+var Py3264Glb : boolean;
     Py3264 : boolean;
-    tabs: Array [0..8] of Integer;
+    PyVersion : TPythonVersion;
+begin
+       result := true;
+       if cbPyVersions.items.count = 0 then begin
+          PyVersions := GetRegisteredPythonVersions;
+          py3264Glb := false;
+          for PyVersion in PyVersions do begin
+               {$IFDEF Win32}
+               py3264 := pos('64',PyVersion.DisplayName)>0;
+               {$ELSE}
+               py3264 := pos('32',PyVersion.DisplayName)>0;
+               {$ENDIF}
+               if not py3264 then cbPyVersions.Items.Add(PyVersion.DisplayName);
+               py3264Glb := py3264Glb or py3264;
+          end;
+          if cbPyVersions.Items.Count > 0 then
+              cbPyVersions.ItemIndex := 0;
+          cbPyVersions.enabled := cbPyVersions.Items.Count > 1;
+          if cbPyVersions.enabled
+              then PythonVersionLabel.caption := 'Choix Python version :'
+              else PythonVersionLabel.caption := 'Version de Python :';
+          if cbPyVersions.Items.Count=0 then begin
+             if Py3264Glb
+                 then begin
+                   {$IFDEF Win32}
+                   PythonVersionLabel.caption := 'Python 64 bits (32 nécessaire)';
+                   {$ELSE}
+                   PythonVersionLabel.caption := 'Python 32 bits (64 nécessaire)';
+                   {$ENDIF}
+                 end
+                 else PythonVersionLabel.caption := 'Python non trouvé ; installer une distribution 32 bits';
+              result := false;
+          end;
+       end;
+end;
+
+Var tabs: Array [0..8] of Integer;
     i : integer;
 //    nom0 : string;
 begin
@@ -2637,8 +2676,17 @@ begin
        if not(PythonEngine1.autoLoad) and
           not(PythonEngine1.isHandleValid) then PythonEngine1.LoadDll;
        except
+          {$IFDEF Win32}
           afficheErreur('Python non trouvé ; installer une distribution 32 bits',0);
+          {$ELSE}
+          afficheErreur('Python non trouvé ; installer une distribution 64 bits',0);
+          {$ENDIF}
           feuillets.activePage := expSheet;
+          exit;
+       end;
+       if not verifPython then begin
+          feuillets.activePage := expSheet;
+          exit;
        end;
        (*
        if (memoSource.lines.Count=0) or (pos('#Tapez',memoSource.lines[0])>0) then begin
@@ -2675,38 +2723,12 @@ begin
        end;
        *)
        for i := 0 to 8 do tabs[i] := 4 * 4 * (1+i); // 4 caractères de tabulation
+       {$IFDEF Win32}
        MemoSource.Perform(EM_SETTABSTOPS, 9, LongInt(@tabs));
+       {$ELSE}
+       MemoSource.Perform(EM_SETTABSTOPS, 9, Int64(@tabs));
+       {$ENDIF}
        MemoSource.Refresh;
-       if cbPyVersions.items.count = 0 then begin
-          PyVersions := GetRegisteredPythonVersions;
-          py3264Glb := false;
-          for PyVersion in PyVersions do begin
-               {$IFDEF Win32}
-               py3264 := pos('64',PyVersion.DisplayName)>0;
-               {$ELSE}
-               py3264 := pos('32',PyVersion.DisplayName)>0;
-               {$ENDIF}
-               if not py3264 then cbPyVersions.Items.Add(PyVersion.DisplayName);
-               py3264Glb := py3264Glb or py3264;
-          end;
-          if cbPyVersions.Items.Count > 0 then
-              cbPyVersions.ItemIndex := 0;
-          cbPyVersions.enabled := cbPyVersions.Items.Count > 1;
-          if cbPyVersions.enabled
-              then PythonVersionLabel.caption := 'Choix Python version :'
-              else PythonVersionLabel.caption := 'Version de Python :';
-          if cbPyVersions.Items.Count=0 then begin
-             if Py3264Glb
-                 then begin
-                   {$IFDEF Win32}
-                   PythonVersionLabel.caption := 'Python 64 bits (32 nécessaire)';
-                   {$ELSE}
-                   PythonVersionLabel.caption := 'Python 32 bits (64 nécessaire)';
-                   {$ENDIF}
-                 end
-                 else PythonVersionLabel.caption := 'Python non trouvé ; installer une distribution 32 bits';
-          end;
-       end;
     end;
 end;
 
@@ -2940,7 +2962,7 @@ begin // CalcPythonBtnClick
           if (p<>pageCourante) then calculerPage(p);
    end;
    except
-      ShowMessage('');
+      ShowMessage('Problème Python non prévu !');
    end;
 end; // CalcPythonBtnClick
 
@@ -2953,7 +2975,7 @@ begin
  // TPythonEngine
   PythonEngine1 := TPythonEngine.Create(Self);
   PyVersions[cbPyVersions.ItemIndex].AssignTo(PythonEngine1);
-  PythonEngine1.IO := PythonGUIInputOutput1;
+  PythonEngine1.IO := PythonInputOutput1;
 
 // TPythonModule
   PythonModule1 := TPythonModule.Create(Self);
@@ -3343,10 +3365,21 @@ end;
 procedure TFValeurs.PythonDllBtnClick(Sender: TObject);
 var DllDir : String;
     AllUserInstall: Boolean;
+    i : integer;
+    trouve : boolean;
 begin
-  PythonEngine.IsPythonVersionRegistered('3.7', DllDir,AllUserInstall);
-  MemoResultat.lines.add('Python DLL: '+DllDir+PythonEngine1.DllName);
-  MemoResultat.lines.add('Lib and Dlls: '+PathPython);
+  i := 12;
+  repeat
+      trouve := PythonEngine.IsPythonVersionRegistered('3.'+intToStr(i), DllDir,AllUserInstall);
+      if trouve then begin
+          MemoResultat.lines.add('Python DLL: '+DllDir+PythonEngine1.DllName);
+          MemoResultat.lines.add('Lib and Dlls: '+PathPython);
+          break;
+      end
+      else dec(i)
+  until trouve or (i<4);
+  if not trouve then
+     ShowMessage('Aucune DLL Python (3.4 à 3.12) trouvée')
 end;
 
 procedure TFValeurs.PythonEngine1PathInitialization(Sender: TObject;
@@ -3367,6 +3400,12 @@ begin
       Path := Path+pythonDir;
    end;
    PathPython := Path;
+end;
+
+procedure TFValeurs.PythonInputOutput1SendUniData(Sender: TObject;
+  const Data: string);
+begin
+     MemoResultat.lines.add(data)
 end;
 
 procedure TFValeurs.RandomBtnClick(Sender: TObject);
@@ -3408,19 +3447,17 @@ end;
 
 Procedure TFValeurs.litConfig;
 var imax,i : integer;
-    choix : integer;
     zByte : byte;
     zInt : integer;
     lectureOK : boolean;
+    choix21 : boolean;
 begin
-   while (Length(LigneWin)>0) and (ligneWin[1]=symbReg2) do begin
-      choix := 0;
-      imax := NbreLigneWin(ligneWin);
-      if pos(stFenetre,ligneWin)<>0 then choix := 21;
-      lectureOK := true;
-      case choix of
-           0 : for i := 1 to imax do readln(fichier);
-           21 : begin
+    while (Length(LigneWin)>0) and (ligneWin[1]=symbReg2) do begin
+       imax := NbreLigneWin(ligneWin);
+       choix21 := pos(stFenetre,ligneWin)<>0;
+       lectureOK := true;
+       if choix21
+           then begin
               readln(fichier,zByte);
               windowState := TwindowState(zByte);
               readln(fichier,zint);
@@ -3433,11 +3470,11 @@ begin
               height := zint;
               position := poDesigned;
               dispositionFenetre := dNone;
-           end;
-       end; { case }
+           end
+           else for i := 1 to imax do readln(fichier);
        if lectureOK then litLigneWin;
     end;
-end; { litConfig }
+end; // litConfig
 
 Procedure TFValeurs.ecritConfig;
 begin

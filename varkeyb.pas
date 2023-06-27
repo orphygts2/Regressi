@@ -79,7 +79,7 @@ begin
    //     DefaultRowHeight := hauteurColonne;
    //     defaultColWidth := largeurUnCarac*8;
      end;
-     ResizeButtonImagesforHighDPI(self);
+ //    ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TNewClavierDlg.OKBtnClick(Sender: TObject);

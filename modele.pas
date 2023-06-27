@@ -493,6 +493,7 @@ begin with pages[pageCourante] do begin
     end;
     if (i1>Maxi_i1) and avecMessage then afficheErreur(erTimeOut,HELP_Timeout);
     result := true;
+    calculPrecision;
 end end; // LevenbergMarquardt
 
 Function EffectueGaussNewton : boolean;
@@ -508,6 +509,9 @@ begin with pages[pageCourante] do begin
     Lambda := 0;
     result := false;
     repeat
+        suiteValeurParam[1][NbreSuiteValeurParam] := valeurParam[paramNormal,1];
+        suiteValeurParam[2][NbreSuiteValeurParam] := valeurParam[paramNormal,2];
+         if NbreSuitevaleurParam<maxvaleurParam then inc(NbreSuitevaleurParam);
         inc(i1);
         Jprecedent := J;
         chi2Precedent := chi2;
@@ -529,20 +533,23 @@ begin with pages[pageCourante] do begin
         end;
         mu := 1;i2 := 0;
         while (Diverge or ErreurCalcul) and (i2<Maxi_i2) do begin
-        inc(i2);
-        mu := mu/2;
-        for k := 1 to NbreParam[paramNormal] do
-            if paramInverse[k]
-               then valeurParam[paramNormal,k] := 1/(1/valeurParam[paramNormal,k]-incParam[k]*mu)
-               else valeurParam[paramNormal,k] := valeurParam[paramNormal,k]-incParam[k]*mu;
-        CalculJ(false);
+          inc(i2);
+          mu := mu/2;
+          for k := 1 to NbreParam[paramNormal] do
+             if paramInverse[k]
+                then valeurParam[paramNormal,k] := 1/(1/valeurParam[paramNormal,k]-incParam[k]*mu)
+                else valeurParam[paramNormal,k] := valeurParam[paramNormal,k]-incParam[k]*mu;
+          suiteValeurParam[1][NbreSuiteValeurParam] := valeurParam[paramNormal,1];
+          suiteValeurParam[2][NbreSuiteValeurParam] := valeurParam[paramNormal,2];
+           if NbreSuitevaleurParam<maxvaleurParam then inc(NbreSuitevaleurParam);
+          CalculJ(false);
         end; // while diverge
         if diverge and (stable or (i1<=1)) then begin
-         ValeurParam[paramNormal] := sauveValeurParam;
-         calculJ(not stable); // calcul dans l'état initial
-         diverge := false;
-         stable := true;
-         i2 := 0;
+          ValeurParam[paramNormal] := sauveValeurParam;
+          calculJ(not stable); // calcul dans l'état initial
+          diverge := false;
+          stable := true;
+          i2 := 0;
         end;
         if erreurCalcul or erreurParam or diverge
            then begin
@@ -562,8 +569,12 @@ begin with pages[pageCourante] do begin
          Application.ProcessMessages; // pour mise à jour de l'affichage
         end;
     until (i1>Maxi_i1) or stable;
+    suiteValeurParam[1][NbreSuiteValeurParam] := valeurParam[paramNormal,1];
+    suiteValeurParam[2][NbreSuiteValeurParam] := valeurParam[paramNormal,2];
+    if NbreSuitevaleurParam<maxvaleurParam then inc(NbreSuitevaleurParam);
     if (i1>Maxi_i1) and avecMessage then afficheErreur(erTimeOut,HELP_Timeout);
     result := true;
+    calculPrecision;
 end end;
 
 var iParam,iModele,iRecuit,iRecuitMax : integer;

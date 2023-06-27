@@ -72,7 +72,7 @@ end;
 
 procedure TChoixTangenteDlg.FormCreate(Sender: TObject);
 begin
-   ResizeButtonImagesforHighDPI(self);
+   //ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TChoixTangenteDlg.NbreSpinButtonDownClick(Sender: TObject);

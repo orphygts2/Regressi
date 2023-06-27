@@ -72,6 +72,8 @@ object FGrapheFFT: TFGrapheFFT
     Color = clWindow
     ParentBackground = False
     TabOrder = 2
+    ExplicitWidth = 1996
+    ExplicitHeight = 1740
     object PaintBoxTemps: TPaintBox
       Left = 0
       Top = 0
@@ -227,7 +229,6 @@ object FGrapheFFT: TFGrapheFFT
     ButtonHeight = 83
     ButtonWidth = 131
     Color = clGradientInactiveCaption
-    DrawingStyle = dsGradient
     EdgeBorders = [ebTop, ebBottom]
     GradientEndColor = clSkyBlue
     HotTrackColor = clAqua
@@ -238,6 +239,7 @@ object FGrapheFFT: TFGrapheFFT
     TabOrder = 1
     Transparent = False
     Wrapable = False
+    ExplicitWidth = 2466
     object SelectBtn: TToolButton
       Left = 0
       Top = 0
@@ -544,6 +546,8 @@ object FGrapheFFT: TFGrapheFFT
     TabOrder = 0
     OnDblClick = ValeursGridDblClick
     OnMouseDown = ValeursGridMouseDown
+    ExplicitLeft = 2002
+    ExplicitHeight = 1740
     ColWidths = (
       80
       80
@@ -579,6 +583,8 @@ object FGrapheFFT: TFGrapheFFT
       end>
     ParentFont = True
     UseSystemFont = False
+    ExplicitTop = 1937
+    ExplicitWidth = 2466
   end
   object ToolBarGrandeurs: TToolBar
     Left = 0
@@ -602,6 +608,7 @@ object FGrapheFFT: TFGrapheFFT
     ShowCaptions = True
     TabOrder = 4
     Wrapable = False
+    ExplicitWidth = 2466
     object ToolButton6: TToolButton
       Tag = 7
       Left = 0
@@ -801,6 +808,8 @@ object FGrapheFFT: TFGrapheFFT
     ParentFont = False
     TabOrder = 5
     Visible = False
+    ExplicitTop = 1869
+    ExplicitWidth = 2466
     object DecadeLabel: TLabel
       Left = 248
       Top = 8
@@ -874,7 +883,7 @@ object FGrapheFFT: TFGrapheFFT
       Margins.Right = 6
       Margins.Bottom = 6
       EditLabel.Width = 350
-      EditLabel.Height = 36
+      EditLabel.Height = 44
       EditLabel.Margins.Left = 6
       EditLabel.Margins.Top = 6
       EditLabel.Margins.Right = 6
@@ -897,7 +906,7 @@ object FGrapheFFT: TFGrapheFFT
       Margins.Right = 6
       Margins.Bottom = 6
       EditLabel.Width = 234
-      EditLabel.Height = 36
+      EditLabel.Height = 44
       EditLabel.Margins.Left = 6
       EditLabel.Margins.Top = 6
       EditLabel.Margins.Right = 6
@@ -975,6 +984,8 @@ object FGrapheFFT: TFGrapheFFT
     Align = alRight
     TabOrder = 6
     Visible = False
+    ExplicitLeft = 2202
+    ExplicitHeight = 1740
     object GroupBox6: TGroupBox
       Left = 1
       Top = 1047

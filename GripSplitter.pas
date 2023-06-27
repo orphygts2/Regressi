@@ -310,8 +310,6 @@ var
       widthMax,largeur : integer;
   begin
      Canvas.Font.Name:='Segoe UI';
-   //  Canvas.Font.Color:=clHighLightText;
-   //  Canvas.Font.Color:=clHotLight;
      Canvas.Font.Color := clBlack;
      widthMax := (gripRect.Bottom-gripRect.Top);
      Canvas.Font.Style:=[];//[fsBold];

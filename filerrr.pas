@@ -284,7 +284,7 @@ begin
               (tableauOid[code]<>nil)
 end;
 
-Function VerifUnite(code : integer) : boolean;
+Function VerifUniteVTT(code : integer) : boolean;
 begin
     result := (code>0) and
               (code<=maxVtt) and
@@ -315,7 +315,7 @@ begin
              then OidCourant := round(extraitNombreVTT);
           if pos('unité',ligneWin)<>0 then begin
                Tableau.cUnite := round(extraitNombreVTT);
-               if verifUnite(Tableau.cUnite) then
+               if verifUniteVTT(Tableau.cUnite) then
                   Tableau.cNomUnite := uniteVTT[Tableau.cUnite].nomG;
           end;
           if pos('nom',ligneWin)<>0
@@ -687,7 +687,7 @@ begin // Organise
            (cNombre<MinPoints)
            then cIndex := -1
            else begin
-                if not verifUnite(cUnite) then UniteVTT[cUnite] := TuniteVTT.create;
+                if not verifUniteVTT(cUnite) then UniteVTT[cUnite] := TuniteVTT.create;
                 unite := uniteVTT[cUnite];
                 if (not unite.affecte) or
                    (unite.Affecte and (unite.codeCourbe=codeCourbe))
@@ -991,7 +991,9 @@ begin with pages[pageCourante] do begin
       end;
 end end; // litValeurVecteurCSV
 
-Function VerifUnite : string;
+procedure litUneLigne;
+
+Function VerifUniteLoc : string;
 var posO,posF : integer;
 begin
    result := '';
@@ -1002,9 +1004,8 @@ begin
       ligneList[0] := copy(ligneList[0],1,posO-1);
       UniteTrouvee := true;
    end;
-end;//verifUnite
+end;//verifUniteLoc
 
-procedure litUneLigne;
 var index : integer;
     Lsignif : string;
     Lnom,unite : string;
@@ -1012,7 +1013,7 @@ begin
      litLigneCSV;
      if finFichierCSV then exit;
      Lsignif := LigneList[0];
-     Unite := VerifUnite;
+     Unite := VerifUniteLoc;
      LNom := Copy(trimNomGrandeur(LigneList[0]),1,longNom);
      if Lnom='' then Lnom := 'V';
      if indexNom(Lnom)<>grandeurInconnue then Lnom := Lnom+intToStr(NbreVariab);
@@ -1026,7 +1027,7 @@ end; // litUneLigne
 
 var premiereLigne : string;
     commentaire : string;
-    NEnTete,i : integer;
+    NbreEnTete,i : integer;
 begin // LitFichierCSVHorizontal
      result := false;
      strErreurFichier := erFileData;
@@ -1039,11 +1040,11 @@ begin // LitFichierCSVHorizontal
      AssignFile(fichierCSV,NomFichier);
      Reset(fichierCSV);
      readln(fichierCSV,premiereLigne);
-     NEnTete := 0;
+     NbreEnTete := 0;
      while (pos(';',premiereLigne)<=0) and
            (pos(',',premiereLigne)<=0) and
            not eof(fichierCSV) do begin
-             inc(NEnTete);
+             inc(NbreEnTete);
              readln(fichierCSV,premiereLigne);
      end;
      if pos(';',premiereLigne)>0
@@ -1056,10 +1057,10 @@ begin // LitFichierCSVHorizontal
      Reset(fichierCSV);
      finFichierCSV := false;
      NbreCSV := 0;
-     if NEnTete>0
+     if NbreEnTete>0
         then readln(fichierCSV,commentaire)
         else commentaire := '';
-     for i := 2 to NEnTete do readln(fichierCSV,premiereLigne);
+     for i := 2 to NbreEnTete do readln(fichierCSV,premiereLigne);
      if not ajoutePage then exit;
      repeat
            litUneLigne;
@@ -1090,6 +1091,8 @@ var
     separateurCSV : Char; // pour distinguer 1.2,1.3 de 1,2;1,3
     caracNomPasco : TsysCharset;
     VariabAsuppr : TstringList;
+    VariabTextuelle : set of byte;
+    AFormatSettings : TFormatSettings;
 
 procedure litLigneCSV;
 const
@@ -1102,9 +1105,12 @@ var i,j : integer;
     posCarac : integer;
     isNombre : boolean;
     avecBlanc : boolean;
+    NbrePb : integer;
+
 begin
    try
    NbreCSV := 0;
+   NbrePb := 0;
    isLigneDeChiffres := false;
    FinFichierCSV := FinFichierCSV or eof(fichierCsv);
    if finFichierCSV then exit;
@@ -1122,6 +1128,7 @@ begin
  //  '2019-12-13T17:48:28.899;209Â°34â€²57.394â€³;2Â°15â€²30.136â€³;0.429831623898;-0.6;7.9576437;-1.0179604;7.4803727'
    for i := 0 to pred(NbreCSV) do begin
        aElement := ligneList[i];
+       aElement := trim(aElement);
        posCarac := pos(degreIMCCE,aElement);
        if posCarac>0 then begin
           delete(aElement,posCarac,1);
@@ -1147,16 +1154,22 @@ begin
            end;
            if avecBlanc and isNombre then ligneList[i] := trim(aElement);
            isNombre := isNombre or (aElement='NaN');
+           if not isNombre then begin
+               include(VariabTextuelle,i);
+               VariabAsuppr.Add(nom[i]);
+               inc(NbrePb);
+           end;
            isLigneDeChiffres := isNombre;
        end;
    end;
    if LigneList[pred(NbreCSV)]='' then dec(NbreCSV);
+   if not isLigneDeChiffres then isLigneDeChiffres := (NbreCsv>3) and (NbrePb<(NbreCSV-3));
    isLigneDeChiffres := isLigneDeChiffres and (NbreCsv>0);
    except
         FinFichierCSV := true;
         NbreCSV := 0;
    end;
-end;
+end; // litLigneCSV
 
 procedure LitValeurVecteurDoubleVirgule;
 var i,NbrePoints : integer;
@@ -1184,24 +1197,25 @@ var i,j,k,NbrePoints : integer;
 
 Procedure RecupereDateHeure;
 var posT : integer;
+// epheremide 2023-05-23T08:48:45.267
 begin
     posT := pos('T',strValeur);
     if posT>0 then strValeur[posT] := ' ';
     posT := pos('.',strValeur);
     if posT>0 then delete(strValeur,posT,length(strValeur)-posT+1);
- // on ôte les centième de seconde
+ // on ôte les millièmes de seconde
     posT := pos('-',strValeur);
     if posT>0 then strValeur[posT] := '/';
     posT := pos('-',strValeur);
     if posT>0 then strValeur[posT] := '/';
 
-    FormatSettings.ShortDateFormat := 'yyyy/mm/dd hh.nn.ss';
+    AFormatSettings.ShortDateFormat := 'yyyy/mm/dd';
+    AFormatSettings.ShortTimeFormat := 'hh:nn:ss';
+
 end;
 
-var sauveFormatDate : string;
-    Lvaleur : double;
+var Lvaleur : double;
 begin
-    sauveFormatDate := FormatSettings.ShortDateFormat;
    indexDate := grandeurInconnue;
    indexTime := grandeurInconnue;
    indexDateTime := grandeurInconnue;
@@ -1209,11 +1223,13 @@ begin
       NbrePoints := nmes;
       nmes := nmes+1;
       for i := 0 to pred(NbreCSV) do begin
+          if i in VariabTextuelle then continue;
           index := decodeVariab[i];
-          strValeur := ligneList[i];
+          strValeur := trim(ligneList[i]);
           posTime := pos(':',strValeur);
           posDate := pos('/',strValeur);
           posDegre := pos('°',strValeur);
+          if posDegre=0 then posDegre := pos(' ',strValeur);  // Miriade
           if pos('T',strValeur)>0 then begin
              recupereDateHeure;
              posDate := pos('/',strValeur);
@@ -1226,7 +1242,7 @@ begin
                 if posTime>0
                    then if posDate>0
                         then begin // date et heure
-                            Lvaleur := StrToDateTime(strValeur);
+                            Lvaleur := StrToDateTime(strValeur,AformatSettings);
                             indexDateTime := index;
                             Grandeurs[index].formatU := fDateTime;
                         end
@@ -1259,7 +1275,7 @@ begin
    end;
    for I := 0 to VariabAsuppr.Count-1 do begin
        index := indexNom(VariabAsuppr[i]);
-       SupprimeGrandeurE(index);
+       if index<>grandeurInconnue then SupprimeGrandeurE(index);
    end;
    k := NbreVariab-1;
    while k>=0 do begin
@@ -1270,18 +1286,17 @@ begin
        if Asuppr then SupprimeGrandeurE(index);
        dec(k);
    end;
-   FormatSettings.ShortDateFormat := sauveFormatDate;
 end; // litValeurVecteurCSV
 
-Function VerifUnite(num : integer) : string;
+procedure VerifUniteCSV(num : integer);
 var posO,posF,posA,i : integer;
     reponse : string;
 begin
-   result := '';
+   nom[num] := ligneList[num];
    posO := pos('en ',ligneList[num]);
    if (posO>1) then begin
       reponse := copy(ligneList[num],posO+3,4);
-      ligneList[num] := copy(ligneList[num],1,posO-1);
+      nom[num] := trimNomGrandeur(copy(ligneList[num],1,posO-1));
       i:=1;
       while i<=length(reponse) do
           if charInSet(reponse[i],caracUnite)
@@ -1291,14 +1306,14 @@ begin
       UniteTrouvee := true;
       if reponse='Second' then reponse := 's';
       if reponse='Volt' then reponse := 'V';
-      result := reponse;
+      unite[num] := reponse;
       exit;
    end;
    posO := pos('(',ligneList[num]);
    posF := pos(')',ligneList[num]);
    if (posO>1) and (posF>posO) then begin
       reponse := copy(ligneList[num],posO+1,posF-posO-1);
-      ligneList[num] := copy(ligneList[num],1,posO-1);
+      nom[num] := trimNomGrandeur(copy(ligneList[num],1,posO-1));
       UniteTrouvee := true;
       if reponse='Second' then reponse := 's';
       if reponse='degrees' then reponse := '°';
@@ -1315,19 +1330,19 @@ begin
          ligneList[num] := ligneList[num]+reponse;
          reponse := '';
       end;
-      result := reponse;
+      unite[num] := reponse;
    end;
 end;
 
 Function LigneDeNom : boolean;
 var i : integer;
-    NbreNom : integer;
+    NbreNoms : integer;
 begin
-  NbreNom := 0;
+  NbreNoms := 0;
   for i := 0 to pred(NbreCSV) do
-      if ligneList[i]<>'' then inc(NbreNom);
-  result := (NbreCsv>1) and (NbreNom>0);
-  if (NbreNom<NbreCsv) then
+      if ligneList[i]<>'' then inc(NbreNoms);
+  result := (NbreCsv>1) and (NbreNoms>0) and (ligneList[0][1]<>'#');
+  if (NbreNoms<NbreCsv) then
   for i := 0 to pred(NbreCSV) do
       if ligneList[i]='' then
       case i of
@@ -1356,8 +1371,7 @@ if avecNoms then begin
      UniteTrouvee := false;
      for i := 0 to pred(NbreCSV) do begin
          Lsignif := LigneList[i];
-         Unite[i] := VerifUnite(i);
-         Nom[i] := Copy(trimNomGrandeur(LigneList[i]),1,longNom);
+         VerifUniteCSV(i);
          if nom[i]<>'' then begin
             if nom[i]='xaxis' then nom[i] := 't';
           // Keysight x-axis,1,2 -> t,V1,V2
@@ -1422,7 +1436,6 @@ end; // litNomUnite
 
 procedure verifNoms;
 var i : integer;
-    Lnom : string;
     nomConnu : set of byte;
     compteur : integer;
 begin
@@ -1432,12 +1445,11 @@ if avecNoms then begin
      litLigneCSV;
      if NbreCSV<>NbreVariabExp then exit;
      for i := 0 to pred(NbreCSV) do begin
-         LNom := VerifUnite(i);
-         LNom := trimNomGrandeur(LigneList[i]);
-         DecodeVariab[i] := indexNom(Lnom);
+         VerifUniteCSV(i);
+         DecodeVariab[i] := indexNom(nom[i]);
          if DecodeVariab[i] in nomConnu then begin
-            Lnom := Lnom+intToStr(i);
-            DecodeVariab[i] := indexNom(Lnom);
+            nom[i] := nom[i]+intToStr(i);
+            DecodeVariab[i] := indexNom(nom[i]);
          end;
          include(nomConnu,DecodeVariab[i]);
          if DecodeVariab[i]=grandeurInconnue then exit;
@@ -1541,8 +1553,8 @@ begin
      for i := 0 to maxGrandeurs do DecodeVariab[i] := grandeurInconnue;
      for i := 0 to pred(NbreCSV) do begin
          Lsignif := LigneList[i];
-         Unite[i] := VerifUnite(i);
-         Nom[i] := convertitNomPasco(LigneList[i]);
+         VerifUniteCSV(i);
+         Nom[i] := convertitNomPasco(nom[i]);
          for k := 1 to maxConnu do begin
              if pos(nomPasco[k],nom[i])=1 then begin
                 if length(nom[i])>length(nomPasco[k])
@@ -1611,7 +1623,8 @@ var i,j,k,imax : integer;
     existeAilleurs : boolean;
     NomVariab : array[0..maxGrandeurs] of string;
     NbreDataZero : array[TcodePage,0..32] of integer;
-    nbrevar : integer;
+    nbreVar : integer;
+    index : integer;
 begin // litPasco
      caracNomPasco := ['a'..'z','A'..'Z','0'..'9'];
      finFichierCsv := false;
@@ -1660,7 +1673,7 @@ begin // litPasco
                for k := 0 to pred(NbreCsvPasco) do
                    if (nomVariab[k]=grandeurs[j].nom) then
                       inc(i);
-               if (i<2) and (grandeurs[j].nom<>'t') then VariabASuppr.add(grandeurs[j].nom);
+               if (i<2) and (grandeurs[j].nom<>'t') then VariabAsuppr.Add(nom[i]);
            end;
       end;
       if NbrePages>=2 then begin
@@ -1695,7 +1708,7 @@ begin // litPasco
                  existeAilleurs := true;
                  break;
               end;
-          if not existeAilleurs then VariabASuppr.add(grandeurs[j].nom);
+          if not existeAilleurs then VariabASuppr.add(nomVariab[j]);
       end;
       for p := NbrePages downto 1 do begin
       // supprimer les pages sans intérêt
@@ -1704,8 +1717,10 @@ begin // litPasco
               if NbreDataZero[p,j]<(pages[p].nmes div 2) then inc(Nbrevar);
           if (nbreVar<=1) and (NbrePages>1) then SupprimePage(p,false);
       end;
-      for i := 0 to pred(VariabASuppr.count) do
-          supprimeGrandeurE(indexNomVariab(VariabASuppr[i]));
+      for I := 0 to VariabAsuppr.Count-1 do begin
+         index := indexNom(VariabAsuppr[i]);
+         if index<>grandeurInconnue then SupprimeGrandeurE(index);
+      end;
       LitFichierCSV := (NbrePages>0) and (pages[1].nmes>0) and (NbreGrandeurs>1);
 end; // litPasco
 
@@ -2070,7 +2085,7 @@ end; // litChauvinArnoux
 var premiereLigne : string;
     ls : string;
     commentaire : string;
-    compteur,NEnTete,i : integer;
+    compteur,NbreEnTete,i : integer;
     indexDateTexte : integer;
     t0 : double;
 label fin;
@@ -2101,9 +2116,62 @@ begin
       end;
    end;
    Reset(fichierCSV);
+end; // Test_LF_only
+
+procedure setGraphe;
+var angulaireGlb : boolean;
+    iLongitude,iX,iY,iDistance,iDateTexte : integer;
+
+Procedure AjouteOptionRect;
+begin
+if (iX=0) or (iY=0) then exit;
+with FgrapheVariab.graphes[1] do begin
+     Coordonnee[1].nomX := grandeurs[iX].nom;
+     if iDateTexte>0 then Coordonnee[2].nomX := grandeurs[iX].nom;
+     Coordonnee[1].nomY := grandeurs[iY].nom;
+     if iDateTexte>0 then Coordonnee[2].nomY := grandeurs[iDateTexte].nom;
+     include(OptionGraphe,OgOrthonorme);
+     exclude(OptionGraphe,OgPolaire);
+     FgrapheVariab.configCharge := true;
+     FgrapheVariab.majFichierEnCours := true;
+end end;
+
+Procedure AjouteOptionAngle;
+begin
+if iDistance=0 then exit;
+with FgrapheVariab.graphes[1] do begin
+     Coordonnee[1].nomX := grandeurs[iLongitude].nom;
+     if iDateTexte>0 then Coordonnee[2].nomX := grandeurs[iLongitude].nom;
+     Coordonnee[1].nomY := grandeurs[iDistance].nom;
+     if iDateTexte>0 then Coordonnee[2].nomY := grandeurs[iDateTexte].nom;
+     include(OptionGraphe,OgOrthonorme);
+     include(OptionGraphe,OgPolaire);
+     FgrapheVariab.configCharge := true;
+     FgrapheVariab.majFichierEnCours := true;
+end end;
+
+var i,index : integer;
+    nomMaj : string;
+begin
+  angulaireGlb := false;
+  iX := 0;iY := 0;iLongitude := 0;iDistance := 0;iDateTexte := 0;
+  for i := 0 to pred(Nbrevariab) do begin
+      index := indexVariab[i];
+      nomMaj := uppercase(grandeurs[index].nom);
+      if pos('LONG',NomMaj)>0 then begin
+         angulaireGlb := true;
+         iLongitude := index;
+      end;
+      if NomMaj='X' then iX := index;
+      if NomMaj='Y' then iY := index;
+      if NomMaj='Date' then iDateTexte := index;
+      if (NomMaj='DOBS') or (pos('DIST',NomMaj)>0 ) then iDistance := index;
+  end;
+  if angulaireGlb then ajouteOptionAngle else ajouteOptionRect;
 end;
 
 begin // LitFichierCSV
+     AFormatSettings := TFormatSettings.create();
      result := false;
      strErreurFichier := erFileData;
      ModeAcquisition := AcqFichier;
@@ -2112,8 +2180,10 @@ begin // LitFichierCSV
      ligneList.strictDelimiter := true;
      separateurCSV := ',';
      ligneList.QuoteChar := #0;
+     VariabTextuelle := [];
      VariabASuppr := TStringList.create;
      VariabASuppr.Duplicates := dupIgnore;
+     VariabASuppr.Sorted := true;
      AssignFile(fichierCSV,NomFichier);
      Reset(fichierCSV);
      Test_LF_Only;
@@ -2158,12 +2228,12 @@ begin // LitFichierCSV
            goto fin;
          end;
      end;
-     NEnTete := 0;
+     NbreEnTete := 0;
      while (pos(';',premiereLigne)<=0) and
            (pos(',',premiereLigne)<=0) and
            (pos(crTab,premiereLigne)<=0) and
            not eof(fichierCSV) do begin
-           inc(NEnTete);
+           inc(NbreEnTete);
            readln(fichierCSV,premiereLigne); // deuxième... en fait
            if pos(';',premiereLigne)>0
               then separateurCSV := ';'
@@ -2172,6 +2242,10 @@ begin // LitFichierCSV
                  else if pos(crTab,premiereLigne)>0
                     then separateurCSV := crTab;
            ligneList.delimiter := separateurCSV;
+     end;
+     while premiereLigne[1]='#' do begin
+        inc(NbreEnTete);
+        readln(fichierCSV,premiereLigne);
      end;
      avecNoms := not ligneDeChiffres(premiereLigne);
      compteur := 1;
@@ -2188,10 +2262,13 @@ begin // LitFichierCSV
      Reset(fichierCSV);
      finFichierCSV := false;
      NbreCSV := 0;
-     if NEnTete>0
-        then readln(fichierCSV,commentaire)
-        else commentaire := '';
-     for compteur := 2 to NEnTete do readln(fichierCSV,premiereLigne);
+     commentaire := '';
+     for compteur := 1 to NbreEnTete do begin
+         readln(fichierCSV,premiereLigne);
+         if (premiereLigne[1]='#')
+            then commentaire := commentaire + copy(premiereLigne,2,length(premiereLigne))
+            else if compteur=1 then commentaire := premiereLigne;
+     end;
      try
      if NouveauFichier
         then litNomUnite
@@ -2219,7 +2296,6 @@ begin // LitFichierCSV
          result := false;
      end;
      fin:
-     VariabAsuppr.free;
      LigneList.free;
      CloseFile(fichierCSV);
      FileMode := fmOpenReadWrite;
@@ -3046,9 +3122,10 @@ var
   commentaire,target : string;
   angulaireGlb : boolean;
   iX,iY,iLongitude,iDateTexte,iDistance,iTarget,iTemps : integer;
-//  iRiseTime,iRizeAzimuth,iTransitTime,iTransitAzimuth,iSetTime,iSetAzimuth : integer;
 (*
-name="Date" ucd="time.epoch" datatype="char"
+name="Date" ucd="time.epoch"
+    datatype="char"
+    ou datatype="double" (Julien)
 name="Rise Time" ucd="time.epoch" datatype="float" unit="h"
 name="Rise Azimuth" ucd="pos.az.azi" datatype="float" unit="deg"
 name="Transit Time" ucd="time.epoch" datatype="float" unit="h"
@@ -3254,8 +3331,9 @@ if (XmlNode.NodeName='vot:DESCRIPTION') and FieldEnCours then
         grandeurs[colC].formatU := fDate;
       end;
       if XMLNode.NodeValue='Date' then begin
-        typeColonne[colC] := vCharDate;
-        grandeurs[colC].formatU := fDate;
+         if typeColonne[colC]=vChar then typeColonne[colC] := vCharDate;
+         // sinon vDouble (Julien)
+         grandeurs[colC].formatU := fDate;
       end;
       if (typeColonne[colC]=vChar)
         then grandeurs[colC].fonct.genreC := g_texte;
@@ -3306,6 +3384,11 @@ if isField then begin
       end;
       if AttributNoeud.Text='"d:m:s"' then begin
          typeColonne[colC] := vCharAngle;
+         if nouveauFichier then grandeurs[colC].nomUnite := '°';
+         angulaireGlb := true;
+      end;
+      if AttributNoeud.Text='"deg"' then begin
+         typeColonne[colC] := vDouble;
          if nouveauFichier then grandeurs[colC].nomUnite := '°';
          angulaireGlb := true;
       end;
@@ -4305,6 +4388,9 @@ end;
 *)
 
 initialization
+{$IFDEF Debug}
+   ecritDebug('initialization filerrr');
+{$ENDIF}
    H5Charge := false;
 
 finalization

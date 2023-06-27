@@ -129,7 +129,7 @@ end;
 
 procedure TOptionCouleurDlg.FormCreate(Sender: TObject);
 begin
- ResizeButtonImagesforHighDPI(self);
+ //ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TOptionCouleurDlg.SetModif(Sender: TObject);

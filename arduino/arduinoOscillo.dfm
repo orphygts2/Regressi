@@ -3,8 +3,8 @@ object ArduinoOscilloForm: TArduinoOscilloForm
   Top = 0
   HelpContext = 80
   Caption = 'Acquisition par Arduino pour Regressi'
-  ClientHeight = 1006
-  ClientWidth = 1730
+  ClientHeight = 1002
+  ClientWidth = 1674
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,8 +21,8 @@ object ArduinoOscilloForm: TArduinoOscilloForm
   object PaintBox: TPaintBox
     Left = 66
     Top = 270
-    Width = 1664
-    Height = 716
+    Width = 1608
+    Height = 712
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -36,7 +36,7 @@ object ArduinoOscilloForm: TArduinoOscilloForm
   object grid: TStringGrid
     Left = 0
     Top = 90
-    Width = 1730
+    Width = 1674
     Height = 180
     Margins.Left = 6
     Margins.Top = 6
@@ -66,7 +66,7 @@ object ArduinoOscilloForm: TArduinoOscilloForm
   object ToolBar: TToolBar
     Left = 0
     Top = 0
-    Width = 1730
+    Width = 1674
     Height = 44
     Margins.Left = 6
     Margins.Top = 6
@@ -155,7 +155,7 @@ object ArduinoOscilloForm: TArduinoOscilloForm
   object ParamToolBar: TToolBar
     Left = 0
     Top = 44
-    Width = 1730
+    Width = 1674
     Height = 46
     Margins.Left = 6
     Margins.Top = 6
@@ -226,7 +226,7 @@ object ArduinoOscilloForm: TArduinoOscilloForm
     end
     object FechList: TComboBox
       Left = 584
-      Top = 6378
+      Top = 0
       Width = 168
       Height = 44
       Hint = 'Pour Arduino Uno, ne pas d'#233'passer 2 kHz'
@@ -274,9 +274,9 @@ object ArduinoOscilloForm: TArduinoOscilloForm
     end
     object SynchroCB: TComboBox
       Left = 952
-      Top = 6378
+      Top = 0
       Width = 260
-      Height = 44
+      Height = 12800
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -310,7 +310,7 @@ object ArduinoOscilloForm: TArduinoOscilloForm
     Left = 0
     Top = 270
     Width = 66
-    Height = 716
+    Height = 712
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -331,8 +331,8 @@ object ArduinoOscilloForm: TArduinoOscilloForm
   end
   object ProgressBar: TProgressBar
     Left = 0
-    Top = 986
-    Width = 1730
+    Top = 982
+    Width = 1674
     Height = 20
     Margins.Left = 6
     Margins.Top = 6

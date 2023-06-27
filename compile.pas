@@ -27,12 +27,14 @@ const
    GrandeurInconnue = MaxMaxGrandeurs + 1;
    CaracUnite: TsysCharSet =
       ['a'..'z', 'A'..'Z', '-','.','/','1'..'3','°','%'];
+   PrecisionMaxParam = 1e-7;
 
 type
   Trepere = class
       Valeur: double;
       Texte: String;
   end;
+  TchiffreSignif = (CSeduscol,CSGUM,CS1);
   TOperateurLogique = (xorop,andop,orop,nandop,modop);
   TlisteRepere = class(TList)
   protected
@@ -56,7 +58,7 @@ type
       sinus, cosinus, tangente, sinusCardinal, derSinCardinal,
       BesselCardinal, derBesselCardinal, errorFunction, aleatoire,
       ArcSinus, arcCosinus, CodeGamma, CodeFact, CodeBruit,
-      CosHyper, sinHyper, tanHyper, NotFunction, ArgTanHyper,
+      CosHyper, sinHyper, tanHyper, NotFunction, ArgTanHyper, ArgCosHyper,ArgSinHyper,
       reelle, imaginaire, argument, angle,
       DateTime, mois, jour, annee, heure,
       SexaToDeci, UtilisateurToRadian, FonctInconnue);
@@ -493,6 +495,7 @@ var
    CodeErreurC:   string;
    modeleDependant : boolean;
    NonDefinieNulle : boolean = false;
+   chiffreSignif : TchiffreSignif = CSeduscol;
 
 procedure Libere(var expr: Pelement);
 procedure DeriveeForm(F: Tfonction; xx: Tgrandeur;
@@ -522,7 +525,7 @@ const
       'SQR', 'SQRT', 'EXP', 'LN', 'LOG',
       'SIN', 'COS', 'TAN', 'SINC', 'SC1', 'J1C', 'J1C1', 'ERF','RAND',
       'ASIN', 'ACOS', 'GAMMA', 'FACT', 'NOISE',
-      'CH', 'SH', 'TH', 'NOT', 'ATH',
+      'CH', 'SH', 'TH', 'NOT', 'ATH','ACH','ASH',
       'RE', 'IM', 'ARG', '',
       'TODATE', 'EXTMOIS', 'EXTJOUR', 'EXTANNEE', 'EXTHEURE', 'DEGDEC', '', '');
 
@@ -3110,6 +3113,8 @@ var
             optionCurseur := oldGrandeurs[i].optionCurseur;
             optionCurseurF := oldGrandeurs[i].optionCurseurF;
             nomVarPosition := oldGrandeurs[i].nomVarPosition;
+            uniteGrapheImposee := oldGrandeurs[i].uniteGrapheImposee;
+            uniteGraphe := oldGrandeurs[i].uniteGraphe;
             if not uniteDonnee and (fonct.genreC=g_experimentale)
                then recopieUnite(oldGrandeurs[i]);
             continuer := False;
@@ -3154,6 +3159,7 @@ begin // compileG
       posC := pos(';', nomU);
       if posC>0 then nomU := copy(nomU,1,posC-1);
       nomUnite := nomU;
+      // PrefixeImpose := puissance<>0;
       if fonct.genreC in [g_diff1, g_diff2] then begin
          indexDer := IndexDerivee(self, grandeurs[0], False, False);
          if indexDer <> grandeurInconnue then begin
@@ -4361,6 +4367,8 @@ initialization
    AdresseFonction[cosHyper] := Ch;
    AdresseFonction[tanHyper] := Th;
    AdresseFonction[argTanHyper] := aTh;
+   AdresseFonction[argCosHyper] := aCh;
+   AdresseFonction[argSinHyper] := aSh;
    AdresseFonction[besselCardinal] := BesselCard;
    AdresseFonction[derBesselCardinal] := derBesselCard;
    AdresseFonction[errorFunction] := erf;

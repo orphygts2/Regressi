@@ -52,6 +52,7 @@ const
   CouleurBandeConfiance    = clGreen;
   CouleurBandePrediction   = clLime;
   CouleurAxeX      = clBlack;
+  taillePointEq = 3;
 
 var
   CouleurGrille:      Tcolor = clMedGray;
@@ -271,6 +272,7 @@ type
     Orthonorme, Polaire: boolean;
     constructor Create;
     procedure setDelta(grandAxe: boolean);
+    procedure setDeltaImpose;
     procedure raz(IsPolaire: boolean);
     procedure affecteMinMax(x: double);
     function Trouve(V: Tvecteur; Debut, Fin: integer): boolean;
@@ -368,7 +370,7 @@ type
     indexCourbeEquivalence: integer;
     LimiteCourbe, LimiteFenetre: Trect;
     BorneFenetre: Trect;
-    Marge : integer;
+    Marge,MargeBorne,dimBorne : integer;
     CurseurOsc:   array[1..5] of TcurseurDonnees;
     CurReticuleDataActif, curReticuleModeleActif, withDebutFin: boolean;
     CurseurDebut:  Tpoint;
@@ -443,7 +445,7 @@ type
     procedure GetEquivalence(x, y: integer;
       var AEquivalence: Tequivalence; var selectEq: TselectEquivalence);
     procedure TraceDroite(x, y, pente: double; xMin, yMin, xMax, Ymax: double);
-    procedure TraceUneCourbe(xvecteur,yvecteur : Tvecteur;N,N0 : integer;acolor : Tcolor);
+    procedure TraceCourbeEquivalence(xvecteur,yvecteur : Tvecteur;N,N0 : integer);
     procedure AjouteEquivalence(i: integer; effaceDouble: boolean);
     procedure RemplitTableauEquivalence;
     procedure TraceCurseur(i: TindexCurseur);
@@ -546,37 +548,37 @@ function TraceToXML(trace : TsetTrace) : TsetTraceXML;
 function TraceFromXML(trace : TsetTraceXML) : TsetTrace;
 
 var
-  MotifIdent: TmotifTexte = mtFleche;
-  hauteurIdent:      integer = 3;
-  avecCadreIdent: boolean = false;
-  isOpaqueIdent: boolean = false;
+  MotifIdent:       TmotifTexte = mtFleche;
+  hauteurIdent:     integer = 3;
+  avecCadreIdent:   boolean = false;
+  isOpaqueIdent:    boolean = false;
   couleurFondIdent:  Tcolor = clWhite;
-  penWidthGrid : integer = 1;
-  tailleTick : integer = 1;
+  penWidthGrid :    integer = 1;
+  tailleTick :      integer = 1;
   LongueurTangente : real = 0.33;
   NbreVecteurVitesseMax: integer = 32;
-  NbreTexteMax:       integer = 32;
-  EchelleVecteur:     double = 0.06;
-  ProlongeVecteur:    boolean = False;
-  ProjeteVecteur:     boolean = False;
-  TraceDefaut:        TtraceDefaut = tdPoint;
-  GammaNiveauGris:    double = 1;
-  DecadeDB:           integer = 2;
-  UseSelect:          boolean = False;
-  DecalageFFT:        integer = 2;
-  CoeffDecalage:      integer = 1;
-  CoeffSIpente:       double = 1;
+  NbreTexteMax:     integer = 32;
+  EchelleVecteur:   double = 0.06;
+  ProlongeVecteur:  boolean = False;
+  ProjeteVecteur:   boolean = False;
+  TraceDefaut:      TtraceDefaut = tdPoint;
+  GammaNiveauGris:  double = 1;
+  DecadeDB:         integer = 2;
+  UseSelect:        boolean = False;
+  DecalageFFT:      integer = 2;
+  CoeffDecalage:    integer = 1;
+  CoeffSIpente:     double = 1;
   OptionGrapheDefault: TsetOptionGraphe = [];
-  ImprimanteEnCours:  boolean = False;
-  ImprimanteMono:     boolean = False;
-  WMFenCours:         boolean = False;
-  ImageEnCours:       boolean = False;
-  verifierLog:        boolean = False;
-  penWidthVGA:        integer = 1;
+  ImprimanteEnCours: boolean = False;
+  ImprimanteMono:    boolean = False;
+  WMFenCours:        boolean = False;
+  ImageEnCours:      boolean = False;
+  verifierLog:       boolean = False;
+  penWidthVGA:       integer = 1;
   GraphePageIndependante: boolean = false;
-  AffichagePrecision: boolean = false;
-  ModeleNumerique:    boolean = false;
-  AffCoeffElarg:      boolean = false;
+  AffichagePrecision:boolean = false;
+  ModeleNumerique:   boolean = false;
+  AffCoeffElarg:     boolean = false;
 
   ConfigGraphe : array[TcodePage] of TtransfertGraphe;
 
@@ -585,7 +587,6 @@ implementation
 uses lectText, optLine, options, valeurs;
 
 const
-    DimBorne  = 8;
     XmaxWMF          = 16000;
     YmaxWMF          = 9000; //16 cm x 9 cm en 0.01mm
     XmaxBitmap       = 800;
@@ -1201,11 +1202,6 @@ begin
   metaFile.enhanced := true;
   metaFile.Height := YmaxWMF;
   metaFile.Width := XmaxWMF;
-(*  try
-     hrefDC := printer.Handle;
-  except
-    end;
-  *)
   hrefDC := application.MainForm.canvas.Handle;
 // exprimée en centième de millimètre, l'unité de mesure propre aux Enhanced Meta File
   metaFileCanvas := TmetaFileCanvas.Create(metaFile,hRefDC);
@@ -1328,14 +1324,20 @@ procedure TGrapheReg.ChercheMonde;
     var
       rapport: double;
       acmX, acmY, aYnew: double;
+      desactiverOrtho : boolean;
     begin
-      if not (OgPolaire in OptionGraphe) and (monde[m].axe <> nil) and
-        (monde[m].axe.nomUnite <> '') and (monde[mondeX].axe <> nil) and
-        (monde[mondeX].axe.nomUnite <> '') then
-        verifierOrtho := verifierOrtho or
-          (monde[m].axe.nomUnite <> monde[mondeX].axe.nomUnite) or
-          (monde[m].graduation <> gLin) or
-          (monde[mondeX].graduation <> gLin);
+      if not (OgPolaire in OptionGraphe) and
+         (monde[m].axe <> nil) and (monde[m].axe.nomUnite <> '') and
+         (monde[mondeX].axe <> nil) and (monde[mondeX].axe.nomUnite <> '') then begin
+          desactiverOrtho := (monde[m].axe.nomUnite <> monde[mondeX].axe.nomUnite) or
+             (monde[m].graduation <> gLin) or
+             (monde[mondeX].graduation <> gLin);
+          if desactiverOrtho then begin
+             verifierOrtho := false;
+             exclude(optionGraphe,ogOrthonorme);
+             exit;
+          end;
+      end;
       acmX := monde[mondeX].a / PixelsPerInchX;
       acmY := monde[m].a / PixelsPerInchY;
       rapport := abs(acmX / acmY);
@@ -1415,7 +1417,7 @@ procedure TGrapheReg.ChercheMonde;
       maxiInt := limiteCourbe.right+marge;
       miniInt := limiteCourbe.left-marge;
       setDelta(grandAxeX);
-  end  end;
+  end end;
 
   procedure AjusteZero;
 
@@ -1428,8 +1430,7 @@ procedure TGrapheReg.ChercheMonde;
           a := (CourbeTop - b) / Maxi;
         mini := (CourbeBottom - b) / a;
         maxi := (CourbeTop - b) / a;
-      end;
-    end;
+    end end;
 
     procedure ajusteYPos(m: TindiceMonde; NouveauZero: integer);
     begin with monde[m] do begin
@@ -1440,8 +1441,7 @@ procedure TGrapheReg.ChercheMonde;
           a := (CourbeTop - b) / Maxi;
         mini := (CourbeBottom - b) / a;
         maxi := (CourbeTop - b) / a;
-      end;
-    end;
+    end end;
 
   var
     m: TindiceMonde;
@@ -1545,9 +1545,9 @@ procedure TGrapheReg.ChercheMonde;
               setLength(yy, pages[pag].nmes);
               for j := 0 to pred(pages[pag].nmes) do begin
                 xx[j] := 2 * valXder[j] * valYder[j] + valYder[j] * valXder2[j];
-                { 2.dr/dt.d(teta)/dt+rd2tezta/dt2 }
+                // 2.dr/dt.d(teta)/dt+rd2tezta/dt2
                 yy[j] := valYder2[j] - valY[j] * sqr(valXder[j]);
-                { d2r/dt2-r.d(teta)/dt }
+                // d2r/dt2-r.d(teta)/dt
               end;
               mondeVecteur[mondeAcc].trouve(xx, yy, pages[pag].nmes);
               finalize(xx);finalize(yy);
@@ -1559,7 +1559,7 @@ procedure TGrapheReg.ChercheMonde;
             exclude(trace, trAcceleration);
           end;
         end; // acceleration
-      end;{i}
+      end;// fot i
   end; // ChercheMondeVecteur
 
   procedure setGraduationZero;
@@ -2404,8 +2404,7 @@ var
     maxiY, miniY,maxiX, miniX: integer;
     pas,oldH: integer;
   begin with courbes[index] do begin
-      with limiteFenetre do
-           h := (right - left + bottom - top) div 2;
+      with limiteFenetre do h := bottom - top;
       h := round(h*TexteGrapheSize/100);
       oldH := canvas.font.height;
       canvas.font.height := h;
@@ -2693,7 +2692,7 @@ begin with courbes[index] do begin
         sincActif := true;
 end end; // affecteSplineSinc
 
-procedure RestaureSinc; // pour récipérer les points expérimentaux
+procedure RestaureSinc; // pour récupérer les points expérimentaux
 begin with courbes[index] do begin
         CopyVecteur(valX, pages[pag].valeurVar[varX.indexG]);
         CopyVecteur(valY, pages[pag].valeurVar[varY.indexG]);
@@ -3615,7 +3614,7 @@ var
 var
   i, z, signeY, long: integer;
   a, b, dX, dY,coeff : double;
-  indexX : integer;
+  indexX,indexY : integer;
   OKp : boolean;
   largeur,oldH : integer;
 begin // Tdessin.Draw
@@ -3654,10 +3653,10 @@ begin // Tdessin.Draw
      else nomX := '';
   end;
   if nomY<>'' then begin
-     indexX := indexNom(nomY);
-     if (indexX<>grandeurInconnue) and
-        (grandeurs[indexX].genreG in [Constante,ConstanteGlb,ParamGlb,ParamNormal]) then begin
-        y1 := grandeurs[indexX].valeurCourante;
+     indexY := indexNom(nomY);
+     if (indexY<>grandeurInconnue) and
+        (grandeurs[indexY].genreG in [Constante,ConstanteGlb,ParamGlb,ParamNormal]) then begin
+        y1 := grandeurs[indexY].valeurCourante;
      end
      else nomY := '';
   end;
@@ -4603,7 +4602,7 @@ procedure TGrapheReg.Draw;
                       indexReticuleModele := i;
                       mondeC := iMondeC;
                       grandeurCurseur := varY;
-                   end;
+                end;
         if indexReticuleModele<0 then exit; // ne devrait pas arriver !
         with courbes[indexReticuleModele] do begin
             if (Ic <= debutC) or (Ic >= finC) then
@@ -4653,6 +4652,8 @@ begin // graphe.draw
   largeurEcran := screen.Width;
   if largeurEcran<64 then largeurEcran := 64;
   axeYpositif := axeYbas;
+  margeBorne := 4*Screen.PixelsPerInch div 96;
+  dimBorne := 2*margeBorne;
   with limiteFenetre do begin
     if (right - left) < 50 then exit;
     dimPoint := (bottom - top) * dimPointVGA div 512;
@@ -4730,18 +4731,19 @@ begin // graphe.draw
         SupprDessin := True;
         for i := 0 to pred(texte.Count) do
           if length(texte[i]) > 0 then
-            SupprDessin := False;
-          if (identification = identCoord) then begin
-              CoordTrouve := false;
-              for i := 0 to pred(courbes.Count) do begin
-                  CoordTrouve := numCoord = indexNom(courbes[i].varY.nom);
-                  if CoordTrouve then break;
-              end;
-              SupprDessin := not CoordTrouve;
-          end;
-          if SupprDessin and (identification<>identDroite)
-             then Dessins.remove(dessins[c])
-             else Inc(c);
+             SupprDessin := False;
+        if motifTexte<>mtNone then SupprDessin := False;
+        if (identification = identCoord) then begin
+            CoordTrouve := false;
+            for i := 0 to pred(courbes.Count) do begin
+                CoordTrouve := numCoord = indexNom(courbes[i].varY.nom);
+                if CoordTrouve then break;
+            end;
+            SupprDessin := not CoordTrouve;
+        end;
+        if SupprDessin and (identification<>identDroite)
+            then Dessins.remove(dessins[c])
+            else Inc(c);
       end
       else Inc(c);
   for c := pred(Dessins.Count) downto 0 do
@@ -5027,8 +5029,7 @@ var
 
   procedure AffecteZoomLoc(m: TindiceMonde);
   begin
-    with monde[m], rect do
-    begin
+    with monde[m], rect do begin
       MondeXY(left, top, m, minX, maxY);
       MondeXY(right, bottom, m, maxX, minY);
       VerifMinMaxReal(MinY, MaxY);
@@ -5477,6 +5478,10 @@ begin // setDelta
   NbreDecimal := 0;
   Expo := 0;
   FExposant := 1;
+  if axe.UniteGrapheImposee then begin
+     setDeltaImpose;
+     exit;
+  end;
   if Graduation = gInv then
     if maxi > 0
       then absMax := abs(1 / maxi)
@@ -5614,6 +5619,53 @@ begin // setDelta
     TickDebut := round(frac(PointDebut / deltaGrandAxe)*NTicks);
   end;
 end; // setDelta
+
+procedure Tmonde.SetDeltaImpose;
+// FExposant=puissance de 10 multiple de 3 de manière à avoir entre
+// NbreGradMax (10) et N/2.5 (4) graduations sur l'axes.
+// ou NbreGradMin (5) et N/2.5 (2) graduations sur l'axes.
+// Delta est l'intervalle entre les graduations qui commencent à PremiereGraduation
+const
+  indexMax = 5;
+  coeff: array[0..indexMax] of double = (0.1, 0.2, 0.5, 1, 2, 5);
+var
+  absMax, largeur, deltaGrandAxe : double;
+  Expo, N, index, indexGrad: integer;
+  uniteLoc : TUnite;
+begin
+  uniteLoc := Tunite.Create;
+  uniteLoc.NomUnite := axe.uniteGraphe;
+  if uniteLoc.UniteEgale(axe)
+     then FExposant := uniteLoc.coeffSI/axe.coeffSI
+     else FExposant := 1;
+  uniteLoc.Free;
+  absMax := abs(maxi);
+  Expo := floor(Log10(Maxi - Mini));
+  largeur  := (maxi - mini) * dix(-expo);
+  index := 0;
+  while ((largeur / coeff[index]) >= NbreGradMax) and (index < indexMax) do
+        Inc(index);
+  DeltaAxe  := coeff[index] * dix(expo);
+  indexGrad := index mod 3;
+  NbreChiffres := ceil(Log10(AbsMax)) - floor(Log10(DeltaAxe));
+  NbreDecimal := NbreChiffres-ceil(Log10(absMax));
+  if NbreDecimal<0 then NbreDecimal := 0;
+  case indexGrad of
+      0: Nticks := 5; { 1 -> 0.2 }
+      1: Nticks := 4; { 2 -> 0.5 }
+      2: Nticks := 5; { 5 -> 1 }
+      else Nticks := 1; // pour le compilateur
+  end;
+  deltaAxe  := deltaAxe / Nticks;
+  N := ceil(Log10(absMax / FExposant));
+  if N > NbreChiffres then NbreChiffres := N;
+  if NbreChiffres < 3 then NbreChiffres := 3;
+  if NbreChiffres > longNombreAxe then
+      NbreChiffres := longNombreAxe;
+  deltaGrandAxe := NTicks*deltaAxe;
+  PointDebut := floor(mini / deltaAxe) * deltaAxe;
+  TickDebut := round(frac(PointDebut / deltaGrandAxe)*NTicks);
+end; // setDeltaImpose
 
 function Tmonde.FormatMonde(x: double): string;
 
@@ -6464,20 +6516,20 @@ begin // GetBorne
          (pag = pageCourante) and
          (FinC > DebutC) then begin
         windowRT(valX[debutC], valY[debutC], iMondeC, xi, yi);
-        if (abs(xi - x) + abs(yi - y)) < 6 then begin
+        if (abs(xi - x) + abs(yi - y)) < 2*margeBorne then begin
           Affecte(bsDebut, indexModele);
           break;
         end;
-        if abs(xi - x) < 4 then begin
+        if abs(xi - x) < margeBorne then begin
           Affecte(bsDebutVert, indexModele);
           break;
         end;
         windowRT(valX[finC], valY[finC], iMondeC, xi, yi);
-        if (abs(xi - x) + abs(yi - y)) < 6 then begin
+        if (abs(xi - x) + abs(yi - y)) < 2*margeBorne then begin
           Affecte(bsFin, indexModele);
           break;
         end;
-        if abs(xi - x) < 4 then begin
+        if abs(xi - x) < margeBorne then begin
           Affecte(bsFinVert, indexModele);
           break;
         end;
@@ -7052,8 +7104,10 @@ begin
   createSolidBrush(couleur);
   createPen(psSolid, 1, couleur);
   canvas.pen.mode := pmNotXor;
-  dB := dimBorne;
-  if style in [bsFin, bsFinVert] then dB := -dimBorne;
+  if style in [bsFin, bsFinVert]
+     then dB := -dimBorne
+     else dB := dimBorne;
+ // symbole de borne=triangle
   if fonctionTheorique[indexM].variableEgalAbscisse and
     (fonctionTheorique[indexM].indexX = indexTri) and
     (style<>bsAucune) then begin
@@ -7061,16 +7115,15 @@ begin
     Points[0] := Point(xi - 2*dB, y1 + dB);
     Points[1] := Point(xi - 2*dB, y1 - dB);
     Points[2] := Point(xi, y1);
-    canvas.Polygon(Points); // triangle 3 points
+    canvas.Polygon(Points);
     createPen(psDash, 3, couleur);
     segment(xi, LimiteCourbe.top, xi, LimiteCourbe.bottom);
   end
   else if not (ImprimanteEnCours or WMFenCours or ImageEnCours) then begin
-    // symbole de borne=triangle
     Points[0] := Point(xi - dB, yi + dB);
     Points[1] := Point(xi - dB, yi - dB);
     Points[2] := Point(xi + dB, yi);
-    canvas.Polygon(Points); // triangle 3 points
+    canvas.Polygon(Points);
   end;
   canvas.pen.mode := pmCopy;
   canvas.brush.style := bsClear;
@@ -7194,8 +7247,7 @@ begin
   else EquivalenceCourante := nil;
   indexCourbeEquivalence := -1;
   mondeDerivee := mondeY;
-  for i := 0 to pred(courbes.Count) do
-    with courbes[i] do
+  for i := 0 to pred(courbes.Count) do with courbes[i] do
       if (pag = pageCourante) and (iMondeC = mondeY) then begin
         indexCourbeEquivalence := i;
         break;
@@ -7215,8 +7267,7 @@ begin
   mondeDerivee := courbes[indexCourbeEquivalence].iMondeC;
   if courbes[indexCourbeEquivalence].courbeExp then
 // recherche courbe modélisée ou lissée correspondante
-    for i := 0 to pred(courbes.Count) do
-      with courbes[i] do
+    for i := 0 to pred(courbes.Count) do with courbes[i] do
         if (pag=pageCourante) and (valYder <> nil) and
            (varY=courbes[indexCourbeEquivalence].varY) then begin
           if (indexModele=1) and not (courbeExp) then begin
@@ -7807,14 +7858,10 @@ begin
          EcritFichier;
          FileClose(Hfichier);
      end
-end;
+end; // genereSon
 
 procedure TgrapheReg.VersLatex(const NomFichier : string;suffixe : char);
 var NomFichierDebut : string;
-
- // title p. 177
- // unit p. 226
- // barre d'erreur p. 160
 
  procedure TraceMonde(m : TindiceMonde);
  const NbreMax = 128;
@@ -8158,8 +8205,8 @@ begin
         pen.color := PColorRepere;
         repere := ListeRepere[i];
         numPage := pageCourante;
-     end;
-     dessins.add(Dessin);
+      end;
+      dessins.add(Dessin);
    end;
 end end;
 

@@ -5,8 +5,8 @@ object OptionsDlg: TOptionsDlg
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 914
-  ClientWidth = 908
+  ClientHeight = 913
+  ClientWidth = 894
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
@@ -44,13 +44,13 @@ object OptionsDlg: TOptionsDlg
   object PageControl: TPageControl
     Left = 0
     Top = 0
-    Width = 688
-    Height = 914
+    Width = 674
+    Height = 913
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
-    ActivePage = PrintTS
+    ActivePage = DirTS
     Align = alClient
     MultiLine = True
     TabOrder = 0
@@ -981,8 +981,8 @@ object OptionsDlg: TOptionsDlg
         Width = 42
         Height = 42
         Hint = 
-          'Sons|Le r'#233'pertoire des sons de Regressi sera "Ma musqiue" de l'#39'u' +
-          'tilisateur courant'
+          'Ma Musique|Le r'#233'pertoire des sons de Regressi sera "Ma musqiue" ' +
+          'de l'#39'utilisateur courant'
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -1004,8 +1004,8 @@ object OptionsDlg: TOptionsDlg
         Width = 42
         Height = 42
         Hint = 
-          'Mes images|Le r'#233'pertoire des imagesde Regressi sera "Mes images"' +
-          ' de l'#39'utilisateur courant'
+          'Mes images|Le r'#233'pertoire des images de Regressi sera "Mes images' +
+          '" de l'#39'utilisateur courant'
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -1027,8 +1027,8 @@ object OptionsDlg: TOptionsDlg
         Width = 42
         Height = 42
         Hint = 
-          'Vid'#233'os|Le r'#233'pertoire des vid'#233'os sera "Vid'#233'os" de l'#39'utilisateur c' +
-          'ourant'
+          'Mes Vid'#233'os|Le r'#233'pertoire des vid'#233'os sera "Mes Vid'#233'os" de l'#39'utili' +
+          'sateur courant'
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -1081,7 +1081,7 @@ object OptionsDlg: TOptionsDlg
         Top = 668
         Width = 42
         Height = 42
-        Hint = 'Valeur par d'#233'faut'
+        Hint = 'R'#224'Z : valeur par d'#233'faut'
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -1134,7 +1134,7 @@ object OptionsDlg: TOptionsDlg
         Top = 758
         Width = 42
         Height = 42
-        Hint = 'valeur par d'#233'faut'
+        Hint = 'R'#224'Z : valeur par d'#233'faut'
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -1149,6 +1149,28 @@ object OptionsDlg: TOptionsDlg
           30DDDD00D0DD090B030DDDDDDDDDD0B0B030DDDD0DDDDD0B0B33DDDDDDDDDDD0
           BBB3DDD0DDDDDDDD0BBBDDDDDDDDDDDDD0BBDDDDDDDDDDDDDD0B}
         OnClick = RazRepDataBtnClick
+      end
+      object Label22: TLabel
+        Left = 516
+        Top = 6
+        Width = 54
+        Height = 30
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
+        Caption = 'Choix'
+      end
+      object Label23: TLabel
+        Left = 600
+        Top = 6
+        Width = 37
+        Height = 30
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
+        Caption = 'R'#224'Z'
       end
       object GroupePathEdit: TEdit
         Left = 16
@@ -1563,14 +1585,14 @@ object OptionsDlg: TOptionsDlg
         Left = 2
         Top = 26
         Width = 450
-        Height = 454
+        Height = 394
         Hint = '|Cocher les modules qui seront accessibles'
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
         IntegralHeight = True
-        ItemHeight = 30
+        ItemHeight = 34
         Items.Strings = (
           'Fen'#234'tre transform'#233'e de Fourier'
           'Fen'#234'tre graphe des param'#232'tres'
@@ -1913,8 +1935,8 @@ object OptionsDlg: TOptionsDlg
       end
       object grapheClipRG: TRadioGroup
         Left = 0
-        Top = 464
-        Width = 672
+        Top = 463
+        Width = 658
         Height = 80
         Margins.Left = 6
         Margins.Top = 6
@@ -1929,6 +1951,8 @@ object OptionsDlg: TOptionsDlg
           'Bitmap'
           'Png')
         TabOrder = 9
+        ExplicitTop = 464
+        ExplicitWidth = 672
       end
       object UniteParCB: TCheckBox
         Left = 336
@@ -1945,10 +1969,10 @@ object OptionsDlg: TOptionsDlg
     end
   end
   object Panel1: TPanel
-    Left = 688
+    Left = 674
     Top = 0
     Width = 220
-    Height = 914
+    Height = 913
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -1965,23 +1989,9 @@ object OptionsDlg: TOptionsDlg
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = '&OK'
-      Default = True
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000000000000000000000000
-        8000008000000080800080000000800080008080000080808000C0C0C0000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-        3333333300003333333333333333333300003333333333333333333300003333
-        333333333333333300003333333A0333333333330000333333AAA03333333333
-        0000333333AAA03333333333000033333AAAAA033333333300003333AAAAAA03
-        3333333300003337AA03AAA0333333330000337A03333AA03333333300003333
-        33333AAA0333333300003333333333AA03333333000033333333333AA0333333
-        00003333333333337A033333000033333333333337A033330000333333333333
-        333AA33300003333333333333333333300003333333333333333333300003333
-        33333333333333330000}
+      Kind = bkOK
       Margin = 2
-      ModalResult = 1
+      NumGlyphs = 2
       Spacing = -1
       TabOrder = 0
       OnClick = OKBtnClick
@@ -1996,23 +2006,9 @@ object OptionsDlg: TOptionsDlg
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Cancel = True
-      Caption = '&Abandon'
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000010000000000000000000
-        BF0000BF000000BFBF00BF000000BF00BF00BFBF0000C0C0C000808080000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00777888877777
-        8877777700007770888777778887777700007911088877910888777700007911
-        0088879100888777000079111008891110087777000079911108911111007777
-        0000779111101111110777770000777911111111077777770000777991111111
-        8777777700007777991111108877777700007777791111108887777700007777
-        7911111088877777000077777911111108887777000077779111991100888777
-        0000777911108991100888770000777911187799110088870000777111187779
-        1110888700007771110777779111087700007779997777777991777700007777
-        77777777779977770000}
+      Kind = bkCancel
       Margin = 2
-      ModalResult = 2
+      NumGlyphs = 2
       Spacing = -1
       TabOrder = 1
       IsControl = True
@@ -2026,21 +2022,9 @@ object OptionsDlg: TOptionsDlg
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = '&Aide'
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000010000000000000000000
-        8000008000000080800080000000800080008080000080808000C0C0C0000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00888888888888
-        8888888800008888888888888888888800008888888887778888888800008888
-        8888600788888888000088888888E60788888888000088888888EE6888888888
-        000088888888877788888888000088888888600788888888000088888888E607
-        78888888000088888888E660778888880000888888888E660778888800008888
-        888878E660778888000088888880778E660788880000888888660778E6078888
-        0000888888E66077E608888800008888888E660066688888000088888888E666
-        6E8888880000888888888EEEE888888800008888888888888888888800008888
-        88888888888888880000}
+      Kind = bkHelp
       Margin = 2
+      NumGlyphs = 2
       Spacing = -1
       TabOrder = 2
       OnClick = HelpBtnClick
@@ -2065,6 +2049,7 @@ object OptionsDlg: TOptionsDlg
         'Mosa'#239'q. horiz.'
         'Manuelle')
       TabOrder = 3
+      ExplicitTop = 653
     end
   end
   object OpenDialog: TOpenDialog
@@ -2072,8 +2057,8 @@ object OptionsDlg: TOptionsDlg
     Filter = 'Programme d'#39'acquisition|*.exe'
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
     Title = 'Programme d'#39'acquisition'
-    Left = 368
-    Top = 152
+    Left = 768
+    Top = 312
   end
   object FontDialog: TFontDialog
     Font.Charset = DEFAULT_CHARSET
@@ -2081,7 +2066,7 @@ object OptionsDlg: TOptionsDlg
     Font.Height = -11
     Font.Name = 'Segoe UI'
     Font.Style = []
-    Left = 360
-    Top = 208
+    Left = 776
+    Top = 464
   end
 end

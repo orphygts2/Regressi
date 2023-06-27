@@ -357,6 +357,9 @@ begin
 end;
 
 initialization
+{$IFDEF Debug}
+   ecritDebug('initialization mathml');
+{$ENDIF}
      latexStr := TstringList.create
 
 finalization

@@ -131,7 +131,7 @@ end;
 procedure TOptionsVitesseDlg.FormCreate(Sender: TObject);
 begin
     ListeVar := TstrListe.create;
-    ResizeButtonImagesforHighDPI(self);
+    //ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TOptionsVitesseDlg.FormDestroy(Sender: TObject);

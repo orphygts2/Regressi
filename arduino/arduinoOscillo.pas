@@ -314,6 +314,7 @@ var j,col : integer;
 begin
 // VoieSerie
      {$IFDEF Debug}
+     initDebug;
      voieSerie.Tracing := tlOn;
      voieSerie.Logging := tlOn;
      {$ELSE}

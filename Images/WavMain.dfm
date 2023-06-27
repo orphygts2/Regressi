@@ -175,7 +175,7 @@ object WaveForm: TWaveForm
     object MediaPlayer: TMediaPlayer
       Left = 1790
       Top = -8
-      Width = 0
+      Width = 29
       Height = 60
       Margins.Left = 6
       Margins.Top = 6
@@ -233,7 +233,6 @@ object WaveForm: TWaveForm
     ButtonHeight = 75
     ButtonWidth = 151
     Color = clBtnFace
-    DrawingStyle = dsGradient
     GradientEndColor = clSkyBlue
     HotTrackColor = clAqua
     Images = VirtualImageList1

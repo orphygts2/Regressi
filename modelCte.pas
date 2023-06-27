@@ -316,13 +316,14 @@ begin // effectueModeleGlb : boucle de recherche par méthode gradient-Newton
         end;
         for k := 1 to NbreParam[paramGlb] do
             sauveValeurParam[k] := Parametres[paramGlb,k].valeurCourante;
-   until (i1>Maxi_i1) or stable;
-   if i1>Maxi_i1 then afficheErreur(erTimeOut,0);
-   if ajuste and chi2actifGlb and (chi2Glb[1]=0) then calculJ(true); // pour récupérer chi2
-   ParamAjustesGlb := ajuste and stable;
-   ModeleCalcule := true;
-   if ajuste then begin
-   for i1 := 1 to NbreModeleGlb do with fonctionTheoriqueGlb[i1] do
+    until (i1>Maxi_i1) or stable;
+    if ajuste and stable then calculPrecision;
+    if i1>Maxi_i1 then afficheErreur(erTimeOut,0);
+    if ajuste and chi2actifGlb and (chi2Glb[1]=0) then calculJ(true); // pour récupérer chi2
+    ParamAjustesGlb := ajuste and stable;
+    ModeleCalcule := true;
+    if ajuste then begin
+    for i1 := 1 to NbreModeleGlb do with fonctionTheoriqueGlb[i1] do
         if IsSinusoide then begin
            if parametres[paramGlb,Amplitude].valeurCourante<0 then begin
               parametres[paramGlb,Amplitude].valeurCourante :=

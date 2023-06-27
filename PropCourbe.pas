@@ -175,7 +175,7 @@ begin with Grid do begin
        cells[0,4] := 'Moyenne';
        varF := Tunite.create;
   //     DefaultRowHeight := hauteurColonne;
-       ResizeButtonImagesforHighDPI(self);
+     //  ResizeButtonImagesforHighDPI(self);
 end end;
 
 procedure TPropCourbeForm.MaJ;

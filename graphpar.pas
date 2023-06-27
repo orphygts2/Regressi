@@ -988,6 +988,7 @@ begin
 // on affecte
      MemoModele.Height := hauteurMemo;
      PanelAjuste.height := hauteurAjuste;
+     ToolBarGr.List := (CopierBtn.Left+CopierBtn.width)<PanelCourbe.width
 end;
 
 procedure TfgrapheParam.CoordonneesItemClick(Sender: TObject);
@@ -1143,7 +1144,7 @@ begin with grapheP do
               valY[p-1] := pages[p].valeurVar[code,i];
           end;
        end;
-end end;
+end end; // AffecteVariable;
 
 procedure affecteSuperpose;
 var i : integer;
@@ -1169,7 +1170,7 @@ begin with grapheP do
                    courbes[0].texteC.Add(Pages[p].commentaireP)
          end
          else exclude(courbes[0].trace,trTexte);
-end;
+end; // majTexteCourbes;
 
 var i : integer;
 begin // PaintBoxPaint
@@ -1861,20 +1862,17 @@ begin with grapheP do begin
      end
      else begin // ajoute
          if NbreOrdonnee<MaxOrdonnee
-           then begin
-              inc(NbreOrdonnee);
-              numO := NbreOrdonnee;
-           end
-           else numO := 1;
-           coordonnee[numO].codeY := indexV;
-           coordonnee[numO].nomY := grandeurs[indexV].nom;
-           coordonnee[numO].codeX := coordonnee[1].codeX;
-           coordonnee[numO].nomX := coordonnee[1].nomX;
-           coordonnee[numO].iMondeC := mondeY;
-           if numO>1 then begin
-              coordonnee[numO].trace := coordonnee[1].trace;
-              coordonnee[numO].ligne := coordonnee[1].ligne;
-           end;
+            then numO := NbreOrdonnee+1
+            else numO := 1;
+         coordonnee[numO].codeY := indexV;
+         coordonnee[numO].nomY := grandeurs[indexV].nom;
+         coordonnee[numO].iMondeC := mondeY;
+         if numO>1 then begin
+            coordonnee[numO].trace := coordonnee[1].trace;
+            coordonnee[numO].ligne := coordonnee[1].ligne;
+            coordonnee[numO].codeX := coordonnee[1].codeX;
+            coordonnee[numO].nomX := coordonnee[1].nomX;
+         end;
      end;
   include(modif,gmXY);
   paintBox.Invalidate;
@@ -2497,11 +2495,13 @@ begin
                   iC := indexConst[i];
                   ToolBarGrandeurs.Buttons[i].caption := grandeurs[iC].nom;
                   ToolBarGrandeurs.Buttons[i].tag := iC;
+                  ToolBarGrandeurs.Buttons[i].Hint := 'Clic '+grandeurs[iC].nom+'=ordonnée'
              end
              else if i<nbre then begin
                   j := i-NbreConst+1;
                   ToolBarGrandeurs.Buttons[i].caption := parametres[paramNormal,j].nom;
                   ToolBarGrandeurs.Buttons[i].tag := parametre0 + j;
+                  ToolBarGrandeurs.Buttons[i].Hint := 'Clic '+parametres[paramNormal,j].nom+'=ordonnée'
              end;
          end;
 end;

@@ -36,6 +36,8 @@ object OptiqueForm: TOptiqueForm
     Margins.Bottom = 6
     Panels = <>
     SimplePanel = True
+    ExplicitTop = 1733
+    ExplicitWidth = 2094
   end
   object ToolBar: TToolBar
     Left = 0
@@ -48,7 +50,6 @@ object OptiqueForm: TOptiqueForm
     Margins.Bottom = 6
     ButtonHeight = 42
     ButtonWidth = 177
-    DrawingStyle = dsGradient
     EdgeBorders = [ebBottom]
     GradientEndColor = clSkyBlue
     HotTrackColor = clAqua
@@ -57,6 +58,7 @@ object OptiqueForm: TOptiqueForm
     ShowCaptions = True
     TabOrder = 1
     Wrapable = False
+    ExplicitWidth = 2094
     object OpenFileBtn: TToolButton
       Left = 0
       Top = 0
@@ -243,6 +245,7 @@ object OptiqueForm: TOptiqueForm
     Align = alLeft
     ShowCaption = False
     TabOrder = 2
+    ExplicitHeight = 1677
     object LissageGB: TGroupBox
       Left = 1
       Top = 441
@@ -815,11 +818,12 @@ object OptiqueForm: TOptiqueForm
       Align = alBottom
       Caption = 'Couleur de trac'#233
       TabOrder = 12
+      ExplicitTop = 1586
       object CouleurCB: TColorBox
         Left = 8
         Top = 34
         Width = 250
-        Height = 22
+        Height = 38
         Hint = 'Couleur de la courbe courante'
         Margins.Left = 6
         Margins.Top = 6
@@ -959,6 +963,8 @@ object OptiqueForm: TOptiqueForm
     Align = alClient
     ShowCaption = False
     TabOrder = 3
+    ExplicitWidth = 1794
+    ExplicitHeight = 1677
     object IntensitePB: TPaintBox
       Left = 1
       Top = 1175
@@ -1039,6 +1045,8 @@ object OptiqueForm: TOptiqueForm
       ParentFont = False
       ShowCaption = False
       TabOrder = 0
+      ExplicitWidth = 1792
+      ExplicitHeight = 1173
       object Image: TImage
         Left = 0
         Top = 0

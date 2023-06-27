@@ -24,16 +24,18 @@ type
       nom:           string;
       PuissAff:      shortInt;
       CoeffAff:      double;
-      Correct, Adaptable: boolean;
+      Correct:       boolean;
+      Adaptable:     boolean;
       UniteDonnee:   boolean; // donnée par l'utilisateur
-      UnitePart: boolean; // ua jour ...
-      PrefixeImpose: boolean; // ex: mA
+      UnitePart:     boolean; // ua jour ...
       UniteImposee:  boolean; // Prefixe impose ou non SI ex: heure, bar
       FormatU:       TnombreFormat;
       PrecisionU:    integer;
       DimensionPart:  array[TunitePart] of shortInt;
-      isCelsius : boolean;
-      FnomComplet : string;
+      isCelsius :    boolean;
+      FnomComplet :  string;
+      UniteGrapheImposee:  boolean;
+      UniteGraphe :  string;
       property nomUnite: string Read FnomUnite Write setNomUnite;
       constructor Create;
       procedure setUniteComplet(const nu,nc: string;
@@ -210,7 +212,6 @@ begin
    end;
    Adaptable := Ud.Adaptable or Ug.Adaptable;
    UniteImposee := False;
-   PrefixeImpose := False;
    coeffSI := dix(puissance);
 end; // AdUnite
 
@@ -455,9 +456,10 @@ var
    k: TunitePart;
 begin // SetNomUnite
    try // Erreur Unite
-      FnomUnite := nu;
+      if nu='d:m:s'
+         then FnomUnite := '°'
+         else FnomUnite := nu;
       UniteImposee := False;
-      PrefixeImpose := False;
       coeffSI := 1;
       index := pos(' ', FnomUnite);
       while index > 0 do begin
@@ -528,7 +530,6 @@ begin // SetNomUnite
          if uniteEgale(Ucourant) then begin
             UniteImposee := (FnomUnite <> Ucourant.FnomUnite) and
                             (FnomUnite <> 'kg');
-            PrefixeImpose := True;
             exit;
          end;
       end;
@@ -536,7 +537,6 @@ begin // SetNomUnite
          Ucourant := UniteToleree[j];
          if uniteEgale(Ucourant) then begin
             UniteImposee  := (FnomUnite <> Ucourant.FnomUnite);
-            PrefixeImpose := True;
             exit;
          end;
       end;
@@ -744,6 +744,9 @@ begin // NomAff
                 'G' : inc(puissValeur,9);
                 //'T' : inc(puissValeur,12); // pb avec Tesla
                 //'P' : inc(puissValeur,15); // on oublie ...
+                //'E' :inc(puissValeur,18); // on oublie ...
+                //'Z' :inc(puissValeur,21); // on oublie ...
+                //'Y' :inc(puissValeur,24); // on oublie ...
                 //'m' : dec(puissValeur,3); // pb avec mètre
                 'µ' : dec(puissValeur,6);
                 'n' : dec(puissValeur,9);
@@ -752,9 +755,6 @@ begin // NomAff
                 //'y' : dec(puissValeur,23); // on oublie ...
                 //'z' : dec(puissValeur,24); // on oublie ...
                 //'a' : dec(puissValeur,18); // on oublie ...
-                //'E' :inc(puissValeur,18); // on oublie ...
-                //'Z' :inc(puissValeur,21); // on oublie ...
-                //'Y' :inc(puissValeur,24); // on oublie ...
            end;
            result := AjoutePuissDix(copy(FnomUnite,2,length(nomUnite)),puissValeur);
       end
@@ -908,6 +908,8 @@ constructor Tunite.Create;
 begin
    inherited Create;
    Init;
+   UniteGrapheImposee := false;
+   UniteGraphe := '';
 end;
 
 procedure InitUnite;
@@ -1120,7 +1122,6 @@ begin
    Adaptable := False;
    UniteDonnee := False;
    UniteImposee := False;
-   PrefixeImpose := False;
    FormatU := fDefaut;
    PrecisionU := Precision;
    nom := '';
@@ -1144,7 +1145,6 @@ begin
    Adaptable := U.adaptable;
    UniteDonnee := U.UniteDonnee;
    UniteImposee := U.UniteImposee;
-   PrefixeImpose := U.PrefixeImpose;
    isCelsius := U.isCelsius;
 end;
 

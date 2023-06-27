@@ -33,6 +33,8 @@ type
     EditIncertitude: TLabeledEdit;
     IncertitudeHelpBtn: TSpeedButton;
     EditIncertitude_TypeB: TLabeledEdit;
+    UniteGrapheImposeeCB: TCheckBox;
+    EditUniteGraphe: TEdit;
     procedure FormActivate(Sender: TObject);
     procedure OKBtnClick(Sender: TObject);
     procedure PrecisionCBChange(Sender: TObject);
@@ -42,6 +44,9 @@ type
     procedure CancelBtnClick(Sender: TObject);
     procedure EditIncertitude_TypeBKeyPress(Sender: TObject; var Key: Char);
     procedure EditNomKeyPress(Sender: TObject; var Key: Char);
+    procedure UniteGrapheImposeeCBClick(Sender: TObject);
+    procedure EditUniteKeyPress(Sender: TObject; var Key: Char);
+    procedure FormCreate(Sender: TObject);
   private
       oldFormatU : TnombreFormat;
   public
@@ -77,6 +82,16 @@ begin
         crEsc : ;
         crSupprArr : ;
         else if not isCaracGrandeur(key) then key := #0;
+     end;
+end;
+
+procedure TModifDlg.EditUniteKeyPress(Sender: TObject; var Key: Char);
+begin
+     case key of
+        crCR,crTab : ;
+        crEsc : ;
+        crSupprArr : ;
+        else if not isCaracUnite(key) then key := #0;
      end;
 end;
 
@@ -118,7 +133,15 @@ with grandeurModif do begin
      RazIncertitudeBtn.visible := EditIncertitude.visible;
      EditIncertitude_TypeB.visible := EditIncertitude.visible;
      AffSignifCB.checked := AffSignif;
+     UniteGrapheImposeeCB.checked := uniteGrapheImposee;
+     EditUniteGraphe.Text := uniteGraphe;
+     EditUniteGraphe.visible := UniteGrapheImposee;
 end end;
+
+procedure TModifDlg.FormCreate(Sender: TObject);
+begin
+    ResizeButtonImagesforHighDPI(self);
+end;
 
 procedure TModifDlg.OKBtnClick(Sender: TObject);
 
@@ -289,6 +312,13 @@ begin
      if grandeurModif.formatU<>oldFormatU then
         FgrapheVariab.Perform(WM_Reg_Maj,MajNom,0);
      ModalResult := mrOK;
+     grandeurModif.uniteGrapheImposee := UniteGrapheImposeeCB.checked;
+     if grandeurModif.uniteGrapheImposee
+        then begin
+           grandeurModif.uniteGraphe := EditUniteGraphe.Text;
+           convertitExpUnite(grandeurModif.uniteGraphe);
+        end
+        else grandeurModif.uniteGraphe := '';
 end; // OKbtnClick
 
 procedure TModifDlg.PrecisionCBChange(Sender: TObject);
@@ -335,6 +365,11 @@ begin
               constante : incertConst[index] := Nan;
               constanteGlb : grandeurModif.incertCourante := Nan;
          end;
+end;
+
+procedure TModifDlg.UniteGrapheImposeeCBClick(Sender: TObject);
+begin
+     EditUniteGraphe.visible := UniteGrapheImposeeCB.checked;
 end;
 
 end.

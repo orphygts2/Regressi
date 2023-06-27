@@ -8,14 +8,14 @@ object ArduinoDlg: TArduinoDlg
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -27
+  Font.Height = -28
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poOwnerFormCenter
   OnActivate = FormActivate
   OnCreate = FormCreate
   PixelsPerInch = 192
-  TextHeight = 37
+  TextHeight = 38
   object Comports: TRadioGroup
     Left = 0
     Top = 0
@@ -38,7 +38,7 @@ object ArduinoDlg: TArduinoDlg
       'Com3'
       'Com4')
     TabOrder = 0
-    ExplicitWidth = 748
+    ExplicitWidth = 780
   end
   object MemoPoint: TMemo
     Left = 0
@@ -51,13 +51,13 @@ object ArduinoDlg: TArduinoDlg
     Margins.Bottom = 6
     Align = alTop
     Lines.Strings = (
-      
-        'Le logiciel s'#39'attend '#224' ce que Arduino envoie des lignes de donn'#233 +
-        'es '
+      'Le logiciel s'#39'attend '#224' ce que Arduino envoie des lignes de '
+      'donn'#233'es '
       'par println(), les donn'#233'es '#233'tant s'#233'par'#233'es par des virgules.'
       'La premi'#232're donn'#233'e sera plac'#233'e en abscisse.')
     ReadOnly = True
     TabOrder = 7
+    ExplicitWidth = 780
   end
   object BaudRG: TRadioGroup
     Left = 0
@@ -79,7 +79,7 @@ object ArduinoDlg: TArduinoDlg
       '57600'
       '115200')
     TabOrder = 1
-    ExplicitWidth = 748
+    ExplicitWidth = 780
   end
   object ModeRG: TRadioGroup
     Left = 0
@@ -99,7 +99,7 @@ object ArduinoDlg: TArduinoDlg
       'Temporel')
     TabOrder = 2
     OnClick = ModeRGClick
-    ExplicitWidth = 748
+    ExplicitWidth = 780
   end
   object DureeGB: TGroupBox
     Left = 0
@@ -112,12 +112,12 @@ object ArduinoDlg: TArduinoDlg
     Margins.Bottom = 6
     Align = alTop
     TabOrder = 5
-    ExplicitWidth = 748
+    ExplicitWidth = 780
     object LabelDuree: TLabel
       Left = 16
       Top = 32
-      Width = 291
-      Height = 37
+      Width = 305
+      Height = 38
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -127,8 +127,8 @@ object ArduinoDlg: TArduinoDlg
     object LabelCommande: TLabel
       Left = 16
       Top = 96
-      Width = 311
-      Height = 37
+      Width = 323
+      Height = 38
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -138,8 +138,8 @@ object ArduinoDlg: TArduinoDlg
     object LabelArret: TLabel
       Left = 16
       Top = 144
-      Width = 222
-      Height = 37
+      Width = 230
+      Height = 38
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -170,7 +170,7 @@ object ArduinoDlg: TArduinoDlg
       Left = 400
       Top = 86
       Width = 242
-      Height = 45
+      Height = 46
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -194,7 +194,7 @@ object ArduinoDlg: TArduinoDlg
       Left = 400
       Top = 140
       Width = 242
-      Height = 45
+      Height = 46
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -239,10 +239,10 @@ object ArduinoDlg: TArduinoDlg
     Align = alTop
     Caption = 'Boutons de commande'
     TabOrder = 6
-    ExplicitWidth = 748
+    ExplicitWidth = 780
     object SendGrid: TStringGrid
       Left = 2
-      Top = 39
+      Top = 40
       Width = 790
       Height = 164
       Margins.Left = 6
@@ -262,8 +262,7 @@ object ArduinoDlg: TArduinoDlg
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goTabs, goAlwaysShowEditor]
       ParentFont = False
       TabOrder = 0
-      ExplicitTop = 32
-      ExplicitWidth = 744
+      ExplicitWidth = 776
     end
     object TerminateurRG: TRadioGroup
       Left = 2
@@ -284,7 +283,7 @@ object ArduinoDlg: TArduinoDlg
         'LF  10'
         'CR+LF')
       TabOrder = 1
-      ExplicitWidth = 744
+      ExplicitWidth = 776
     end
   end
   object ModeTempsRG: TRadioGroup
@@ -306,7 +305,7 @@ object ArduinoDlg: TArduinoDlg
       'Rouleau')
     TabOrder = 3
     OnClick = ModeTempsRGClick
-    ExplicitWidth = 748
+    ExplicitWidth = 780
   end
   object TriggerRG: TRadioGroup
     Left = 0
@@ -326,7 +325,7 @@ object ArduinoDlg: TArduinoDlg
       'Seuil descendant'
       'Bouton')
     TabOrder = 4
-    ExplicitWidth = 748
+    ExplicitWidth = 780
   end
   object MemoTemps: TMemo
     Left = 0
@@ -339,17 +338,15 @@ object ArduinoDlg: TArduinoDlg
     Margins.Bottom = 6
     Align = alTop
     Lines.Strings = (
-      
-        'Le logiciel s'#39'attend '#224' ce que Arduino envoie des lignes de donn'#233 +
-        'es '
+      'Le logiciel s'#39'attend '#224' ce que Arduino envoie des lignes de '
+      'donn'#233'es '
       'par println(), les donn'#233'es '#233'tant s'#233'par'#233'es par des virgules.'
       'Si la case "temps Arduino" est coch'#233'e, la premi'#232're ligne est le '
       'temps en '
       'seconde, sinon le temps est g'#233'r'#233' par Regressi  ')
     ReadOnly = True
     TabOrder = 9
-    ExplicitTop = 1040
-    ExplicitWidth = 748
+    ExplicitWidth = 780
   end
   object BoutonsPanel: TPanel
     Left = 0
@@ -362,7 +359,8 @@ object ArduinoDlg: TArduinoDlg
     Margins.Bottom = 6
     Align = alBottom
     TabOrder = 8
-    ExplicitWidth = 748
+    ExplicitTop = 1001
+    ExplicitWidth = 780
     object EtalonBtn: TBitBtn
       Left = 16
       Top = 16
@@ -467,22 +465,8 @@ object ArduinoDlg: TArduinoDlg
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'Aide'
-      Default = True
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000000000000000000000000
-        80000080000000808000800000008000800080800000C0C0C000808080000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-        3333333300003333333333333333333300003333333BBBBB3333333300003333
-        3BBB191BBB33333300003333BBBB999BBBB333330000333BBBBB191BBBBB3333
-        000033BBBBBBBBBBBBBBB333000033BBBBBBB9BBBBBBB33300003BBBBBBBB91B
-        BBBBBB3300003BBBBBBBB99BBBBBBB3300003BBBBBBBBB99BBBBBB3300003BBB
-        BB11BB199BBBBB3300003BBBBB99BB199BBBBB33000033BBBB991B199BBBB333
-        000033BBBBB99999BBBBB3330000333BBBBB999BBBBB333300003333BBBBBBBB
-        BBB33333000033333BBBBBBBBB33333300003333333BBBBB3333333300003333
-        33333333333333330000}
-      ModalResult = 9
+      Kind = bkHelp
+      NumGlyphs = 2
       TabOrder = 6
       OnClick = HelpBtnClick
     end

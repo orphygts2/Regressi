@@ -456,6 +456,7 @@ begin
          MRUList.Add('');
       end;
   end;
+  chiffreSignif := TchiffreSignif(ReadInteger(stGraphe,stChiffreSignif,ord(chiffreSignif)));
   couleurFondIdent := ReadInteger(stColor,'Ident',couleurFondIdent);
   MotifIdent := TmotifTexte(ReadInteger(stGraphe,'motifIdent',ord(MotifIdent)));
   hauteurIdent := ReadInteger(stGraphe,'hauteurIdent',hauteurIdent);
@@ -521,6 +522,9 @@ end; // appelFichier
 
 var FichierParam : string;
 begin  // FormCreate
+{$IFDEF Debug}
+   ecritDebug('formCreate regmain');
+{$ENDIF}
   DocumentationPdf.visible := fileExists(docregPdf);
   DocumentationWord.visible := fileExists(docregWord);
   Screen.Cursors[crLettre] := LoadCursor(Hinstance,'LETTRE');
@@ -569,6 +573,11 @@ begin  // FormCreate
   HauteurColonne := GridFontSize * Screen.PixelsPerInch div 46;
   LargeurUnCarac := HauteurColonne*2 div 3;
   ResizeButtonImagesforHighDPI(self);
+  {$IFDEF Win32}
+  {$ELSE}
+     VideoItem.visible := false;
+     VideoItem.enabled := false;
+  {$ENDIF}
 end; // FormCreate
 
 procedure TFRegressiMain.FormShowHint(Sender: TObject);
@@ -1882,6 +1891,7 @@ begin
     with RIni do begin
     for i := 0 to maxMru do
         WriteString('Fichier','MRU'+IntToStr(i),MRUList[i]);
+    WriteInteger(stGraphe,stChiffreSignif,ord(chiffreSignif));
     WriteInteger(stColor,'Ident',couleurFondIdent);
     WriteInteger(stGraphe,'motifIdent',ord(MotifIdent));
     WriteInteger(stGraphe,'hauteurIdent',hauteurIdent);
@@ -2292,7 +2302,7 @@ procedure TFRegressiMain.FormActivate(Sender: TObject);
 begin
   inherited;
 {$IFDEF Debug}
-   ecritDebug('Début formActivate Main');
+   ecritDebug('formActivate regMain');
 {$ENDIF}
   MruItemUpdate; // Update MRU menu items
 end;

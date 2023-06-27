@@ -16,7 +16,9 @@ const
 
 resourcestring
 
+stTropPrecis='Marche trop bien ?';
 stFinUniteSI=' prise en compte des coefficients d''unité';
+stChiffreSignif='ChiffreSignif';
 stNewPage= 'Nouvelle page';
 stIntervalle95='Intervalle de confiance à 95%';
 stIncertitudeType='Incertitude-type';
@@ -183,6 +185,7 @@ OkDelFile='Ecraser le fichier existant';
 OkImprGr='Impression du graphe';
 OkImprTab='Impression des tableaux';
 OkDelData='Suppression des données sélectionnées';
+OkDelAllData='Suppression des données';
 OkDelAll='Effacement de la page courante';
 OkUniteInconnue='Unité non reconnue vous confirmez ?';
 OkNoParamAuto='Pas d''expression. Désactiver génération auto ?';
@@ -483,9 +486,9 @@ hTraitTangente='Tangente|Style de trait des tangentes';
    hRepererPoint= '|Cliquer pour enregistrer le point';
    hOrigineClick= 'Origine|Cliquer sur l''origine des axes';
    hCibleAuto = 'Cible|Cliquer sur la cible à suivre';
-   trCible2Auto = 'Cliquer sur la deuxième cible à suivre';
-   trCibleAuto = 'Cliquer sur la cible à suivre';
-   trOrigineAuto = 'Cliquer sur l''origine à suivre';
+   trCible2Auto = ' Cliquer sur la deuxième cible à suivre ';
+   trCibleAuto = ' Cliquer sur la cible à suivre ';
+   trOrigineAuto = ' Cliquer sur l''origine à suivre ';
    NoZoom = 'Taille réelle';
    hTransfertRegressi = 'Transférer vers Regressi';
    hRepereBmp = 'Cliquer sur les points à repérer';
@@ -504,6 +507,7 @@ hTraitTangente='Tangente|Style de trait des tangentes';
    hStopRecord = 'Stop|Fin de l''enregistrement';
    hClicDroitAvi = 'Clic droit pour choix du curseur';
    hChronoEnCours = 'Patientez';
+   hInitPatience = ' Initialisation, patientez … ';
    hParamBtn = 'Cliquer sur le bouton Paramètres pour configurer';
    hOrigineI = '|Cliquer sur l''origine du point n°';
    hOrigineMobile = '|Il faudra indiquer l''origine avant chaque point';
@@ -544,6 +548,8 @@ hTraitTangente='Tangente|Style de trait des tangentes';
    erUnMobileAuto= 'Un seul mobile possible en mode automatique';
    trOrigineTemps= 'L''image courante sera l''origine des temps';
    trOrigineAxe= 'Cliquer sur le point à l''origine des axes';
+   trAxesParalleles= 'Axes parallèles aux côtés de la video';
+   trOrientationAxes= 'Orientation des axes';
    trAideEchelle= 'Cliquer sur le premier point puis sur le deuxième de l''échelle';
    trAideAngle= 'Trois points par image'+crCRLF+
                  'point sur la base, sommet de l''angle, point final (dans cet ordre)';
@@ -557,6 +563,7 @@ hTraitTangente='Tangente|Style de trait des tangentes';
    TrFreqEch= 'Fech=';
    TrFreqEchReg= 'FeReg=';
    TrDureeMax='Sous échantillonnage si la durée excéde ';
+   msgOrigineTemps = 'Cliquer sur le point enregistré (ou la ligne du tableau) qui sera l''origine des temps';
 
 implementation
 

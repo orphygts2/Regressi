@@ -81,6 +81,8 @@ object ChronoForm: TChronoForm
       end>
     ParentFont = True
     UseSystemFont = False
+    ExplicitTop = 1623
+    ExplicitWidth = 2220
   end
   object GridPanel: TPanel
     Left = 1634
@@ -94,6 +96,8 @@ object ChronoForm: TChronoForm
     Align = alRight
     ParentColor = True
     TabOrder = 1
+    ExplicitLeft = 1620
+    ExplicitHeight = 1487
     object Grid: TStringGrid
       Left = 1
       Top = 1
@@ -114,6 +118,7 @@ object ChronoForm: TChronoForm
       ScrollBars = ssVertical
       TabOrder = 0
       OnDrawCell = GridDrawCell
+      ExplicitHeight = 1485
       ColWidths = (
         100
         100
@@ -138,6 +143,7 @@ object ChronoForm: TChronoForm
     Align = alTop
     ParentBackground = False
     TabOrder = 2
+    ExplicitWidth = 2220
     object SerieLabel: TLabel
       Left = 280
       Top = 12
@@ -225,9 +231,10 @@ object ChronoForm: TChronoForm
       Align = alRight
       Caption = 'Couleur de trac'#233
       TabOrder = 5
+      ExplicitLeft = 1979
       object CouleurPointsCB: TColorBox
         Left = 2
-        Top = 66
+        Top = 50
         Width = 236
         Height = 38
         Hint = 'Couleur de la courbe courante'
@@ -255,9 +262,10 @@ object ChronoForm: TChronoForm
       Align = alRight
       Caption = 'Couleur des axes'
       TabOrder = 4
+      ExplicitLeft = 1739
       object CouleurAxeCB: TColorBox
         Left = 2
-        Top = 66
+        Top = 50
         Width = 236
         Height = 38
         Margins.Left = 6
@@ -285,7 +293,6 @@ object ChronoForm: TChronoForm
     ButtonHeight = 42
     ButtonWidth = 138
     Color = clBtnFace
-    DrawingStyle = dsGradient
     EdgeBorders = [ebBottom]
     GradientEndColor = clSkyBlue
     HotTrackColor = clAqua
@@ -296,6 +303,7 @@ object ChronoForm: TChronoForm
     TabOrder = 3
     Transparent = False
     Wrapable = False
+    ExplicitWidth = 2220
     object FileBtn: TToolButton
       Left = 0
       Top = 0

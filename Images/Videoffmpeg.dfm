@@ -3,8 +3,8 @@ object ffmpegForm: TffmpegForm
   Top = 208
   HelpContext = 51
   Caption = ' '
-  ClientHeight = 962
-  ClientWidth = 2796
+  ClientHeight = 954
+  ClientWidth = 2684
   Color = clWindow
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
@@ -26,10 +26,10 @@ object ffmpegForm: TffmpegForm
   PixelsPerInch = 192
   TextHeight = 36
   object GridSplitter: TSplitter
-    Left = 2410
-    Top = 183
+    Left = 2298
+    Top = 185
     Width = 16
-    Height = 741
+    Height = 731
     Hint = '|D'#233'placer pour changer la taille du tableau'
     Margins.Left = 6
     Margins.Top = 6
@@ -48,7 +48,7 @@ object ffmpegForm: TffmpegForm
   object PanelMediaPlayer: TPanel
     Left = 0
     Top = 0
-    Width = 2796
+    Width = 2684
     Height = 88
     Margins.Left = 6
     Margins.Top = 6
@@ -56,6 +56,7 @@ object ffmpegForm: TffmpegForm
     Margins.Bottom = 6
     Align = alTop
     TabOrder = 2
+    ExplicitWidth = 2670
     object TempsLabel: TLabel
       Left = 320
       Top = 16
@@ -158,7 +159,7 @@ object ffmpegForm: TffmpegForm
       ExplicitHeight = 84
     end
     object Image1: TImage
-      Left = 2711
+      Left = 2599
       Top = 1
       Width = 84
       Height = 86
@@ -338,7 +339,7 @@ object ffmpegForm: TffmpegForm
       OnClick = rotateMoinsBtnClick
     end
     object Image2: TImage
-      Left = 2467
+      Left = 2355
       Top = 1
       Width = 84
       Height = 86
@@ -400,10 +401,10 @@ object ffmpegForm: TffmpegForm
         OnClick = CouleurAxeCBChange
       end
       object CouleurAxeCB: TColorBox
-        Left = 548
+        Left = 552
         Top = 38
-        Width = 80
-        Height = 44
+        Width = 76
+        Height = 38
         Hint = '|Couleur des axes et de l'#39#233'chelle'
         Margins.Left = 6
         Margins.Top = 6
@@ -414,10 +415,9 @@ object ffmpegForm: TffmpegForm
         ItemHeight = 32
         TabOrder = 3
         OnChange = CouleurAxeCBChange
-        ExplicitHeight = 38
       end
       object altitudeCB: TCheckBox
-        Left = 378
+        Left = 382
         Top = 38
         Width = 170
         Height = 44
@@ -477,10 +477,10 @@ object ffmpegForm: TffmpegForm
         OnClick = CouleurAxeCBChange
       end
       object CouleurPointsCB: TColorBox
-        Left = 328
+        Left = 332
         Top = 38
-        Width = 80
-        Height = 44
+        Width = 76
+        Height = 38
         Hint = '|Couleur du prochain point '#224' acqu'#233'rir'
         Margins.Left = 6
         Margins.Top = 6
@@ -491,7 +491,6 @@ object ffmpegForm: TffmpegForm
         ItemHeight = 32
         TabOrder = 2
         OnChange = CouleurPointsCBChange
-        ExplicitHeight = 38
       end
       object EtiquetteCB: TCheckBox
         Left = 152
@@ -532,11 +531,11 @@ object ffmpegForm: TffmpegForm
       OnClick = CouleurAxeCBChange
     end
     object MethodeRG: TRadioGroup
-      Left = 2551
+      Left = 2439
       Top = 1
       Width = 160
       Height = 86
-      Hint = 'M'#233'thode 1 :  ffmpeg.preview, 2 : ffmeg.probe'
+      Hint = 'M'#233'thodes :  1= ffmpeg.preview ; 2=ffmeg.probe'
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -558,13 +557,14 @@ object ffmpegForm: TffmpegForm
       ParentColor = False
       ParentFont = False
       TabOrder = 3
+      ExplicitLeft = 2425
     end
   end
   object ToolBarBoutons: TToolBar
     Left = 0
     Top = 139
-    Width = 2796
-    Height = 44
+    Width = 2684
+    Height = 46
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -572,16 +572,18 @@ object ffmpegForm: TffmpegForm
     AutoSize = True
     ButtonHeight = 42
     ButtonWidth = 144
-    DrawingStyle = dsGradient
-    EdgeBorders = [ebBottom]
+    DoubleBuffered = True
+    EdgeBorders = [ebTop, ebBottom]
     GradientEndColor = clSkyBlue
     HotTrackColor = clAqua
     Images = VirtualImageList1
     List = True
+    ParentDoubleBuffered = False
     ShowCaptions = True
     TabOrder = 0
     Transparent = False
     Wrapable = False
+    ExplicitWidth = 2670
     object CaptureBtn: TToolButton
       Left = 0
       Top = 0
@@ -612,7 +614,7 @@ object ffmpegForm: TffmpegForm
       Left = 262
       Top = 0
       Width = 45
-      Height = 36
+      Height = 42
       Hint = 'Prendre une image sur N'
       Margins.Left = 6
       Margins.Top = 6
@@ -656,7 +658,7 @@ object ffmpegForm: TffmpegForm
       Left = 549
       Top = 0
       Width = 111
-      Height = 36
+      Height = 42
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -796,7 +798,7 @@ object ffmpegForm: TffmpegForm
   object ToolBarParam: TToolBar
     Left = 0
     Top = 88
-    Width = 2796
+    Width = 2684
     Height = 51
     Margins.Left = 6
     Margins.Top = 6
@@ -809,6 +811,7 @@ object ffmpegForm: TffmpegForm
     EdgeBorders = [ebTop, ebBottom]
     ParentColor = False
     TabOrder = 1
+    ExplicitWidth = 2670
     object NbreSE: TSpinEdit
       Left = 0
       Top = 0
@@ -926,7 +929,7 @@ object ffmpegForm: TffmpegForm
       Left = 970
       Top = 0
       Width = 559
-      Height = 51
+      Height = 47
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -966,7 +969,7 @@ object ffmpegForm: TffmpegForm
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Max = 30
+      Max = 50
       Min = 1
       Position = 10
       PositionToolTip = ptBottom
@@ -977,7 +980,7 @@ object ffmpegForm: TffmpegForm
       Left = 1929
       Top = 0
       Width = 483
-      Height = 36
+      Height = 47
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -1016,9 +1019,9 @@ object ffmpegForm: TffmpegForm
   end
   object PanelVideo: TPanel
     Left = 0
-    Top = 183
-    Width = 2410
-    Height = 741
+    Top = 185
+    Width = 2298
+    Height = 731
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -1034,11 +1037,13 @@ object ffmpegForm: TffmpegForm
     ShowCaption = False
     TabOrder = 3
     OnResize = PanelVideoResize
+    ExplicitWidth = 2284
+    ExplicitHeight = 730
     object ImgPreview: TImage
       Left = 0
       Top = 0
-      Width = 210
-      Height = 210
+      Width = 481
+      Height = 369
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -1049,10 +1054,31 @@ object ffmpegForm: TffmpegForm
       OnMouseMove = PaintBoxMouseMove
       OnMouseUp = PaintBoxMouseUp
     end
+    object CibleLabel: TLabel
+      Left = 1312
+      Top = 192
+      Width = 653
+      Height = 71
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
+      Caption = ' Cliquer sur la cible '#224' suivre '
+      Color = clInfoBk
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -53
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentColor = False
+      ParentFont = False
+      Transparent = False
+      Visible = False
+    end
     object Panel1: TPanel
       Left = 1
-      Top = 680
-      Width = 2408
+      Top = 670
+      Width = 2296
       Height = 60
       Margins.Left = 6
       Margins.Top = 6
@@ -1060,6 +1086,8 @@ object ffmpegForm: TffmpegForm
       Margins.Bottom = 6
       Align = alBottom
       TabOrder = 0
+      ExplicitTop = 669
+      ExplicitWidth = 2282
       object FinBtn: TSpeedButton
         Left = 47
         Top = 1
@@ -1121,7 +1149,7 @@ object ffmpegForm: TffmpegForm
       object TrackBar: TTrackBar
         Left = 93
         Top = 1
-        Width = 2314
+        Width = 2202
         Height = 58
         Margins.Left = 6
         Margins.Top = 6
@@ -1134,14 +1162,15 @@ object ffmpegForm: TffmpegForm
         TabOrder = 0
         ThumbLength = 32
         OnChange = TrackBarChange
+        ExplicitWidth = 2188
       end
     end
   end
   object GridPanel: TPanel
-    Left = 2426
-    Top = 183
+    Left = 2314
+    Top = 185
     Width = 370
-    Height = 741
+    Height = 731
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -1150,11 +1179,13 @@ object ffmpegForm: TffmpegForm
     Color = clWindow
     ParentBackground = False
     TabOrder = 4
+    ExplicitLeft = 2300
+    ExplicitHeight = 730
     object Grid: TStringGrid
       Left = 1
       Top = 1
       Width = 368
-      Height = 739
+      Height = 729
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -1171,6 +1202,7 @@ object ffmpegForm: TffmpegForm
       TabOrder = 0
       OnDrawCell = GridDrawCell
       OnSelectCell = GridSelectCell
+      ExplicitHeight = 728
       ColWidths = (
         100
         100
@@ -1185,8 +1217,8 @@ object ffmpegForm: TffmpegForm
   end
   object Status: TStatusBar
     Left = 0
-    Top = 924
-    Width = 2796
+    Top = 916
+    Width = 2684
     Height = 38
     Margins.Left = 6
     Margins.Top = 6
@@ -1202,6 +1234,8 @@ object ffmpegForm: TffmpegForm
       item
         Width = 100
       end>
+    ExplicitTop = 915
+    ExplicitWidth = 2670
   end
   object OpenDialog: TOpenDialog
     DefaultExt = 'avi'
@@ -1231,7 +1265,7 @@ object ffmpegForm: TffmpegForm
   end
   object TimerChrono: TTimer
     Enabled = False
-    Interval = 100
+    Interval = 30
     OnTimer = TimerChronoTimer
     Left = 664
     Top = 207

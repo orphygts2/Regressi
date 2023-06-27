@@ -79,13 +79,10 @@ ModeleNumCB.Checked := ModeleNumerique;
 AffCoeffElargCB.Checked := AffCoeffElarg;
 end;
 
-// Options
-// MODELE LITTERAL
-// MODELE AVEC CONSTANTES TROUVEES PAR LA MODELISATION
-
 procedure TOptionsAffModeleDlg.OKBtnClick(Sender: TObject);
 begin
    ModeleNumerique := ModeleNumCB.Checked;
+// MODELE LITTERAL vs. MODELE AVEC CONSTANTES TROUVEES PAR LA MODELISATION
    AffCoeffElarg := AffCoeffElargCB.Checked;
 end;
 

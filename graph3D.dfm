@@ -63,6 +63,8 @@ object fgraphe3D: Tfgraphe3D
     BevelOuter = bvNone
     Color = clWindow
     TabOrder = 0
+    ExplicitWidth = 2166
+    ExplicitHeight = 1159
     object PaintBox: TPaintBox
       Left = 0
       Top = 46
@@ -96,7 +98,6 @@ object fgraphe3D: Tfgraphe3D
       ButtonHeight = 42
       ButtonWidth = 147
       Color = clGradientInactiveCaption
-      DrawingStyle = dsGradient
       GradientEndColor = clSkyBlue
       HotTrackColor = clAqua
       Images = VirtualImageList1
@@ -106,6 +107,7 @@ object fgraphe3D: Tfgraphe3D
       ShowCaptions = True
       TabOrder = 0
       Wrapable = False
+      ExplicitWidth = 2166
       object CurseurBtn: TToolButton
         Left = 0
         Top = 0

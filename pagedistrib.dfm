@@ -5,51 +5,72 @@ object PageDistribDlg: TPageDistribDlg
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   BorderStyle = bsDialog
   Caption = 'Distribution des variables d'#39'une page en plusieurs pages'
-  ClientHeight = 233
-  ClientWidth = 383
+  ClientHeight = 466
+  ClientWidth = 794
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
-  Font.Height = -13
+  Font.Height = -26
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
-  PixelsPerInch = 96
-  TextHeight = 17
+  PixelsPerInch = 192
+  TextHeight = 36
   object LabelY: TLabel
-    Left = 8
-    Top = 112
-    Width = 4
-    Height = 17
+    Left = 16
+    Top = 224
+    Width = 7
+    Height = 36
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
   end
   object LabelX: TLabel
-    Left = 8
-    Top = 80
-    Width = 4
-    Height = 17
+    Left = 16
+    Top = 160
+    Width = 7
+    Height = 36
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
   end
   object Label1: TLabel
-    Left = 8
-    Top = 8
-    Width = 245
-    Height = 17
+    Left = 16
+    Top = 16
+    Width = 473
+    Height = 36
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = 'Grandeurs '#224' conserver dans chaque page'
   end
   object Panel1: TPanel
-    Left = 264
+    Left = 556
     Top = 0
-    Width = 119
-    Height = 233
+    Width = 238
+    Height = 466
     HelpContext = 10
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Align = alRight
     TabOrder = 0
+    ExplicitLeft = 542
+    ExplicitHeight = 465
     object HelpBtn: TBitBtn
-      Left = 9
-      Top = 152
-      Width = 100
-      Height = 27
+      Left = 18
+      Top = 304
+      Width = 200
+      Height = 54
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Kind = bkHelp
       Margin = 2
       NumGlyphs = 2
@@ -59,10 +80,14 @@ object PageDistribDlg: TPageDistribDlg
       IsControl = True
     end
     object CancelBtn: TBitBtn
-      Left = 9
-      Top = 80
-      Width = 100
-      Height = 27
+      Left = 18
+      Top = 160
+      Width = 200
+      Height = 54
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = '&Abandon'
       Kind = bkCancel
       Margin = 2
@@ -72,10 +97,14 @@ object PageDistribDlg: TPageDistribDlg
       IsControl = True
     end
     object OKBtn: TBitBtn
-      Left = 9
-      Top = 8
-      Width = 100
-      Height = 27
+      Left = 18
+      Top = 16
+      Width = 200
+      Height = 54
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Caption = '&OK'
       Kind = bkOK
       Margin = 2
@@ -87,13 +116,17 @@ object PageDistribDlg: TPageDistribDlg
     end
   end
   object ParamListBox: TCheckListBox
-    Left = 8
-    Top = 31
-    Width = 233
-    Height = 196
+    Left = 16
+    Top = 62
+    Width = 466
+    Height = 388
     Hint = '|Cocher les param'#232'tres '#224' conserver'
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     IntegralHeight = True
-    ItemHeight = 32
+    ItemHeight = 64
     Items.Strings = (
       'x'
       'y'

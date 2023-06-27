@@ -5,26 +5,29 @@ object SelectColonneDlg: TSelectColonneDlg
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'Choix des grandeurs export'#233'es'
-  ClientHeight = 230
-  ClientWidth = 432
+  ClientHeight = 460
+  ClientWidth = 892
   Color = clBtnFace
-  Constraints.MinHeight = 160
+  Constraints.MinHeight = 268
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
-  Font.Height = -13
+  Font.Height = -26
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnDestroy = FormDestroy
-  PixelsPerInch = 96
-  TextHeight = 17
+  PixelsPerInch = 192
+  TextHeight = 36
   object OKBtn: TBitBtn
-    Left = 316
-    Top = 8
-    Width = 100
-    Height = 27
+    Left = 632
+    Top = 16
+    Width = 200
+    Height = 54
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = '&OK'
     Kind = bkOK
     Margin = 2
@@ -35,10 +38,14 @@ object SelectColonneDlg: TSelectColonneDlg
     IsControl = True
   end
   object CancelBtn: TBitBtn
-    Left = 316
-    Top = 58
-    Width = 100
-    Height = 27
+    Left = 632
+    Top = 116
+    Width = 200
+    Height = 54
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = '&Abandon'
     Kind = bkCancel
     Margin = 2
@@ -50,26 +57,39 @@ object SelectColonneDlg: TSelectColonneDlg
   object GrandeursListBox: TCheckListBox
     Left = 0
     Top = 0
-    Width = 297
-    Height = 230
+    Width = 594
+    Height = 460
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Align = alLeft
-    ItemHeight = 15
+    ItemHeight = 36
     TabOrder = 2
+    ExplicitHeight = 459
   end
   object CSVCB: TCheckBox
-    Left = 316
-    Top = 112
-    Width = 97
-    Height = 17
+    Left = 632
+    Top = 224
+    Width = 194
+    Height = 34
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = '"Vrai" CSV'
     TabOrder = 3
   end
   object ValeursSeulesCB: TCheckBox
-    Left = 316
-    Top = 144
-    Width = 108
-    Height = 17
+    Left = 632
+    Top = 288
+    Width = 216
+    Height = 34
     Hint = 'Pas d'#39'en t'#234'te (pour Maple, Mathematica ...)'
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
     Caption = 'Valeurs seules '
     TabOrder = 4
   end

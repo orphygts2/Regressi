@@ -5,8 +5,8 @@ object FgrapheVariab: TFgrapheVariab
   HelpContext = 25
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   Caption = 'Graphe'
-  ClientHeight = 1495
-  ClientWidth = 2757
+  ClientHeight = 1481
+  ClientWidth = 2561
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -44,7 +44,7 @@ object FgrapheVariab: TFgrapheVariab
     Left = 0
     Top = 0
     Width = 450
-    Height = 1495
+    Height = 1481
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -2049,7 +2049,7 @@ object FgrapheVariab: TFgrapheVariab
       Left = 0
       Top = 937
       Width = 450
-      Height = 558
+      Height = 544
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -2062,7 +2062,7 @@ object FgrapheVariab: TFgrapheVariab
         Left = 2
         Top = 38
         Width = 446
-        Height = 518
+        Height = 504
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -2194,8 +2194,8 @@ object FgrapheVariab: TFgrapheVariab
   object PanelCentral: TPanel
     Left = 476
     Top = 0
-    Width = 2017
-    Height = 1495
+    Width = 1821
+    Height = 1481
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -2206,10 +2206,10 @@ object FgrapheVariab: TFgrapheVariab
     TabOrder = 1
     object PanelBis: TPanel
       Tag = 2
-      Left = 1263
+      Left = 1067
       Top = 123
       Width = 754
-      Height = 1328
+      Height = 1314
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -2227,7 +2227,7 @@ object FgrapheVariab: TFgrapheVariab
         Left = 1
         Top = 1
         Width = 752
-        Height = 1326
+        Height = 1313
         Hint = '|Utiliser le clic droit pour ouvrir le menu local'
         Margins.Left = 6
         Margins.Top = 6
@@ -2250,8 +2250,8 @@ object FgrapheVariab: TFgrapheVariab
       Tag = 1
       Left = 0
       Top = 123
-      Width = 1263
-      Height = 1328
+      Width = 1067
+      Height = 1314
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -2265,8 +2265,8 @@ object FgrapheVariab: TFgrapheVariab
       object PaintBox3: TPaintBox
         Tag = 3
         Left = 1
-        Top = 1183
-        Width = 1261
+        Top = 1169
+        Width = 1065
         Height = 144
         Margins.Left = 6
         Margins.Top = 6
@@ -2285,8 +2285,8 @@ object FgrapheVariab: TFgrapheVariab
       end
       object Bevel: TBevel
         Left = 1
-        Top = 1145
-        Width = 1261
+        Top = 1131
+        Width = 1065
         Height = 4
         Margins.Left = 6
         Margins.Top = 6
@@ -2301,8 +2301,8 @@ object FgrapheVariab: TFgrapheVariab
         Tag = 1
         Left = 1
         Top = 1
-        Width = 1261
-        Height = 1080
+        Width = 1065
+        Height = 1066
         Hint = '|Utiliser le clic droit pour ouvrir le menu local'
         Margins.Left = 6
         Margins.Top = 6
@@ -2468,8 +2468,8 @@ object FgrapheVariab: TFgrapheVariab
       end
       object VideoTrackBar: TTrackBar
         Left = 1
-        Top = 1081
-        Width = 1261
+        Top = 1067
+        Width = 1065
         Height = 64
         Margins.Left = 6
         Margins.Top = 6
@@ -2490,8 +2490,8 @@ object FgrapheVariab: TFgrapheVariab
       end
       object ResidusStudentCB: TCheckBox
         Left = 1
-        Top = 1149
-        Width = 1261
+        Top = 1135
+        Width = 1065
         Height = 34
         Margins.Left = 6
         Margins.Top = 6
@@ -2520,8 +2520,8 @@ object FgrapheVariab: TFgrapheVariab
     end
     object HeaderXY: TStatusBar
       Left = 0
-      Top = 1451
-      Width = 2017
+      Top = 1437
+      Width = 1821
       Height = 44
       Margins.Left = 6
       Margins.Top = 6
@@ -2550,7 +2550,7 @@ object FgrapheVariab: TFgrapheVariab
     object ToolBarGraphe: TToolBar
       Left = 0
       Top = 0
-      Width = 2017
+      Width = 1821
       Height = 77
       Margins.Left = 6
       Margins.Top = 6
@@ -2559,14 +2559,11 @@ object FgrapheVariab: TFgrapheVariab
       AutoSize = True
       ButtonHeight = 75
       ButtonWidth = 125
-      Color = clGradientInactiveCaption
-      DrawingStyle = dsGradient
       Flat = False
       GradientEndColor = clSkyBlue
       HotTrackColor = clAqua
       Images = ImageList1
       GradientDrawingOptions = [gdoHotTrack]
-      ParentColor = False
       ShowCaptions = True
       TabOrder = 3
       Wrapable = False
@@ -2796,7 +2793,7 @@ object FgrapheVariab: TFgrapheVariab
     object ToolBarGrandeurs: TToolBar
       Left = 0
       Top = 77
-      Width = 2017
+      Width = 1821
       Height = 46
       Cursor = crHandPoint
       Hint = 'Cliquer pour d'#233'finir les ordonn'#233'es'
@@ -3019,7 +3016,7 @@ object FgrapheVariab: TFgrapheVariab
         Left = 1930
         Top = 0
         Width = 621
-        Height = 42
+        Height = 36
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -3044,10 +3041,10 @@ object FgrapheVariab: TFgrapheVariab
     end
   end
   object PanelAnimation: TPanel
-    Left = 2493
+    Left = 2297
     Top = 0
     Width = 264
-    Height = 1495
+    Height = 1481
     HelpType = htKeyword
     HelpKeyword = 'Animation'
     Margins.Left = 6
@@ -3259,7 +3256,7 @@ object FgrapheVariab: TFgrapheVariab
     end
     object GroupBox6: TGroupBox
       Left = 1
-      Top = 1398
+      Top = 1385
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3280,6 +3277,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 17
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 1384
       object TrackBar6: TTrackBar
         Left = 2
         Top = 38
@@ -3300,7 +3298,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox4: TGroupBox
       Tag = 2
       Left = 1
-      Top = 1206
+      Top = 1193
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3315,6 +3313,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 15
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 1192
       object TrackBar4: TTrackBar
         Tag = 4
         Left = 2
@@ -3335,7 +3334,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox5: TGroupBox
       Tag = 4
       Left = 1
-      Top = 1014
+      Top = 1001
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3350,6 +3349,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 13
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 1000
       object TrackBar2: TTrackBar
         Tag = 3
         Left = 2
@@ -3370,7 +3370,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox2: TGroupBox
       Tag = 5
       Left = 1
-      Top = 918
+      Top = 905
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3385,6 +3385,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 12
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 904
       object TrackBar1: TTrackBar
         Left = 2
         Top = 38
@@ -3404,7 +3405,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox1: TGroupBox
       Tag = 3
       Left = 1
-      Top = 1110
+      Top = 1097
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3419,6 +3420,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 14
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 1096
       object TrackBar3: TTrackBar
         Tag = 1
         Left = 2
@@ -3439,7 +3441,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox3: TGroupBox
       Tag = 1
       Left = 1
-      Top = 1302
+      Top = 1289
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3454,6 +3456,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 16
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 1288
       object TrackBar5: TTrackBar
         Tag = 2
         Left = 2
@@ -3551,7 +3554,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox7: TGroupBox
       Tag = 6
       Left = 1
-      Top = 822
+      Top = 809
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3566,6 +3569,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 11
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 808
       object TrackBar7: TTrackBar
         Tag = 6
         Left = 2
@@ -3586,7 +3590,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox8: TGroupBox
       Tag = 7
       Left = 1
-      Top = 726
+      Top = 713
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3601,6 +3605,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 10
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 712
       object TrackBar8: TTrackBar
         Tag = 7
         Left = 2
@@ -3621,7 +3626,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox9: TGroupBox
       Tag = 8
       Left = 1
-      Top = 630
+      Top = 617
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3636,6 +3641,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 9
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 616
       object TrackBar9: TTrackBar
         Tag = 8
         Left = 2
@@ -3656,7 +3662,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox10: TGroupBox
       Tag = 12
       Left = 1
-      Top = 246
+      Top = 233
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3671,6 +3677,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 5
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 232
       object TrackBar10: TTrackBar
         Tag = 8
         Left = 2
@@ -3691,7 +3698,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox11: TGroupBox
       Tag = 11
       Left = 1
-      Top = 342
+      Top = 329
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3706,6 +3713,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 6
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 328
       object TrackBar11: TTrackBar
         Tag = 8
         Left = 2
@@ -3726,7 +3734,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox12: TGroupBox
       Tag = 10
       Left = 1
-      Top = 438
+      Top = 425
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3747,6 +3755,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 7
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 424
       object TrackBar12: TTrackBar
         Tag = 8
         Left = 2
@@ -3767,7 +3776,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox13: TGroupBox
       Tag = 9
       Left = 1
-      Top = 534
+      Top = 521
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3782,6 +3791,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 8
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
+      ExplicitTop = 520
       object TrackBar13: TTrackBar
         Tag = 8
         Left = 2
@@ -3804,13 +3814,13 @@ object FgrapheVariab: TFgrapheVariab
     Left = 450
     Top = 0
     Width = 26
-    Height = 1495
+    Height = 1481
     Hint = 'F9'
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
-    caption = 'Mod'#233'lisation'
+    caption = 'Mod'#233'l    isation'
     Associate = PanelModele
     Size = 26
     MinSplitSize = 200
@@ -3856,8 +3866,8 @@ object FgrapheVariab: TFgrapheVariab
   end
   object MenuAxes: TPopupMenu
     OnPopup = MenuAxesPopup
-    Left = 728
-    Top = 288
+    Left = 2120
+    Top = 832
     object identifierPagesItemA: TMenuItem
       Action = IdentAction
       AutoCheck = True
@@ -3921,7 +3931,7 @@ object FgrapheVariab: TFgrapheVariab
   object PopupMenuModele: TPopupMenu
     AutoHotkeys = maManual
     OnPopup = PopupMenuModelePopup
-    Left = 184
+    Left = 40
     Top = 160
     object OptionsModeleItem: TMenuItem
       Caption = '&Options de mod'#233'lisation'
@@ -3991,6 +4001,11 @@ object FgrapheVariab: TFgrapheVariab
       Caption = 'Fin Monte-Carlo'
       OnClick = ExitMonteCarloItemClick
     end
+    object ContourMenu: TMenuItem
+      Caption = 'Convergence'
+      Visible = False
+      OnClick = Convergence
+    end
   end
   object BornesMenu: TPopupMenu
     AutoHotkeys = maManual
@@ -4043,7 +4058,7 @@ object FgrapheVariab: TFgrapheVariab
     Top = 312
   end
   object MenuDessin: TPopupMenu
-    Left = 910
+    Left = 1838
     Top = 168
     object DessinSupprimerItem: TMenuItem
       Caption = '&Supprimer'
@@ -4057,8 +4072,8 @@ object FgrapheVariab: TFgrapheVariab
   object TimerAnim: TTimer
     Enabled = False
     OnTimer = TimerAnimTimer
-    Left = 611
-    Top = 317
+    Left = 595
+    Top = 541
   end
   object RepeatTimer: TTimer
     Enabled = False
@@ -4068,8 +4083,8 @@ object FgrapheVariab: TFgrapheVariab
   end
   object CurseurMenu: TPopupMenu
     OnPopup = CurseurMenuPopup
-    Left = 720
-    Top = 227
+    Left = 1856
+    Top = 867
     object SelectItem: TMenuItem
       Caption = 'Standard'
       ImageIndex = 27
@@ -4159,8 +4174,8 @@ object FgrapheVariab: TFgrapheVariab
   end
   object AnimationMenu: TPopupMenu
     OnPopup = AnimationMenuPopup
-    Left = 897
-    Top = 227
+    Left = 1825
+    Top = 307
     object AnimationNone: TMenuItem
       Caption = 'Pas d'#39'animation'
       Checked = True
@@ -4180,13 +4195,13 @@ object FgrapheVariab: TFgrapheVariab
   end
   object MenuIndicateur: TPopupMenu
     OnPopup = MenuIndicateurPopup
-    Left = 723
-    Top = 164
+    Left = 1811
+    Top = 660
   end
   object NgraphesMenu: TPopupMenu
     OnPopup = PopupMenuModelePopup
-    Left = 816
-    Top = 170
+    Left = 2000
+    Top = 154
     object UngrapheItem: TMenuItem
       Caption = '&1 graphe'
       Checked = True
@@ -4224,13 +4239,13 @@ object FgrapheVariab: TFgrapheVariab
     Enabled = False
     Interval = 100
     OnTimer = TimerModeleTimer
-    Left = 608
-    Top = 168
+    Left = 560
+    Top = 680
   end
   object VecteursMenu: TPopupMenu
     OnPopup = VecteursMenuPopup
-    Left = 816
-    Top = 224
+    Left = 2032
+    Top = 496
     object VitesseItem: TMenuItem
       Tag = 1
       Caption = 'Vitesse'
@@ -4262,7 +4277,14 @@ object FgrapheVariab: TFgrapheVariab
       RadioItem = True
       OnClick = VecteursItemClick
     end
+    object OptionsItemBis: TMenuItem
+      Tag = 2
+      Caption = 'Options bis'
+      GroupIndex = 1
+      OnClick = OptionsItemClick
+    end
     object OptionsItem: TMenuItem
+      Tag = 1
       Caption = 'Options'
       GroupIndex = 1
       ImageIndex = 42
@@ -4278,8 +4300,8 @@ object FgrapheVariab: TFgrapheVariab
   end
   object MenuReticule: TPopupMenu
     OnPopup = MenuReticulePopup
-    Left = 816
-    Top = 288
+    Left = 2064
+    Top = 320
     object tableauXYItemBis: TMenuItem
       Caption = 'Tableau tangentes'
       HelpContext = 809
@@ -4299,8 +4321,12 @@ object FgrapheVariab: TFgrapheVariab
       OnClick = FinReticuleItemClick
     end
     object ProprieteCourbeBis: TMenuItem
-      Caption = 'Carac'
+      Caption = 'Caract'#233'ristique'
       OnClick = ProprieteCourbeClick
+    end
+    object Enregistrergraphe1: TMenuItem
+      Caption = 'Enregistrer graphe'
+      OnClick = EnregistrerGrapheItemClick
     end
   end
   object TimerSizing: TTimer
@@ -4311,8 +4337,8 @@ object FgrapheVariab: TFgrapheVariab
     Top = 376
   end
   object CopyMenu: TPopupMenu
-    Left = 728
-    Top = 352
+    Left = 2104
+    Top = 656
     object metafile2: TMenuItem
       AutoCheck = True
       Caption = 'metafile'
@@ -4363,8 +4389,8 @@ object FgrapheVariab: TFgrapheVariab
     end
   end
   object ModeleMenu: TPopupMenu
-    Left = 904
-    Top = 289
+    Left = 1816
+    Top = 481
     object LineaireItem: TMenuItem
       Caption = 'Lin'#233'aire'
       ImageIndex = 3
