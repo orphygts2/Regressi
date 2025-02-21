@@ -5,8 +5,8 @@ object OptionsFFTDlg: TOptionsFFTDlg
   BorderIcons = [biSystemMenu, biHelp]
   BorderStyle = bsDialog
   Caption = 'Options transform'#233'e de Fourier'
-  ClientHeight = 422
-  ClientWidth = 886
+  ClientHeight = 420
+  ClientWidth = 858
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -43,10 +43,10 @@ object OptionsFFTDlg: TOptionsFFTDlg
   PixelsPerInch = 192
   TextHeight = 36
   object PanelBoutons: TPanel
-    Left = 652
+    Left = 624
     Top = 0
     Width = 234
-    Height = 422
+    Height = 420
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -55,8 +55,8 @@ object OptionsFFTDlg: TOptionsFFTDlg
     BorderStyle = bsSingle
     ParentColor = True
     TabOrder = 0
-    ExplicitLeft = 638
-    ExplicitHeight = 421
+    ExplicitLeft = 610
+    ExplicitHeight = 419
     object BtnOK: TBitBtn
       Left = 12
       Top = 10
@@ -103,8 +103,8 @@ object OptionsFFTDlg: TOptionsFFTDlg
   object PanelOptions: TPanel
     Left = 0
     Top = 0
-    Width = 652
-    Height = 422
+    Width = 624
+    Height = 420
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -115,22 +115,22 @@ object OptionsFFTDlg: TOptionsFFTDlg
     ParentColor = True
     ParentCtl3D = False
     TabOrder = 1
-    ExplicitWidth = 638
-    ExplicitHeight = 421
+    ExplicitWidth = 610
+    ExplicitHeight = 419
     object PageControl: TPageControl
       Left = 0
       Top = 0
-      Width = 652
-      Height = 422
+      Width = 624
+      Height = 420
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      ActivePage = SuperpositionTS
+      ActivePage = AbscisseTS
       Align = alClient
       TabOrder = 0
-      ExplicitWidth = 638
-      ExplicitHeight = 421
+      ExplicitWidth = 610
+      ExplicitHeight = 419
       object AbscisseTS: TTabSheet
         Margins.Left = 6
         Margins.Top = 6
@@ -277,6 +277,20 @@ object OptionsFFTDlg: TOptionsFFTDlg
           TabOrder = 5
           OnClick = GrandeurFreqBtn
         end
+        object periodiqueCB: TCheckBox
+          Left = 350
+          Top = 316
+          Width = 250
+          Height = 34
+          Margins.Left = 6
+          Margins.Top = 6
+          Margins.Right = 6
+          Margins.Bottom = 6
+          Caption = 'Signal p'#233'rioidique'
+          Checked = True
+          State = cbChecked
+          TabOrder = 6
+        end
       end
       object CalculTS: TTabSheet
         Margins.Left = 6
@@ -287,8 +301,8 @@ object OptionsFFTDlg: TOptionsFFTDlg
         ImageIndex = 1
         object FenetreRadioG: TRadioGroup
           Left = 0
-          Top = 188
-          Width = 636
+          Top = 186
+          Width = 608
           Height = 170
           Margins.Left = 6
           Margins.Top = 6
@@ -320,8 +334,8 @@ object OptionsFFTDlg: TOptionsFFTDlg
         end
         object AjusteRectangleRG: TRadioGroup
           Left = 0
-          Top = 52
-          Width = 636
+          Top = 50
+          Width = 608
           Height = 136
           Margins.Left = 6
           Margins.Top = 6
@@ -503,8 +517,8 @@ object OptionsFFTDlg: TOptionsFFTDlg
         end
         object OrdonneeRG: TRadioGroup
           Left = 0
-          Top = 278
-          Width = 636
+          Top = 276
+          Width = 608
           Height = 80
           Margins.Left = 6
           Margins.Top = 6

@@ -5,8 +5,8 @@ object AnimParamDlg: TAnimParamDlg
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   BorderStyle = bsDialog
   Caption = 'R'#233'glage des param'#232'tres d'#39'animation'
-  ClientHeight = 476
-  ClientWidth = 968
+  ClientHeight = 474
+  ClientWidth = 940
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -81,8 +81,8 @@ object AnimParamDlg: TAnimParamDlg
   end
   object Memo1: TMemo
     Left = 0
-    Top = 354
-    Width = 968
+    Top = 352
+    Width = 940
     Height = 122
     Margins.Left = 6
     Margins.Top = 6
@@ -98,7 +98,5 @@ object AnimParamDlg: TAnimParamDlg
       '-non: la variation est lin'#233'aire et le pas la valeur ajout'#233'e (>0)'
       '')
     TabOrder = 3
-    ExplicitTop = 353
-    ExplicitWidth = 954
   end
 end

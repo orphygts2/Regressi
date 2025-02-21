@@ -5,16 +5,15 @@ interface
 uses
   System.Types, System.UITypes, System.ImageList, system.IOUtils, system.dateUtils,
   Windows, SysUtils, Messages,  Classes, Graphics, Controls,
-  Forms,  Dialogs, StdCtrls,  ExtCtrls,  Buttons,  registry, math,
+  Forms,  Dialogs, StdCtrls,  ExtCtrls,  Buttons, math,
   Menus, ImgList, Spin, ComCtrls, ToolWin, grids, inifiles,
-  jpeg, gifImg, Vcl.Imaging.pngimage,
+  jpeg, Vcl.Imaging.pngimage, vcl.graphUtil,
   regutil, compile, constreg, grapheU, shellApi, clipBrd, maths,
   rollingShutterCalc,
   AVProbe, AVPreview, AVCodec,
   Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection;
 
 type
-  Tmethode = (mPreview,mProbe);
   TffmpegForm = class(TForm)
     PanelMediaPlayer: TPanel;
     TempsLabel: TLabel;
@@ -73,7 +72,7 @@ type
     RollingShutterLabel: TLabel;
     RollingShutterBtn: TSpeedButton;
     RollingShutterSE: TSpinEdit;
-    ImgPreview: TImage;
+    imgPreview: TImage;
     TimerChrono: TTimer;
     CaptureBtn: TToolButton;
     TimerPlayImages: TTimer;
@@ -151,7 +150,6 @@ type
     BorneSelect : TstyleDrag;
     LongueurEchelle : double;
     DureeImage : double;
-    bitmapOrigin : Tbitmap;
     signeY : integer;
     Nmes : integer;
     Largeur,Hauteur : integer;
@@ -200,9 +198,10 @@ type
     procedure ChronoInit;
     procedure updatePreview(index : integer);
     function getNomImage(index : integer) : string;
-    procedure upDateImage(const NomImage : string;zoomForce : boolean);
+    procedure upDateImage(const NomImage : string);
     procedure upDateCourant;
-    procedure EffectuerZoom;
+    procedure EffectuerZoom(init : boolean);
+    procedure OuvreFichiers(const NomFichiers : Tstrings);
   public
     procedure OuvreFichier(const Anom: string);
   protected
@@ -226,14 +225,12 @@ const
 
 procedure TffmpegForm.WMMajAvi(var Msg: Tmessage);
 begin
-  //   showMessage(IntToStr(MilliSecondsBetween(debutPlayVideo,now)));
      timerPlayImages.Enabled := false;
      timerPlayVideo.Enabled := false;
      timerChrono.enabled := false;
      labelAttente.caption := '';
      trackBar.position := 0;
      stopBtn.enabled := true;
-     methodeRG.enabled := true;
      suivantBtn.Enabled := true;
      precedentBtn.Enabled := true;
      rewindBtn.Enabled := true;
@@ -269,13 +266,14 @@ begin
     OpenDialog.filterIndex := Fichier.readInteger(stAvi,'FilterIndex',1);
     MethodeRG.itemIndex := Fichier.readInteger(stAvi,'Methode',1);
     RollingShutterSE.value := Fichier.readInteger(stAvi,'RollingShutter',0);
-    NimagesSE.value := Fichier.readInteger(stAvi,'NImages',1);
+    NbreSE.value := Fichier.readInteger(stAvi,'NImages',1);
+    NimagesSE.value := 1;
     TraceEchCB.checked := Fichier.readBool(stAvi,'TraceEchelle',true);
     TracePointsCB.checked := Fichier.readBool(stAvi,'TracePoints',true);
     EtiquetteCB.checked := Fichier.readBool(stAvi,'Etiquette',true);
     couleurAxeCB.selected := Fichier.readInteger(stAvi,'CouleurEchelle',clBlack);
     bitmapC := Tbitmap.create;
-    bitmapOrigin := Tbitmap.create;
+    //bitmapOrigin := Tbitmap.create;
     couleur[0] := couleurAxeCB.selected;
     for j := 1 to maxPoints do
         Couleur[j] := Fichier.readInteger(stAvi,stCouleur+intToStr(j),clBlack);
@@ -297,8 +295,9 @@ begin
     LoupeForm.paintBox.onMouseMove := paintBoxMouseMove;
     LoupeForm.onKeyDown := formKeyDown;
     LoupeForm.Hide;
-    ResizeButtonImagesforHighDPI(self);
- //   Grid.DefaultRowHeight := hauteurColonne;
+    VirtualImageList1.height := VirtualImageListSize;
+    VirtualImageList1.width := VirtualImageListSize;
+    Grid.DefaultRowHeight := hauteurColonne;
     setBoutons;
 end; // FormCreate
 
@@ -342,7 +341,7 @@ var deltaRotation : integer;
     dx,dy : single;
   begin
     oldZoomBmp := zoomBmp;
-    effectuerZoom;
+    effectuerZoom(false);
     coeff := zoomBmp/oldZoomBmp;
     if deltaRotation=1
        then begin
@@ -444,8 +443,6 @@ case BorneSelect of
      end;
      bsMesure : EnregistrePoint;
      bsChronoInit : ChronoInit;
-     bsChrono : ;
-     bsPlay : ;
   end;
 end; // MouseUp
 
@@ -615,9 +612,7 @@ procedure TffmpegForm.OuvreFichier(const Anom : string);
   begin
       FPreview.inputFile := NomFichier;
       FPreview.Active := true;
-      largeur := Fpreview.VideoWidth;
-      hauteur := Fpreview.VideoHeight;
-      DureeImage := 1/Fpreview.videoFrameRate;
+      DureeImage := 1/FPreview.VideoFrameRate;
       DureeSec := Fpreview.Duration;
   end;
 
@@ -640,18 +635,8 @@ procedure TffmpegForm.OuvreFichier(const Anom : string);
           RazAxes.Caption := 'Axes';
           RazAxes.hint := trOrientationAxes;
           RazAxes.imageIndex := 16;
-          if abs(rotation)=1 then swap(largeur,hauteur);
-          EffectuerZoom;
-          PointRepere[bsOrigine] := pointF(Largeur/2,Hauteur/2);
-          PointRepere[bsEchelle1] := pointF(Largeur/4,3*Hauteur/4);
-          PointRepere[bsEchelle2] := pointF(3*Largeur/4,3*Hauteur/4);
-          PointRepere[bsAxeX] :=  PointRepere[bsOrigine];
-          PointRepere[bsAxeX].Offset(Hauteur/4,0);
-          PointRepere[bsAxeY] := PointRepere[bsOrigine];
-          PointRepere[bsAxeY].Offset(0,signeY*Hauteur/4);
-          imageVersEcran;
+          if methode=mProbe then EffectuerZoom(true);
           LabelFPS.Caption := '  '+ intToStr(round(1/dureeImage))+' img/s ';
-          magnet := Largeur div 100;
   end; // recupereData
 
 var i,j : integer;
@@ -681,13 +666,14 @@ begin // ouvreFichier
      videoDir := extractFilePath(Anom);
      recopieLocal;
      setBorne(bsNone);
+     ImgPreview.Stretch := false; // pour accélérer ?
      try
      RecupereData;
      Caption := Captionffmpeg+' ['+ExtractFileName(NomFichier)+']';
      for i := 2 to pred(Grid.rowCount) do
          for j := 0 to pred(grid.colCount) do
              Grid.cells[j,i] := '';
-     if (ImgPreview.Width>(largeurAff+32)) then
+     if (methode=mProbe) and (ImgPreview.Width>(largeurAff+32)) then
          gridPanel.Width := ClientWidth-largeurAff-gridSplitter.Width-32;
      except
          FPreview.Active := false;
@@ -704,7 +690,6 @@ begin // ouvreFichier
      // boutons interdits de manière à être sûr de créer toutes les images
         timerPlayVideo.Interval := round(dureeImage*1.25*1000);
         timerPlayVideo.Enabled := true;
-        methodeRG.enabled := false;
         debutPlayVideo := now;
         stopBtn.enabled := true; // Il faut pouvoir débloquer !
         BorneSelect := bsPlay;
@@ -712,13 +697,130 @@ begin // ouvreFichier
      CorrectionRS.reset;
 end; // ouvreFichier
 
+procedure TffmpegForm.OuvreFichiers(const NomFichiers : Tstrings);
+
+  Procedure RecopieLocal;
+
+  procedure unFichier(NomFichierScr,NomFichierDest : string);
+  var extension : string;
+      Ajpeg : TjpegImage;
+      Apng : TpngImage;
+  begin
+     extension := AnsiUpperCase(extractFileExt(NomFichierScr));
+     if (extension='.GIF') then begin
+          ConvertitGifBmp(nomFichierScr);
+          extension := '.BMP';
+     end;
+     if (extension='.PNG') then begin
+          Apng := TpngImage.create;
+          Apng.LoadFromFile(NomFichierScr);
+          with bitmapC do begin
+               pixelFormat := pf24bit;
+               height := Apng.Height;
+               width := Apng.Width;
+               assign(Apng);
+               saveToFile(nomFichierDest);
+          end;
+          Apng.free;
+     end;
+     if (extension='.JPG') or (extension='.JPEG') then begin
+          Ajpeg := TjpegImage.create;
+          Ajpeg.LoadFromFile(NomFichierScr);
+          with bitmapC do begin
+              pixelFormat := pf24bit;
+              height := Ajpeg.height;
+              width := Ajpeg.width;
+              assign(Ajpeg);
+              saveToFile(nomFichierDest);
+          end;
+          Ajpeg.free;
+     end;
+     if (extension='.BMP') then begin
+        BitmapC.LoadFromFile(NomFichierScr);
+        bitmapC.saveToFile(nomFichierDest);
+     end;
+  end;
+
+  var nomCourt,nomCopie : string;
+      i : integer;
+  begin
+     nomCourt := extractFileName(nomFichiers[0]);
+     Caption := Captionffmpeg+' ['+nomCourt+']';
+     removeBackSlash(tempDirReg);
+     NomCopie := Tpath.combine(tempDirReg,'test');
+     for i := 0 to nomFichiers.count-1 do
+         unFichier(nomFichiers[i], nomCopie+system.SysUtils.format('%3d',[i]));
+     bitmapC.loadFromFile(nomCopie+'.001.bmp');
+     largeur := bitmapC.Width;
+     hauteur := bitmapC.Height;
+  end;
+
+  procedure RecupereData;
+  begin // recupereData
+          imageCourante := '';
+          tempsLabel.Caption  := '';
+          trackBar.tag := 1;
+          TrackBar.Max := NomFichiers.count-1;
+          TrackBar.SelEnd := trackBar.Max;
+          TrackBar.SelStart := 0;
+          TrackBar.Position := 0;
+          trackBar.tag := 0;
+          angleX := 0;
+          RazAxes.Caption := 'Axes';
+          RazAxes.hint := trOrientationAxes;
+          RazAxes.imageIndex := 16;
+          EffectuerZoom(true);
+          LabelFPS.Caption := '  '+ intToStr(round(1/dureeImage))+' img/s ';
+  end; // recupereData
+
+var i,j : integer;
+begin // ouvreFichiers
+     // Raz
+     Nmes := 0;
+     // valeur par défaut
+     zoomBmp := 1;
+     pasZoom := 1;
+     rotation := 0;
+     DureeImage := 1/25;
+     trackBar.SelEnd := 0;
+     trackBar.SelStart := 0;
+     traceEchCB.visible := true;
+
+     nomOriginal := nomFichiers[0];
+     cacheLoupe;
+     videRepertoire;
+     videoDir := extractFilePath(nomFichiers[0]);
+     recopieLocal;
+     setBorne(bsNone);
+     RecupereData;
+     for i := 2 to pred(Grid.rowCount) do
+         for j := 0 to pred(grid.colCount) do
+             Grid.cells[j,i] := '';
+     if (ImgPreview.Width>(largeurAff+32)) then
+         gridPanel.Width := ClientWidth-largeurAff-gridSplitter.Width-32;
+     setBoutons;
+     CorrectionRS.reset;
+end; // ouvreFichiers
+
 procedure TffmpegForm.OpenFileBtnClick(Sender: TObject);
 begin
    if OpenDialog.InitialDir='' then
       OpenDialog.InitialDir := VideoDir;
    if OpenDialog.execute then begin
-      ouvreFichier(openDialog.fileName);
-      OpenDialog.InitialDir := extractFilePath(openDialog.fileName);
+      if (openDialog.FilterIndex=2) then begin // images
+         if openDialog.Files.count<3
+         then begin
+              afficheErreur('Trop peu d''images',0);
+         end
+         else begin
+            ouvreFichiers(openDialog.files);
+            OpenDialog.InitialDir := extractFilePath(openDialog.fileName);
+         end;
+      end
+      else begin // video
+         ouvreFichier(openDialog.fileName);
+         OpenDialog.InitialDir := extractFilePath(openDialog.fileName);
+      end;
    end;
 end;
 
@@ -879,8 +981,7 @@ end;
 procedure TffmpegForm.PanelVideoResize(Sender: TObject);
 begin
     if not (FPreview.active or FProbe.active) then exit;
-    effectuerZoom;
-    imageVersEcran;
+    effectuerZoom(false);
 end;
 
 procedure TffmpegForm.PlayBtnClick(Sender: TObject);
@@ -972,7 +1073,7 @@ begin
      Fichier.writeInteger(stAvi,'Methode',MethodeRG.itemIndex);
      Fichier.WriteBool(stAvi,'Etiquette',EtiquetteCB.checked);
      Fichier.writeInteger(stAvi,'FilterIndex',OpenDialog.filterIndex);
-     Fichier.writeInteger(stAvi,'NImages',NimagesSE.value);
+     Fichier.writeInteger(stAvi,'NImages',NbreSE.value);
      Fichier.writeBool(stAvi,'TraceEchelle',traceEchCB.checked);
      Fichier.writeBool(stAvi,'TracePoints',tracePointsCB.checked);
      Fichier.writeInteger(stAvi,'CouleurEchelle',couleurAxeCB.selected);
@@ -1007,7 +1108,7 @@ begin
         LoupeForm := nil;
      end;
      bitmapC.free;
-     bitmapOrigin.free;
+     //bitmapOrigin.free;
      FPreview.Active:=false;
      FPreview.InputFile:='';
      FProbe.Active:=false;
@@ -1174,7 +1275,7 @@ procedure TffmpegForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState;
    bitmapLoupe.Width := X2-X1;
    bitmapLoupe.Height := Y2-Y1;
    bitmapLoupe.canvas.CopyRect(rect(0,0,X2-X1,Y2-Y1),
-            bitmapOrigin.canvas,
+            bitmapC.canvas,
             rect(round(X1/pasZoom),round(Y1/pasZoom),
                  round(X2/pasZoom),round(Y2/pasZoom)));
    aPoint := imgPreview.clientToScreen(Point(x,y));
@@ -1351,28 +1452,28 @@ var nomImage : string;
 
   procedure UpdatePreviewTB;
   begin
+     bitmapC.Canvas.CopyMode := cmSrcCopy;
      case methode of
         mPreview : begin
            FPreview.TimeStamp := trackBar.Position*dureeImage;
            imgPreview.Picture.Assign(FPreview.Bitmap);
+           if hauteur=0 then begin
+              largeur := Fpreview.bitmap.Width;
+              hauteur := Fpreview.bitmap.Height;
+              effectuerZoom(true);
+           end;
            if (nomImage<>'') then FPreview.Bitmap.SaveToFile(nomImage);
-           bitmapOrigin.Canvas.Draw(0,0,FPreview.bitmap);
+           bitmapC.Canvas.Draw(0,0,FPreview.bitmap);
         end;
         mProbe : begin
            FProbe.TimeStamp := Round(trackBar.Position*dureeImage*AV_TIME_BASE);
            imgPreview.Picture.Assign(FProbe.Bitmap);
            if (nomImage<>'') then Fprobe.Bitmap.SaveToFile(nomImage);
-           bitmapOrigin.Canvas.Draw(0,0,FProbe.bitmap);
+           bitmapC.Canvas.Draw(0,0,FProbe.bitmap);
         end;
      end;
+     zoomEffectue := false;
      imageCourante := nomImage;
-     if borneSelect in [bsChrono,bsChronoInit] then begin
-        bitmapC.Canvas.CopyMode := cmSrcCopy;
-        case methode of
-            mPreview : bitmapC.Canvas.Draw(0,0,FPreview.bitmap);
-            mProbe : bitmapC.Canvas.Draw(0,0,FProbe.bitmap);
-        end;
-     end;
      case borneSelect of
         bsChrono : AffecteChrono;
         bsChronoInit : ;
@@ -1386,7 +1487,7 @@ begin
       nomImage := getNomImage(trackBar.Position);
       if (nomImage='') or not FileExists(nomImage)
           then UpdatePreviewTB
-          else updateImage(nomImage,trackBar.Position=0);
+          else updateImage(nomImage);
       if trackBar.Position>=trackBar.max then begin
          timerPlayImages.Enabled := false;
          timerPlayVideo.Enabled := false;
@@ -1853,6 +1954,7 @@ begin // DessineImage
     end;
 end; // DessineImage
 
+
 procedure TffmpegForm.AffecteChrono;
 var couleurC,LcouleurInit : TRGBtriple;
     scanLineC,scanLineInit : pRGBTripleArray;
@@ -2100,6 +2202,7 @@ begin
      videoForm.Show;
 end;
 
+
 procedure TffmpegForm.ChronoInit;
 
 procedure InitMesure;
@@ -2205,22 +2308,26 @@ end;
 
 procedure TffmpegForm.UpdatePreview(index : integer);
 var nomImage : string;
+    c,cc : TColor;
 begin
    if not(FPreview.active or FProbe.active) then exit;
    case methode of
         mPreview : begin
             FPreview.TimeStamp := index*dureeImage;
             imgPreview.Picture.Assign(FPreview.Bitmap);
- //           temps[index] := aPreview.TimeStamp/AV_TIME_BASE;// valeur exacte
+            if hauteur=0 then begin
+               largeur := Fpreview.bitmap.Width;
+               hauteur := Fpreview.bitmap.Height;
+               effectuerZoom(true);
+            end;
         end;
-        mProbe : begin
-            imgPreview.Picture.Assign(FProbe.Bitmap);
-//            temps[index] := FProbe.TimeStamp/AV_TIME_BASE;// valeur exacte
-        end;
+        mProbe : imgPreview.Picture.Assign(FProbe.Bitmap);
    end;
    if index=0 then begin
-      couleur[0] := couleurComplementaire(imgPreview.picture.bitmap);
-      couleurAxeCB.selected := couleur[0];
+      c := GetCouleurFond(imgPreview.picture.bitmap);
+      cc := CouleurComplementaire(c);
+      couleurAxeCB.selected := cc;
+      couleur[0] := cc;
    end;
    trackBar.Tag := 1;
    trackBar.Position := index;
@@ -2245,7 +2352,7 @@ begin
       bsPlay : ;
       else dessineImage;
    end;
-end;
+end; //updatePreview
 
     procedure TffmpegForm.EcranVersImage;
     var i : TstyleDrag;
@@ -2315,16 +2422,17 @@ begin
      result := Tpath.combine(tempDirReg,'test'+numero+'.bmp');
 end;
 
-procedure TffmpegForm.updateImage(const nomImage : string;zoomForce : boolean);
+procedure TffmpegForm.updateImage(const nomImage : string);
+var bitmapLoad : Tbitmap;
 begin
     if not (FPreview.Active or FProbe.active) then exit;
-    bitmapC.loadFromFile(nomImage);
-    if rotation<>0 then rotateBitmap2(bitmapC,rotation);
-    zoomEffectue := (ZoomBmp>1) and ((borneSelect<>bsNone) or zoomForce);
-    if ZoomEffectue then zoom_lineaire(bitmapC,ZoomBmp);
-    ImgPreview.Stretch := ZoomBmp>1;
+    bitmapLoad := Tbitmap.create;
+    bitmapLoad.loadFromFile(nomImage);
+    if rotation<>0 then rotateBitmap2(bitmapLoad,rotation);
+    if (ZoomBmp>1)
+      then vCl.GraphUtil.scaleImage(bitmapLoad,bitmapC,zoomBmp,pf24bit)
+      else bitmapC.Assign(bitmapLoad);
     imgPreview.Picture.Assign(bitmapC);
-    bitmapOrigin.assign(bitmapC);
     case borneSelect of
        bsChrono : AffecteChrono;
        bsChronoInit :;
@@ -2332,6 +2440,8 @@ begin
        else dessineImage;
     end;
     imageCourante := nomImage;
+    zoomEffectue := true;
+    bitmapLoad.free;
 end; // updateImage
 
 procedure TffmpegForm.updateCourant;
@@ -2340,7 +2450,7 @@ begin
       if imageCourante=''
          then updatePreview(trackBar.Position)
          else if not zoomEffectue
-             then updateImage(imageCourante,true)
+             then updateImage(imageCourante)
              else begin
                imgPreview.Picture.Assign(bitmapC);
                case borneSelect of
@@ -2352,10 +2462,10 @@ begin
              end;
 end;
 
-  procedure TffmpegForm.lanceChrono;
-  var P : TPoint;
-      i,j : integer;
-  begin
+procedure TffmpegForm.lanceChrono;
+var P : TPoint;
+    i,j : integer;
+begin
 {$IFDEF Debug}
          ecritDebug('début lancechrono');
 {$ENDIF}
@@ -2391,9 +2501,6 @@ end;
                cibleLabel.Top := P.Y;
                cibleLabel.visible := true;
             end;
-{$IFDEF Debug}
-         ecritDebug('création bitmap');
-{$ENDIF}
          bitmapInit := Tbitmap.create;
          bitmapFin := Tbitmap.create;
          bitmapInit.assign(bitmapC);
@@ -2414,12 +2521,13 @@ end;
          for i := 1 to pred(Grid.rowCount) do
              for j := 0 to pred(grid.colCount) do
                  Grid.cells[j,i] := '';
-  end;
+end; // lanceChrono
 
 procedure TffmpegForm.EffectuerZoom;
 var zoomX,zoomY : single;
 begin
     zoomBmp := 1;
+    if init and (abs(rotation)=1) then swap(largeur,hauteur);
     zoomX := (PanelVideo.Width - 4)/ largeur;
     zoomY := (PanelVideo.Height - trackBar.height - 4)/ hauteur;
     if zoomX>zoomY then pasZoom := zoomY else pasZoom := zoomX;
@@ -2439,6 +2547,17 @@ begin
     end;
     ImgPreview.Height := hauteurAff;
     ImgPreview.Width := largeurAff;
+    if init then begin
+          PointRepere[bsOrigine] := pointF(Largeur/2,Hauteur/2);
+          PointRepere[bsEchelle1] := pointF(Largeur/4,3*Hauteur/4);
+          PointRepere[bsEchelle2] := pointF(3*Largeur/4,3*Hauteur/4);
+          PointRepere[bsAxeX] :=  PointRepere[bsOrigine];
+          PointRepere[bsAxeX].Offset(Hauteur/4,0);
+          PointRepere[bsAxeY] := PointRepere[bsOrigine];
+          PointRepere[bsAxeY].Offset(0,signeY*Hauteur/4);
+          magnet := Largeur div 100;
+    end;
+    imageVersEcran;
 end;
 
 procedure TffmpegForm.FormShowHint(Sender: TObject);
@@ -2459,10 +2578,9 @@ begin
 end;
 
 initialization
-{$IFDEF Debug}
-   ecritDebug('initialization videoffmpeg');
-{$ENDIF}
-   FFMPEG_DLL_PATH := ExtractFilePath(application.exeName);
+   FFMPEG_DLL_PATH := ExtractFilePath(application.exeName)+'Win32\';
+finalization
+   UnloadLibs;
 
 end.
 

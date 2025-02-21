@@ -3,12 +3,12 @@ object ArduinoOscilloForm: TArduinoOscilloForm
   Top = 0
   HelpContext = 80
   Caption = 'Acquisition par Arduino pour Regressi'
-  ClientHeight = 1002
-  ClientWidth = 1674
+  ClientHeight = 994
+  ClientWidth = 1562
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -26
+  Font.Height = -30
   Font.Name = 'Segoe UI'
   Font.Style = []
   OnActivate = FormActivate
@@ -17,12 +17,12 @@ object ArduinoOscilloForm: TArduinoOscilloForm
   OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 192
-  TextHeight = 36
+  TextHeight = 41
   object PaintBox: TPaintBox
     Left = 66
-    Top = 270
-    Width = 1608
-    Height = 712
+    Top = 99
+    Width = 1496
+    Height = 875
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -33,48 +33,18 @@ object ArduinoOscilloForm: TArduinoOscilloForm
     ExplicitWidth = 1548
     ExplicitHeight = 564
   end
-  object grid: TStringGrid
-    Left = 0
-    Top = 90
-    Width = 1674
-    Height = 180
-    Margins.Left = 6
-    Margins.Top = 6
-    Margins.Right = 6
-    Margins.Bottom = 6
-    Align = alTop
-    ColCount = 4
-    DefaultColWidth = 160
-    DefaultRowHeight = 48
-    FixedCols = 2
-    RowCount = 3
-    FixedRows = 0
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goRowSizing, goEditing, goAlwaysShowEditor]
-    TabOrder = 0
-    OnDrawCell = gridDrawCell
-    ExplicitWidth = 1614
-    ColWidths = (
-      160
-      160
-      160
-      160)
-    RowHeights = (
-      48
-      48
-      48)
-  end
   object ToolBar: TToolBar
     Left = 0
     Top = 0
-    Width = 1674
-    Height = 44
+    Width = 1562
+    Height = 49
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     AutoSize = True
-    ButtonHeight = 42
-    ButtonWidth = 177
+    ButtonHeight = 47
+    ButtonWidth = 233
     Caption = 'ToolBar'
     DrawingStyle = dsGradient
     EdgeBorders = [ebBottom]
@@ -83,24 +53,24 @@ object ArduinoOscilloForm: TArduinoOscilloForm
     Images = VirtualImageList1
     List = True
     ShowCaptions = True
-    TabOrder = 1
+    TabOrder = 0
     Wrapable = False
-    ExplicitWidth = 1614
+    ExplicitWidth = 1576
     object ToolsBtn: TToolButton
       Left = 0
       Top = 0
-      Hint = 'Options de la voie s'#233'rie'
+      Hint = 'Options de la voie s'#233'rie, d'#233'clenchement ...'
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'Options'
+      Caption = 'Configuration '
       ImageIndex = 0
       ImageName = 'Item1'
       OnClick = ToolsBtnClick
     end
     object StartBtn: TToolButton
-      Left = 177
+      Left = 233
       Top = 0
       Hint = 'Lancer l'#39'acquisition'
       Margins.Left = 6
@@ -115,7 +85,7 @@ object ArduinoOscilloForm: TArduinoOscilloForm
       OnClick = StartBtnClick
     end
     object RegressiBtn: TToolButton
-      Left = 354
+      Left = 466
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -127,7 +97,7 @@ object ArduinoOscilloForm: TArduinoOscilloForm
       OnClick = RegressiBtnClick
     end
     object StopBtn: TToolButton
-      Left = 531
+      Left = 699
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -135,12 +105,12 @@ object ArduinoOscilloForm: TArduinoOscilloForm
       Margins.Bottom = 6
       Caption = 'Stop'
       Enabled = False
-      ImageIndex = 7
-      ImageName = 'Item8'
+      ImageIndex = 6
+      ImageName = 'Item7'
       OnClick = StopBtnClick
     end
     object HelpBtn: TToolButton
-      Left = 708
+      Left = 932
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -151,26 +121,34 @@ object ArduinoOscilloForm: TArduinoOscilloForm
       ImageName = 'Item6'
       OnClick = HelpBtnClick
     end
+    object ExitBtn: TToolButton
+      Left = 1165
+      Top = 0
+      Caption = 'Quitter'
+      ImageIndex = 4
+      ImageName = 'Item5'
+      OnClick = ExitBtnClick
+    end
   end
   object ParamToolBar: TToolBar
     Left = 0
-    Top = 44
-    Width = 1674
-    Height = 46
+    Top = 49
+    Width = 1562
+    Height = 50
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
-    ButtonHeight = 12800
+    ButtonHeight = 50
     ButtonWidth = 46
     Caption = 'ParamToolBar'
     Ctl3D = False
     EdgeInner = esNone
     EdgeOuter = esNone
-    TabOrder = 2
+    TabOrder = 1
     StyleElements = []
     Wrapable = False
-    object ToolButton1: TToolButton
+    object separeBtn: TToolButton
       Left = 0
       Top = 0
       Width = 16
@@ -178,57 +156,57 @@ object ArduinoOscilloForm: TArduinoOscilloForm
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'ToolButton1'
+      Caption = 'separeBtn'
       Style = tbsSeparator
     end
     object UneVoieRB: TRadioButton
       Left = 16
       Top = 0
-      Width = 160
-      Height = 12800
+      Width = 150
+      Height = 50
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
       Align = alLeft
-      Caption = '1 voie A0'
+      Caption = '1 voie'
       Checked = True
       TabOrder = 0
       TabStop = True
       OnClick = UneVoieRBClick
     end
     object DeuxVoiesRB: TRadioButton
-      Left = 176
+      Left = 166
       Top = 0
       Width = 200
-      Height = 12800
+      Height = 50
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
       Align = alLeft
-      Caption = '2 voies A0 A1'
+      Caption = '2 voies'
       TabOrder = 1
       OnClick = UneVoieRBClick
     end
     object intervalle: TLabel
-      Left = 376
+      Left = 366
       Top = 0
       Width = 208
-      Height = 12800
+      Height = 50
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
       Align = alLeft
       AutoSize = False
-      Caption = '  Freq. d'#39#233'chant. : '
+      Caption = '  Freq. '#233'chant. : '
     end
     object FechList: TComboBox
-      Left = 584
+      Left = 574
       Top = 0
       Width = 168
-      Height = 44
+      Height = 49
       Hint = 'Pour Arduino Uno, ne pas d'#233'passer 2 kHz'
       Margins.Left = 6
       Margins.Top = 6
@@ -260,10 +238,10 @@ object ArduinoOscilloForm: TArduinoOscilloForm
         '10 Hz')
     end
     object DureeLabel: TLabel
-      Left = 752
+      Left = 742
       Top = 0
       Width = 200
-      Height = 12800
+      Height = 50
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -273,10 +251,10 @@ object ArduinoOscilloForm: TArduinoOscilloForm
       Caption = 'DureeLabel'
     end
     object SynchroCB: TComboBox
-      Left = 952
+      Left = 942
       Top = 0
       Width = 260
-      Height = 12800
+      Height = 50
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -293,10 +271,10 @@ object ArduinoOscilloForm: TArduinoOscilloForm
         'Seuil descendant')
     end
     object SingleCB: TCheckBox
-      Left = 1212
+      Left = 1202
       Top = 0
-      Width = 180
-      Height = 12800
+      Width = 200
+      Height = 50
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -308,9 +286,9 @@ object ArduinoOscilloForm: TArduinoOscilloForm
   end
   object TriggerTB: TTrackBar
     Left = 0
-    Top = 270
+    Top = 99
     Width = 66
-    Height = 712
+    Height = 875
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -324,15 +302,15 @@ object ArduinoOscilloForm: TArduinoOscilloForm
     PageSize = 16
     Position = 512
     ShowSelRange = False
-    TabOrder = 3
+    TabOrder = 2
     ThumbLength = 40
     OnChange = TriggerTBChange
-    ExplicitHeight = 576
+    ExplicitHeight = 876
   end
   object ProgressBar: TProgressBar
     Left = 0
-    Top = 982
-    Width = 1674
+    Top = 974
+    Width = 1562
     Height = 20
     Margins.Left = 6
     Margins.Top = 6
@@ -341,9 +319,9 @@ object ArduinoOscilloForm: TArduinoOscilloForm
     Align = alBottom
     Max = 200
     Position = 100
-    TabOrder = 4
-    ExplicitTop = 846
-    ExplicitWidth = 1614
+    TabOrder = 3
+    ExplicitTop = 975
+    ExplicitWidth = 1576
   end
   object VoieSerie: TApdComPort
     AutoOpen = False
@@ -355,13 +333,6 @@ object ArduinoOscilloForm: TArduinoOscilloForm
     OnTriggerData = VoieSerieTriggerData
     Left = 912
     Top = 384
-  end
-  object UdpClient: TIdUDPClient
-    Host = '192.168.1.35'
-    Port = 2390
-    ReceiveTimeout = 1000
-    Left = 592
-    Top = 272
   end
   object ImageCollection1: TImageCollection
     Images = <

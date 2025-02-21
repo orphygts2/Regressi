@@ -30,6 +30,7 @@ object VideoForm: TVideoForm
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 2224
     object LabelCamera: TLabel
       Left = 16
       Top = 20
@@ -95,6 +96,8 @@ object VideoForm: TVideoForm
     Align = alRight
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitLeft = 1304
+    ExplicitHeight = 869
     object LabelBacklightCompensation: TLabel
       Left = 22
       Top = 14
@@ -824,22 +827,7 @@ object VideoForm: TVideoForm
     ParentBackground = False
     ParentDoubleBuffered = False
     TabOrder = 2
-    object ImgPreview: TImage
-      Left = 0
-      Top = 0
-      Width = 1280
-      Height = 870
-      Margins.Left = 12
-      Margins.Top = 12
-      Margins.Right = 12
-      Margins.Bottom = 12
-      Align = alClient
-      Proportional = True
-      ExplicitLeft = -1280
-      ExplicitTop = -870
-      ExplicitWidth = 2560
-      ExplicitHeight = 1740
-    end
+    ExplicitHeight = 869
   end
   object PanelBoutons: TPanel
     Left = 0
@@ -852,6 +840,8 @@ object VideoForm: TVideoForm
     Margins.Bottom = 6
     Align = alBottom
     TabOrder = 3
+    ExplicitTop = 939
+    ExplicitWidth = 2224
     object PreviewBtn: TButton
       Left = 340
       Top = 10
@@ -921,7 +911,6 @@ object VideoForm: TVideoForm
     BorderColor = clWhite
     OutputFileType = mtAvi
     PreviewControl = PanelLeft
-    OnImageAvailable = WCameraImageAvailable
     Left = 336
     Top = 193
   end

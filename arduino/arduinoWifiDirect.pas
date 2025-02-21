@@ -8,24 +8,20 @@ uses
   Vcl.Graphics, Vcl.Grids, Vcl.ComCtrls, Vcl.ToolWin,  Vcl.ImgList,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.OleCtrls,
   Vcl.htmlHelpViewer,
-  inifiles, registry, constreg, aidekey,
-  regutil, arduinoGraphe, arduinoWifiDirectCfg, compile,
+  inifiles, constreg, aidekey,
+  arduinoGraphe, arduinoWifiDirectCfg, compile, regutil,
   nduWlanAPI, nduWlanTypes, SHDocVw,
   Vcl.BaseImageCollection, Vcl.ImageCollection, Vcl.VirtualImageList;
 
 type
   TModeTemporel = (mDeclenche,mRelaxe,mRoll);
   TArduinoWifiDirectForm = class(TForm)
-    grid: TStringGrid;
-    GroupBox1: TGroupBox;
-    Button1: TButton;
-    CommandeEdit: TEdit;
+    sendGB: TGroupBox;
     ToolBar: TToolBar;
     ToolsBtn: TToolButton;
     StartBtn: TToolButton;
     StopBtn: TToolButton;
     RegressiBtn: TToolButton;
-    TimerSauve: TTimer;
     PaintBox: TPaintBox;
     Splitter: TSplitter;
     PanelVoies: TPanel;
@@ -39,42 +35,37 @@ type
     Label4: TLabel;
     GroupBox6: TGroupBox;
     Label5: TLabel;
-    GroupBox7: TGroupBox;
-    Label6: TLabel;
-    GroupBox8: TGroupBox;
-    Label7: TLabel;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
     RazBtn: TToolButton;
     TimerAcq: TTimer;
-    UdpConnectBtn: TToolButton;
+    ConnectBtn: TToolButton;
     WebBrowser1: TWebBrowser;
     HelpBtn: TToolButton;
     ImageCollection1: TImageCollection;
     VirtualImageList1: TVirtualImageList;
+    ExitBtn: TToolButton;
     procedure FormCreate(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormActivate(Sender: TObject);
     procedure ToolsBtnClick(Sender: TObject);
     procedure RegressiBtnClick(Sender: TObject);
     procedure StopBtnClick(Sender: TObject);
     procedure StartBtnClick(Sender: TObject);
-    procedure TimerSauveTimer(Sender: TObject);
     procedure PaintBoxPaint(Sender: TObject);
     procedure TimerGrapheTimer(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure gridGetEditText(Sender: TObject; ACol, ARow: Integer;
-      var Value: string);
     procedure Button2Click(Sender: TObject);
-    procedure CommandeEditExit(Sender: TObject);
     procedure RazBtnClick(Sender: TObject);
     procedure TimerAcqTimer(Sender: TObject);
-    procedure UdpConnectBtnClick(Sender: TObject);
+    procedure ConnectBtnClick(Sender: TObject);
     procedure WebBrowser1DocumentComplete(ASender: TObject;
       const pDisp: IDispatch; const URL: OleVariant);
     procedure HelpBtnClick(Sender: TObject);
+    procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
+    procedure FormShow(Sender: TObject);
+    procedure ExitBtnClick(Sender: TObject);
   private
     indiceCourant : integer;
     liste : TstringList;
@@ -96,14 +87,12 @@ type
     arduinoClient : Thandle;
     modeTemps : TmodeTemporel;
     pointparpoint : boolean;
+    SendBtn : array[1..3] of TButton;
     procedure TriggerData(chaineLue : string);
-    Procedure Sauvegarde;
     procedure envoieCommand(const aCommande : string);
     function Scan : boolean;
     function connectTo(aNetWork : Tndu_WLAN_AVAILABLE_NETWORK) : boolean;
   public
-    sendCommand  : array[0..3] of string;
-    SendBtn : array[0..3] of TButton;
   end;
 
 var
@@ -121,16 +110,9 @@ begin
    razBtn.Enabled := true;
    stopBtn.enabled := false;
    startBtn.Enabled := true;
-   timerSauve.Enabled := false;
    PanelVoies.Visible := pointParPoint;
    graphe.nbrePointsNew := 0;
    timerGrapheTimer(nil);
-   sauvegarde;
-end;
-
-procedure TArduinoWifiDirectForm.Button1Click(Sender: TObject);
-begin
-   envoieCommand(commandeEdit.Text);
 end;
 
 procedure TArduinoWifiDirectForm.StartBtnClick(Sender: TObject);
@@ -160,13 +142,11 @@ begin
         premiereLigne := true;
         stopBtn.enabled := true;
         startBtn.Enabled := False;
-        timerSauve.Enabled := true;
         premierAppel := true;
         tZero := getTime;
         graphe.monde[mondeX].minMaxData := false;
         graphe.monde[mondeX].minMaxCourant := false;
-        graphe.monde[mondeX].maxiStr := IntToStr(round(dureeMax));
-        grid.cells[1,3] := IntToStr(round(dureeMax));
+        graphe.monde[mondeX].maxi := dureeMax;
         tempsActif := true;
         PanelVoies.Visible := false;
         timerAcq.Interval := Tech;
@@ -180,21 +160,9 @@ begin
 end;
 
 procedure TArduinoWifiDirectForm.TimerGrapheTimer(Sender: TObject);
-var i : integer;
 begin
-      for i := 1 to pred(grid.ColCount) do with graphe.monde[i-1] do begin
-          nom := grid.Cells[i,0];
-          unite := grid.Cells[i,1];
-          miniStr := grid.Cells[i,2];
-          maxiStr := grid.Cells[i,3];
-      end;
       graphe.modePoint := pointParPoint;
       paintBox.Invalidate;
-end;
-
-procedure TArduinoWifiDirectForm.TimerSauveTimer(Sender: TObject);
-begin
-    Sauvegarde;
 end;
 
 procedure TArduinoWifiDirectForm.RazBtnClick(Sender: TObject);
@@ -212,7 +180,7 @@ begin
      ArduinoWifiDirectDlg.getEdit.Text := getCommand;
      for j := 1 to 3 do begin
           ArduinoWifiDirectDlg.sendGrid.Cells[j,1] := sendCommand[j];
-          ArduinoWifiDirectDlg.sendGrid.Cells[j,2] := sendBtn[j].caption;
+          ArduinoWifiDirectDlg.sendGrid.Cells[j,2] := captionCommand[j];
      end;
      ArduinoWifiDirectDlg.modeTempsRG.ItemIndex := ord(modeTemps);
      ArduinoWifiDirectDlg.TechSE.value := Tech;
@@ -220,29 +188,34 @@ begin
      if pointParPoint
         then ArduinoWifiDirectDlg.modeRG.ItemIndex := 0
         else ArduinoWifiDirectDlg.modeRG.ItemIndex := 1;
+     for j := 1 to mondeYmax do begin
+         ArduinoWifiDirectDlg.grid.Cells[0,j] := graphe.monde[j].nom;
+         ArduinoWifiDirectDlg.grid.Cells[1,j] := graphe.monde[j].unite;
+         ArduinoWifiDirectDlg.grid.Cells[2,j] := graphe.monde[j].mini.toString;
+         ArduinoWifiDirectDlg.grid.Cells[3,j] := graphe.monde[j].maxi.toString;
+     end;
      if ArduinoWifiDirectDlg.ShowModal=mrOK then begin
          host := ArduinoWifiDirectDlg.HostEdit.Text;
          dureeMax := ArduinoWifiDirectDlg.dureeMaxSE.Value;
          getCommand := ArduinoWifiDirectDlg.getEdit.Text;
          Tech := ArduinoWifiDirectDlg.TechSE.value;
-         for j := 0 to 3 do begin
+         for j := 1 to 3 do begin
             sendCommand[j] := ArduinoWifiDirectDlg.sendGrid.Cells[j,1];
-            sendBtn[j].caption := ArduinoWifiDirectDlg.sendGrid.Cells[j,2];
+            captionCommand[j] := ArduinoWifiDirectDlg.sendGrid.Cells[j,2];
+            sendBtn[j].caption :=  captionCommand[j];
             sendBtn[j].visible := sendCommand[j]<>'';
             if (sendBtn[j].caption='') then sendBtn[j].caption := sendCommand[j];
+         end;
+         for j := 1 to mondeYmax do with graphe.monde[j] do begin
+             nom := ArduinoWifiDirectDlg.grid.Cells[0,j];
+             unite := ArduinoWifiDirectDlg.grid.Cells[1,j];
+             mini := StrToFloatWin(ArduinoWifiDirectDlg.grid.Cells[2,j]);
+             maxi := StrToFloatWin(ArduinoWifiDirectDlg.grid.Cells[3,j]);
          end;
          pointParPoint := ArduinoWifiDirectDlg.modeRG.ItemIndex=0;
          modeTemps := TModeTemporel(ArduinoWifiDirectDlg.modeTempsRG.ItemIndex);
      end;
      PanelVoies.Visible := pointParPoint;
-     if pointParPoint then begin
-        Grid.Cells[1,0] := 'index';
-        Grid.Cells[1,1] := '';
-     end
-     else begin
-        Grid.Cells[1,0] := stTemps;
-        Grid.Cells[1,1] := 's';
-     end
 end;
 
 procedure TArduinoWifiDirectForm.Button2Click(Sender: TObject);
@@ -250,47 +223,24 @@ begin
     envoieCommand(sendCommand[(sender as TButton).tag])
 end;
 
-procedure TArduinoWifiDirectForm.CommandeEditExit(Sender: TObject);
-begin
-    sendCommand[0] := commandeEdit.Text;
-    sendBtn[0].Visible := sendCommand[0]<>'';
-end;
-
 procedure TArduinoWifiDirectForm.FormActivate(Sender: TObject);
 begin
-    NbreColonnes := -1; // pas de données
+    NbreColonnes := 0; // pas de données
     PanelVoies.Visible := pointParPoint;
 end;
 
 procedure TArduinoWifiDirectForm.FormClose(Sender: TObject; var Action: TCloseAction);
 var Rini : TMemInifile;
-    j : integer;
-    indexM : integer;
 begin
      Rini := TMemIniFile.create(NomFichierIni);
-     for j := 0 to 3 do begin
-         Rini.WriteString(stArduino,'Commande'+intToStr(j),sendCommand[j]);
-         Rini.WriteString(stArduino,'Caption'+intToStr(j),sendBtn[j].caption);
-     end;
      Rini.WriteString(stArduino,'WifiDirectGet',getCommand);
      Rini.WriteString(stArduino,'WifiDirectHost',host);
      Rini.WriteInteger(stArduino,'DureeMax',dureeMax);
      Rini.WriteInteger(stArduino,'Mode',ord(modeTemps));
      Rini.WriteBool(stArduino,'PointParPoint',pointParPoint);
-     for j := 1 to pred(grid.colCount) do begin
-         indexM := j-1;
-         if grid.cells[j,0]<>'' then
-            Rini.writeString(stArduino,stNom+intToStr(indexM),grid.cells[j,0]);
-         if grid.cells[j,1]<>'' then
-            Rini.writeString(stArduino,stUnite+intToStr(indexM),grid.cells[j,1]);
-         if grid.cells[j,2]<>'' then
-            Rini.writeString(stArduino,stMini+intToStr(indexM),grid.cells[j,2]);
-         if grid.cells[j,3]<>'' then
-            Rini.writeString(stArduino,stMaxi+intToStr(indexM),grid.cells[j,3]);
-     end;
      Rini.updateFile;
      Rini.Free;
-     timerSauve.Enabled := false;
+     graphe.ecritIni;
      tempsActif := false;
      if ArduinoConnected then begin
          WlanDisconnect(arduinoClient,arduinoGuid,nil);
@@ -299,28 +249,19 @@ begin
 end;  // formClose
 
 procedure TArduinoWifiDirectForm.FormCreate(Sender: TObject);
-const nomDefaut : array[TindiceAxes] of string  = ('t','X','Y','Z','aX','aY','aZ');
-      uniteDefaut : array[TindiceAxes] of string  = ('s','','','','','','');
 var j : integer;
     Rini : TMemIniFile;
     gbvoie : TGroupBox;
-    indexM : integer;
 begin
      data := TstringList.Create;
      host := '192.168.4.1';
      graphe := TgrapheArduino.create;
-     graphe.isOscillo := false;
-     graphe.canvas := paintBox.canvas;
-     for j := 0 to pred(GroupBox1.ControlCount) do
-         if groupBox1.Controls[j] is Tbutton then
-            sendBtn[groupBox1.Controls[j].Tag] := Tbutton(groupBox1.Controls[j]);
+     graphe.paintbox := paintBox;
+     for j := 0 to pred(sendGB.ControlCount) do
+         if sendGB.Controls[j] is Tbutton then
+            sendBtn[sendGB.Controls[j].Tag] := Tbutton(sendGB.Controls[j]);
      indexFichier := 0;
      Rini := TMemIniFile.create(NomFichierIni);
-     for j := 1 to 3 do begin
-         sendCommand[j] := Rini.ReadString(stArduino,'Commande'+intToStr(j),'');
-         sendBtn[j].caption := Rini.ReadString(stArduino,'Caption'+intToStr(j),'');
-         sendBtn[j].visible := sendCommand[j]<>'';
-     end;
      host := Rini.ReadString(stArduino,'WifiDirectHost',host);
      getCommand := Rini.ReadString(stArduino,'WifiDirectGet','L');
      if getCommand='' then  getCommand := 'L';
@@ -328,25 +269,13 @@ begin
      modeTemps := TmodeTemporel(Rini.ReadInteger(stArduino,'Mode',0));
      pointParPoint := Rini.ReadBool(stArduino,'PointParPoint',true);
      liste := TstringList.Create;
-     grid.Cells[0,0] := stNom;
-     grid.Cells[0,1] := stUnite;
-     grid.Cells[0,2] := stMini;
-     grid.Cells[0,3] := stMaxi;
-     for j := 1 to pred(grid.colCount) do begin
-         indexM := j-1;
-         grid.Cells[j,0] := Rini.readString(stArduino,stNom+intToStr(indexM),nomDefaut[indexM]);
-         graphe.monde[indexM].nom := grid.Cells[j,0];
-         grid.Cells[j,1] := Rini.readString(stArduino,stUnite+intToStr(indexM),uniteDefaut[j-1]);
-         graphe.monde[indexM].unite := grid.Cells[j,1];
-         grid.Cells[j,2] := Rini.readString(stArduino,stMini+intToStr(indexM),'');
-         graphe.monde[indexM].miniStr := grid.Cells[j,2];
-         grid.Cells[j,3] := Rini.readString(stArduino,stMaxi+intToStr(indexM),'');
-         graphe.monde[indexM].maxiStr := grid.Cells[j,3];
-     end;
      Rini.Free;
+     graphe.litIni;
      indiceCourant := 0;
      nbreColonnes := -1;
      tempsActif := false;
+     for j := 1 to 3 do
+         sendBtn[j].caption := captionCommand[j];
      with PanelVoies do
      for j := 0 to pred(controlCount) do begin
          GBVoie := TGroupBox(controls[j]);
@@ -357,8 +286,8 @@ begin
          GBVoie.Font.color := clWhite;
          GBVoie.color := couleurArduino[j];
      end;
-  //   Grid.DefaultRowHeight := hauteurColonne;
-     ResizeButtonImagesforHighDPI(self);
+     VirtualImageList1.height := VirtualImageListSize;
+     VirtualImageList1.width := VirtualImageListSize;
 end; // formCreate
 
 procedure TArduinoWifiDirectForm.FormDestroy(Sender: TObject);
@@ -367,16 +296,22 @@ begin
      data.Free;
 end;
 
-procedure TArduinoWifiDirectForm.gridGetEditText(Sender: TObject; ACol, ARow: Integer;
-  var Value: string);
+procedure TArduinoWifiDirectForm.FormShortCut(var Msg: TWMKey;
+  var Handled: Boolean);
 begin
-    if Acol=0 then exit;
-    case Arow of
-        0 : graphe.monde[Acol-1].nom := value;
-        1 : graphe.monde[Acol-1].unite := value;
-        2 : graphe.monde[Acol-1].miniStr := value;
-        3 : graphe.monde[Acol-1].maxiStr := value;
+    if msg.charCode=vk_space then StartBtnClick(nil);
+end;
+
+procedure TArduinoWifiDirectForm.FormShow(Sender: TObject);
+var j : integer;
+    vis : boolean;
+begin
+    vis := false;
+    for j := 1 to 3 do begin
+        sendBtn[j].visible := sendCommand[j]<>'';
+        vis := vis or sendBtn[j].visible;
     end;
+    sendGB.Visible := vis;
 end;
 
 procedure TArduinoWifiDirectForm.HelpBtnClick(Sender: TObject);
@@ -385,19 +320,12 @@ begin
 end;
 
 procedure TArduinoWifiDirectForm.PaintBoxPaint(Sender: TObject);
-var i : integer;
 begin
-      for i := 1 to pred(grid.ColCount) do with graphe.monde[i-1] do begin
-          nom := grid.Cells[i,0];
-          unite := grid.Cells[i,1];
-          miniStr := grid.Cells[i,2];
-          maxiStr := grid.Cells[i,3];
-      end;
       graphe.modePoint := pointParPoint;
       graphe.mondeMax := nbreColonnes;
       if not pointParPoint then begin
-         graphe.Monde[mondex].miniStr := '0';
-         graphe.Monde[mondex].maxiStr := dureeMax.toString;
+         graphe.Monde[mondex].mini := 0;
+         graphe.Monde[mondex].maxi := dureeMax;
       end;
       graphe.drawG;
 end;
@@ -410,14 +338,14 @@ begin
      FormDDE.donnees.add(Application.exeName);
      FormDDE.donnees.add('');
      ligne := '';
-     for k := 0 to graphe.mondeMax do begin  // noms
-         if grid.Cells[k+1,0]='' then grid.Cells[k+1,0] := 'x'+intToStr(k);
-         Ligne := ligne+grid.Cells[k+1,0]+crTab;
+     for k := 0 to graphe.mondeMax do with graphe.monde[k] do begin  // noms
+         if nom='' then nom := 'x'+intToStr(k);
+         Ligne := ligne+nom+crTab;
      end;
      FormDDE.donnees.add(Ligne);
      ligne := '';
      for k := 0 to graphe.mondeMax do // unités
-         Ligne := ligne+grid.Cells[k+1,1]+crTab;
+         Ligne := ligne+graphe.monde[k].unite+crTab;
      FormDDE.donnees.add(ligne);
      if modeTemps=mRoll
      then if graphe.deltatRoll>0
@@ -572,10 +500,10 @@ begin
          else TriggerDataTemps;
 end;
 
-procedure TArduinoWifiDirectForm.UdpConnectBtnClick(Sender: TObject);
+procedure TArduinoWifiDirectForm.ConnectBtnClick(Sender: TObject);
 begin
   if Scan then begin
-    UdpConnectBtn.ImageIndex := 8;
+    ConnectBtn.ImageIndex := 8;
     if pointParPoint
        then timerAcq.Interval := 200
        else timerAcq.Interval := Tech;
@@ -590,32 +518,14 @@ begin
   TriggerData(Data[0]);
 end;
 
-Procedure TArduinoWifiDirectForm.Sauvegarde;
-var nomFichier,ligne : string;
-    i,k : integer;
-begin
-     if not regressiBtn.Enabled then exit;
-     NomFichier := MesDocsDir+'RegressiArduino'+intToStr(indexFichier)+'.csv';
-     inc(indexFichier);
-     if indexFichier>128 then indexFichier := 0;
-     AssignFile(fichier,NomFichier);
-     Rewrite(fichier);
-     for i := 0 to pred(graphe.NbrePoints) do begin
-         ligne := '';
-         for k := 0 to NbreColonnes do
-             Ligne := ligne+FloatToStrPoint(graphe.monde[k].Valeur[i])+',';
-         writeln(fichier,Ligne);
-     end;
-     try
-     CloseFile(fichier);
-     except
-         CloseFile(fichier);
-     end;
-end;
-
 procedure TArduinoWifiDirectForm.envoieCommand(const aCommande : string);
 begin
     if aCommande<>'' then  webBrowser1.navigate(host+'/'+aCommande);
+end;
+
+procedure TArduinoWifiDirectForm.ExitBtnClick(Sender: TObject);
+begin
+  close
 end;
 
 function  TArduinoWifiDirectForm.connectTo(aNetWork : Tndu_WLAN_AVAILABLE_NETWORK) : boolean;

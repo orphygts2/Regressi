@@ -6,8 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, ExtCtrls, ImgList, ComCtrls, CheckLst, spin, maths,
   Constreg, regutil, uniteKer, compile, graphker, aidekey,
-  system.Contnrs, System.ImageList, Vcl.BaseImageCollection, Vcl.ImageCollection,
-  Vcl.VirtualImageList;
+  system.Contnrs, System.ImageList, Vcl.BaseImageCollection, Vcl.ImageCollection;
 
 type
 TFcoordonnees3D = class(TForm)
@@ -53,7 +52,7 @@ uses graph3D;
 
 procedure TFcoordonnees3D.OKBtnClick(Sender: TObject);
 begin with fGraphe3D.coordonnee do begin
-     penWidthVGA := widthEcranSE.value;
+     penWidthCourbe := widthEcranSE.value;
      couleur := CouleurCombo.selected;
      nomX := getNomCoord(listeX.text);
      nomY := getNomCoord(listeY.text);
@@ -64,7 +63,7 @@ procedure TFcoordonnees3D.FormActivate(Sender: TObject);
 var i : integer;
     cx,cy,cz : integer;
 begin with fGraphe3D.coordonnee do begin
-    widthEcranSE.value := penWidthVGA;
+    widthEcranSE.value := penWidthCourbe;
     ListeVar.Clear;
     ListeConst.Clear;
     for i := 0 to pred(NbreGrandeurs) do with grandeurs[i] do begin

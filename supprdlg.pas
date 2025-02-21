@@ -74,7 +74,8 @@ begin
      end;
      for i := 0 to pred(NbreGrandeurs) do with grandeurs[i] do begin
          case operation of
-              oTriVariable : ajoute := (genreG=variable);
+              oTriVariable : ajoute := (genreG=variable) and
+                 (fonct.genreC in [g_experimentale,g_texte,g_fonction]);
               oSuppression : begin
                  ajoute := (fonct.genreC=g_experimentale) or
                            (fonct.genreC=g_texte);
@@ -101,7 +102,6 @@ end;
 procedure TSuppressionDlg.OKBtnClick(Sender: TObject);
 var i,index : integer;
     p : TcodePage;
-    sauveGrandeur : Tgrandeur;
     DeuxPi : double;
     g : tgrandeur;
     posErreur,longErreur : integer;
@@ -152,27 +152,8 @@ begin
               ModifFichier := true;
           end; // phase
           oTriVariable : begin
-               FichierTrie := false;
-               if index<>0 then case grandeurs[index].fonct.genreC of
-                  g_experimentale : begin
-                     NomGrandeurTri := '';
-                     sauveGrandeur := grandeurs[0];
-                     grandeurs[0] := grandeurs[index];
-                     grandeurs[index] := sauveGrandeur;
-                     for p := 1 to NbrePages do
-                         pages[p].TransfereVariabP(0,index);
-                  end;
-                  else begin
-                     NomGrandeurTri := grandeurs[index].nom;
-                     indexTri := index;
-                  end;
-               end;
-               for p := 1 to NbrePages do begin
-                   pages[p].TriAfaire := true;
-                   pages[p].tri;
-               end;
-               FichierTrie := TriCB.checked;
-               Application.MainForm.Perform(WM_Reg_Maj,MajTri,0);
+              FichierTrie := TriCB.checked;
+              FValeurs.TrierVariables(index);
           end; // TriVariable
      end; // case
 end;

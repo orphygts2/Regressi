@@ -50,6 +50,7 @@ type
     procedure MemoAddComm(const Astr : string);
     function ChercheEnTeteVellman : boolean;
     Procedure ExtraitVellman;
+    Function ExtraitSpice : boolean;
     Function ExtraitEphemerides(isMiriade : boolean) : boolean;
     Procedure ExtraitCassy(ajout : boolean);
     procedure verifLigneChrome(var ligne : string);
@@ -121,6 +122,7 @@ begin
             long := j-debut;
             nomU := copy(s,j,length(s));
             if long>longNom then long := longNom;
+            nomU := copy(s,j,length(s));  // la suite
             listeN.Add(copy(s,debut,long));
             posIn := pos('/',nomU);
             if posIn=1 then begin
@@ -133,7 +135,7 @@ begin
             if posParentheseF>0 then nomU[posParentheseF] := ')';
             posParentheseO := pos('(',nomU); // grandeur sous forme : nom (unite)
             posParentheseF := pos(')',nomU);
-            if (posParentheseO>0) and (posParentheseF>posParentheseO)
+            if (posParentheseO>0) and (posParentheseO<3) and (posParentheseF>posParentheseO)
                then begin
                    nomU := copy(nomU,posParentheseO+1,posParentheseF-posParentheseO-1);
                    j := j+posParentheseF;
@@ -543,6 +545,9 @@ begin
           FgrapheVariab.configCharge := true;
           FgrapheVariab.majFichierEnCours := true;
           inc(ligne);
+{$IFDEF Debug}
+   ecritDebug('NomX'+Coordonnee[1].nomX);
+{$ENDIF}
           exit;
     end;
     result := pos('NOMY',s)>0;
@@ -570,6 +575,9 @@ begin
           inc(ligne);
           FgrapheVariab.configCharge := true;
           FgrapheVariab.majFichierEnCours := true;
+{$IFDEF Debug}
+   ecritDebug('NomY'+Coordonnee[1].nomY);
+{$ENDIF}
           exit;
     end;
     result := pos('LOGY',s)>0;
@@ -662,7 +670,7 @@ begin
           if zz=1 then FgrapheVariab.graphes[1].Coordonnee[j].trace := [trPoint];
           if zz=2 then FgrapheVariab.graphes[1].Coordonnee[j].trace := [trLigne];
           if zz=3 then FgrapheVariab.graphes[1].Coordonnee[j].trace := [trLigne,trPoint];
-          if zz=4 then FgrapheVariab.graphes[1].Coordonnee[j].trace := [trSpirometrie];
+//          if zz=4 then FgrapheVariab.graphes[1].Coordonnee[j].trace := [trSpirometrie];
           FgrapheVariab.graphes[1].Coordonnee[j].ligne := LiDroite;
           end;
        end;
@@ -835,12 +843,21 @@ begin with pages[pageCourante] do begin
 end end; // extraitVariableTexte
 
 Function TFormDDE.ImportePressePapier : boolean;
+{$IFDEF Debug}
+var
+   nomFichierData : string;
+{$ENDIF}
 begin
      result := false;
      if Clipboard.HasFormat(CF_TEXT) then begin
            Donnees.clear;
            Donnees.text := ClipBoard.asText;
 // tout de suite avant que le presse papiers change
+{$IFDEF Debug}
+           NomFichierData := mesDocsDir+'RegressiData.txt';
+           donnees.SaveToFile(nomFichierData);
+           ecritDebug('ImportePressePapier');
+{$ENDIF}
            importeDonnees;
      end;
 end;
@@ -883,6 +900,9 @@ Procedure ClipLoad;
 begin
      GetNomExe;
      FregressiMain.grandeursOpen;
+{$IFDEF Debug}
+   ecritDebug('grapheOpen');
+{$ENDIF}
      FregressiMain.grapheOpen;
      if ImportePressePapier then begin
           ModeAcquisition := AcqCan;
@@ -1146,7 +1166,7 @@ begin
            if pos('rad',Grandeurs[k].nomUnite)>0 then AngleEnDegre := false;
         end;
         inc(c);
-        inc(j); { saute Tab }
+        inc(j); // saute Tab
      Until (j>length(contenu)) or (k>=NbreConstCB);
 end;  // extraitUniteConst
 
@@ -1653,8 +1673,8 @@ begin // ChercheEnTeteVariabFichier
                           else completeNomVar;
                       2 : extraitUniteLigne(variable);
                       3 : extraitCommLigne(variable);
-                  end; {case}
-            end; {else}
+                  end; // case
+            end; // else
             inc(LigneCourante);
      end;
      result := NbreGrandeurs>0;
@@ -1937,7 +1957,7 @@ begin
         if long>0 then
            Grandeurs[indexNew[k]].NomUnite := copy(contenu,debut,long);
         inc(k);
-        inc(j); { saute Tab }
+        inc(j); // saute Tab
      Until (j>length(contenu)) or (indexNew[k]=0);
 end;
 
@@ -1989,8 +2009,8 @@ begin // ChercheEnTeteVariabPage
                       1 : affecteNomLigne;
                       2 : extraitUniteLigne;
                       3 : extraitCommLigne;
-                  end; {case}
-            end; {else}
+                  end; // case
+            end; // else
             inc(LigneCourante);
      end;
      result := NewCol;
@@ -2018,6 +2038,27 @@ end; // AjouteColPageCourante
 
 Function TformDDE.ImporteFichierTableur(const NomFichier : string) : boolean;
 var isMiriade : boolean;
+
+Function IsFichierSpice : boolean;
+var ligne : string;
+    compteur : integer;
+    withTiret,withIndex : boolean;
+begin
+     AssignFile(fichier,NomFichier);
+     Reset(fichier);
+     compteur := 0;
+     withIndex := false;
+     repeat
+         readln(fichier,ligne);
+         withTiret := pos('------------',ligne)>0;
+     until eof(fichier) or (compteur>6) or withTiret;
+     if withTiret then begin
+         readln(fichier,ligne);
+         withIndex := pos('Index',ligne)>0;
+     end;
+     result := withTiret and withIndex;
+     CloseFile(fichier);
+end;
 
 Function IsFichierEphemerides : boolean;
 var ligne : string;
@@ -2110,6 +2151,12 @@ begin
         ModeAcquisition := AcqFichier;
         donnees.LoadFromFile(nomFichier);
         result := extraitEphemerides(isMiriade);
+        exit;
+     end;
+     if IsFichierSpice then begin
+        ModeAcquisition := AcqFichier;
+        donnees.LoadFromFile(nomFichier);
+        result := extraitSpice;
         exit;
      end;
      try
@@ -2351,7 +2398,7 @@ begin with aGrid do begin
             Lrow := Lcol;
             Lcol := 0;
             while Lcol<rowcount do begin
-               col2 := Lcol+nbreTab; { NbreTab colonnes de 10 = 80 carac }
+               col2 := Lcol+nbreTab; // NbreTab colonnes de 10 = 80 carac
                if col2>=rowCount then col2 := pred(rowCount);
                for r := Lrow to pred(colCount) do begin
                    Texte := '';
@@ -2480,9 +2527,9 @@ begin
          result := (posTime>0) and (posVoltage>0);
      until result or (i>=donnees.count) or (i=8);
      if result then begin
-        CoeffTempsVellman := GetCoeff(posTime); { 160 = 10ms }
-        CoeffCH1Vellman := GetCoeff(posVoltage); { CH1:  32 = 5V }
-        CoeffCH2Vellman := GetCoeff(posVoltage+1); { CH2:  32 = 5V }
+        CoeffTempsVellman := GetCoeff(posTime);  // 160 = 10ms
+        CoeffCH1Vellman := GetCoeff(posVoltage); // CH1:  32 = 5V
+        CoeffCH2Vellman := GetCoeff(posVoltage+1); // CH2:  32 = 5V
      end;
 end; // ChercheEnTeteVellman
 
@@ -2514,6 +2561,69 @@ begin
         end;
      end;
 end;
+
+Function TformDDE.extraitSpice : boolean;
+var ligne : integer;
+    ligneCourante : string;
+
+function ChercheEnTete : boolean;
+var i,z : integer;
+    listeNom,listeUnite : TstringList;
+    posTiret : integer;
+begin
+     inc(ligne);
+     listeNom := TstringList.Create;
+     listeUnite := TstringList.Create;
+     ligneCourante := Donnees[ligne];
+     posTiret := pos('-',lignecourante); // i-sweep
+     if posTiret>0 then delete(ligneCourante,posTiret,1);
+     extraitNom(ligneCourante,ListeNom,ListeUnite,true);
+     for I := 0 to pred(listeNom.Count) do begin
+         listeNom[i] := listeNom[i]+listeUnite[i];
+         if listeNom[i][1]='i'
+            then listeUnite[i] := 'A'
+            else if listeNom[i][1]='v' then listeUnite[i] := 'V'
+                 else listeUnite[i] := ''
+     end;
+     for i := 0 to pred(listeNom.count) do begin
+        z := AjouteExperimentale(listeNom[i],variable);
+        grandeurs[z].nomUnite := listeUnite[i];
+     end;
+     result := NbreGrandeurs>2;
+     listeNom.free;
+     listeUnite.free;
+     for i := 0 to MaxGrandeurs do begin
+         DecodeVariab[i] := indexVariabExp[i];
+         isPrecVariab[i] := false;
+         NbrePrecVariab := 0;
+     end;
+end; // ChercheEnTete
+
+begin
+     ligne := 0;
+     result := false;
+     avecTab := sBlanc;
+     repeat inc(ligne)
+     until (ligne>=Donnees.count) or
+           (pos('---------',Donnees[ligne])>0) or
+           (ligne>6);
+     if (ligne=Donnees.count) or (ligne>6) then exit;
+     if not ChercheEnTete then exit;
+     if not ajoutePage then exit;
+     inc(ligne); // ----
+     inc(ligne);  // premières données
+     modifFichier := true;
+     while (ligne<Donnees.count) do begin
+       ligneCourante := Donnees[ligne];
+       if (pos('Index',ligneCourante)=0) and
+          (pos('-------',ligneCourante)=0) and
+          not(ligneVide(ligneCourante))
+          then ExtraitValeur(variable,ligneCourante,NbreVariab);
+        inc(ligne);
+     end;
+     supprimeGrandeurE(0); // index
+     result := true;
+end; // extraitSpice
 
 procedure TFormDDE.FormCreate(Sender: TObject);
 var c : integer;

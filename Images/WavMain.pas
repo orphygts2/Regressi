@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Buttons, ExtCtrls, StdCtrls, graphKer, ComCtrls, MPlayer, inifiles, math,
-  registry, mmsystem, clipbrd, ToolWin, ImgList, Spin,
+  mmsystem, clipbrd, ToolWin, ImgList, Spin,
   vcl.HtmlHelpViewer,
   System.ImageList, system.IOUtils,
   fft, compile, filerrr, grapheU, maths, regutil, constreg,
@@ -40,6 +40,7 @@ type
     Splitter: TSplitter;
     ImageCollection1: TImageCollection;
     VirtualImageList1: TVirtualImageList;
+    LabelAttente: TLabel;
     procedure OpenFileBtnClick(Sender: TObject);
     procedure RegressiBtnClick(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
@@ -64,7 +65,7 @@ type
     procedure PlayBtnClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure StopBtnClick(Sender: TObject);
-    procedure WaveSBChange(Sender: TObject);
+ //   procedure WaveSBChange(Sender: TObject);
     procedure PaintBoxZoomPaint(Sender: TObject);
     procedure ZoomUDChangingEx(Sender: TObject; var AllowChange: Boolean;
       NewValue: Integer; Direction: TUpDownDirection);
@@ -102,6 +103,7 @@ type
      NBits : byte;
      IndexMode : byte;
      stereo : boolean;
+     indexAudio : integer;
      procedure OuvreFichier(const Nom : String);
   protected
      procedure WMMajWav(var Msg: Tmessage); message WM_Maj_Wav;
@@ -131,7 +133,7 @@ begin
      filtre := filtre + '|Fichier AAC|*.aac';
      filtre := filtre + '|Fichier MP4|*.mp4;*.m4a';
   end;
-  if bassOK then if  bass_aac_OK
+  if bassOK then if bass_aac_OK
      then filtre := filtre + '|Tous|*.mp3;*.wav;*.aac;*.mp4;*.m4a'
      else filtre := filtre + '|Tous|*.mp3;*.wav';
   OpenDialog.filter := filtre;
@@ -369,6 +371,7 @@ ensuite les données
 
 procedure TWaveForm.FormCreate(Sender: TObject);
 var ini : TInifile;
+//    repertoire : string;
 begin
     vecteurSon := TvecteurSon.create;
     graphe := TgrapheSon.create;
@@ -382,6 +385,7 @@ begin
     Ini := TIniFile.create(nomFichierIni);
     FreqEch := ini.readInteger(stWav,'freq',11025);
     openDialog.filterIndex := ini.readInteger(stWav,'filterIndex',0);
+    indexAudio := ini.readInteger(stWav,'IndexAudio',0);
     Nbits := ini.readInteger(stWav,'bits',16);
     indexMode := ini.readInteger(stWav,'Mode',0);
     Ini.Free;
@@ -389,6 +393,7 @@ begin
     RegressiBtn.enabled := false;
     BoutonsPanel.Color := clMenuBar;
     BoutonsPanel.Font.Color := clWindowText;
+  //  repertoire := extractFilePath(application.ExeName);
     try
     BassOK := Load_BASSDLL('bass.dll');
     if BassOK then
@@ -401,7 +406,8 @@ begin
     except
        Bass_aac_OK := false;
     end;
-    ResizeButtonImagesforHighDPI(self);
+    VirtualImageList1.height := VirtualImageListSize;
+    VirtualImageList1.width := VirtualImageListSize;
 end;  // FormCreate
 
 procedure TWaveForm.PaintBoxPaint(Sender: TObject);
@@ -443,7 +449,7 @@ begin
         Unload_BASSDLL;
      end;
      if bass_aac_OK then begin
-        //Unload_BASSAACDLL;
+        Unload_BASSAACDLL;
      end;
      graphe.free;
      grapheZoom.free;
@@ -455,6 +461,7 @@ begin
      Ini.WriteInteger(stWav,'freq',FreqEch);
      Ini.writeInteger(stWav,'Mode',indexMode);
      ini.writeInteger(stWav,'filterIndex',openDialog.filterIndex);
+     ini.writeInteger(stWav,'IndexAudio',indexAudio);
      finally
      Ini.Free;
      end;
@@ -666,7 +673,7 @@ begin
           vk_next : if ssShift in shift
               then inc(P.X,10)
               else inc(P.Y,10);
-          vk_delete : ;
+          vk_delete,vk_back : ;
           else exit;
      end;
      key := 0;
@@ -687,6 +694,7 @@ begin
         mediaPlayer.close;
         mediaPlayer.FileName := saveDialog.FileName;
         saveFileBtn.enabled := false;
+       // vecteurSon.ecritBruit(saveDialog.FileName);
     end
 end;
 
@@ -696,16 +704,16 @@ var
     MyError,Flags : LongInt;
 begin
     if FDeviceID <> 0 then begin
-      Flags:=0;
+      Flags := 0;
       MyGenParms.dwCallback:=Handle; // Form
-      MyError:=mciSendCommand(FDeviceID,mci_Close,Flags,LongWord(@MyGenParms));
-      if MyError = 0 then FDeviceID:=0;
+      MyError := mciSendCommand(FDeviceID,mci_Close,Flags,LongWord(@MyGenParms));
+      if MyError = 0 then FDeviceID := 0;
     end;
 end;
 
 procedure TWaveForm.RecordBtnClick(sender : Tobject);
 
-procedure OpenMedia;
+function OpenMedia : boolean;
 var
     MyOpenParms: TMCI_Open_Parms;
     MyWaveParms : TMCI_WAVE_SET_PARMS;
@@ -714,12 +722,19 @@ var
 begin
     Flags := mci_Wait or mci_Open_Element or mci_Open_Type;
     with MyOpenParms do  begin
-      dwCallback:=Handle; // Form
-      lpstrDeviceType:=PChar('WaveAudio');
-      lpstrElementName:=PChar('');
+      dwCallback := Handle; // Form
+      lpstrDeviceType := PChar('WaveAudio');
+      lpstrElementName := PChar('');
     end;
-    MyError := mciSendCommand(0,mci_Open,Flags,LongWord(@MyOpenParms));
-    if MyError = 0 then FDeviceID:=MyOpenParms.wDeviceID;
+    if indexAudio>=waveInGetNumDevs() then indexAudio := 0;
+    MyError := mciSendCommand(indexAudio,mci_Open,Flags,LongWord(@MyOpenParms));
+    if MyError = 0
+        then FDeviceID:=MyOpenParms.wDeviceID
+        else if indexAudio>0 then begin
+              indexAudio := 0;
+              MyError := mciSendCommand(0,mci_Open,Flags,LongWord(@MyOpenParms));
+              if MyError = 0 then FDeviceID:=MyOpenParms.wDeviceID;
+        end;
     with MyWaveParms do begin
           dwCallback := handle;
           if stereo then nChannels := 2 else nChannels := 1;
@@ -734,7 +749,9 @@ begin
              MCI_WAVE_SET_SAMPLESPERSEC or
              MCI_WAVE_SET_AVGBYTESPERSEC or
              MCI_WAVE_SET_BLOCKALIGN;
-    mciSendCommand(FdeviceId, MCI_SET,Flags,longWord(@MyWaveParms));
+    if MyError = 0 then mciSendCommand(FdeviceId, MCI_SET,Flags,longWord(@MyWaveParms));
+    result := myError=0;
+    if myError<>0 then showMessage(stPbSon);
 end;
 
 procedure RecordMedia;
@@ -744,7 +761,7 @@ var
 begin
     Flags:=mci_Notify;
     with MyRecordParms do  begin
-        dwCallback:=Handle;  // Form
+        dwCallback := Handle;  // Form
         dwFrom:=0;
         dwTo:=0;
     end;
@@ -781,12 +798,19 @@ begin
              end;
           end;
           NomFichier := '';
-          PlayBtn.enabled := false;
-          StopBtn.enabled := true;
-          RecordBtn.enabled := false;
           deleteFile(nomFichierWav);// pour éviter pb de protection en écriture
-          OpenMedia;
-          RecordMedia;
+          if OpenMedia
+          then begin
+             RecordMedia;
+             PlayBtn.enabled := false;
+             StopBtn.enabled := true;
+             RecordBtn.enabled := false;
+          end
+          else begin
+             PlayBtn.enabled := false;
+             StopBtn.enabled := false;
+             RecordBtn.enabled := false;
+          end;
           startRecord := now;
 end; // record
 
@@ -904,30 +928,35 @@ begin
   end;
   paintBox.invalidate;
   AffecteDebutFin;
-
 end;
 
 procedure TWaveForm.StopBtnClick(Sender: TObject);
+(*
 var h,m,s,ms : word;
     dureeSec : double;
+*)
 begin
    if nomFichier='' then begin // stop enregistrement
       StopBtn.enabled := false;
       RecordBtn.enabled := false;
       stopEnCours := true;
-      decodeTime(now-startRecord,h,m,s,ms);
-      DureeSec := m*60.0+s*1.0+ms*0.001;
-      CompteurMax := ceil((1000*DureeSec-trunc(dureeSec))/Timer1.interval);
+   //  decodeTime(now-startRecord,h,m,s,ms);
+   //  DureeSec := m*60.0+s*1.0+ms*0.001;
+   //  CompteurMax := ceil((1000*DureeSec-trunc(dureeSec))/Timer1.interval); // 1000 interval est en ms
+      CompteurMax := ceil(500/Timer1.interval); // interval est en ms ; attente d'une demi-seconde
       Compteur := 0;
       Timer1.enabled := true;
+      labelAttente.visible := true;
    end
    else stopLecture
 end;
 
+(*
 procedure TWaveForm.WaveSBChange(Sender: TObject);
 begin
   PaintBox.invalidate
 end;
+*)
 
 procedure TWaveForm.DecodeFileMP3(const SourceFileName : String;var DestFileName : String);
 const longueur = 9600;
@@ -1027,11 +1056,11 @@ var
 begin
     if FDeviceID <> 0 then  begin
         // save the file...
-      Flags:=mci_Save_File or mci_Wait;
+      Flags := mci_Save_File or mci_Wait;
       deleteFile(nomFichierWav);// pour éviter pb de protection en écriture
       with MySaveParms do begin
-          dwCallback:=Handle;
-          lpstrFileName:=PChar(NomFichierWav);
+          dwCallback := Handle;
+          lpstrFileName := PChar(NomFichierWav);
       end;
       try
       mciSendCommand(FDeviceID,mci_Save,Flags,LongWord(@MySaveParms));
@@ -1043,6 +1072,7 @@ begin
       end;
       closeMedia;
       Cursor := crDefault;
+      labelAttente.Visible := false;
     end;
 end;
 
@@ -1051,7 +1081,11 @@ var ShannonOK : boolean;
     FreqReg : longWord;
 begin
    { 44.100 kHz Qualité CD
-     22.050 kHz taux d'échantillonnage habituel Windows
+ WaveInClose(HWaveIn^);
+          dispose(HwaveIn);
+          HwaveIn := nil;
+          close_complete:=true;
+          close;vec     22.050 kHz taux d'échantillonnage habituel Windows
      11.025 kHz lecture Windows
      sinon 8 12 16 24 32 48 kHz }
    pasReg := succ((fin-debut) div MaxMaxVecteur);
@@ -1088,4 +1122,3 @@ begin
 end;
 
 end.
-

@@ -116,6 +116,8 @@ procedure TFcoordonneesEuler.FormCreate(Sender: TObject);
 begin
     ListeVar := TstrListe.create;
     Transfert := TtransfertGraphe.Create;
+    VirtualImageList1.height := VirtualImageListSize;
+    VirtualImageList1.width := VirtualImageListSize;
 end;
 
 procedure TFcoordonneesEuler.FormDestroy(Sender: TObject);

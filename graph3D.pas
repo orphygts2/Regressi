@@ -101,6 +101,8 @@ begin
   ScreenToCamera := 30;
   elevation := 0.1;
   azimuth := 0.1;
+  VirtualImageList1.height := VirtualImageListSize;
+  VirtualImageList1.width := VirtualImageListSize;
 end;
 
 procedure Tfgraphe3D.SetCoordonnee;
@@ -297,7 +299,7 @@ begin
     Pantograph.Color := coordonnee.couleur;
 
     Pantograph.canvas.Pen.style := coordonnee.styleT;
-    Pantograph.canvas.Pen.width := penWidthVGA;
+    Pantograph.canvas.Pen.width := 1;
 
     if ordonneeParam
        then drawPages

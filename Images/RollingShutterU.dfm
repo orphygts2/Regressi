@@ -2,20 +2,20 @@ object RollingShutterForm: TRollingShutterForm
   Left = 0
   Top = 0
   Caption = 'Obturateur d'#233'roulant'
-  ClientHeight = 538
-  ClientWidth = 908
+  ClientHeight = 537
+  ClientWidth = 894
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -27
+  Font.Height = -28
   Font.Name = 'Segoe UI'
   Font.Style = []
   PixelsPerInch = 192
-  TextHeight = 37
+  TextHeight = 38
   object Memo1: TMemo
     Left = 0
     Top = 0
-    Width = 908
+    Width = 894
     Height = 274
     Margins.Left = 6
     Margins.Top = 6
@@ -25,11 +25,11 @@ object RollingShutterForm: TRollingShutterForm
     Lines.Strings = (
       
         'L'#39'acquisition de video avec un capteur CMOS implique l'#39'utilisati' +
-        'on d'#39'un '
+        'on '
       
-        'obturateur d'#233'roulant '#233'lectronique (rolling shutter), ce qui cr'#233'e' +
-        ' un d'#233'calage '
-      'temporel entre les lignes.'
+        'd'#39'un obturateur d'#233'roulant '#233'lectronique (rolling shutter), ce qui' +
+        ' cr'#233'e un '
+      'd'#233'calage temporel entre les lignes.'
       
         'La correction '#224' indiquer est le d'#233'calage entre les lignes extr'#234'm' +
         'es.'
@@ -42,6 +42,7 @@ object RollingShutterForm: TRollingShutterForm
         'e).'
       '')
     TabOrder = 0
+    ExplicitWidth = 880
   end
   object Button1: TButton
     Left = 640

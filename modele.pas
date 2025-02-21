@@ -1,6 +1,6 @@
 // modele.pas include de graphvar
 
-Procedure TFgrapheVariab.EffectueModele(Ajuste,withMessage : boolean);
+Procedure TFgrapheVariab.EffectueModele(Ajuste : boolean);
 const LambdaMin = 1e-4;
       LambdaMax = 1e4;
 var Lambda : double;
@@ -259,8 +259,10 @@ begin with pages[pageCourante] do begin
                if Chi2Actif
                   then begin
                      try
-                     dy := incertVar[indexY,i]*coeffSI;
-                     if isNan(dy) then dy := 0;
+                     dy := incertVar[indexY,i];
+                     if isNan(dy)
+                        then dy := 0
+                        else if uniteSIglb then dy := dy*grandeurs[indexY].coeffSI;
                      try
                      dt := incertVar[indexX,i];
                      if isNan(dt)
@@ -461,7 +463,7 @@ begin with pages[pageCourante] do begin
                else valeurParam[paramNormal,k] := valeurParam[paramNormal,k]+incParam[k];
         CalculJ(true);
         if erreurParam then begin
-           if withMessage then MessageDlg(ErDomaine+' : '+derniereErreur,mtError,[mbOK],HELP_ErreurdeDomainedeDefinition);
+           MessageDlg(ErDomaine+' : '+derniereErreur,mtError,[mbOK],HELP_ErreurdeDomainedeDefinition);
            valeurParam[paramNormal] := sauveValeurParam;
            exit;
         end;
@@ -509,15 +511,15 @@ begin with pages[pageCourante] do begin
     Lambda := 0;
     result := false;
     repeat
-        suiteValeurParam[1][NbreSuiteValeurParam] := valeurParam[paramNormal,1];
-        suiteValeurParam[2][NbreSuiteValeurParam] := valeurParam[paramNormal,2];
-         if NbreSuitevaleurParam<maxvaleurParam then inc(NbreSuitevaleurParam);
+    //    suiteValeurParam[1][NbreSuiteValeurParam] := valeurParam[paramNormal,1];
+    //    suiteValeurParam[2][NbreSuiteValeurParam] := valeurParam[paramNormal,2];
+    //     if NbreSuitevaleurParam<maxvaleurParam then inc(NbreSuitevaleurParam);
         inc(i1);
         Jprecedent := J;
         chi2Precedent := chi2;
         calculPrecision;
         if erreurCalcul then begin
-           if withMessage then MessageDlg(ErDomaine+' : '+derniereErreur,mtError,[mbOK],HELP_ErreurdeDomainedeDefinition);
+           MessageDlg(ErDomaine+' : '+derniereErreur,mtError,[mbOK],HELP_ErreurdeDomainedeDefinition);
            valeurParam[paramNormal] := sauveValeurParam;
            exit;
         end;
@@ -527,7 +529,7 @@ begin with pages[pageCourante] do begin
                else valeurParam[paramNormal,k] := valeurParam[paramNormal,k]+incParam[k];
         CalculJ(true);
         if erreurParam then begin
-           if withMessage then MessageDlg(ErDomaine+' : '+derniereErreur,mtError,[mbOK],HELP_ErreurdeDomainedeDefinition);
+           MessageDlg(ErDomaine+' : '+derniereErreur,mtError,[mbOK],HELP_ErreurdeDomainedeDefinition);
            valeurParam[paramNormal] := sauveValeurParam;
            exit;
         end;
@@ -539,9 +541,9 @@ begin with pages[pageCourante] do begin
              if paramInverse[k]
                 then valeurParam[paramNormal,k] := 1/(1/valeurParam[paramNormal,k]-incParam[k]*mu)
                 else valeurParam[paramNormal,k] := valeurParam[paramNormal,k]-incParam[k]*mu;
-          suiteValeurParam[1][NbreSuiteValeurParam] := valeurParam[paramNormal,1];
-          suiteValeurParam[2][NbreSuiteValeurParam] := valeurParam[paramNormal,2];
-           if NbreSuitevaleurParam<maxvaleurParam then inc(NbreSuitevaleurParam);
+        //  suiteValeurParam[1][NbreSuiteValeurParam] := valeurParam[paramNormal,1];
+        //  suiteValeurParam[2][NbreSuiteValeurParam] := valeurParam[paramNormal,2];
+        //   if NbreSuitevaleurParam<maxvaleurParam then inc(NbreSuitevaleurParam);
           CalculJ(false);
         end; // while diverge
         if diverge and (stable or (i1<=1)) then begin
@@ -554,10 +556,10 @@ begin with pages[pageCourante] do begin
         if erreurCalcul or erreurParam or diverge
            then begin
               ValeurParam[paramNormal] := sauveValeurParam;
-              if withMessage then if erreurCalcul or erreurParam
+              if erreurCalcul or erreurParam
                  then MessageDlg(ErDomaine+' : '+derniereErreur,mtError,[mbOK],HELP_EcartModelisationExperience)
                  else afficheErreur(erDivergence,HELP_DivergenceduneModelisation);
-               exit;
+              exit;
            end
            else sauveValeurParam := ValeurParam[paramNormal];
         if (i2>0) and not stable then begin
@@ -569,17 +571,16 @@ begin with pages[pageCourante] do begin
          Application.ProcessMessages; // pour mise à jour de l'affichage
         end;
     until (i1>Maxi_i1) or stable;
-    suiteValeurParam[1][NbreSuiteValeurParam] := valeurParam[paramNormal,1];
-    suiteValeurParam[2][NbreSuiteValeurParam] := valeurParam[paramNormal,2];
-    if NbreSuitevaleurParam<maxvaleurParam then inc(NbreSuitevaleurParam);
+    // suiteValeurParam[1][NbreSuiteValeurParam] := valeurParam[paramNormal,1];
+    // suiteValeurParam[2][NbreSuiteValeurParam] := valeurParam[paramNormal,2];
+    // if NbreSuitevaleurParam<maxvaleurParam then inc(NbreSuitevaleurParam);
     if (i1>Maxi_i1) and avecMessage then afficheErreur(erTimeOut,HELP_Timeout);
     result := true;
     calculPrecision;
 end end;
 
-var iParam,iModele,iRecuit,iRecuitMax : integer;
-    i,l : integer;
-//label finProc; // effectueModele
+var iParam,iModele : integer;
+    i,l,iRecuit : integer;
 begin with pages[pageCourante] do begin
 // boucle de recherche par méthode gradient-Newton 
     ModeleCalcule := false;
@@ -587,43 +588,46 @@ begin with pages[pageCourante] do begin
     if not InitCalculJ then exit;
     CalculJ(ajuste);
     if erreurCalcul or ErreurParam then begin
-       if withMessage then MessageDlg(ErDomaine+' : '+derniereErreur,mtError,[mbOK],HELP_ErreurdeDomainedeDefinition);
+       MessageDlg(ErDomaine+' : '+derniereErreur,mtError,[mbOK],HELP_ErreurdeDomainedeDefinition);
        exit;
     end;
-    if recuit and ajuste then iRecuitMax := 6 else iRecuitMax := 1;
     sauveValeurParam := ValeurParam[paramNormal];
     ValeurParamInit := ValeurParam[paramNormal];
-    iRecuit := 1;
-    while iRecuit<=iRecuitMax do begin
-       avecMessage := (iRecuit=iRecuitmax);
-       if ajuste
-          then if LevenbergMarquardt
-             then modeleErrone := not EffectueLevenbergMarquardt
-             else modeleErrone := not EffectueGaussNewton
-          else modeleErrone := false;
-       inc(iRecuit);
-       if modeleErrone then exit;
-       if (iRecuit<=iRecuitMax) and (PrecisionModele[1]>0.2) then begin
+    if ajuste
+       then if LevenbergMarquardt
+           then modeleErrone := not EffectueLevenbergMarquardt
+           else modeleErrone := not EffectueGaussNewton
+       else modeleErrone := false;
+    if modeleErrone then exit;
+    if recuit and (PrecisionModele[1]>0.2) and ajuste then begin //recuit
+        iRecuit := 1;
+        Repeat
+          ValeurParam[paramNormal] := ValeurParamInit;
+          for iModele := 1 to NbreModele do with fonctionTheorique[iModele] do
+            if IsSinusoide
+               then begin
+                    valeurParam[paramNormal,amplitude] := valeurParam[paramNormal,amplitude]*(0.5+random);
+                    valeurParam[paramNormal,Phase] := (random*2-1)*AngleUtilisateur(pi);
+                    if (periodeOuFrequence<>grandeurInconnue) then
+                        valeurParam[paramNormal,PeriodeOuFrequence] :=
+                                valeurParam[paramNormal,PeriodeOuFrequence]*(0.5+random);
+               end
+               else for iParam := 1 to NbreParam[paramNormal] do
+                        if ParamToIndex(paramNormal,iparam) in fonctionTheorique[iModele].depend then
+                              valeurParam[paramNormal,iparam] := valeurParam[paramNormal,iparam]*(0.5+2*random);
+          CalculJ(ajuste);
+          if erreurCalcul or ErreurParam then begin
               ValeurParam[paramNormal] := ValeurParamInit;
-              for iModele := 1 to NbreModele do with fonctionTheorique[iModele] do
-                  if IsSinusoide
-                     then begin
-                         valeurParam[paramNormal,amplitude] := valeurParam[paramNormal,amplitude]*(0.5+random);
-                         valeurParam[paramNormal,Phase] := (random*2-1)*AngleUtilisateur(pi);
-                         if (periodeOuFrequence<>grandeurInconnue) then
-                             valeurParam[paramNormal,PeriodeOuFrequence] :=
-                                        valeurParam[paramNormal,PeriodeOuFrequence]*(0.5+random);
-                     end
-                     else for iParam := 1 to NbreParam[paramNormal] do
-                             if ParamToIndex(paramNormal,iparam) in fonctionTheorique[iModele].depend then
-                                valeurParam[paramNormal,iparam] := valeurParam[paramNormal,iparam]*(0.25+4*random);
-             CalculJ(ajuste);
-             if erreurCalcul or ErreurParam then begin
-                  ValeurParam[paramNormal] := ValeurParamInit;
-                  exit;
-             end;
-        end; // recuit
-    end;
+              exit;
+          end;
+          if ajuste
+            then if LevenbergMarquardt
+               then modeleErrone := not EffectueLevenbergMarquardt
+                else modeleErrone := not EffectueGaussNewton
+            else modeleErrone := false;
+          if modeleErrone then exit;
+        until (iRecuit=6) or (PrecisionModele[1]<0.2);
+    end; // recuit
     calcIntersection;
     ParamAjustes := ajuste and stable;
     ModeleCalcule := true;
@@ -899,6 +903,7 @@ end; // CompileSuperposition
 
 var m,iMod,jMod,jParam : integer;
     dependI,dependJ,dependInter : TsetGrandeur;
+    SetParametres: TsetGrandeur;
 begin
     IsModeleSysteme := true;
     exclude(etatModele,ModeleDefini);
@@ -958,11 +963,15 @@ begin
     for i := 1 to 3 do
         include(Graphes[i].Modif,gmModele);
     modeleDependant := false;
+    setparametres := [];
+    for jParam := 1 to NbreParam[paramNormal] do
+       include(setParametres,jParam+zeroParam[paramNormal]);
     for iMod := 1 to NbreModele do
         for jMod := succ(iMod) to NbreModele do begin
             dependI := fonctionTheorique[iMod].depend;
             dependJ := fonctionTheorique[jMod].depend;
             dependInter := dependI * dependJ;
+            dependInter := dependInter * setParametres;
             modeleDependant := modeleDependant or (dependInter<>[]);
         end;
 end; // CompileModele

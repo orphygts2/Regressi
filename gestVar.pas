@@ -27,6 +27,7 @@ begin
      if AffSignif and (fonct.expression<>'')
         then result := fonct.expression
         else result := nom;
+     if isUniteLatex then result := '$'+translateNomMath(result)+'$';
 end;
 
 Function indexNomVariab(const nomX : string) : TcodeGrandeur;
@@ -730,7 +731,7 @@ var i,iModifie : integer;
 begin // Tpage.recalculP
     if NbreGrandeurs=0 then exit;
     affecteConstParam(false);
-    affecteVariableP(false);
+    affecteVariableP(false); // recupère les valeurs des grandeurs dans la page considérée
     if ModeAcquisition=acqSimulation then remplitPage;
     AvecDiff := true;
     iModifie := NbreGrandeurs;
@@ -1014,13 +1015,13 @@ procedure calculCorrelation;
 var indexY : integer;
     i : integer;
     tampon : Tvecteur;
-    coeff,coeffX,coeffY : double;
+    coeff,coeffX,coeffY,dt : double;
     sauveFenetre : Tfenetre;
     sauveDebut,sauveFin : integer;
 begin with grandeurs[index].fonct.calcul^ do begin
     sauveFenetre := fenetre;
- //   fenetre := rectangulaire;  // obligatoire mais il reste le leakage
-    fenetre := AjusteRect; // suppression du leakage ?
+    fenetre := rectangulaire;  // obligatoire mais il reste le leakage
+//    fenetre := AjusteRect; // suppression du leakage ?
     sauveDebut := debutFFT;
     sauveFin := finFFT;
     indexY := varY.indexG;
@@ -1037,9 +1038,10 @@ begin with grandeurs[index].fonct.calcul^ do begin
                      fftImag[indexY,i]*fftImag[indexX,i];
         fftImag[index,i] := fftReel[indexX,i]*fftImag[indexY,i]-
                      fftImag[indexX,i]*fftReel[indexY,i];
-    end;{for i}
+    end;// for i
+    dt := PeriodeFFT/NbreFFT;
     for i := 0 to pred(Nmes) do
-        Tampon[i] := i*PeriodeFFT/NbreFFT;
+        Tampon[i] := i*dt;
     FourierInverse(Nmes,NbreFFT,0,PeriodeFFT,tampon,
         grandeurs[index].valeur,fftReel[index],fftImag[index],c_correlation);
     if indexX=indexY
@@ -1047,10 +1049,10 @@ begin with grandeurs[index].fonct.calcul^ do begin
        else begin
            coeffX := 0;coeffY := 0;
            for i := 0 to pred(Nmes) do begin
-               coeffY := coeffX+sqr(grandeurs[indexX].valeur[i]);
-               coeffX := coeffY+sqr(grandeurs[indexY].valeur[i]);
+               coeffX := coeffX+sqr(grandeurs[indexX].valeur[i]);
+               coeffY := coeffY+sqr(grandeurs[indexY].valeur[i]);
            end;
-           coeff := Nmes/sqrt(coeffX*coeffY);
+           coeff := Nmes/sqrt(coeffX*coeffY)/2;
        end;
     for i := 0 to pred(Nmes) do
         grandeurs[index].valeur[i] := coeff*grandeurs[index].valeur[i];
@@ -1307,7 +1309,7 @@ begin with grandeurs[index] do begin
                  valeur[i] := Nan;
               end;
            end;
-     	end;{for i}
+     	end;// for i
    	  affecteVariableE(0);
       vecteurX := nil;
 end end;// CalculIntegrale
@@ -1768,10 +1770,11 @@ begin with grandeurs[i] do begin
          try
          case fonct.genreC of
               g_experimentale : if (IncertCalcA.expression<>'') or (IncertCalcB.expression<>'')
-                  then calculIncertitudeExp(incertConst[i]);
-                   { else entrée dans le tableau }
+                  then calculIncertitudeExp(incertConst[i]); // else entrée dans le tableau
               g_fonction : if IncertCalcA.calcul<>nil
-                 then incertConst[i] := calcule(IncertCalcA.calcul)
+                 then if fonct.calcul.typeElement=fonctionGlb
+                      then incertConst[i] := calculeIncertGlb(fonct.calcul,IncertCalcA.calcul)
+                      else incertConst[i] := calcule(IncertCalcA.calcul)
                  else incertConst[i] := Nan;
               else incertConst[i] := Nan;
          end;

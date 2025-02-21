@@ -5,7 +5,7 @@ object ChoixIdentPagesDlg: TChoixIdentPagesDlg
   BorderStyle = bsDialog
   Caption = 'Options d'#39'identification de pages'
   ClientHeight = 402
-  ClientWidth = 542
+  ClientWidth = 516
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack

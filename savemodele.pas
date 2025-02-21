@@ -3,29 +3,28 @@ unit savemodele;
 interface
 
 uses Windows, Classes, Graphics, Forms, Controls, Buttons,
-  StdCtrls, ExtCtrls, math, sysUtils,
-  Vcl.htmlHelpViewer, aidekey,
-  maths, regutil, compile, constreg, CheckLst;
+  StdCtrls, ExtCtrls, math, sysUtils, Vcl.Grids,
+  Vcl.htmlHelpViewer,
+
+  aidekey, maths, regutil, compile, constreg;
 
 type
   TSaveModeleDlg = class(TForm)
     CancelBtn: TBitBtn;
-    EditNom: TEdit;
-    LabelExp: TLabel;
     HelpBtn: TBitBtn;
-    Label1: TLabel;
     SauveValeurBtn: TBitBtn;
     SauveParamBtn: TBitBtn;
     SauveParamGlbBtn: TBitBtn;
+    ModeleGrid: TStringGrid;
+    BtnPanel: TPanel;
     procedure FormActivate(Sender: TObject);
-    procedure OKBtnClick(Sender: TObject);
     procedure HelpBtnClick(Sender: TObject);
     procedure SauveValeurBtnClick(Sender: TObject);
     procedure SauveParamBtnClick(Sender: TObject);
     procedure SauveParamGlbBtnClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
-    ModeleAremplir : array[TcodeIntervalle] of boolean;
-    procedure ecritModele;
+    procedure ecritModele(j : TcodeIntervalle);
   public
   end;
 
@@ -39,28 +38,24 @@ uses Valeurs, Graphvar;
 {$R *.DFM}
 
 procedure TSaveModeleDlg.FormActivate(Sender: TObject);
-var j,N : integer;
+var j : integer;
 begin
-     with FonctionTheorique[1] do begin
-          labelExp.caption := enTete+' = '+expression;
-          editNom.text := grandeurs[indexY].nom+'th';
-     end;
-    ModeleAremplir[1] := true;
-    N := 1;
-    for j := 2 to MaxIntervalles do ModeleAremplir[j] := false;
-    for j := 2 to NbreModele do
-        if (fonctionTheorique[j].indexX=fonctionTheorique[1].indexX) and
-           (fonctionTheorique[j].indexY=fonctionTheorique[1].indexY) then begin
-             ModeleAremplir[j] := true;
-             inc(N);
-        end;
-     SauveParamGlbBtn.visible := (N=1) and (NbrePages>1);
-     SauveParamBtn.visible := (N=1);
+    ModeleGrid.rowCount := NbreModele+1;
+    for j := 1 to NbreModele do
+    with FonctionTheorique[j] do begin
+         ModeleGrid.cells[0,j] := enTete+' = '+expression;
+         ModeleGrid.cells[1,j] := grandeurs[indexY].nom+'th';
+    end;
+    ModeleGrid.height := ModeleGrid.DefaultRowHeight*ModeleGrid.rowCount+8;
+    ClientHeight := ModeleGrid.height+BtnPanel.height;
 end;
 
-procedure TSaveModeleDlg.OKBtnClick(Sender: TObject);
+procedure TSaveModeleDlg.FormCreate(Sender: TObject);
 begin
-   ecritModele;
+   ModeleGrid.cells[0,0] := 'Modèle';
+   ModeleGrid.cells[1,0] := 'Nom';
+   ModeleGrid.colWidths[1] := abs(ModeleGrid.font.height)*6;
+   ModeleGrid.colWidths[0] := ModeleGrid.width-4-ModeleGrid.colWidths[1];
 end;
 
 procedure TSaveModeleDlg.HelpBtnClick(Sender: TObject);
@@ -70,6 +65,7 @@ end;
 
 procedure TSaveModeleDlg.SauveValeurBtnClick(Sender: TObject);
 var IndexGrandeurModele : byte;
+    ModeleRempli : array[TcodeIntervalle] of boolean;
 
 Procedure RemplitModele(p : TcodePage;i : TcodeIntervalle);
 var j,jdebut : integer;
@@ -87,16 +83,24 @@ begin with pages[p] do begin
           end;
        for j := jdebut to pred(nmes) do
            valeurVar[indexGrandeurModele,j] := valeurTheorique[i,j];
+       modeleRempli[i] := true;
 end end;
 
+function Affecte(i : TcodeIntervalle) : boolean;
 var j : integer;
-    g : tgrandeur;
+    g : Tgrandeur;
     Nom : string;
     correct,existeDeja : boolean;
     p : TcodePage;
-begin with FonctionTheorique[1] do begin
+    ModeleAremplir : array[TcodeIntervalle] of boolean;
+begin with FonctionTheorique[i] do begin
       ExisteDeja := false;
-      Nom := EditNom.text;
+      ModeleAremplir[i] := true;
+      for j := succ(i) to NbreModele do
+          ModeleAremplir[j] :=
+           (fonctionTheorique[j].indexX=fonctionTheorique[i].indexX) and
+           (fonctionTheorique[j].indexY=fonctionTheorique[i].indexY);
+      Nom := ModeleGrid.Cells[1,i];
       correct := NomCorrect(Nom,grandeurInconnue);
       if not correct then
             if (codeErreurC=erNomExistant) and
@@ -105,18 +109,16 @@ begin with FonctionTheorique[1] do begin
                then begin
                   ExisteDeja := OKformat(OkDelVariab,[Nom]);
                   if not existeDeja then begin
-                     ModalResult := mrNone;
-                     editNom.setFocus;
+                     result := false;
                      exit;
                   end;
                end
                else begin
                   afficheErreur(codeErreurC,0);
-                  editNom.setFocus;
-                  ModalResult := mrNone;
+                  result := false;
                   exit;
                end;
-      ModalResult := mrOK;               
+      result := true;
       if existeDeja
         then indexGrandeurModele := indexNom(nom)
         else begin
@@ -126,16 +128,34 @@ begin with FonctionTheorique[1] do begin
            indexGrandeurModele := AjouteGrandeurE(G);
         end;
     for p := 1 to NbrePages do
-       for j := 1 to NbreModele do
-           if ModeleAremplir[j] then remplitModele(p,j);
-    Application.MainForm.perform(WM_Reg_Maj,MajGrandeur,0)
-end end; // SauveModele
+        for j := i to NbreModele do
+            if ModeleAremplir[j] then remplitModele(p,j);
+end end; //affecte
+
+var j : TCodeIntervalle;
+begin
+      for j := 1 to NbreModele do modeleRempli[j] := false;
+      if affecte(1)
+      then begin
+         for j := 2 to NbreModele do
+             if not modeleRempli[j] then affecte(j);
+         ModalResult := mrOK;
+         Application.MainForm.perform(WM_Reg_Maj,MajGrandeur,0)
+      end
+      else begin
+          modalResult := crNone;
+          modeleGrid.Col := 1;
+          modeleGrid.Row := 1;
+          modeleGrid.setFocus;
+      end;
+end; // SauveValeurBtnClick
 
 procedure TSaveModeleDlg.SauveParamBtnClick(Sender: TObject);
 var i,indexC : integer;
     p : TcodePage;
 begin
-   ecritModele;
+   for i := 1 to NbreModele do
+       ecritModele(i);
    for i := 1 to NbreParam[ParamNormal] do
        with parametres[paramNormal,i] do begin
           indexC := AjouteExperimentale(nom,constante);
@@ -156,10 +176,11 @@ begin
           if nomUnite<>'' then z := z +'_'+nomUnite;
           Fvaleurs.Memo.Lines.Add(z);
    end;
-   ecritModele;
+   for i := 1 to NbreModele do
+       ecritModele(i);
 end;
 
-Procedure TSaveModeleDlg.EcritModele;
+Procedure TSaveModeleDlg.EcritModele(j : TcodeIntervalle);
 var expr : string;
 
 procedure Remplace(const oldNom,newNom : string);
@@ -182,22 +203,22 @@ begin
      until (posVar=0);
 end;
 
-begin with fonctionTheorique[1] do begin
+begin with fonctionTheorique[j] do begin
       case genreC of
-           g_fonction : Fvaleurs.Memo.Lines.Add(EditNom.text+'='+expression);
+           g_fonction : Fvaleurs.Memo.Lines.Add(ModeleGrid.Cells[1,j]+'='+expression);
            g_equation : ;
            g_diff1 : begin
               expr := expression;
-              remplace(grandeurs[indexY].nom,EditNom.text);
-              Fvaleurs.Memo.Lines.Add(EditNom.text+'''='+expr);
+              remplace(grandeurs[indexY].nom,ModeleGrid.Cells[1,j]);
+              Fvaleurs.Memo.Lines.Add(ModeleGrid.Cells[1,j]+'''='+expr);
            end;
            g_diff2 : begin
                expr := expression;
-               remplace(grandeurs[indexY].nom+'''',EditNom.text+'''');
-               remplace(grandeurs[indexY].nom,EditNom.text);
-               Fvaleurs.Memo.Lines.Add(EditNom.text+'"='+expr);
+               remplace(grandeurs[indexY].nom+'''',ModeleGrid.Cells[1,j]+'''');
+               remplace(grandeurs[indexY].nom,ModeleGrid.Cells[1,j]);
+               Fvaleurs.Memo.Lines.Add(ModeleGrid.Cells[1,j]+'"='+expr);
            end;
       end
-end end;
+end end; // ecritModele
 
 end.

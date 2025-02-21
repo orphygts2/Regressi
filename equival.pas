@@ -119,7 +119,7 @@ var i,j : integer;
     xi,yi : integer;
     pointOK : boolean;
 begin
-     createPen(psSolid,penWidth,couleurMethodeTangente);
+     createPen(psSolid,1,couleurMethodeTangente);
      i := 0;
      repeat
         windowXY(xvecteur[i],yvecteur[i],mondeY,xi,yi);
@@ -137,29 +137,37 @@ begin
 end;
 
 Procedure TgrapheReg.TraceDroite(x,y,pente : double;
-   xMin,yMin,xMax,Ymax : double);
+   xMin,yMin,xMax,Ymax : double;mondepH : TindiceMonde);
+
+function Calcx(yy : double) : double;
+var xx : double;
+begin
+      xx := x+(yy-y)/pente;
+      if xx<xMin
+        then xx := xMin
+        else if xx>xMax then xx := xMax;
+      result := xx;
+end;
+
 var
    x1d,x2d : double;
    x1i,y1i,x2i,y2i : Integer;
 begin
     if xMin<monde[mondeX].mini then xMin := monde[mondeX].mini;
     if xMax>monde[mondeX].maxi then xMax := monde[mondeX].maxi;
-    if yMin<monde[mondeDerivee].mini then yMin := monde[mondeDerivee].mini;
-    if yMax>monde[mondeDerivee].maxi then yMax := monde[mondeDerivee].maxi;
+    if yMin<monde[mondepH].mini then yMin := monde[mondepH].mini;
+    if yMax>monde[mondepH].maxi then yMax := monde[mondepH].maxi;
     if pente=0
        then begin
           x1d := xMin;
           x2d := xMax;
        end
        else begin
-         x1d := x+(yMin-y)/pente;
-         x2d := x+(yMax-y)/pente;
-         if x1d>x2d then swap(x1d,x2d);
-         if x1d<xMin then x1d := xMin;
-         if x2d>xMax then x2d := xMax;
+         x1d := calcx(yMin);
+         x2d := calcx(yMax);
     end;
-    windowXY(x1d,y+pente*(x1d-x),MondeDerivee,x1i,y1i);
-    windowXY(x2d,y+pente*(x2d-x),MondeDerivee,x2i,y2i);
+    windowXY(x1d,y+pente*(x1d-x),MondepH,x1i,y1i);
+    windowXY(x2d,y+pente*(x2d-x),MondepH,x2i,y2i);
     if (x1i<0) or (y1i<0) or (x2i<0) or (y2i<0) then exit;
     canvas.MoveTo(x1i,y1i);
     canvas.LineTo(x2i,y2i);
@@ -435,7 +443,7 @@ with Fgraphe do begin
      couleur := pColorTangente;
      correcte := false;
      if ligneRappel in [lrXdeY,lrX,lrY,lrReticule] then couleur := pColorReticule;
-     createPen(PstyleTangente,penWidth,colorToRGB(couleur));
+     createPen(PstyleTangente,1,colorToRGB(couleur));
      if (FGraphe.indexCourbeEquivalence<0) or
         (FGraphe.indexCourbeEquivalence>=FGraphe.courbes.count) then FGraphe.indexCourbeEquivalence := 0;
      case LigneRappel of
@@ -450,19 +458,18 @@ with Fgraphe do begin
              y4 := (y2+y1)/2+abs(y2-y1);
              if y4>Fgraphe.monde[mondeph].maxi then y4 := Fgraphe.monde[mondeph].maxi;
              WindowRT(ve,pHe,MondepH,vei,phei);
-             createPen(PstyleTangente,penWidth,colorToRGB(couleur));
-             Fgraphe.canvas.MoveTo(vei,basCourbe);
+             createPen(PstyleTangente,1,colorToRGB(couleur));
+             Fgraphe.canvas.MoveTo(vei,limiteCourbe.bottom);
              Fgraphe.canvas.LineTo(vei,phei);
              Fgraphe.canvas.MoveTo(limiteCourbe.left,phei);
              Fgraphe.canvas.LineTo(vei,phei);
-         //    createPen(PstyleTangente,penWidth,colorToRGB(couleur));
-             traceDroite(x1,y1,pente,x3,y3,x4,y4);
-         //    windowXY(x1,y1,MondepH,x1i,y1i);
-         //    createPen(PstyleTangente,penWidth,colorToRGB(couleur));
-             traceDroite(x2,y2,pente,x3,y3,x4,y4);
-         //    windowXY(x2,y2,MondepH,x2i,y2i);
-         //    createPen(PstyleTangente,penWidth,colorToRGB(couleur));
-             traceDroite(ve,pHe,pente,x3,y3,x4,y4);
+         // perpendiculaire
+             traceDroite(ve,pHe,-sqr(monde[mondeX].a)/(pente*sqr(monde[mondepH].a)),x3,y3,x4,y4,mondepH);
+         // haut et bas
+             traceDroite(x2,y2,pente,x3,y3,x4,y4,mondepH);
+             traceDroite(x1,y1,pente,x3,y3,x4,y4,mondepH);
+         // équivalence
+             traceDroite(ve,pHe,pente,x3,y3,x4,y4,mondepH);
              if LigneRappel=lrEquivalenceManuelle then begin
                  CreateSolidBrush(colorToRGB(pen.color));
                  WindowRT(x1,y1,mondepH,x1i,y1i);
@@ -484,12 +491,12 @@ with Fgraphe do begin
              if y3>monde[mondepH].maxi then y3 := monde[mondepH].maxi;
              y4 := pHe-ecart;
              if y4<monde[mondepH].mini then y4 := monde[mondepH].mini;
-             traceDroite(ve,pHe,pente,x4,y4,x3,y3);
+             traceDroite(ve,pHe,pente,x4,y4,x3,y3,mondepH);
         end;
         lrXdeY,lrReticule : begin
             WindowRT(ve,pHe,mondepH,vei,phei);
             canvas.moveTo(vei,phei);
-            canvas.lineTo(vei,basCourbe);
+            canvas.lineTo(vei,limiteCourbe.bottom);
             case mondepH of
                  mondeY : begin
                      canvas.moveTo(limiteCourbe.left,phei);
@@ -504,7 +511,7 @@ with Fgraphe do begin
         lrX : begin
             WindowRT(x1,y1,mondepH,x1i,y1i);
             WindowRT(x2,y2,mondepH,x2i,y2i);
-            CreatePen(psSolid,penWidthReticule,clHighLight);
+            CreatePen(psSolid,1,clHighLight);
             posTrait := limiteCourbe.top + hautCarac div 2;
             Segment(x1i,posTrait,x2i,posTrait);
             // fléches
@@ -516,14 +523,14 @@ with Fgraphe do begin
             signe := -signe;
             Segment(x2i + signe * marge * 3, posTrait + marge, x2i, posTrait);
             Segment(x2i + signe * marge * 3, posTrait - marge, x2i, posTrait);
-            CreatePen(psDash,1,clHighLight);
+            CreatePenFin(psDash,clHighLight);
             Segment(x1i,limiteCourbe.bottom,x1i,posTrait);
             Segment(x2i,limiteCourbe.bottom,x2i,posTrait);
         end;
         lrY : begin
             WindowRT(x1,y1,mondepH,x1i,y1i);
             WindowRT(x2,y2,mondepH,x2i,y2i);
-            CreatePen(psSolid,penWidthReticule,clHighLight);
+            CreatePen(psSolid,1,clHighLight);
             posTrait := LimiteCourbe.right - 4*largCarac;
             Segment(posTrait,y1i,posTrait,y2i);
             // fléches
@@ -546,6 +553,7 @@ with Fgraphe do begin
 end end; // Tequivalence.draw
 
 Procedure Tequivalence.DrawLatex(var latexStr : TstringList);
+var exposantX,exposantY : double;
 
 Procedure TraceDroiteLatex(x,y,pente : double;
    xMin,yMin,xMax,Ymax : double);
@@ -577,10 +585,10 @@ begin
     end;
     y1d := y+pente*(x1d-x);
     y2d := y+pente*(x2d-x);
-    latexStr.add('\draw['+couleurLatex(pen.color)+','+styleLatex[PStyleTangente]+'] '+
-     '('+floatToStrLatex(x1d)+','+floatToStrLatex(y1d)+')'+
+    latexStr.add('\draw['+couleurLatex(pen.color)+styleLatex[PStyleTangente]+',thick] '+
+     '(axis cs:'+floatToStrLatex(x1d/exposantX)+','+floatToStrLatex(y1d/exposantY)+')'+
      ' -- '+
-     '('+floatToStrLatex(x2d)+','+floatToStrLatex(y2d)+');');
+     '(axis cs:'+floatToStrLatex(x2d/exposantX)+','+floatToStrLatex(y2d/exposantY)+');');
 end;
 
 const dimEq = 3;
@@ -599,16 +607,18 @@ begin with Fgraphe do begin
           mondeDroit : xAxe := monde[mondeX].maxi;
           else xAxe := monde[mondeX].mini;
      end;
+     exposantX := monde[mondeX].Fexposant;
+     exposantY := monde[mondepH].Fexposant;
      case LigneRappel of
         lrEquivalence,lrEquivalenceManuelle : begin
              x3 := x1-(x2-x1)/2;
              x4 := x2+(x2-x1)/2;
              y3 := (y1+y2)/2-abs(y2-y1);
              y4 := (y2+y1)/2+abs(y2-y1);
-             latexStr.add('\draw[dotted] '+
-             '('+floatToStrLatex(xAxe)+','+floatToStrLatex(phe)+') node[above right] {'+strX+'} '+
-             '-- ('+floatToStrLatex(ve)+','+floatToStrLatex(phe)+') '+
-             '-- ('+floatToStrLatex(ve)+','+floatToStrLatex(monde[mondepH].mini)+') node[above right] {'+strY+'} ;');
+             latexStr.add('\draw[dotted,thick] '+
+             '(axis cs:'+floatToStrLatex(xAxe/exposantX)+','+floatToStrLatex(phe/exposantY)+') node[above right] {'+strY+'} '+
+             '-- (axis cs:'+floatToStrLatex(ve/exposantX)+','+floatToStrLatex(phe/exposantY)+') '+
+             '-- (axis cs:'+floatToStrLatex(ve/exposantX)+','+floatToStrLatex(monde[mondepH].mini/exposantY)+') node[above right] {'+strX+'} ;');
              traceDroiteLatex(x1,y1,pente,x3,y3,x4,y4);
              traceDroiteLatex(x2,y2,pente,x3,y3,x4,y4);
              traceDroiteLatex(ve,pHe,pente,x3,y3,x4,y4);
@@ -627,14 +637,16 @@ begin with Fgraphe do begin
              traceDroiteLatex(ve,pHe,pente,x4,y4,x3,y3);
              setUnitePente(mondepH);
              strX := unitePente.formatNomPenteUnite(pente);
-             latexStr.add('\draw '+
-                    '('+floatToStrLatex(ve)+','+floatToStrLatex(phe)+') node[above right] {'+strX+'} ;');
+             latexStr.add('\draw (axis cs:'+floatToStrLatex(ve/exposantX)+','+
+                                            floatToStrLatex(phe/exposantY)+
+                                 ') node[above right] {'+
+                                            strX+'} ;');
         end;
         lrXdeY,lrReticule : begin
-              latexStr.add('\draw '+
-                '('+floatToStrLatex(xAxe)+','+floatToStrLatex (phe)+') node[above right] {'+strX+'} '+
-                '-- ('+floatToStrLatex(ve)+','+floatToStrLatex(phe)+') '+
-                '('+floatToStrLatex(ve)+','+floatToStrLatex(monde[mondepH].mini)+') node[above right] {'+strY+'} ;');
+              latexStr.add('\draw[dash dot,thick] '+
+                '(axis cs:'+floatToStrLatex(xAxe/exposantX)+','+floatToStrLatex (phe/exposantY)+') node[above right] {'+strY+'} '+
+                '-- (axis cs:'+floatToStrLatex(ve/exposantX)+','+floatToStrLatex(phe/exposantY)+') '+
+                '-- (axis cs:'+floatToStrLatex(ve/exposantX)+','+floatToStrLatex(monde[mondepH].mini/exposantY)+') node[above right] {'+strX+'} ;');
         end;
      end;
 end end; // equivalence.drawLatex
@@ -649,7 +661,7 @@ begin with Fgraphe do begin
      ecartX := (monde[mondeX].maxi - monde[mondeX].mini)*LongueurTangente;
      ecartY := (monde[MondepH].maxi - monde[MondepH].mini)*LongueurTangente;
      traceDroite(ve,pHe,pente,ve-ecartX,pHe-ecartY,
-                              ve+ecartX,pHe+ecartY);
+                              ve+ecartX,pHe+ecartY,mondepH);
      pen.mode := pmCOPY;
 end end;
 
@@ -668,6 +680,7 @@ begin
      //modelisee := false;
      index2 := 0;
      index1 := 0;
+     commentaire := '';
 end;
 
 constructor Tequivalence.CreateVide(gr : TgrapheReg);
@@ -683,6 +696,7 @@ begin
      mondepH := mondeY;
      varY := nil;
      pen.color := clBlack;
+     commentaire := '';
 end;
 
 Procedure TgrapheReg.AjouteEquivalence(i : integer;effaceDouble : boolean);
@@ -760,9 +774,11 @@ var ligne,i : integer;
     codeDerivee : integer;
 begin
      if LigneRappelCourante in [lrEquivalence,lrEquivalenceManuelle,lrTangente]
-        then codeDerivee := indexDerivee(monde[mondeDerivee].axe,monde[mondeX].axe,true,true)
+        then begin
+           codeDerivee := indexDerivee(monde[mondeDerivee].axe,monde[mondeX].axe,true,true);
+           if codeDerivee=grandeurInconnue then exit;
+        end
         else codeDerivee := 0;
-     if codeDerivee=grandeurInconnue then exit;
      if curseurModeleDlg=nil then
         Application.CreateForm(TcurseurModeleDlg,curseurModeleDlg);
 // prévoir le cas où le curseur pointe sur deux courbes différentes
@@ -774,9 +790,12 @@ begin
           Cells[0,1] := monde[mondeX].axe.NomUnite;
           cells[1,0] := monde[mondeDerivee].axe.nom;
           Cells[1,1] := monde[mondeDerivee].axe.NomUnite;
-          if LigneRappelCourante in [lrXdeY,lrReticule]
-             then cells[2,0] := stCommentaire
-             else begin
+          if LigneRappelCourante in [lrXdeY,lrReticule,lrX,lrY]
+             then begin
+                 cells[2,0] := stCommentaire;
+                 cells[2,1] := '';
+             end
+             else begin // equivalence tangente
                  cells[2,0] := grandeurs[codeDerivee].nom;
                  Cells[2,1] := grandeurs[codeDerivee].NomUnite;
              end;
@@ -786,11 +805,11 @@ begin
               inc(ligne);
               cells[0,ligne] := formatReg(ve);
               cells[1,ligne] := formatReg(phe);
-              if LigneRappel in [lrTangente,lrEquivalence,lrEquivalenceManuelle]
+              if LigneRappel in [lrTangente,lrEquivalence,lrEquivalenceManuelle,lrPente]
                  then cells[2,ligne] := formatReg(pente)
                  else cells[2,ligne] := commentaire;
           end;
-          inc(ligne);            // ??
+          inc(ligne);
           for i := 0 to 2 do cells[i,ligne] := ''
      end;
 end;
@@ -825,7 +844,6 @@ Procedure Tequivalence.Load;
 var i,imax : integer;
     zi : integer;
     zw : longWord;
-    zb : boolean;
 begin
   imax := NbreLigneWin(ligneWin);
   readln(fichier,pente); {1}
@@ -836,7 +854,7 @@ begin
   readln(fichier,mondepH);{6}
   readln(fichier,zi);{7}
   ligneRappel := TligneRappel(zi);
-  zb := litBooleanWin;{8}
+  litBooleanWin;{8}
   litLigneWinU;
   commentaire := ligneWin;{9}
   litligneWin;
@@ -853,7 +871,6 @@ Procedure Tequivalence.LoadXML(ANode : IXMLNOde);
 
 procedure litEnfant(ANode : IXMLNOde);
 var zi : integer;
-    zb : boolean;
 begin
     if ANode.NodeName=stPente then begin
         pente := getFloatXML(Anode);
@@ -881,7 +898,7 @@ begin
         exit;
     end;
     if ANode.NodeName='isModele' then begin
-        zb := getBoolXML(Anode);
+        getBoolXML(Anode);
         exit;
     end;
     if ANode.NodeName='Comment' then begin

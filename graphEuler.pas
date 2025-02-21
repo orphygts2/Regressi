@@ -197,6 +197,7 @@ type
       procedure SetParamEdit;
       Procedure SetCoordonnee;
       procedure NbrePasChange(NewNbre : integer);
+      procedure SetHighDPI(const container: TWinControl);
   protected
       procedure WMRegMaj(var Msg : TWMRegMessage); message WM_Reg_Maj;
       procedure WMRegCalcul(var Msg : TWMRegMessage); message WM_Reg_Calcul;
@@ -355,7 +356,7 @@ begin
   panelValeurParam[1] := Panel9;
   panelValeurParam[2] := Panel11;
   panelValeurParam[3] := Panel10;
-  ResizeButtonImagesforHighDPI(self);
+  SetHighDPI(self);
 end; // formCreate
 
 procedure TFgrapheEuler.SetCoordonnee;
@@ -371,7 +372,7 @@ begin with graphePrinc,pages[pageCourante] do begin
      end;
      courbeVariab := AjouteCourbe(valeurVar[iX],valeurVar[iY],mondeY,nmes,
               grandeurs[iX],grandeurs[iY],pageCourante);
-     with coordonnee[1] do courbeVariab.setStyle(clBlack,psSolid,motifData,'');
+     with coordonnee[1] do courbeVariab.setStyle(clBlack,psSolid,motifData);
      if avecEllipse then begin
          courbeVariab.IncertX := incertVar[iX];
          courbeVariab.IncertY := incertVar[iY];
@@ -388,7 +389,7 @@ begin with graphePrinc,pages[pageCourante] do begin
                                          grandeurs[iX],grandeurs[iY],pageCourante);
                          courbeAdd.IndexModele := c;
                          courbeAdd.Trace := [trLigne,trPoint];
-                         courbeAdd.setStyle(clBlue,psSolid,mLigneEuler,'');
+                         courbeAdd.setStyle(clBlue,psSolid,mLigneEuler);
                       end;// modeleCalcule
                       if oldModeleCalcule  then begin
                          courbeAdd := AjouteCourbe(oldvaleurYEuler[indexModeleX],
@@ -397,7 +398,7 @@ begin with graphePrinc,pages[pageCourante] do begin
                               courbes[1].varY,pageCourante);
                          courbeAdd.IndexModele := -c;
                          courbeAdd.Trace := [trLigne,trPoint];
-                         courbeAdd.setStyle(clSkyBlue,psSolid,mLigneEuler,'');
+                         courbeAdd.setStyle(clSkyBlue,psSolid,mLigneEuler);
                      end;
                end; // if
        end; // ModeleDefini 
@@ -479,15 +480,16 @@ procedure TFgrapheEuler.ZoomAutoItemClick(Sender: TObject);
 begin with graphePrinc do begin
      include(modif,gmEchelle);
      monde[mondeX].defini := false;
-     useDefault := false;
-     useDefaultX := false;
+     useDefaut := false;
+     useDefautX := false;
+     useZoom := false;
      autoTick := true;
      graphePrinc.PaintBox.invalidate;
 end end; // ZoomAutoItemClick
 
 procedure TFgrapheEuler.CopierItemClick(Sender: TObject);
 begin
-    graphePrinc.VersMetaFile('')
+   graphePrinc.VersPng('')
 end;
 
 procedure TFgrapheEuler.WMRegMaj(var Msg : TWMRegMessage);
@@ -633,7 +635,8 @@ with graphePrinc do begin
         end;
         canvas := paintBoxPrinc.canvas;
         limiteFenetre := paintBoxPrinc.clientRect;
-        UseDefault := false;
+        UseDefaut := false;
+        useZoom := false;
         Screen.Cursor := crHourGlass;
         PanelAjuste.enabled := false;
         if (([gmXY,gmModele,gmPage,gmValeurs]*modif)<>[]) or
@@ -889,7 +892,7 @@ for i := 0 to pred(courbes.count) do
                               courbes[i].varY,pageCourante);
                  courbeAdd.IndexModele := -m;
                  courbeAdd.Trace := [trLigne,trPoint];
-                 courbeAdd.setStyle(GetCouleurPale(courbes[i].couleur),psSolid,mLigneEuler,'');
+                 courbeAdd.setStyle(GetCouleurPale(courbes[i].couleur),psSolid,mLigneEuler);
              end;
        end;
 end; // affecteOldModele
@@ -907,7 +910,7 @@ begin
      end;
      if not (ModeleConstruit in etatModele) then begin
         ConstruitModele;
-        if not (ModeleConstruit in etatModele) then begin{ erreur ? }
+        if not (ModeleConstruit in etatModele) then begin // erreur ?
            if MemoModele.showing then MemoModele.setFocus;
            goto finProc;
         end;
@@ -1783,7 +1786,7 @@ begin // loadXMLInReg
          exit;
       end;
       if ANode.NodeName='UseDefault' then begin
-         useDefault := GetBoolXML(ANode);
+         useDefaut := GetBoolXML(ANode);
          exit;
       end;
       if ANode.NodeName='ProjeteVect' then begin
@@ -1833,6 +1836,42 @@ begin
           LoadXMLInReg(ANode.ChildNodes.Nodes[I]);
    verifCoord;
 end; // litConfigXML
+
+procedure TFgrapheEuler.SetHighDPI(const container: TWinControl);
+var
+  b : TBitmap;
+  i : integer;
+
+  procedure ResizeGlyphBB(const bb : TBitBtn);
+  var
+    ng : integer;
+  begin
+    if bb.Glyph.Empty then ng := 0 else ng := bb.NumGlyphs;
+    if ng>0 then begin
+        b.Height := MulDiv(20, Screen.PixelsPerInch, Screen.DefaultPixelsPerInch);
+        b.Width := ng * b.Height;
+        b.Canvas.FillRect(b.Canvas.ClipRect);
+        b.Canvas.StretchDraw(Rect(0, 0, b.Width, b.Height), bb.Glyph) ;
+        bb.Glyph.Assign(b);
+    end;
+  end; //ResizeGlyphBB
+
+begin
+  if Screen.PixelsPerInch = Screen.DefaultPixelsPerInch then Exit;
+  b := TBitmap.Create;
+  for i := 0 to -1 + container.ControlCount do begin
+     if container.Controls[i] is TBitBtn then ResizeGlyphBB(TBitBtn(container.Controls[i]));
+     if container.Controls[i] is TSpeedButton then continue;
+     if container.Controls[i] is TSpinEdit then continue;
+     if container.Controls[i] is TSpinButton then continue;
+     if container.Controls[i] is TToolbar then continue;
+     if container.Controls[i] is TStringGrid then continue;
+     if container.Controls[i] is TWinControl then
+        SetHighDPI(TWinControl(container.Controls[i]));
+  end;
+  b.Free;
+
+end; // SetHighDPI
 
 
 end.

@@ -2,9 +2,9 @@ object ArduinoForm: TArduinoForm
   Left = 0
   Top = 0
   HelpContext = 80
-  Caption = 'Acquisition par Arduino/Micro:bit pour Regressi'
-  ClientHeight = 1196
-  ClientWidth = 1762
+  Caption = 'Acquisition temporelle par Arduino pour Regressi'
+  ClientHeight = 1191
+  ClientWidth = 1692
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,9 +21,9 @@ object ArduinoForm: TArduinoForm
   TextHeight = 38
   object PaintBox: TPaintBox
     Left = 66
-    Top = 434
-    Width = 1696
-    Height = 670
+    Top = 178
+    Width = 1626
+    Height = 1013
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -31,12 +31,13 @@ object ArduinoForm: TArduinoForm
     Align = alClient
     OnPaint = PaintBoxPaint
     ExplicitTop = 462
+    ExplicitWidth = 1696
     ExplicitHeight = 652
   end
   object Splitter: TSplitter
     Left = 0
-    Top = 422
-    Width = 1762
+    Top = 166
+    Width = 1692
     Height = 12
     Cursor = crVSplit
     Margins.Left = 6
@@ -48,35 +49,12 @@ object ArduinoForm: TArduinoForm
     Color = clHighlight
     ParentColor = False
     ExplicitTop = 450
+    ExplicitWidth = 1762
   end
-  object grid: TStringGrid
-    Left = 0
-    Top = 166
-    Width = 1762
-    Height = 256
-    Margins.Left = 6
-    Margins.Top = 6
-    Margins.Right = 6
-    Margins.Bottom = 6
-    Align = alTop
-    ColCount = 8
-    DefaultColWidth = 200
-    DefaultRowHeight = 48
-    FixedCols = 2
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goRowSizing, goColSizing, goEditing, goAlwaysShowEditor]
-    TabOrder = 0
-    OnGetEditText = gridGetEditText
-    RowHeights = (
-      48
-      48
-      48
-      48
-      48)
-  end
-  object CommandGB: TGroupBox
+  object sendGB: TGroupBox
     Left = 0
     Top = 46
-    Width = 1762
+    Width = 1692
     Height = 120
     Margins.Left = 6
     Margins.Top = 6
@@ -90,10 +68,11 @@ object ArduinoForm: TArduinoForm
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont = False
-    TabOrder = 1
+    TabOrder = 0
+    ExplicitWidth = 1678
     object ErreurCaracLabel: TLabel
-      Left = 1248
-      Top = 52
+      Left = 788
+      Top = 50
       Width = 460
       Height = 45
       Margins.Left = 6
@@ -109,46 +88,36 @@ object ArduinoForm: TArduinoForm
       ParentFont = False
       Visible = False
     end
-    object Label8: TLabel
-      Left = 660
-      Top = 16
-      Width = 492
-      Height = 36
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'Commandes '#224' envoyer '#224' Arduino/Micro:bit'
-    end
-    object EnvoiBtn: TButton
-      Left = 280
-      Top = 52
-      Width = 202
+    object Button2: TButton
+      Tag = 1
+      Left = 148
+      Top = 50
+      Width = 180
       Height = 50
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'Envoyer'
       TabOrder = 0
-      OnClick = EnvoiBtnClick
+      OnClick = Button2Click
     end
-    object CommandeEdit: TEdit
-      Left = 24
-      Top = 52
-      Width = 242
-      Height = 44
+    object Button3: TButton
+      Tag = 2
+      Left = 348
+      Top = 50
+      Width = 180
+      Height = 50
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
       TabOrder = 1
-      OnExit = CommandeEditExit
+      OnClick = Button2Click
     end
-    object Button2: TButton
-      Tag = 1
-      Left = 660
-      Top = 52
+    object Button4: TButton
+      Tag = 3
+      Left = 548
+      Top = 50
       Width = 180
       Height = 50
       Margins.Left = 6
@@ -158,37 +127,11 @@ object ArduinoForm: TArduinoForm
       TabOrder = 2
       OnClick = Button2Click
     end
-    object Button3: TButton
-      Tag = 2
-      Left = 860
-      Top = 52
-      Width = 180
-      Height = 50
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      TabOrder = 3
-      OnClick = Button2Click
-    end
-    object Button4: TButton
-      Tag = 3
-      Left = 1060
-      Top = 52
-      Width = 180
-      Height = 50
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      TabOrder = 4
-      OnClick = Button2Click
-    end
   end
   object ToolBar: TToolBar
     Left = 0
     Top = 0
-    Width = 1762
+    Width = 1692
     Height = 46
     Margins.Left = 6
     Margins.Top = 6
@@ -196,7 +139,7 @@ object ArduinoForm: TArduinoForm
     Margins.Bottom = 6
     AutoSize = True
     ButtonHeight = 44
-    ButtonWidth = 187
+    ButtonWidth = 208
     Caption = 'ToolBar'
     DrawingStyle = dsGradient
     EdgeBorders = [ebBottom]
@@ -205,24 +148,26 @@ object ArduinoForm: TArduinoForm
     Images = VirtualImageList1
     List = True
     ShowCaptions = True
-    TabOrder = 2
+    TabOrder = 1
     Wrapable = False
+    ExplicitWidth = 1678
     object ToolsBtn: TToolButton
       Left = 0
       Top = 0
-      Hint = 'Options de la voie s'#233'rie'
+      Hint = 'Options de la voie s'#233'rie, d'#233'clenchement ...'
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'Options'
+      Caption = 'Configuration '
       ImageIndex = 0
       ImageName = 'Item1'
       OnClick = ToolsBtnClick
     end
     object StartBtn: TToolButton
-      Left = 187
+      Left = 208
       Top = 0
+      Hint = 'Lancer l'#39#39'acquisition'
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -234,7 +179,7 @@ object ArduinoForm: TArduinoForm
       OnClick = StartBtnClick
     end
     object StopBtn: TToolButton
-      Left = 374
+      Left = 416
       Top = 0
       Hint = 'Arr'#234't de l'#39'acquisition'
       Margins.Left = 6
@@ -242,12 +187,12 @@ object ArduinoForm: TArduinoForm
       Margins.Right = 6
       Margins.Bottom = 6
       Caption = 'Stop'
-      ImageIndex = 1
-      ImageName = 'Item2'
+      ImageIndex = 10
+      ImageName = 'Item11'
       OnClick = StopBtnClick
     end
     object RegressiBtn: TToolButton
-      Left = 561
+      Left = 624
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -259,7 +204,7 @@ object ArduinoForm: TArduinoForm
       OnClick = RegressiBtnClick
     end
     object RazBtn: TToolButton
-      Left = 748
+      Left = 832
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -271,7 +216,7 @@ object ArduinoForm: TArduinoForm
       OnClick = RazBtnClick
     end
     object HelpBtn: TToolButton
-      Left = 935
+      Left = 1040
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -282,318 +227,20 @@ object ArduinoForm: TArduinoForm
       ImageName = 'Item6'
       OnClick = HelpBtnClick
     end
-    object StartStopBtn: TToolButton
-      Left = 1122
+    object ExitBtn: TToolButton
+      Left = 1248
       Top = 0
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'Stop'
-      Down = True
-      ImageIndex = 10
-      ImageName = 'Item11'
-      Style = tbsCheck
-      OnClick = StartStopBtnClick
-    end
-  end
-  object PanelVoies: TPanel
-    Left = 0
-    Top = 1104
-    Width = 1762
-    Height = 92
-    Margins.Left = 6
-    Margins.Top = 6
-    Margins.Right = 6
-    Margins.Bottom = 6
-    Align = alBottom
-    TabOrder = 3
-    object GroupBox2: TGroupBox
-      Tag = 6
-      Left = 1
-      Top = 1
-      Width = 300
-      Height = 90
-      Cursor = crHandPoint
-      HelpType = htKeyword
-      HelpKeyword = 'Voie_Ana'
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alLeft
-      Color = clBtnFace
-      ParentBackground = False
-      ParentColor = False
-      TabOrder = 0
-      object Label2: TLabel
-        Tag = 6
-        Left = 2
-        Top = 40
-        Width = 296
-        Height = 48
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Align = alClient
-        Caption = 'voieF'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWhite
-        Font.Height = -38
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentFont = False
-        ExplicitWidth = 96
-        ExplicitHeight = 51
-      end
-    end
-    object GroupBox3: TGroupBox
-      Tag = 2
-      Left = 301
-      Top = 1
-      Width = 300
-      Height = 90
-      Cursor = crHandPoint
-      HelpType = htKeyword
-      HelpKeyword = 'Voie_Ana'
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alLeft
-      Color = clBtnFace
-      ParentBackground = False
-      ParentColor = False
-      TabOrder = 1
-      object Label1: TLabel
-        Tag = 6
-        Left = 2
-        Top = 40
-        Width = 296
-        Height = 48
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Align = alClient
-        Caption = 'voieB'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWhite
-        Font.Height = -38
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentFont = False
-        ExplicitWidth = 100
-        ExplicitHeight = 51
-      end
-    end
-    object GroupBox4: TGroupBox
-      Tag = 1
-      Left = 601
-      Top = 1
-      Width = 300
-      Height = 90
-      Cursor = crHandPoint
-      HelpType = htKeyword
-      HelpKeyword = 'Voie_Ana'
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alLeft
-      Color = clBtnFace
-      ParentBackground = False
-      ParentColor = False
-      TabOrder = 2
-      object Label3: TLabel
-        Tag = 1
-        Left = 2
-        Top = 40
-        Width = 296
-        Height = 48
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Align = alClient
-        Caption = 'voieA'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWhite
-        Font.Height = -38
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentFont = False
-        ExplicitWidth = 103
-        ExplicitHeight = 51
-      end
-    end
-    object GroupBox5: TGroupBox
-      Tag = 4
-      Left = 901
-      Top = 1
-      Width = 300
-      Height = 90
-      Cursor = crHandPoint
-      HelpType = htKeyword
-      HelpKeyword = 'Voie_Ana'
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alLeft
-      Color = clBtnFace
-      ParentBackground = False
-      ParentColor = False
-      TabOrder = 3
-      object Label4: TLabel
-        Tag = 6
-        Left = 2
-        Top = 40
-        Width = 296
-        Height = 48
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Align = alClient
-        Caption = 'voieD'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWhite
-        Font.Height = -38
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentFont = False
-        ExplicitWidth = 104
-        ExplicitHeight = 51
-      end
-    end
-    object GroupBox6: TGroupBox
-      Tag = 3
-      Left = 1201
-      Top = 1
-      Width = 300
-      Height = 90
-      Cursor = crHandPoint
-      HelpType = htKeyword
-      HelpKeyword = 'Voie_Ana'
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alLeft
-      Color = clBtnFace
-      ParentBackground = False
-      ParentColor = False
-      TabOrder = 4
-      object Label5: TLabel
-        Tag = 6
-        Left = 2
-        Top = 40
-        Width = 296
-        Height = 48
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Align = alClient
-        Caption = 'voieC'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWhite
-        Font.Height = -38
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentFont = False
-        ExplicitWidth = 100
-        ExplicitHeight = 51
-      end
-    end
-    object GroupBox7: TGroupBox
-      Tag = 5
-      Left = 1501
-      Top = 1
-      Width = 300
-      Height = 90
-      Cursor = crHandPoint
-      HelpType = htKeyword
-      HelpKeyword = 'Voie_Ana'
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alLeft
-      Color = clBtnFace
-      ParentBackground = False
-      ParentColor = False
-      TabOrder = 5
-      object Label6: TLabel
-        Tag = 6
-        Left = 2
-        Top = 40
-        Width = 296
-        Height = 48
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Align = alClient
-        Caption = 'voieE'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWhite
-        Font.Height = -38
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentFont = False
-        ExplicitWidth = 96
-        ExplicitHeight = 51
-      end
-    end
-    object GroupBox8: TGroupBox
-      Left = 1801
-      Top = 1
-      Width = 300
-      Height = 90
-      Cursor = crHandPoint
-      HelpType = htKeyword
-      HelpKeyword = 'Voie_Ana'
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alLeft
-      Color = clBtnFace
-      ParentBackground = False
-      ParentColor = False
-      TabOrder = 6
-      Visible = False
-      object Label7: TLabel
-        Tag = 6
-        Left = 2
-        Top = 40
-        Width = 296
-        Height = 48
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Align = alClient
-        Caption = 't'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWhite
-        Font.Height = -38
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentFont = False
-        ExplicitWidth = 15
-        ExplicitHeight = 51
-      end
+      Caption = 'Quitter'
+      ImageIndex = 4
+      ImageName = 'Item5'
+      OnClick = ExitBtnClick
     end
   end
   object TriggerTB: TTrackBar
     Left = 0
-    Top = 434
+    Top = 178
     Width = 66
-    Height = 670
+    Height = 1013
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -607,16 +254,10 @@ object ArduinoForm: TArduinoForm
     PageSize = 16
     Position = 512
     ShowSelRange = False
-    TabOrder = 4
+    TabOrder = 2
     ThumbLength = 40
     OnChange = TriggerTBChange
-  end
-  object TimerSauve: TTimer
-    Enabled = False
-    Interval = 60000
-    OnTimer = TimerSauveTimer
-    Left = 408
-    Top = 200
+    ExplicitHeight = 920
   end
   object TimerGraphe: TTimer
     Enabled = False
@@ -856,8 +497,8 @@ object ArduinoForm: TArduinoForm
         Name = 'Item11'
       end>
     ImageCollection = ImageCollection1
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 252
     Top = 360
   end

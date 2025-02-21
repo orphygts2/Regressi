@@ -4,8 +4,8 @@ object ModifDlg: TModifDlg
   ActiveControl = OKBtn
   BorderStyle = bsDialog
   Caption = 'Grandeurs'
-  ClientHeight = 817
-  ClientWidth = 742
+  ClientHeight = 820
+  ClientWidth = 770
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
@@ -14,7 +14,6 @@ object ModifDlg: TModifDlg
   Font.Style = []
   Position = poScreenCenter
   OnActivate = FormActivate
-  OnCreate = FormCreate
   PixelsPerInch = 192
   TextHeight = 36
   object Label1: TLabel
@@ -97,19 +96,9 @@ object ModifDlg: TModifDlg
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
-    Glyph.Data = {
-      66010000424D6601000000000000760000002800000014000000140000000100
-      040000000000F000000000000000000000001000000000000000000000000000
-      80000080000000808000800000008000800080800000C0C0C000808080000000
-      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-      3333333300003333333333333333333300003333333333333333333300003333
-      3333333333333333000033330033333333003333000033300003333330000333
-      0000330000000000000000330000330F77FFFF7FFF77F0330000330FFF9FFF7F
-      FFFF80330000330FF999FF70000003330000330FFF9FFF07777033330000330F
-      FFFFFF0777033333000033800000000000333333000033333333393999393333
-      0000333333333333933333330000333333333393339333330000333333333333
-      9333333300003333333333333333333300003333333333333333333300003333
-      33333333333333330000}
+    ImageIndex = 7
+    ImageName = 'Item8'
+    Images = FValeurs.VirtualImageList1
     OnClick = IncertitudeHelpBtnClick
   end
   object OKBtn: TBitBtn
@@ -228,16 +217,19 @@ object ModifDlg: TModifDlg
     OnClick = RazIncertitudeBtnClick
   end
   object AffSignifCB: TCheckBox
-    Left = 16
-    Top = 482
-    Width = 642
-    Height = 34
+    Left = 0
+    Top = 562
+    Width = 770
+    Height = 40
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
+    Align = alBottom
     Caption = 'Etiquette de graphe = commentaire'
     TabOrder = 7
+    ExplicitTop = 561
+    ExplicitWidth = 756
   end
   object PrecisionSE: TSpinEdit
     Left = 660
@@ -261,8 +253,8 @@ object ModifDlg: TModifDlg
   end
   object CalculExpGB: TGroupBox
     Left = 0
-    Top = 599
-    Width = 742
+    Top = 602
+    Width = 770
     Height = 218
     Margins.Left = 6
     Margins.Top = 6
@@ -272,31 +264,20 @@ object ModifDlg: TModifDlg
     Caption = 'Calcul automatique'
     TabOrder = 9
     Visible = False
-    object Image2: TImage
-      Left = 668
-      Top = 78
-      Width = 20
-      Height = 20
+    ExplicitTop = 601
+    ExplicitWidth = 756
+    object SpeedButton1: TSpeedButton
+      Left = 660
+      Top = 80
+      Width = 46
+      Height = 44
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      AutoSize = True
-      Picture.Data = {
-        07544269746D617066010000424D660100000000000076000000280000001400
-        0000140000000100040000000000F00000000000000000000000100000000000
-        0000000000000000800000800000008080008000000080008000808000008080
-        8000C0C0C0000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFF
-        FF00FFFFFFFFFFFFFFFFFFFF0000F999999999999999999F0000F99999999999
-        9999999F0000FF99FFFFFFFFFFFF99FF0000FF99FFFFF00FFFFF99FF0000FFF9
-        9FFFF00FFFF99FFF0000FFF99FFFFFFFFFF99FFF0000FFFF99FFF00FFF99FFFF
-        0000FFFF99FFF00FFF99FFFF0000FFFFF99FF00FF99FFFFF0000FFFFF99FF00F
-        F99FFFFF0000FFFFF99FF00FF99FFFFF0000FFFFFF99F00F99FFFFFF0000FFFF
-        FF99F00F99FFFFFF0000FFFFFFF99FF99FFFFFFF0000FFFFFFF99FF99FFFFFFF
-        0000FFFFFFFF9999FFFFFFFF0000FFFFFFFF9999FFFFFFFF0000FFFFFFFFF99F
-        FFFFFFFF0000FFFFFFFFFFFFFFFFFFFF0000}
-      Stretch = True
-      Transparent = True
+      ImageIndex = 29
+      ImageName = 'warning'
+      Images = FValeurs.VirtualImageList1
     end
     object ExpressionEdit: TLabeledEdit
       Left = 144
@@ -335,17 +316,20 @@ object ModifDlg: TModifDlg
     end
   end
   object CalculVersExpCB: TCheckBox
-    Left = 16
-    Top = 546
-    Width = 700
-    Height = 34
+    Left = 0
+    Top = 522
+    Width = 770
+    Height = 40
     Hint = 'Convertit la grandeur calcul'#233'e en une grandeur exp'#233'rimentale'
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
+    Align = alBottom
     Caption = 'Figer la grandeur calcul'#233'e'
     TabOrder = 10
+    ExplicitTop = 521
+    ExplicitWidth = 756
   end
   object EditComm: TLabeledEdit
     Left = 174

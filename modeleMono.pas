@@ -244,14 +244,18 @@ begin with pages[pageCourante],fonctionTheorique[m] do begin
             J := J + sqr(ecart);
             if Chi2Actif then begin
                      try
-                     dy := incertVar[indexY,i]*coeffSI;
-                     if isNan(dy) then dy := 0;
+                     dy := incertVar[indexY,i];
+                     if isNan(dy)
+                        then dy := 0
+                        else if uniteSIglb then dy := dy*grandeurs[indexY].coeffSI;
                      try
                      dt := incertVar[indexX,i];
-                     if uniteSIglb then dt := dt*grandeurs[indexX].coeffSI;
                      if isNan(dt)
                         then dt := 0
-                        else dt := dt*valeurDeriveeX[m,i];
+                        else begin
+                           dt := dt*valeurDeriveeX[m,i];
+                           if uniteSIglb then dt := dt*grandeurs[indexX].coeffSI;
+                        end;
                      except
                         dt := 0;
                      end;
@@ -502,9 +506,9 @@ begin with pages[pageCourante] do begin
     calculPrecision;
 end end; // EffectueGaussNewton
 
-var iParam,iRecuit,iRecuitMax : integer;
-    i,l : integer;
-begin // effectueModele
+var iParam : integer;
+    i,l,iRecuit : integer;
+begin // effectueModeleMono
 with pages[pageCourante],fonctionTheorique[m] do begin
     dependM := [];
     for iParam := 1 to NbreParam[paramNormal] do
@@ -518,40 +522,40 @@ with pages[pageCourante],fonctionTheorique[m] do begin
        MessageDlg(ErDomaine+' : '+derniereErreur,mtError,[mbOK],HELP_ErreurdeDomainedeDefinition);
        exit;
     end;
-    if recuit then iRecuitMax := 6 else iRecuitMax := 1;
     sauveValeurParam := ValeurParam[paramNormal];
     ValeurParamInit := ValeurParam[paramNormal];
-    iRecuit := 1;
-    while iRecuit<=iRecuitMax do begin
-       avecMessage := (iRecuit=iRecuitmax);
-       if LevenbergMarquardt
-          then modeleErrone := not EffectueLevenbergMarquardt
-          else modeleErrone := not EffectueGaussNewton;
-       inc(iRecuit);
-       if modeleErrone then exit;
-       // random entre 0 et 1
-       if (iRecuit<=iRecuitMax) and (PrecisionModele[1]>0.2) then begin
-              ValeurParam[paramNormal] := ValeurParamInit;
-              with fonctionTheorique[m] do
-                  if IsSinusoide
-                     then begin
+    if LevenbergMarquardt
+       then modeleErrone := not EffectueLevenbergMarquardt
+       else modeleErrone := not EffectueGaussNewton;
+    if modeleErrone then exit;
+    // random entre 0 et 1
+    if Recuit and (PrecisionModele[1]>0.2) and ajuste then begin
+       iRecuit := 1;
+       repeat
+          ValeurParam[paramNormal] := ValeurParamInit;
+          with fonctionTheorique[m] do
+               if IsSinusoide
+                  then begin
                          valeurParam[paramNormal,amplitude] := valeurParam[paramNormal,amplitude]*(0.5+random);
                          valeurParam[paramNormal,Phase] := (random*2-1)*AngleUtilisateur(pi); // entre -pi et +pi
                          if (periodeOuFrequence<>grandeurInconnue) then
                              valeurParam[paramNormal,PeriodeOuFrequence] :=
                                         valeurParam[paramNormal,PeriodeOuFrequence]*(0.5+random); // entre 0,5 et 1,5
-                     end
-                     else for iParam := 1 to NbreParam[paramNormal] do if iparam in dependM then
-                              if recuitFaible
-                                 then valeurParam[paramNormal,iparam] := valeurParam[paramNormal,iparam]*(0.95+0.1*random) // +- 5%
-                                 else valeurParam[paramNormal,iparam] := valeurParam[paramNormal,iparam]*(0.25+4*random); // entre 0.25 et 4
-             CalculJ;
-             if erreurCalcul or ErreurParam then begin
-                  ValeurParam[paramNormal] := ValeurParamInit;
-                  exit;
-             end;
-       end; // recuit
-    end;
+                  end
+                  else for iParam := 1 to NbreParam[paramNormal] do if iparam in dependM then
+                           valeurParam[paramNormal,iparam] := valeurParam[paramNormal,iparam]*(0.8+0.4*random); // +- 20%
+          CalculJ;
+          if erreurCalcul or ErreurParam then begin
+               ValeurParam[paramNormal] := ValeurParamInit;
+               exit;
+          end;
+          if LevenbergMarquardt
+             then modeleErrone := not EffectueLevenbergMarquardt
+             else modeleErrone := not EffectueGaussNewton;
+          if modeleErrone then exit;
+          inc(iRecuit);
+       until (PrecisionModele[1]<0.2) or (iRecuit=6);
+    end; // recuit
     ParamAjustes := stable;
     ModeleCalcule := true;
     CompleteValTh;

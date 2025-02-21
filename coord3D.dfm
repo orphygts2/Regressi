@@ -7,8 +7,8 @@ object Fcoordonnees3D: TFcoordonnees3D
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Coordonn'#233'es du graphe'
-  ClientHeight = 442
-  ClientWidth = 846
+  ClientHeight = 440
+  ClientWidth = 818
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,18 +22,18 @@ object Fcoordonnees3D: TFcoordonnees3D
   PixelsPerInch = 192
   TextHeight = 36
   object BoutonsPanel: TPanel
-    Left = 603
+    Left = 575
     Top = 0
     Width = 243
-    Height = 442
+    Height = 440
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alRight
     TabOrder = 0
-    ExplicitLeft = 589
-    ExplicitHeight = 441
+    ExplicitLeft = 561
+    ExplicitHeight = 439
     object OKBtn: TBitBtn
       Left = 12
       Top = 34
@@ -71,8 +71,8 @@ object Fcoordonnees3D: TFcoordonnees3D
   object CoordPanel: TPanel
     Left = 0
     Top = 0
-    Width = 603
-    Height = 442
+    Width = 575
+    Height = 440
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -82,12 +82,12 @@ object Fcoordonnees3D: TFcoordonnees3D
     ParentShowHint = False
     ShowHint = True
     TabOrder = 1
-    ExplicitWidth = 589
-    ExplicitHeight = 441
+    ExplicitWidth = 561
+    ExplicitHeight = 439
     object AbscisseGB: TGroupBox
       Left = 0
       Top = 0
-      Width = 603
+      Width = 575
       Height = 104
       Margins.Left = 6
       Margins.Top = 6
@@ -96,7 +96,7 @@ object Fcoordonnees3D: TFcoordonnees3D
       Align = alTop
       Caption = 'Abscisse'
       TabOrder = 0
-      ExplicitWidth = 589
+      ExplicitWidth = 561
       object LabelZeroX: TLabel
         Left = 200
         Top = 28
@@ -140,7 +140,7 @@ object Fcoordonnees3D: TFcoordonnees3D
     object OrdonneeGB: TGroupBox
       Left = 0
       Top = 208
-      Width = 603
+      Width = 575
       Height = 104
       Margins.Left = 6
       Margins.Top = 6
@@ -149,7 +149,7 @@ object Fcoordonnees3D: TFcoordonnees3D
       Align = alTop
       Caption = 'Ordonn'#233'e (en profondeur)'
       TabOrder = 2
-      ExplicitWidth = 589
+      ExplicitWidth = 561
       object labelZeroY: TLabel
         Left = 200
         Top = 28
@@ -207,8 +207,8 @@ object Fcoordonnees3D: TFcoordonnees3D
     object OptionsGB: TGroupBox
       Left = 0
       Top = 312
-      Width = 603
-      Height = 130
+      Width = 575
+      Height = 128
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -216,8 +216,8 @@ object Fcoordonnees3D: TFcoordonnees3D
       Align = alClient
       Caption = 'Options ligne'
       TabOrder = 3
-      ExplicitWidth = 589
-      ExplicitHeight = 129
+      ExplicitWidth = 561
+      ExplicitHeight = 127
       object LabelWidth: TLabel
         Left = 240
         Top = 56
@@ -268,7 +268,7 @@ object Fcoordonnees3D: TFcoordonnees3D
     object CoteGB: TGroupBox
       Left = 0
       Top = 104
-      Width = 603
+      Width = 575
       Height = 104
       Margins.Left = 6
       Margins.Top = 6
@@ -277,7 +277,7 @@ object Fcoordonnees3D: TFcoordonnees3D
       Align = alTop
       Caption = 'Cote verticale'
       TabOrder = 1
-      ExplicitWidth = 589
+      ExplicitWidth = 561
       object Label1: TLabel
         Left = 200
         Top = 28

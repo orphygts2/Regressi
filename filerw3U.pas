@@ -173,8 +173,26 @@ end;
 Procedure EcritMemoPython;
 var i : integer;
     nom : string;
+    ligneVide : boolean;
 begin
    if Fvaleurs.MemoSource.lines.count>0 then begin
+      i := 0;
+      ligneVide := false;
+      repeat
+           if Fvaleurs.MemoSource.lines[i]=''
+             then if ligneVide
+                then begin
+                   Fvaleurs.MemoSource.lines.Delete(i)
+                end
+                else begin
+                   ligneVide := true;
+                   inc(i);
+                end
+             else begin
+                ligneVide := false;
+                inc(i);
+             end;
+      until (i=Fvaleurs.MemoSource.lines.count);
       writeln(fichier,symbReg,Fvaleurs.MemoSource.lines.count,' MEMO PYTHON');
       for i := 0 to pred(Fvaleurs.MemoSource.lines.count) do begin
           nom := Fvaleurs.MemoSource.lines[i];
@@ -235,6 +253,7 @@ begin // ecritEnTete
    end;
    if indexTri<>0 then begin
       writeln(fichier,symbReg,'1 GrandeurTri');
+
       ecritChaineRW3(nomGrandeurTri);
    end;
    writeln(fichier,symbReg,NbreVariab,' FORMAT VAR');
@@ -281,6 +300,14 @@ begin // ecritEnTete
             avecIncert := true;
             break;
        end;
+   if avecIncert then begin
+      writeln(fichier,symbReg,NbreVariabExp,' INCERTITUDE');
+      for i := 0 to pred(NbreVariabExp) do
+          ecritChaineRW3(grandeurs[indexVariabExp[i]].IncertCalcA.expression);
+      writeln(fichier,symbReg,NbreVariabExp,' INCERT_TYPEB');
+      for i := 0 to pred(NbreVariabExp) do
+          ecritChaineRW3(grandeurs[indexVariabExp[i]].IncertCalcB.expression);
+   end;
    if (NbreConstExp+NbreConstPython)>0 then begin
       writeln(fichier,symbReg,NbreConstExp+NbreConstPython,' NOM CONST');
       for i := 0 to pred(NbreConstExp) do
@@ -310,20 +337,23 @@ begin // ecritEnTete
         writeln(fichier,symbReg,NbreConstExp,' AFF CONST');
         for i := 0 to pred(NbreConstExp) do
           writeln(fichier,ord(grandeurs[indexConstExp[i]].AffSignif));
+        avecIncert := false;
+        for i := 0 to pred(NbreConstExp) do with grandeurs[indexConstExp[i]] do
+            if (IncertCalcA.expression<>'') or (IncertCalcB.expression<>'') then begin
+              avecIncert := true;
+              break;
+            end;
+        if avecIncert then begin
+          writeln(fichier,symbReg,NbreConstExp,' INCERT CONST');
+          for i := 0 to pred(NbreConstExp) do
+              ecritChaineRW3(grandeurs[indexConstExp[i]].IncertCalcA.expression);
+        end;
       end;
       if ListeConstAff.count>0 then begin
          writeln(fichier,symbReg,ListeConstAff.count,' PANEL CONST');
          for i := 0 to pred(ListeConstAff.count) do
              ecritChaineRW3(ListeConstAff[i]);
       end;
-   end;
-   if avecIncert then begin
-      writeln(fichier,symbReg,NbreVariabExp,' INCERTITUDE');
-      for i := 0 to pred(NbreVariabExp) do
-          ecritChaineRW3(grandeurs[indexVariabExp[i]].IncertCalcA.expression);
-      writeln(fichier,symbReg,NbreVariabExp,' INCERT_TYPEB');
-      for i := 0 to pred(NbreVariabExp) do
-          ecritChaineRW3(grandeurs[indexVariabExp[i]].IncertCalcB.expression);
    end;
    if NbreConstTexte>0 then begin
       writeln(fichier,symbReg,NbreConstTexte,' NOM TC');
@@ -333,11 +363,13 @@ begin // ecritEnTete
       for i := 0 to pred(NbreConstTexte) do
           ecritChaineRW3(grandeurs[indexConstTexte[i]].fonct.expression);
    end;
+   (*
    if NbreConstGlb>0 then begin
       writeln(fichier,symbReg,NbreConstGlb,' INCERT GLB');
       for i := 0 to pred(NbreConstGlb) do
           writeln(fichier,grandeurs[indexConstGlb[i]].incertCourante);
    end;
+   *)
    NbreParamNormal := NbreParam[paramNormal];
    if (NbreParamNormal>0) and modelePagesIndependantes then
        while (NbreParamNormal<MaxParametres) and
@@ -361,6 +393,10 @@ begin // ecritEnTete
    end;
    writeln(fichier,symbReg,'1 TRIGO');
    writeln(fichier,ord(AngleEnDegre));
+   if not FFTperiodique then begin
+      writeln(fichier,symbReg,'1 FFTPERIODE');
+      writeln(fichier,ord(FFTperiodique));
+   end;
    writeln(fichier,symbReg,'1 uniteSI');
    writeln(fichier,ord(uniteSIGlb));
    if avecEllipse then begin
@@ -420,7 +456,7 @@ begin
 end;// ecritFenetres
 
 //  EcritFichierWin
-var page : integer;
+var p : TCodePage;
 begin
      Screen.cursor := crHourGlass;
      NomFichier := changeFileExt(NomFichier,'.rw3');
@@ -429,7 +465,7 @@ begin
      try
      ecritEnTete;
      ecritFenetres;
-     for page := 1 to NbrePages do ecritPage(page);
+     for p := 1 to NbrePages do ecritPage(p);
      CloseFile(fichier);
      modifFichier := false;
      except
@@ -901,15 +937,14 @@ end;
 procedure litMeca(Nbre : integer);
 var i : integer;
     k : integer;
-    nomPos : string;
 begin
      for i := 0 to pred(Nbre) do with grandeurs[i] do begin
          k := strToInt(ligneWin[1]);
          genreMecanique := TgenreMecanique(k);
          if genreMecanique>gm_position then begin
             nomVarPosition := copy(ligneWin,3,length(ligneWin));
-            k := indexNom(nomPos);
-            if k=grandeurInconnue then nomvarPosition := '';
+            k := indexNom(nomVarPosition);
+            if k=grandeurInconnue then nomVarPosition := '';
          end;
          litLigneWin
      end;
@@ -963,10 +998,10 @@ begin
      end;
 end;
 
-procedure litIncertitude(Nbrei : integer);
+procedure litIncertitude(iDebut,Nbrei : integer);
 var i : integer;
 begin
-     for i := 0 to pred(Nbrei) do begin
+     for i := iDebut to pred(iDebut+Nbrei) do begin
          ConvertitPrefixeExpression(ligneWin);
          grandeurs[i].IncertCalcA.expression := ligneWin;
          grandeurs[i].compileIncertitude;
@@ -974,10 +1009,10 @@ begin
      end;
 end;
 
-procedure litIncertitudeB(Nbrei : integer);
+procedure litIncertitudeB(iDebut,Nbrei : integer);
 var i : integer;
 begin
-     for i := 0 to pred(Nbrei) do begin
+     for i := iDebut to pred(iDebut+Nbrei) do begin
          grandeurs[i].IncertCalcB.expression := ligneWin;
          ConvertitPrefixeExpression(grandeurs[i].IncertCalcB.expression);
          grandeurs[i].compileIncertitude;
@@ -1032,7 +1067,7 @@ begin
     try
     for i := 0 to pred(imax) do begin
         litLigneWin;
-       // incertCourante := StrToFloatWin(ligneWin);
+       // grandeurs[indexConstGlb[i]].incertCourante := StrToFloatWin(ligneWin);
     end;
     except
     end;
@@ -1062,7 +1097,7 @@ begin
          5 : litNom(constante,Nligne);
          6 : litUnite(NbreVariab,Nligne);
          7 : litUnite(0,Nligne);
-         8 : litIncertitude(Nligne);
+         8 : litIncertitude(0,Nligne);
          9 : begin
             FregressiMain.GrapheConstOpen;
             FgrapheParam.litConfig;
@@ -1148,10 +1183,16 @@ begin
          end;
          51 : litGenreConst(Nligne);
          52 : litIncertConstGlb(Nligne);
-         53 : litIncertitudeB(Nligne);
+         53 : litIncertitudeB(0,Nligne);
          54 : litLargeurVariab(Nligne);
     //     55 : litLargeurConst(Nligne);
          56 : litUniteGraphe(0,Nligne);
+         57 : begin
+             FFTperiodique := ligneWin<>'0';
+             litLigneWin;
+         end;
+         58 : litIncertitudeB(NbreVariab,Nligne);
+         59 : litIncertitude(NbreVariab,Nligne);
    end;
 end;
 
@@ -1214,9 +1255,15 @@ begin
        else if Pos('TC',ligneWin)<>0 then litChoix(40) { texte const }
        else litChoix(0)
     end
-    else if Pos('INCERTITUDE',ligneWin)<>0 then litChoix(8)
-    else if Pos('INCERT_TYPEB',ligneWin)<>0 then litChoix(53)
-    else if Pos('INCERT GLB',ligneWin)<>0 then litChoix(52)
+    else if Pos('INCERT',ligneWin)<>0 then begin
+       if Pos('CONST',ligneWin)<>0 then litChoix(59)
+       else if Pos('TYPEB',ligneWin)<>0 then litChoix(53)
+       else if Pos('CONST',ligneWin)<>0 then litChoix(59)
+       else if Pos('GLB',ligneWin)<>0 then litChoix(52)
+    //    else if Pos('const typeb',ligneWin)<>0 then litChoix(58)
+       else if Pos('TUDE',ligneWin)<>0 then litChoix(8)
+       else litchoix(0)
+    end
     else if Pos('GRANDEURS',ligneWin)<>0 then begin
        if Pos('MEMO',ligneWin)<>0
           then litChoix(10)
@@ -1239,6 +1286,7 @@ begin
     else if pos('GrandeurTri',ligneWin)<>0 then litChoix(43)
     else if pos('FenetreTxt',ligneWin)<>0 then litChoix(45)
     else if pos('DOSAGE',ligneWin)<>0 then litChoix(47)
+    else if pos('FFTPERIODE',ligneWin)<>0 then litChoix(57)
     else litChoix(0)
 end; // litListe
 

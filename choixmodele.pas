@@ -80,6 +80,8 @@ var
 
 implementation
 
+uses regmain;
+
 {$R *.DFM}
 
 const
@@ -264,7 +266,8 @@ end;
 
 procedure TChoixModeleDlg.FormCreate(Sender: TObject);
 begin
-      ResizeButtonImagesforHighDPI(self);
+      VirtualImageList1.height := VirtualImageListSize;
+      VirtualImageList1.width := VirtualImageListSize;
 end;
 
 procedure TChoixModeleDlg.ModeleBtnClick(Sender: TObject);

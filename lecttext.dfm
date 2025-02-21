@@ -5,8 +5,8 @@ object LectureTexteDlg: TLectureTexteDlg
   BorderIcons = [biHelp]
   BorderStyle = bsDialog
   Caption = 'Texte'
-  ClientHeight = 685
-  ClientWidth = 874
+  ClientHeight = 738
+  ClientWidth = 852
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -75,7 +75,7 @@ object LectureTexteDlg: TLectureTexteDlg
     Left = 0
     Top = 0
     Width = 626
-    Height = 685
+    Height = 738
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -91,7 +91,7 @@ object LectureTexteDlg: TLectureTexteDlg
       Caption = 'Texte'
       object Label5: TLabel
         Left = 0
-        Top = 437
+        Top = 474
         Width = 610
         Height = 36
         Margins.Left = 6
@@ -100,7 +100,7 @@ object LectureTexteDlg: TLectureTexteDlg
         Margins.Bottom = 6
         Align = alBottom
         Caption = 'Syntaxe des options'
-        ExplicitTop = 438
+        ExplicitTop = 475
         ExplicitWidth = 229
       end
       object Edit: TMemo
@@ -124,7 +124,7 @@ object LectureTexteDlg: TLectureTexteDlg
       end
       object PageGB: TGroupBox
         Left = 0
-        Top = 285
+        Top = 322
         Width = 610
         Height = 152
         Margins.Left = 6
@@ -133,7 +133,6 @@ object LectureTexteDlg: TLectureTexteDlg
         Margins.Bottom = 6
         Align = alBottom
         TabOrder = 1
-        ExplicitTop = 286
         object Label4: TLabel
           Left = 16
           Top = 96
@@ -173,9 +172,9 @@ object LectureTexteDlg: TLectureTexteDlg
       end
       object Memo: TMemo
         Left = 0
-        Top = 473
+        Top = 510
         Width = 610
-        Height = 148
+        Height = 164
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -310,7 +309,7 @@ object LectureTexteDlg: TLectureTexteDlg
       end
       object MotifRG: TRadioGroup
         Left = 0
-        Top = 221
+        Top = 274
         Width = 610
         Height = 180
         Margins.Left = 6
@@ -328,6 +327,7 @@ object LectureTexteDlg: TLectureTexteDlg
           'Ligne &horizontale'
           'Lignes de &rappel')
         TabOrder = 5
+        ExplicitTop = 275
       end
       object OpaqueCB: TCheckBox
         Left = 16
@@ -357,7 +357,7 @@ object LectureTexteDlg: TLectureTexteDlg
       end
       object TitreRG: TRadioGroup
         Left = 0
-        Top = 501
+        Top = 554
         Width = 610
         Height = 120
         Margins.Left = 6
@@ -370,10 +370,11 @@ object LectureTexteDlg: TLectureTexteDlg
           'les coordonn'#233'es "physiques"'
           'les coordonn'#233'es '#233'cran')
         TabOrder = 8
+        ExplicitTop = 555
       end
       object GroupBox2: TGroupBox
         Left = 0
-        Top = 401
+        Top = 454
         Width = 610
         Height = 100
         Margins.Left = 6

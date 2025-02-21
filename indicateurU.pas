@@ -70,6 +70,8 @@ var
 
 implementation
 
+uses regmain;
+
 {$R *.dfm}
 
 type
@@ -182,7 +184,6 @@ begin
      end;
   end;
   indicateurCB.ItemIndex := 0;
-  ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TindicateurDlg.nomEditChange(Sender: TObject);

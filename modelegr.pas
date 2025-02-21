@@ -41,11 +41,12 @@ type
          nX,nY : string;
          nomParam : array[1..5] of string;
          couleur : Tcolor;
+         tOrigine : double;
          Constructor Create;
          Destructor Destroy;override;
          Procedure Init(Agenre : TgenreModeleGr;Agraphe : TgrapheReg;
                         Numero,indiceCoord : integer);
-         Procedure InitialiseParametre(var debut,fin : integer;changeDebutDemande : boolean);
+         Procedure InitialiseParametre(var debut,fin : integer;var t0 : double;changeDebutDemande : boolean);
          Procedure AffecteTout;
          Procedure AffecteUnPoint(index : integer;X,Y : integer);
          Procedure GetParametres(var p : tableauParam);
@@ -101,7 +102,7 @@ begin
        end;     
 end;
 
-var expr,debutExp,exp1,exp2,exp3 : string;
+var expr,debutExp,exp1,exp2,exp3,expEch : string;
     j : integer;
 begin
      graphe := Agraphe;
@@ -116,6 +117,7 @@ begin
      end;
 //     debutExp := nY+'('+nX+')=';
      debutExp := nY+'=';
+     expEch := '';
      for j := 1 to 3 do nomParam[j] := '';
      NomParam[5] := getNom(tau);
      NomParam[4] := getNom(phiMin);
@@ -208,9 +210,11 @@ begin
               NomParam[1] := getNom('A'); // coeff multiplicateur
               expr:=debutExp+NomParam[1]+'/(('+nX+'-'+NomParam[2]+')^2+('+NomParam[3]+'/2)^2)';
           end;
-          mgEchelon : begin // a*(1-*exp(-t/tau))
-             nomParam[2] := nomParam[5];
-             expr:=debutExp+NomParam[1]+'*(1-exp(-'+nX+'/'+NomParam[2]+'))';
+          mgEchelon : begin
+               // a+b*exp(-t/tau)
+                expEch := debutExp+NomParam[1]+'+'+nomParam[2]+'*exp(-'+nX+'/'+NomParam[5]+'))';
+               // a*(1-exp(-t/tau))
+                expr:=debutExp+NomParam[1]+'*(1-exp(-'+nX+'/'+NomParam[5]+'))';
           end;
           mgRadio : begin // a*exp(-t/tau)
              nomParam[2] := nomParam[5];
@@ -268,6 +272,7 @@ begin
      end;
      Expression.clear;
      Expression.Add(expr);
+     if expEch<>'' then Expression.Add(expEch);
      debutExp := nY+'('+nX+'):=';
      case genre of
           mgSinus : ;
@@ -303,10 +308,12 @@ begin
              Expression.Add(expr);
           end;
           mgEchelon : begin
-             expr := debutExp+NomParam[1];
-             Expression.Add(expr);
-             expr := debutExp+NomParam[1]+'*'+nX+'/'+NomParam[2];
-             Expression.Add(expr);
+                expr := debutExp+NomParam[1]; // a asymptote infini
+                Expression.Add(expr);
+                expr := debutExp+NomParam[1]+'*'+nX+'/'+NomParam[5]; // a*t/tau
+                Expression.Add(expr);
+                expr := debutExp+NomParam[1]+'+'+NomParam[2]+'*(1-'+nX+'/'+NomParam[5]+')';
+                Expression.Add(expr);
           end;
           mgRadio : begin
              expr := debutExp+NomParam[1]+'*(1-'+nX+'/'+NomParam[2]+')';
@@ -362,9 +369,9 @@ begin
     end;
 end;
 
-Procedure TmodeleGr.InitialiseParametre(var debut,fin : integer;changeDebutDemande : boolean);
+Procedure TmodeleGr.InitialiseParametre(var debut,fin : integer;var t0 : double;changeDebutDemande : boolean);
 var minX,maxX,minY,maxY : double;
-    i,Nbre,milieu,posMaxY : integer;
+    i,Nbre,milieu,posMaxY,posMinY : integer;
     valeurX,valeurY : Tvecteur;
     indexX,indexY : integer;
 
@@ -871,8 +878,9 @@ begin
    parametreGr[2] := v1*exp(-t1/parametreGr[5]);
 end; // InitialiseSinusDiverge
 
+(*
 Procedure InitialiseEchelon;
-var a : double;
+var ref : double;
     i : integer;
     ecart : double;
 begin
@@ -884,14 +892,58 @@ begin
         modeleOK := false;
         exit;
      end;
-     if abs(minY)> abs(maxY)
-        then ParametreGr[1] := minY
-        else ParametreGr[1] := maxY;
+     if abs(minY) > abs(maxY)
+         then ParametreGr[1] := minY
+         else ParametreGr[1] := maxY;
      i := debut;
-     a := abs(parametreGr[1]*(1-exp(-1)));
+     ref := abs(parametreGr[1]*(1-exp(-1)));
      repeat inc(i)
-     until (i=fin) or (abs(valeurY[i])>a);
+     until (i=fin) or (abs(valeurY[i])>ref);
      ParametreGr[2] := valeurX[i]-valeurX[debut];
+end;  // InitialiseEchelon
+*)
+
+Procedure InitialiseEchelon;
+var ref,init : double;
+    i,i0,imax : integer;
+    ecart : double;
+begin
+     if changeDebutDemande then begin // préacquisition éventuelle
+        ecart := abs(valeurY[fin]-valeurY[debut])/(fin-debut)*5; // données sur 5 tau
+        ref := valeurY[debut];
+        i0 := debut;
+        imax := (debut+fin) div 2;
+        while (debut<imax) and (abs(valeurY[debut+1]-ref)<ecart) do inc(debut);
+        if debut>i0 then dec(debut);
+     end;
+     if posMinY<posMaxy  // on monte
+        then begin
+           ParametreGr[1] := maxY;  //a t->infini
+           ParametreGr[2] := minY-maxY;  // t=0 (a+b)
+        end
+        else begin
+           ParametreGr[1] := minY;
+           ParametreGr[2] := maxY-minY;
+        end;
+     i := debut;
+     ref := ParametreGr[1]+parametreGr[2]*exp(-1);
+     init := valeurY[i]-ref;
+     repeat inc(i)
+     until (i=fin) or ((valeurY[i]-ref)*init<0);
+     ParametreGr[3] := valeurX[i]-valeurX[debut];
+     if abs(ParametreGr[1]+ParametreGr[2])<(abs(ParametreGr[1])+abs(ParametreGr[2]))/64
+     then begin // a=-b soit a*(1-exp(-t/tau))
+        nomParam[2] := nomParam[5]; // tau
+        ParametreGr[2] :=  ParametreGr[3] ;
+        expression.Delete(1);
+        expression.Delete(3);
+     end
+     else begin   // a+b*exp(-t/tau)
+        nomParam[3] := nomParam[5]; // tau
+        expression.Delete(0);
+        expression.Delete(2);
+     end;
+     tOrigine := valeurX[debut];
 end;  // InitialiseEchelon
 
 Procedure InitialiseRadio;
@@ -1073,6 +1125,7 @@ begin
 end;
 
 begin // InitialiseParametre
+    tOrigine := 0;
     indexX := indexNom(nX);
     changeDebutDemande := changeDebutDemande and
         (ModeleGraphique[1].genre in [mgEchelon,mgRadio]) and
@@ -1095,6 +1148,7 @@ begin // InitialiseParametre
     minX := maxX;
     maxY := valeurY[debut];
     posMaxY := debut;
+    posMinY := debut;
     minY := maxY;
     Nbre := fin-debut+1;
     Milieu := debut+(Nbre div 2);
@@ -1104,7 +1158,10 @@ begin // InitialiseParametre
               maxY := valeurY[i];
               posMaxY := i;
            end
-           else if valeurY[i]<minY then minY := valeurY[i];
+           else if valeurY[i]<minY then begin
+              minY := valeurY[i];
+              posMinY := i;
+           end;
         if valeurX[i]>maxX
            then maxX := valeurX[i]
            else if valeurX[i]<minX then minX := valeurX[i];
@@ -1138,6 +1195,7 @@ begin // InitialiseParametre
    end;
    finalize(valeurX);
    finalize(valeurY);
+   t0 := tOrigine;
 end; // InitialiseParametre
 
 Procedure TmodeleGr.AffecteTout;

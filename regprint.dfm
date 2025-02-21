@@ -5,8 +5,8 @@ object PrintDlg: TPrintDlg
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   BorderStyle = bsDialog
   Caption = 'Impression'
-  ClientHeight = 950
-  ClientWidth = 540
+  ClientHeight = 947
+  ClientWidth = 498
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,10 +20,10 @@ object PrintDlg: TPrintDlg
   PixelsPerInch = 192
   TextHeight = 36
   object PanelOption: TPanel
-    Left = 276
+    Left = 234
     Top = 0
     Width = 264
-    Height = 672
+    Height = 669
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -36,8 +36,8 @@ object PrintDlg: TPrintDlg
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    ExplicitLeft = 262
-    ExplicitHeight = 671
+    ExplicitLeft = 248
+    ExplicitHeight = 670
     object CopiesLabel: TLabel
       Left = 32
       Top = 358
@@ -116,7 +116,7 @@ object PrintDlg: TPrintDlg
     end
     object PrintGB: TGroupBox
       Left = 1
-      Top = 439
+      Top = 438
       Width = 262
       Height = 232
       Margins.Left = 6
@@ -126,7 +126,7 @@ object PrintDlg: TPrintDlg
       Align = alBottom
       Caption = 'Imprimer'
       TabOrder = 3
-      ExplicitTop = 438
+      ExplicitTop = 437
       object DateCB: TCheckBox
         Left = 16
         Top = 32
@@ -188,16 +188,16 @@ object PrintDlg: TPrintDlg
   object PanelOptions: TPanel
     Left = 0
     Top = 0
-    Width = 276
-    Height = 672
+    Width = 234
+    Height = 669
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alClient
     TabOrder = 1
-    ExplicitWidth = 262
-    ExplicitHeight = 671
+    ExplicitWidth = 248
+    ExplicitHeight = 670
     object GrandeursCB: TCheckBox
       Left = 16
       Top = 16
@@ -212,8 +212,8 @@ object PrintDlg: TPrintDlg
     end
     object VariabGB: TGroupBox
       Left = 1
-      Top = 101
-      Width = 274
+      Top = 100
+      Width = 260
       Height = 190
       Margins.Left = 6
       Margins.Top = 6
@@ -222,8 +222,8 @@ object PrintDlg: TPrintDlg
       Align = alBottom
       Caption = '&Variables'
       TabOrder = 1
-      ExplicitTop = 100
-      ExplicitWidth = 260
+      ExplicitTop = 99
+      ExplicitWidth = 246
       object TableauVariabCB: TCheckBox
         Left = 16
         Top = 32
@@ -276,8 +276,8 @@ object PrintDlg: TPrintDlg
     end
     object ParamGB: TGroupBox
       Left = 1
-      Top = 291
-      Width = 274
+      Top = 290
+      Width = 260
       Height = 152
       Margins.Left = 6
       Margins.Top = 6
@@ -286,8 +286,8 @@ object PrintDlg: TPrintDlg
       Align = alBottom
       Caption = '&Param'#232'tres'
       TabOrder = 2
-      ExplicitTop = 290
-      ExplicitWidth = 260
+      ExplicitTop = 289
+      ExplicitWidth = 246
       object GrapheParamCB: TCheckBox
         Left = 16
         Top = 72
@@ -327,8 +327,8 @@ object PrintDlg: TPrintDlg
     end
     object FourierGB: TGroupBox
       Left = 1
-      Top = 443
-      Width = 274
+      Top = 442
+      Width = 260
       Height = 114
       Margins.Left = 6
       Margins.Top = 6
@@ -337,8 +337,8 @@ object PrintDlg: TPrintDlg
       Align = alBottom
       Caption = 'Fourier'
       TabOrder = 3
-      ExplicitTop = 442
-      ExplicitWidth = 260
+      ExplicitTop = 441
+      ExplicitWidth = 246
       object TableauFourierCB: TCheckBox
         Left = 16
         Top = 32
@@ -372,8 +372,8 @@ object PrintDlg: TPrintDlg
     end
     object StatistiqueGB: TGroupBox
       Left = 1
-      Top = 557
-      Width = 274
+      Top = 556
+      Width = 260
       Height = 114
       Margins.Left = 6
       Margins.Top = 6
@@ -382,8 +382,8 @@ object PrintDlg: TPrintDlg
       Align = alBottom
       Caption = 'Statistique'
       TabOrder = 4
-      ExplicitTop = 556
-      ExplicitWidth = 260
+      ExplicitTop = 555
+      ExplicitWidth = 246
       object TableauStatCB: TCheckBox
         Left = 16
         Top = 32
@@ -412,8 +412,8 @@ object PrintDlg: TPrintDlg
   end
   object EnteteGB: TGroupBox
     Left = 0
-    Top = 852
-    Width = 540
+    Top = 849
+    Width = 498
     Height = 98
     Margins.Left = 6
     Margins.Top = 6
@@ -422,12 +422,12 @@ object PrintDlg: TPrintDlg
     Align = alBottom
     Caption = 'En-t'#234'te d'#39'impression'
     TabOrder = 4
-    ExplicitTop = 851
-    ExplicitWidth = 526
+    ExplicitTop = 850
+    ExplicitWidth = 512
     object EnteteEdit: TEdit
       Left = 2
       Top = 38
-      Width = 536
+      Width = 522
       Height = 58
       Margins.Left = 6
       Margins.Top = 6
@@ -435,14 +435,14 @@ object PrintDlg: TPrintDlg
       Margins.Bottom = 6
       Align = alClient
       TabOrder = 0
-      ExplicitWidth = 522
+      ExplicitWidth = 508
       ExplicitHeight = 44
     end
   end
   object ImprimanteGB: TGroupBox
     Left = 0
-    Top = 672
-    Width = 540
+    Top = 669
+    Width = 498
     Height = 96
     Margins.Left = 6
     Margins.Top = 6
@@ -451,8 +451,6 @@ object PrintDlg: TPrintDlg
     Align = alBottom
     Caption = 'Imprimante'
     TabOrder = 3
-    ExplicitTop = 671
-    ExplicitWidth = 526
     object PrinterBtn: TSpeedButton
       Left = 480
       Top = 28
@@ -462,19 +460,9 @@ object PrintDlg: TPrintDlg
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000000000000000000000000
-        80000080000000808000800000008000800080800000C0C0C000808080000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-        3333333300003333333333333333333300003555550FF0559195053300003580
-        00FF0555919035330000380FFFF0555591933533000030F00FF0555591933833
-        0000300550F05555919358330000308550F0555999995833000035580F085501
-        1111553300003550008550333055553300003555555503335055553300003550
-        0550333550555533000035050503335550555533000030500033355550555833
-        0000300000035555808558330000355000005555808555330000355300008555
-        8085553300003553350000055555553300003333333333333333333300003333
-        33333333333333330000}
+      ImageIndex = 3
+      ImageName = 'Item4'
+      Images = FValeurs.VirtualImageList1
       OnClick = PrinterBtnClick
     end
     object PrintCB: TComboBox
@@ -493,8 +481,8 @@ object PrintDlg: TPrintDlg
   end
   object PanelPages: TPanel
     Left = 0
-    Top = 768
-    Width = 540
+    Top = 765
+    Width = 498
     Height = 84
     Margins.Left = 6
     Margins.Top = 6
@@ -502,8 +490,8 @@ object PrintDlg: TPrintDlg
     Margins.Bottom = 6
     Align = alBottom
     TabOrder = 2
-    ExplicitTop = 767
-    ExplicitWidth = 526
+    ExplicitTop = 766
+    ExplicitWidth = 512
     object PagesBtn: TSpeedButton
       Left = 480
       Top = 20
@@ -514,19 +502,9 @@ object PrintDlg: TPrintDlg
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000000000000000000000000
-        80000080000000808000800000008000800080800000C0C0C000808080000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-        3333333300003333333333333333333300003333333333333333333300003333
-        33333333333333330000333333000000000033330000333330BFBFBFBFB03333
-        0000333300FBFBFBFBF0333300003330B0BFBFBFBFB0333300003300F0FBFBFB
-        FBF03333000030B0B0BFBFBFBFB03333000030F0F0FBFBFBFBF03333000030B0
-        B008999998033333000030F0FB0FBFB0F0333333000030B00080000803333333
-        000030FB0FBFB0F0333333330000300089999803333333330000330FBFB03333
-        3333333300003380000833333333333300003333333333333333333300003333
-        33333333333333330000}
+      ImageIndex = 17
+      ImageName = 'Item18'
+      Images = FRegressiMain.VirtualImageList1
       OnClick = PagesBtnClick
     end
     object GraphePageRG: TRadioGroup

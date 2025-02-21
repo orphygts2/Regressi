@@ -4,7 +4,7 @@ interface
 
 uses windows, sysUtils, graphics, classes, printers,
      Forms, Controls, Buttons, StdCtrls, ExtCtrls, Dialogs, math,
-     system.math.vectors,
+     system.math.vectors, system.Types,
      maths, fft, regutil;
 
 const
@@ -16,7 +16,7 @@ type
         TvecteurOptique = array[TindiceVecteurOptique] of double;
         TstyleDrag = (bsNone,bsMesure,bsOrigine,bsEchelle1,bsEchelle2,
                       bsChrono,bsChronoInit,bsAxeX,bsAxeY,bsSuppr,bsPlay);
-        TarrayPoint = array[TstyleDrag] of Tpoint;
+        TarrayPoint = array[TstyleDrag] of TpointF;
 
  Tmonde = class
     mini,maxi : double;

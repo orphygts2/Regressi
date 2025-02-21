@@ -659,7 +659,8 @@ begin
   end;
   ModeleEnCours := false;
   setTaillePolice;
-  ResizeButtonImagesforHighDPI(self);
+  VirtualImageList1.height := VirtualImageListSize;
+  VirtualImageList1.width := VirtualImageListSize;
 end;
 
 procedure TfgrapheParam.SetCoordonnee;
@@ -839,8 +840,11 @@ begin with GrapheP do begin
               CalculBspline(x,y,OrdreLissage,n,xspline,yspline);
               Acourbe := AjouteCourbe(xspline,yspline,MondeLoc,n,
                    indexToGrandeur(iX),indexToGrandeur(iY),0);
-              with coordonnee[i] do
-                   Acourbe.setStyle(couleur,psSolid,mCroix,couleurPoint);
+              with coordonnee[i] do begin
+                   Acourbe.setStyle(couleur,psSolid,mCroix);
+                   if couleurPoint<>'' then
+                       Acourbe.setStylePoint(couleurPoint,codeCouleur);
+              end;
               Acourbe.Adetruire := true;
               Acourbe.trace := [trLigne];
          end;
@@ -855,7 +859,7 @@ begin with GrapheP do begin
                  courbeAdd := AjouteCourbe(x,y,mondeLoc,NbrePages,
                     grandeurs[iX],grandeurs[iY],0);
                  courbeAdd.IndexModele := -m;
-                 courbeAdd.setStyle(couleurModele[-m],psSolid,mCroix,'');
+                 courbeAdd.setStyle(couleurModele[-m],psSolid,mCroix);
                  courbeAdd.Trace := [trLigne];
                  courbeAdd.Adetruire := true;
            end; // for c de SimulationDefini
@@ -1003,7 +1007,7 @@ begin
         SuperPagesCB.checked := false;
         if FcoordonneesPhys.ShowModal=mrOK then begin
             Transfert.AssignSortie(grapheP);
-            useDefault := false;
+            useDefaut := false;
             equivalences[0].clear;
             include(modif,gmXY);
             PaintBox.invalidate;
@@ -1015,7 +1019,7 @@ procedure TfgrapheParam.ZoomAutoItemClick(Sender: TObject);
 begin
      include(grapheP.modif,gmEchelle);
      grapheP.monde[mondeX].defini := false;
-     grapheP.useDefault := false;
+     grapheP.useDefaut := false;
      PaintBox.invalidate
 end;
 
@@ -1070,7 +1074,9 @@ begin
             else begin
                etatModele := [];
                if curseur=curModeleGr then curseur := curSelect;
-               grapheP.useDefault := false;
+               grapheP.useDefaut := false;
+               grapheP.useDefautX := false;
+               grapheP.useZoom := false;
             end;
          PaintBox.invalidate;
       end;
@@ -1180,7 +1186,7 @@ begin // PaintBoxPaint
         if not grapheP.grapheOK then exit;
         if TempsTB.visible then affecteVariable;
         grapheP.limiteFenetre := paintBox.clientRect;
-        ZoomManuelBtn.down := grapheP.UseDefault;
+        ZoomManuelBtn.down := grapheP.UseDefaut;
         if ZoomManuelBtn.down
            then begin
               ZoomManuelBtn.imageIndex := 26;
@@ -1344,7 +1350,7 @@ begin
         if (ModeleLineaire in etatModele) and
             withCoeffCorrel then
         for k := 0 to pred(grapheP.courbes.count) do with grapheP.courbes[k] do
-           if (grandeurs[indexY]=varY) and (grandeurs[indexX]=varX) then with pages[pag].stat2 do begin
+           if (grandeurs[indexY]=varY) and (grandeurs[indexX]=varX) then with pages[page].stat2 do begin
               init(valX,valY,debutC,finC);
               Ajoute(stCoeffCorrel+'='+
                      FormatGeneral(Correlation,precisionCorrel));
@@ -1668,7 +1674,7 @@ begin // loadXMLInReg
          exit;
       end;
       if ANode.NodeName='UseDefault' then begin
-         grapheP.useDefault := GetBoolXML(ANode);
+         grapheP.useDefaut := GetBoolXML(ANode);
          exit;
       end;
       if ANode.NodeName=stLigne then begin
@@ -1712,6 +1718,7 @@ begin
      FregressiMain.GrapheConstBtn.down := true;
      TempsTB.Max := pages[pageCourante].nmes;
      TempsTB.pageSize := pages[pageCourante].nmes div 16;
+     SplitterModele.Width := Screen.PixelsPerInch div 6;
      MajToolBar;
 end;
 
@@ -1822,7 +1829,9 @@ procedure TfgrapheParam.TempsTBChange(Sender: TObject);
 begin
     if not zoomManuelBtn.down then begin
        grapheP.monde[mondeX].defini := false;
-       grapheP.useDefault := false;
+       grapheP.useDefaut := false;
+       grapheP.useDefautX := false;
+       grapheP.useZoom := false;
     end;
     paintBox.Invalidate
 end;
@@ -2321,13 +2330,14 @@ end;
 
 procedure TFgrapheParam.ModeleMagnum;
 var j,debut,fin : integer;
+    t0 : double;
 begin with ModeleParametre[NbreModeleGlb] do begin
      if ChoixModeleGlbDlg=nil then
         Application.createForm(TChoixModeleGlbDlg,ChoixModeleGlbDlg);
 //     isModeleGlb := true;
      init(ChoixModeleGlbDlg.ModeleChoisi,grapheP,NbreModeleGlb,NbreModeleGlb);
      debut := 0;fin := pred(NbrePages);
-     initialiseParametre(debut,fin,false);
+     initialiseParametre(debut,fin,t0,false);
      if not ModeleOK then begin
         afficheErreur(erModeleGr,0);
         NbreModele := 0;
@@ -2522,14 +2532,12 @@ var hauteurAjuste,hauteurPanel,hauteurMemo,
 begin
      hauteurPanel := ClientHeight-ToolbarModele.height;
 // valeurs par défaut
-     if MemoModele.lines.count<3
-        then i := 3
-        else i := MemoModele.lines.count;
-     hauteurMemo := (abs(memoModele.Font.height)+4)*(i+2)+20; // 20 = titre GroupBox
-     if NbreParam[paramNormal]<3
-        then i := 3
-        else i := NbreParam[paramNormal];
-     HauteurAjuste := (PanelParam1.height+2)*i+PanelAjusteBtn.height+2;
+     i := MemoModele.lines.count+3;
+     if i<5  then i := 5;
+     hauteurMemo := abs(memoModele.Font.height)*i*5 div 4;
+     i := NbreParam[paramNormal]+1;
+     if i<3 then i := 3;
+     HauteurAjuste := (PanelParam1.height)*i+PanelAjusteBtn.height;
      hauteurResultat := hauteurPanel-hauteurMemo-HauteurAjuste;
 // on teste si résultat pas trop petit
      if (hauteurResultat<HauteurMini) then

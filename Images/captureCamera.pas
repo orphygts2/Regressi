@@ -9,6 +9,7 @@ uses
   WCamera;
 
 type
+  Tetat = (eNone,ePreview,eRecord);
   TVideoForm = class(TForm)
     PanelTop: TPanel;
     PanelRight: TPanel;
@@ -75,7 +76,6 @@ type
     ConvertBtn: TButton;
     PanelBoutons: TPanel;
     ConfigBtn: TButton;
-    ImgPreview: TImage;
     procedure ComboBoxCameraDropDown(Sender: TObject);
     procedure ComboBoxCameraChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -83,7 +83,6 @@ type
     procedure CheckBoxClick(Sender: TObject);
     procedure TrackBarChange(Sender: TObject);
     procedure DefaultValuesBtnClick(Sender: TObject);
-    procedure WCameraImageAvailable(Sender: TObject; SampleTime: Double);
     procedure FormDestroy(Sender: TObject);
     procedure PreviewBtnClick(Sender: TObject);
     procedure RecordBtnClick(Sender: TObject);
@@ -92,18 +91,16 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormActivate(Sender: TObject);
   private
-    MemoryStream: TMemoryStream;
-    Bitmap: TBitmap;
     nomFichierCapture : string;
-    isPreviewCamera : boolean;
     withConfig : boolean;
     acqFaite : boolean;
+    etat : Tetat;
     procedure SetDevices;
     procedure SetFormats;
     procedure SetTrackBars;
-    procedure StartDevice;
-    procedure arreter;
-    procedure capturer;
+    procedure StartDevice(isPreview : boolean);
+    procedure setEtat(Aetat : Tetat);
+    procedure stopDevice;
   public
   end;
 
@@ -114,40 +111,58 @@ implementation
 
 {$R *.dfm}
 
-uses Videoffmpeg;
+uses
+  {$IFDEF Win32}
+    Videoffmpeg;
+  {$ENDIF}
+  {$IFDEF Win64}
+    Videoffmpeg64;
+  {$ENDIF}
 
-const
-   strStop = 'Stop';
-   strPreview = 'Prévisualisation';
-   strRecord = 'Capture';
-   indexCamera = 9;
-   indexStop = 1;
-
-
-procedure TVideoForm.Capturer;
+procedure TVideoForm.stopDevice;
 begin
-    isPreviewCamera := false;
-    startDevice;
-    if WCamera.active then begin
-        RecordBtn.Caption := strStop;
-        RecordBtn.ImageIndex := indexStop;
-        RecordBtn.Update;
-        PreviewBtn.Enabled := false;
-        RecordBtn.Enabled := true;
+    if WCamera.active then  begin
+      PreviewBtn.Enabled := false;
+      RecordBtn.enabled := false;
+      Screen.Cursor := crHourGlass; // stop peut durer longtemps !
+      WCamera.Stop;
+      Screen.Cursor := crDefault;
     end;
 end;
 
-procedure TVideoForm.Arreter;
+procedure TVideoForm.setEtat(Aetat : Tetat);
+const
+   indexCamera = 9;
+   indexStop = 1;
 begin
-    RecordBtn.enabled := false;
-    Screen.Cursor := crHourGlass;
-    WCamera.Stop;
-    Screen.Cursor := crDefault;
-    RecordBtn.enabled := true;
-    PreviewBtn.Enabled := true;
-    RecordBtn.caption := strRecord;
-    RecordBtn.ImageIndex := indexCamera;
-    Acqfaite := true;
+   etat := Aetat;
+   ConfigBtn.Enabled := (etat<>eRecord);
+   RecordBtn.Enabled := (etat<>ePreview);
+   PreviewBtn.Enabled := (etat<>eRecord);
+   ComboBoxCamera.Enabled := (etat<>eRecord);
+   ComboBoxFormat.Enabled := (etat<>eRecord);
+   case etat of
+     eNone: begin
+       RecordBtn.caption := 'Capture';
+       PreviewBtn.Caption := 'Prévisualisation';
+       PreviewBtn.ImageIndex := indexCamera;
+       RecordBtn.ImageIndex := indexCamera;
+     end;
+     ePreview: begin
+        PreviewBtn.Caption := 'Stop';
+        RecordBtn.caption := 'Capture';
+        PreviewBtn.ImageIndex := indexStop;
+        RecordBtn.ImageIndex := indexCamera;
+     end;
+     eRecord: begin
+        RecordBtn.Caption := 'Stop';
+        PreviewBtn.Caption := 'Prévisualisation';
+        RecordBtn.ImageIndex := indexStop;
+        PreviewBtn.ImageIndex := indexCamera;
+     end;
+   end;
+   RecordBtn.update;
+   PreviewBtn.update;
 end;
 
 procedure TVideoForm.SetDevices;
@@ -296,20 +311,24 @@ begin
   end;
 end;
 
-procedure TVideoForm.StartDevice;
+procedure TVideoForm.StartDevice(isPreview : boolean);
 var FormatCamera: TWCameraFormat;
 begin
   SetTrackBars;
   if (ComboBoxFormat.ItemIndex <> -1) and (WCamera.DeviceIndex <> -1) then begin
+  try
      WCamera.Active := False;
      FormatCamera := WCamera.SupportedFormats[ComboBoxFormat.ItemIndex];
      WCamera.Format := FormatCamera;
-     if isPreviewCamera
+     if isPreview
         then Wcamera.outputFileName := ''
         else Wcamera.outputFileName := nomFichierCapture;
      WCamera.Active := True;
      WCamera.Run;
-     ImgPreview.Visible := WCamera.CaptureType = ctGrabber;
+     if isPreview then setEtat(ePreview) else setEtat(eRecord)
+  except
+     setEtat(eNone);
+  end;
   end
 end;
 
@@ -378,6 +397,8 @@ begin
 
        Fichier.UpdateFile;
        Fichier.free;
+
+       if WCamera.active and (Wcamera.State=csRunning) then stopDevice;
 end;
 
 procedure TVideoForm.FormCreate(Sender: TObject);
@@ -428,28 +449,28 @@ begin
 end;
 
 begin
-  MemoryStream := TMemoryStream.Create;
-  Bitmap := TBitmap.Create;
   WCamera.BorderColor := clBlack;
-  nomFichierCapture := TPath.Combine(TempDirReg,'capture.avi');
+//  nomFichierCapture := TPath.Combine(TempDirReg,'capture.avi');
+  nomFichierCapture := MesDocsDir+'capture.avi';
   SetTrackBars;
   LitIni;
+  etat := eNone;
 end;
 
 procedure TVideoForm.FormDestroy(Sender: TObject);
 begin
   WCamera.Active := False;
-  Bitmap.Free;
-  MemoryStream.Free;
 end;
 
 procedure TVideoForm.ComboBoxFormatChange(Sender: TObject);
 begin
     if (WCamera.DeviceIndex >=0 ) and
        (ComboBoxFormat.ItemIndex >= 0) and
-       (PreviewBtn.Caption<>strStop) and
-       (ConvertBtn.Caption<>strStop)
-       then PreviewBtnClick(sender);
+       (etat=ePreview)
+       then begin // arrête, relance
+           StopDevice;
+           startDevice(true);
+       end
 end;
 
 procedure TVideoForm.ConfigBtnClick(Sender: TObject);
@@ -460,8 +481,7 @@ begin
             panelRight.Visible := true;
             width := PanelLeft.Width + PanelRight.Width - ClientWidth + Width;
             ConfigBtn.Caption := 'Fin réglage';
-            if (PreviewBtn.Caption<>strStop) and
-               (ConvertBtn.Caption<>strStop) and
+            if (etat=eNone) and
                (WCamera.DeviceIndex <> -1 ) then previewBtnClick(sender)
        end
        else begin
@@ -475,7 +495,7 @@ procedure TVideoForm.ConvertBtnClick(Sender: TObject);
 begin
      ffmpegForm.Show;
      ffmpegForm.SetFocus;
-     showMessage(nomFichierCapture);
+  //   showMessage('Nom du fichier : '+nomFichierCapture);
      if Acqfaite then
         ffmpegForm.ouvreFichier(nomFichierCapture);
      close;
@@ -563,33 +583,23 @@ end;
 
 procedure TVideoForm.PreviewBtnClick(Sender: TObject);
 begin
-  if PreviewBtn.Caption = strStop
+  if etat=ePreview
   then begin
-       PreviewBtn.Enabled := false;
-       Screen.Cursor := crHourGlass; // stop peut durer longtemps !
-       WCamera.Stop; // longtemps !
-       Screen.Cursor := crDefault;
-       PreviewBtn.Caption := strPreview;
-       PreviewBtn.ImageIndex := indexCamera;
-       RecordBtn.Enabled := true;
-       PreviewBtn.Enabled := true;
+      stopDevice;
+      setEtat(eNone);
   end
-  else begin
-     isPreviewCamera := true;
-     startDevice;
-     if WCamera.active then begin
-        PreviewBtn.Caption := strStop;
-        PreviewBtn.ImageIndex := indexStop;
-        RecordBtn.Enabled := false;
-     end;
-  end;
+  else startDevice(true);
 end;
 
 procedure TVideoForm.RecordBtnClick(Sender: TObject);
 begin
-  if RecordBtn.Caption = strStop
-     then arreter
-     else capturer
+  if etat=eRecord
+     then begin
+        StopDevice;
+        Acqfaite := true;
+        setEtat(eNone);
+     end
+     else startDevice(false);
 end;
 
 procedure TVideoForm.DefaultValuesBtnClick(Sender: TObject);
@@ -632,11 +642,6 @@ begin
   finally
     SetTrackBars;
   end
-end;
-
-procedure TVideoForm.WCameraImageAvailable(Sender: TObject; SampleTime: Double);
-begin
-   imgPreview.Picture.Assign(Bitmap);
 end;
 
 end.

@@ -16,7 +16,7 @@ type
     BoutonsPanel: TPanel;
     OptionsBtn: TSpeedButton;
     ImprimeBtn: TSpeedButton;
-    CopierBtn: TSpeedButton;
+    CopierGrapheBtn: TSpeedButton;
     EditBidon: TEdit;
     AideModeleBtn: TSpeedButton;
     ClipGridBtn: TSpeedButton;
@@ -81,7 +81,7 @@ procedure TFcornish.FormCreate(Sender: TObject);
 begin
    CornishK := Tgrandeur.create;
    CornishK.Init('KM','','',variable);
-    FrequenceGr := Tgrandeur.create;
+   FrequenceGr := Tgrandeur.create;
    Frequencegr.Init('N','','',variable);
    CornishV := Tgrandeur.create;
    CornishV.Init('Vlim','','',variable);
@@ -92,9 +92,8 @@ begin
    reelClick := false;
    curseurStat := crsSelect;
    ImprimeBtn.visible := imBoutonImpr in menuPermis;
- //  StatGrid.DefaultRowHeight := hauteurColonne;
- //  DistGrid.DefaultRowHeight := hauteurColonne;
-   ResizeButtonImagesforHighDPI(self);
+   StatGrid.DefaultRowHeight := hauteurColonne;
+   DistGrid.DefaultRowHeight := hauteurColonne;
 end;
 
 procedure TFcornish.SetCoordonnee;
@@ -291,8 +290,8 @@ begin with StatGrid,pages[pageCourante] do begin
     if CornishOptDlg.CibleCB.checked
        then rowCount := 12
        else rowCount := 8;
-//    defaultRowHeight := hauteurColonne;
-    height := succ(rowCount)*hauteurColonne;
+    defaultRowHeight := hauteurColonne;
+    height := succ(rowCount)*defaultRowHeight;
     colWidths[0] := largeurUnCarac*9;
     colWidths[1] := largeurUnCarac*6;
     colWidths[2] := largeurUnCarac*6;

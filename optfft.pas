@@ -49,6 +49,7 @@ type
     AjusteRectangleRG: TRadioGroup;
     OptionsBtn: TSpeedButton;
     Label12: TLabel;
+    periodiqueCB: TCheckBox;
     procedure FormActivate(Sender: TObject);
     procedure BtnOKClick(Sender: TObject);
     procedure BtnHelpClick(Sender: TObject);
@@ -95,11 +96,12 @@ begin
      LabeldB.visible := DecibelCB.checked;
      EditMindB.visible := LabeldB.visible;
      SpinMindB.visible := LabeldB.visible;
-     widthEcranSE.value := penWidthVGA;
+     widthEcranSE.value := penWidthCourbe;
      reglePeriodeCB.checked := avecReglagePeriode;
      AnalyseurCB.checked := OgAnalyseurLogique in FgrapheFFT.GrapheFrequence.OptionGraphe;
      ajusteRectangleRG.itemIndex := ord(zeroPaddingPermis);
 //     sincCB.checked := sincPermis;
+     periodiqueCB.checked := FFTperiodique;
      ListeVariableBox.upDate;
 end;
 
@@ -117,8 +119,9 @@ begin with FgrapheFFT,grapheFrequence do begin
     EnveloppeSpectre := enveloppeCB.checked;
     OrdonneeFFT := TordonneeFFT(ordonneeRG.itemIndex);
     DecalageFFT := decalageSE.value;
-    penWidthVGA := widthEcranSE.value;
+    penWidthCourbe := widthEcranSE.value;
     avecReglagePeriode := reglePeriodeCB.checked;
+    FFTperiodique := periodiqueCB.checked;
 //    sincPermis := sincCB.checked;
     if decibelCB.checked
         then DecadeDB := DecadeSE.value

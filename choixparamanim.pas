@@ -41,10 +41,9 @@ begin
      ParamGrid.cells[3,0] := 'Pas';
      ParamGrid.cells[4,0] := 'Actif';
      ParamGrid.cells[5,0] := 'Exp.';
- //    paramGrid.DefaultRowHeight := hauteurColonne;
+     paramGrid.DefaultRowHeight := hauteurColonne;
      paramGrid.colWidths[4] := largeurUnCarac*3;
      paramGrid.colWidths[5] := largeurUnCarac*3;
-     //ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TAnimParamDlg.FormActivate(Sender: TObject);

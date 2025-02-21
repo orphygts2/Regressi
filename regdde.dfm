@@ -4,8 +4,8 @@ object FormDDE: TFormDDE
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Regressi'
-  ClientHeight = 444
-  ClientWidth = 424
+  ClientHeight = 441
+  ClientWidth = 382
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -42,13 +42,13 @@ object FormDDE: TFormDDE
     ServerConv = ServeurDDE
     Lines.Strings = (
       '')
-    Left = 136
+    Left = 232
     Top = 48
   end
   object ServeurDDE: TDdeServerConv
     OnExecuteMacro = ExecuteMacro
     Left = 56
-    Top = 88
+    Top = 136
   end
   object ClientDDE: TDdeClientConv
     DdeTopic = 'ServeurDDE'
@@ -63,7 +63,7 @@ object FormDDE: TFormDDE
     Enabled = False
     Interval = 5000
     OnTimer = TimerOpenDDETimer
-    Left = 120
-    Top = 96
+    Left = 200
+    Top = 208
   end
 end

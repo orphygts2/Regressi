@@ -60,9 +60,7 @@ begin // traceTitreAxe
     canvas.font.Color := couleurLoc;
     if m=mondeX
        then begin
-            if axeYbas
-                then SetTextAlign(TA_right+TA_bottom)
-                else SetTextAlign(TA_right+TA_top);
+            SetTextAlign(TA_right+TA_top);
             signeX := -1;
        end
        else if (OgPolaire in OptionGraphe)
@@ -81,9 +79,7 @@ begin // traceTitreAxe
                        setTextAlign(TA_right+TA_top);
                        signeX := -1;
                     end;
-                    mondeY : if axeYbas
-                       then setTextAlign(TA_left+TA_bottom)
-                       else setTextAlign(TA_left+TA_top);
+                    mondeY : setTextAlign(TA_left+TA_top);
                     else begin
                         m := mondeSans;
                         setTextAlign(TA_left+TA_top);
@@ -99,14 +95,12 @@ begin // traceTitreAxe
            then U := '/dB'
            else if axe.UniteGrapheImposee
               then U := '/'+g.uniteGraphe
-              else U := g.UniteAxe(Fexposant);
+              else U := g.UniteAxe(Fexposant,arrondiAxe);
         if (m=mondeY) and (courbes[0].trace=[trResidus]) then begin
-            if not(typeResidu=residuN) then U := '';// adimensionnée;
-            case typeResidu of
-              residuStudent : N := 'ti* ('+N+')';
-              residuNormalise : N := DeltaMaj+'('+N+')/u('+N+')';
-              residuN : N := DeltaMaj+N;
-            end;
+            if ResiduNormalise then U := '';// adimensionnée;
+            if ResiduNormalise
+               then N := DeltaMaj+'('+N+')/u('+N+')'
+               else N := DeltaMaj+N;
         end;
         if UseItalic then axeItalique else TextOutLoc(N+U);
         xTitre := xTitre+signeX*LargCarac;
@@ -132,7 +126,6 @@ var xNombreMax,xNombreMin,signeMargeX,signeMargeY : integer;
     couleurAxeY : TcolorRef;
     GraduationYtrace : boolean;
     mondeYseul : boolean;
-    penWidthGrad,penWidthAxe : integer;
     CouleurGrillePale :  Tcolor;
 
 procedure OutText(x,y : integer;const S : string;opaque : boolean);
@@ -144,18 +137,12 @@ end;
 
 Function YcorrectNombre(y : integer;m : TindiceMonde) : boolean;
 begin with monde[m] do
-     if axeYpositif
-        then YcorrectNombre := (y>CourbeBottom) and (y<=CourbeTop-3*marge)
-        else YcorrectNombre := (y>(CourbeTop+marge*3)) and (y<=CourbeBottom)
+      YcorrectNombre := (y>(CourbeTop+marge*3)) and (y<=CourbeBottom)
 end;
 
 Function YcorrectGrad(y : integer;m : TindiceMonde) : boolean;
 begin with monde[m] do
-     if axeYpositif
-        then result := (y>CourbeBottom) and
-                       (y<=CourbeTop-3*marge) and
-                       (y<>yAxeX)
-        else result := (y>(CourbeTop+marge*3)) and
+        result := (y>(CourbeTop+marge*3)) and
                        (y<=CourbeBottom) and
                        (y<>yAxeX)
 end;
@@ -179,7 +166,7 @@ begin
     // pSSolid psDot psDash psDashDot psDashDotDot psClear
           if grande
              then begin
-                canvas.pen.width := penWidthGrad;
+                canvas.pen.width := penWidth;
                 canvas.pen.style := psSolid;
                 canvas.pen.color := couleurGrille;
              end
@@ -193,7 +180,7 @@ begin
        else begin
           canvas.pen.style := psSolid;
           canvas.pen.color := couleurAxeX;
-          canvas.pen.width := penWidthGrad;
+          canvas.pen.width := penWidth;
           if grande
              then segment(x,y,x,y+signeMargeY*marge*tailleTick)
              else segment(x,y,x,y+signeMargeY*marge*tailleTick div 2)
@@ -205,22 +192,12 @@ begin
    if quadrillage
        then begin
           if grande
-             then begin
-                canvas.pen.width := penWidthGrad;
-                canvas.pen.style := psSolid;
-                canvas.pen.color := couleurGrille;
-             end
-             else begin
-                canvas.pen.width := 1;
-                canvas.pen.style := psDot;
-                canvas.pen.color := couleurGrillePale;
-             end;
+             then createPen(psSolid,1,couleurGrille)
+             else createPenFin(psDot,couleurGrillePale);
           segment(limiteCourbe.left,y,limiteCourbe.right,y)
        end
        else begin
-          canvas.pen.style := psSolid;
-          canvas.pen.width := penWidthGrad;
-          canvas.pen.color := couleurAxeY;
+          createPen(psSolid,1,couleurAxeY);
           if grande
              then segment(xAxeY,y,xAxeY+signeMargeX*marge*tailleTick,y)
              else segment(xAxeY,y,xAxeY+signeMargeX*marge*tailleTick div 2,y);
@@ -231,7 +208,7 @@ end;
   var x1,y1 : Integer;
   begin with monde[mondeX] do begin
     PointCourant := PointDebut;
-    CreatePen(psSolid,penWidthAxe,CouleurAxeX);
+    CreatePen(psSolid,1,CouleurAxeX);
     if (Graduation=gLin) and
         not(GraduationZeroY) then begin
             WindowXY(0,0,mondeY,x1,y1);
@@ -242,20 +219,14 @@ end;
     xNombreMin := limiteFenetre.left+largCarac*NbreChiffres div 2;
     if monde[mondeX].axe<>nil then
           TraceTitreAxe(Axe,mondeX,0);
-    CreatePen(psSolid,penWidthAxe,CouleurAxeX);
+    CreatePen(psSolid,1,CouleurAxeX);
     with limiteFenetre do begin
           segment(left,yAxeX,right,yAxeX);
           // fléche X
           segment(right-marge*3,yAxeX+marge,right,yAxeX);
           segment(right-marge*3,yAxeX-marge,right,yAxeX);
     end;
-    if axeYbas
-          then begin
-             SetTextAlign(TA_center+TA_bottom);
-          end
-          else begin
-             SetTextAlign(TA_center+TA_top);
-          end;
+    SetTextAlign(TA_center+TA_top);
     canvas.pen.color := couleurGrille;
   end end;// initAxeX
 
@@ -266,7 +237,7 @@ end;
       grandeGraduation,Q : boolean;
       Xmax : double;
   begin with monde[mondeX] do begin
-       Q := OgQuadrillage in OptionGraphe;
+       Q := (OgQuadrillage in OptionGraphe) and initialisation;
        Ticks := TickDebut;
        if orthonorme
           then Xmax := maxiOrtho
@@ -291,7 +262,7 @@ end;
           PointCourant := PointCourant+deltaAxe;
           inc(Ticks);
       until ( PointCourant>=Xmax );
-      CreatePen(psSolid,penWidthAxe,CouleurAxeX);
+      CreatePen(psSolid,1,CouleurAxeX);
       with limiteFenetre do segment(left,yAxeX,right,yAxeX);
  end end; // traceAxeX
 
@@ -321,7 +292,7 @@ end;
       if maxiX>maxiY
           then maxiXY := maxiX
           else maxiXY := maxiY;
-      NU := monde[mondeY].Axe.nom+monde[mondeY].Axe.UniteAxe(monde[m].Fexposant);
+      NU := monde[mondeY].Axe.nom+monde[mondeY].Axe.UniteAxe(monde[m].Fexposant,monde[m].arrondiAxe);
       xNombreMax := right-(length(NU)+monde[m].NbreChiffres)*largCarac;
       windowXY(0,0,mondeY,x0,y0);
       Ticks := monde[m].TickDebut;
@@ -337,26 +308,18 @@ end;
            maxiInt := maxInteger(miniInt,maxiInt)*3;
            miniInt := -maxiInt;
       end;
-      if (OgQuadrillage in OptionGraphe)
+      if (OgQuadrillage in OptionGraphe) and initialisation
          then begin
             SetTextAlign(TA_left+TA_top);
-            canvas.pen.width := penWidthGrad;
+            canvas.pen.width := penWidth;
             PointCourant := monde[m].pointDebut;
             repeat
                windowXY(PointCourant,PointCourant,mondeY,xs,ys);
                if (xs>=0) and (ys>=0) then begin
                  grandeGraduation := (Ticks mod monde[m].NTicks)=0;
                  if grandeGraduation
-                    then begin
-                       canvas.pen.width := penWidthGrad;
-                       canvas.pen.style := psSolid;
-                       canvas.pen.color := couleurGrille;
-                    end
-                    else begin
-                       canvas.pen.width := 1;
-                       canvas.pen.style := psDot;
-                       canvas.pen.color := couleurGrillePale;
-                    end;
+                    then createPen(psSolid,1,couleurGrille)
+                    else createPenFin(psDot,couleurGrillePale);
                  canvas.ellipse(2*x0-xs,ys,xs,2*y0-ys);
                end;
 // Windows n'est pas capable de gérer une cloture dans un EMF =>
@@ -369,7 +332,7 @@ end;
              SetTextAlign(TA_center+TA_top);
          end;
       PointCourant := monde[m].pointDebut;
-      CreatePen(psSolid,penWidthGrad,CouleurAxeX);
+      CreatePen(psSolid,1,CouleurAxeX);
       Ticks := monde[m].TickDebut;
       repeat
         windowXY(PointCourant,PointCourant,mondeY,xs,ys);
@@ -389,15 +352,15 @@ end;
         PointCourant := PointCourant+monde[m].deltaAxe;
         inc(Ticks);
       until PointCourant>=maxiXY;
-      CreatePen(psDashDot,penWidthGrad,CouleurAxeX);
+      CreatePen(psDashDot,1,CouleurAxeX);
       segment(x0,bottom,x0,top); // axe y
       segment(left,y0,right,y0); // axe x
-      if (OgQuadrillage in OptionGraphe) then begin
-         CreatePen(psDashDot,penWidthGrad,CouleurGrillePale);
+      if (OgQuadrillage in OptionGraphe) and initialisation then begin
+         CreatePen(psDashDot,1,CouleurGrillePale);
          for i := 1 to 5 do begin
              pente := math.tan(i*pi/12);
-             TraceDroite(0,0,pente,miniX,miniY,maxiX,maxiY);
-             TraceDroite(0,0,-pente,miniX,miniY,maxiX,maxiY);
+             TraceDroite(0,0,pente,miniX,miniY,maxiX,maxiY,mondeY);
+             TraceDroite(0,0,-pente,miniX,miniY,maxiX,maxiY,mondeY);
          end;
       end;
       TraceTitreAxe(monde[mondeY].axe,mondeY,0);
@@ -423,7 +386,7 @@ end;
         if not empilePage then TraceTitreAxe(Axe,m,indexCourbe);
         if mondeYseul then canvas.font.Color := CouleurAxeX;
         PointCourant := PointDebut;
-        CreatePen(psSolid,penWidthAxe,CouleurAxeY);
+        CreatePen(psSolid,1,CouleurAxeY);
         if (Graduation=gLin) and
            not(GraduationZeroX) then begin
               WindowXY(0,0,m,x1,y1);
@@ -433,7 +396,7 @@ end;
         if (m=mondeDroit) and not(OgAnalyseurLogique in OptionGraphe)
            then setTextAlign(TA_left+TA_bottom)
            else setTextAlign(TA_right+TA_bottom);
-        CreatePen(psSolid,penWidthGrad,couleurAxeX);
+        CreatePen(psSolid,1,couleurAxeX);
  end end; // initAxeY
 
  procedure traceAxeY(m : TindiceMonde);
@@ -444,6 +407,7 @@ end;
  begin with monde[m] do begin
       if axe.fonct.genreC=g_Texte then exit;
       Q := (OgQuadrillage in OptionGraphe) and
+           initialisation and
            ( not(GraduationYtrace) or
             (OgAnalyseurLogique in OptionGraphe));
       GraduationYTrace := true;
@@ -473,7 +437,7 @@ end;
            pointCourant := pointCourant+deltaAxe;
            inc(Ticks);
       until ( pointCourant>=Ymax );
-      CreatePen(psSolid,penWidthAxe,CouleurAxeY);
+      CreatePen(psSolid,1,CouleurAxeY);
       segment(xAxeY,CourbeBottom,xAxeY,CourbeTop);
       if avecAxeY then begin // fléche Y
             segment(xAxeY-marge,courbeTop+3*signeMargeY*marge,xAxeY,courbeTop);
@@ -485,7 +449,7 @@ end end; // traceAxeY
  var ys,i : Integer;
  begin with monde[m] do begin
       graduationYtrace := true;
-      CreatePen(psSolid,penWidthAxe,clSilver);
+      CreatePen(psSolid,1,clSilver);
       for i := 0 to NombreBits - 1 do begin
            ys := courbeBottom+i*ecartBit;
            segment(xAxeY,ys,limiteCourbe.right,ys);
@@ -494,7 +458,7 @@ end end; // traceAxeY
            ys := ys+(valeurBit div 2);
            segment(xAxeY,ys,limiteCourbe.right,ys);
       end;
-      CreatePen(psSolid,penWidthAxe,CouleurAxeY);
+      CreatePen(psSolid,1,CouleurAxeY);
       segment(xAxeY,CourbeBottom,xAxeY,CourbeTop);
       if avecAxeY then begin // fléche Y
            segment(xAxeY-marge,courbeTop+3*signeMargeY*marge,xAxeY,courbeTop);
@@ -510,7 +474,7 @@ var i,j,debut,fin : integer;
     yy : single;
     Q : boolean;
 begin with Monde[mondeY] do begin
-   Q := (OgQuadrillage in OptionGraphe) and (m=mondeY);
+   Q := (OgQuadrillage in OptionGraphe) and (m=mondeY) and initialisation;
    Intermediaire := (Maxi/Mini) <= 100;
    Negatif := mini<0;
    Ecart := 2*hautCarac;
@@ -564,10 +528,10 @@ begin with Monde[mondeY] do begin
                       dec(j);
                       fini := j=1;
                    end;
-	  until fini;{for j}
-   end; {for i}
+	  until fini;// for j
+   end; // for i
    if avecAxeY then begin // fléche Y
-        CreatePen(psSolid,penWidthAxe,CouleurAxeY);
+        CreatePen(psSolid,1,CouleurAxeY);
         segment(xAxeY,CourbeBottom,xAxeY,CourbeTop);
         segment(xAxeY-marge,courbeTop+3*signeMargeY*marge,xAxeY,courbeTop);
         segment(xAxeY+marge,courbeTop+3*signeMargeY*marge,xAxeY,courbeTop);
@@ -585,7 +549,7 @@ var i,j : integer;
     labelPermis : set of byte;
 begin with Monde[mondeX] do begin
    try
-   Q := OgQuadrillage in OptionGraphe;
+   Q := (OgQuadrillage in OptionGraphe) and initialisation;
    Intermediaire := (Maxi-Mini) < 6;
    Intermediaire25 := (Maxi-Mini) < 9;
    for i := floor(Mini) to ceil(Maxi) do begin
@@ -624,8 +588,8 @@ begin with Monde[mondeX] do begin
                         end;
               end // intermediaire
               else graduationX(xs,ys,false,false);
-          end;{for j}
-   end; {for i}
+          end;// for j
+   end; // for i
    except
        verifierLog := true;
    end;
@@ -638,7 +602,7 @@ var i,j,debut,fin : integer;
     ecart : integer;
     xx : single;
 begin with Monde[mondeX] do begin
-   Q := OgQuadrillage in OptionGraphe;
+   Q := (OgQuadrillage in OptionGraphe) and initialisation;
    Intermediaire := (Maxi/Mini) <= 100;
    Ecart := largCarac*NbreChiffres;
    Negatif := mini<0;
@@ -695,8 +659,8 @@ begin with Monde[mondeX] do begin
                       dec(j);
                       fini := j=1;
                    end;
-          until fini;{for j}
-   end; {for i}
+          until fini;// for j
+   end;// for i
 end end;// TraceAxeInvX
 
 procedure traceAxeLogY(m : TindiceMonde);
@@ -707,7 +671,7 @@ var i,j : integer;
     labelPermis : set of byte;
 begin with monde[m] do begin
    try
-   Q := (OgQuadrillage in OptionGraphe) and (m=mondeY);
+   Q := (OgQuadrillage in OptionGraphe) and (m=mondeY) and initialisation;
    Intermediaire := (Maxi-Mini) <= 4;
    Intermediaire25 := (Maxi-Mini) <= 6;
    Ecart := hautCarac*2;
@@ -758,7 +722,7 @@ end end;
   var x0,y0 : Integer;
   begin with limiteFenetre do begin
       WindowXY(0,0,mondeY,x0,y0);
-      CreatePen(psSolid,penWidthAxe,CouleurAxeX);
+      CreatePen(psSolid,1,CouleurAxeX);
       segment(x0,bottom,x0,top); // axe y
       segment(left,y0,right,y0); // axe x
   end end; // zeroPolaire
@@ -768,7 +732,7 @@ end end;
   begin with monde[mondeX] do if graduation=gLin then begin
 	  WindowXY(0,0,mondeY,x1,y1);
 	  if (x1>limiteCourbe.left) and (x1<limiteCourbe.right) then begin
-	      CreatePen(psSolid,penWidthAxe,CouleurAxeX);
+	      CreatePen(psSolid,1,CouleurAxeX);
               with limiteCourbe do begin
       	           segment(x1,bottom,x1,top);
                    // fléche Y
@@ -788,7 +752,7 @@ end end;
              if m=mondeY
                 then couleur := CouleurAxeX
                 else couleur := CouleurAxeY;
-             CreatePen(psSolid,penWidthAxe,Couleur);
+             CreatePen(psSolid,1,Couleur);
              with limiteCourbe do begin
     	          segment(left,y1,right,y1);
                 if avecFleche then begin // fléche X
@@ -806,9 +770,6 @@ var i : integer;
 begin // DrawAxis
 //     setBkColor(clWhite);
      CouleurGrillePale := getCouleurPale(couleurGrille);
-     penWidthAxe := limiteFenetre.width div 800;
-     penWidthGrad := penWidthAxe div 2;
-     if penWidthGrad<penWidthGrid then penWidthGrad := penWidthGrid;
      if courbes.count>0 then monde[mondeX].Axe := courbes[0].varX;
      mondeYseul := true;
      for i := 0 to pred(courbes.count) do with courbes[i] do begin
@@ -820,13 +781,13 @@ begin // DrawAxis
      end;
      mondeYseul := mondeYseul or (OgAnalyseurLogique in OptionGraphe);
      signeMargeX := -1;
-     if axeYpositif then signeMargeY := -1 else signeMargeY := +1;
+     signeMargeY := +1;
      couleurAxeY := CouleurAxeX;
      GraduationYTrace := false;
      canvas.font.Color := CouleurAxeY;
      WindowXY(0,0,mondeY,xAxeY,yAxeX);
      if not GraduationZeroX then xAxeY := limiteCourbe.left;
-     if not GraduationZeroY then yAxeX := BasCourbe;
+     if not GraduationZeroY then yAxeX := limiteCourbe.bottom;
      for m := low(TindiceMonde) to high(TindiceMonde) do
          monde[m].TitreAxe.clear;
      monde[mondeX].xTitre := limiteFenetre.right-marge;
@@ -835,16 +796,12 @@ begin // DrawAxis
         then for m := mondeY to high(TindiceMonde) do begin
              monde[m].xTitre := limiteFenetre.left+marge;
              if superposePage
-                then if axeYpositif
-                    then monde[m].yTitre := limiteFenetre.Bottom
-                    else monde[m].yTitre := limiteFenetre.Top
+                then monde[m].yTitre := limiteFenetre.Top
                 else monde[m].yTitre := monde[m].CourbeTop-signeMargeY*hautCarac;
         end
         else begin
              for m := mondeY to MaxOrdonnee do
-                 if axeYpositif
-                    then monde[m].yTitre := limiteFenetre.Bottom
-                    else monde[m].yTitre := limiteFenetre.Top;
+                 monde[m].yTitre := limiteFenetre.Top;
              with monde[mondeY] do
                 xTitre := xAxeY-NbreChiffres*largCarac;
              with monde[mondeDroit] do
@@ -852,7 +809,7 @@ begin // DrawAxis
              for m := mondeSans to MaxOrdonnee do
                  monde[m].xTitre := (limiteFenetre.left+limiteFenetre.right) div 2;
        end;
-     if initialisation then exit;
+ //    if initialisation then exit;
      if (OgPolaire in OptionGraphe) then begin
         monde[mondeY].xTitre := limiteCourbe.right-marge;
         WindowXY(0,0,mondeY,x0,y0);

@@ -28,13 +28,16 @@ var
 
 implementation
 
+uses regmain;
+
 {$R *.DFM}
 
 const
-     NbreConstDefault = 12;
+     NbreConstDefault = 13;
 
      titreConstanteDef : array[1..NbreConstDefault] of string =
      ('g',
+      'G',
       'c',
       mu+'0',
       epsilon+'0',
@@ -49,6 +52,7 @@ const
 
      exprConstanteDef : array[1..NbreConstDefault] of string =
      ('g=9.809_m/s2',
+      'G=6.67e-11_Nm2kg-2',
       'c=299792458_m/s',
       mu+'0=4*'+piMin+'*1e-7_H/m',
       epsilon+'0=8.85418782e-12_F/m',
@@ -63,6 +67,7 @@ const
 
      hintConstanteDef : array[1..NbreConstDefault] of string =
      ('intensité de la pesanteur à Paris',
+      'constante de gravitation',
       'vitesse de la lumière dans le vide',
       'perméabilité du vide',
       'permittivité du vide',
@@ -73,8 +78,7 @@ const
       'constante d''Avogadro',
       'constante des gaz parfaits',
       'jour exprimé en secondes',
-      'unité astronomique');
-
+      'unité astronomique exprimé en mètres');
 
 procedure TConstanteUnivDlg.HelpBtnClick(Sender: TObject);
 begin
@@ -118,8 +122,7 @@ begin
   if FileExists(nomIni)
      then FichierIni
      else DefautBtnClick(nil);
-//  tableau.DefaultRowHeight := hauteurColonne;
-  ResizeButtonImagesforHighDPI(self);
+  tableau.DefaultRowHeight := hauteurColonne;
 end;
 
 procedure TConstanteUnivDlg.SaveBtnClick(Sender: TObject);

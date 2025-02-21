@@ -2,7 +2,7 @@ unit regmain;
 
 interface
 
-uses Windows, Dialogs, Menus, StdCtrls, Controls, Buttons, comCtrls,
+uses Windows, Dialogs, Vcl.Menus, StdCtrls, Controls, Buttons, comCtrls,
      system.UITypes, system.Contnrs, System.ImageList, system.IOutils,
      inifiles, Classes, system.SysUtils, Forms, Messages, ExtCtrls, graphics,
      clipBrd, Grids, shellApi, vcl.HtmlHelpViewer, ToolWin, Vcl.ImgList,
@@ -10,6 +10,7 @@ uses Windows, Dialogs, Menus, StdCtrls, Controls, Buttons, comCtrls,
      constreg, regutil, math, maths, uniteker, fft, compile, valeurs, coordphys,
      graphker, graphvar, graphpar, regdde,
      Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection;
+     // sizeEcranU
 
 type
   TFRegressiMain = class(TForm)
@@ -139,7 +140,6 @@ type
     FileNewAngle: TMenuItem;
     EchantillonnerItem: TMenuItem;
     DistribuerItem: TMenuItem;
-    ArduinoItem: TMenuItem;
     graphe3DBtn: TSpeedButton;
     Graphe3DItem: TMenuItem;
     ExemplesItem: TMenuItem;
@@ -154,17 +154,22 @@ type
     N91: TMenuItem;
     N101: TMenuItem;
     VideoItem: TMenuItem;
-    OscilloArduinoItem: TMenuItem;
     Documentationpdf: TMenuItem;
     DocumentationWord: TMenuItem;
     GrapheEulerBtn: TSpeedButton;
     DocModele: TMenuItem;
-    ArduinoWifiItem: TMenuItem;
-    ArduinoWifiDirectItem: TMenuItem;
     EphmridesIMCCE1: TMenuItem;
     CSVhorizontal1: TMenuItem;
     ImageCollection1: TImageCollection;
     VirtualImageList1: TVirtualImageList;
+    Docincertitudes1: TMenuItem;
+    A1: TMenuItem;
+    ArduinoWifi: TMenuItem;
+    ArduinoWifiItem: TMenuItem;
+    OscilloArduinoItem: TMenuItem;
+    ArduinoItem2: TMenuItem;
+    ExporterPython: TMenuItem;
+    ArduinoItem1: TMenuItem;
     procedure TOCitemClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure UpdateMenuItems(Sender: TObject);
@@ -253,10 +258,13 @@ type
     procedure ArduinoWifiDirectItemClick(Sender: TObject);
     procedure EphmridesIMCCE1Click(Sender: TObject);
     procedure CSVhorizontal1Click(Sender: TObject);
+    procedure Docincertitudes1Click(Sender: TObject);
+    procedure ExporterPythonClick(Sender: TObject);
+    procedure ArduinoItem1Click(Sender: TObject);
   private
     MruList,ExemplesList : TStringList;
-    EditCtl : TCustomEdit; { pour menu édition }
-    ActiveGrid : TStringGrid; { pour menu édition }
+    EditCtl : TCustomEdit; // pour menu édition
+    ActiveGrid : TStringGrid; // pour menu édition
     GrecActif : boolean;
     NomFichierSauvegarde : string;
     HeureSauvegarde : TDateTime;
@@ -274,6 +282,7 @@ type
     function litFichierImage(const nomFichier : string) : boolean;
     procedure AddFichier(NomFichier : string);
     procedure AppelFichier(nomFichier : string);
+    procedure ExportePython(NomFichier: string);
   public
     NbreGrandeursSauvees : integer;
     ModifConfigAcq : boolean;
@@ -309,8 +318,14 @@ uses about, statisti, fileRRR,  filerw3U, varkeyb, options, newvar, supprDlg,
      selParam, oneInst, regprint,
      indicateurU, fusionU, latexreg,
      WavMain, interfMain, courbesU, chronoBitmap,
-     arduinoU, arduinoOscillo, arduinoWifi, arduinoWifiDirect,
-     Videoffmpeg, ephemerU;
+     arduinoU, arduinoNew, arduinoOscillo, arduinoWifiDirect,
+  {$IFDEF Win32}
+    Videoffmpeg,
+  {$ENDIF}
+  {$IFDEF Win64}
+    Videoffmpeg64,
+  {$ENDIF}
+     ephemerU;
 
 {$R curseurAvi.res}
 {$R *.DFM}
@@ -366,7 +381,7 @@ begin with Msg do
          then KeypadReturn := (Msg.lParam And $1000000)<>0;
 end;
 
-procedure TFRegressiMain.ArduinoItemClick(Sender: TObject);
+procedure TFRegressiMain.ArduinoItem1Click(Sender: TObject);
 begin
   if not verifSauve then exit;
      try
@@ -380,8 +395,23 @@ begin
      end;
 end;
 
+procedure TFRegressiMain.ArduinoItemClick(Sender: TObject);
+begin
+  if not verifSauve then exit;
+     try
+     if ArduinoNewForm=nil then
+         Application.CreateForm(TArduinoNewForm,ArduinoNewForm);
+     NomFichierData := '';
+     modeAcquisition := AcqArduino;
+     ArduinoNewForm.Show;
+     ArduinoNewForm.SetFocus;
+     except
+     end;
+end;
+
 procedure TFRegressiMain.ArduinoWifiItemClick(Sender: TObject);
 begin
+(*
      if not verifSauve then exit;
      try
      if ArduinoWifiForm=nil then
@@ -392,6 +422,7 @@ begin
      ArduinoWifiForm.SetFocus;
      except
      end;
+*)
 end;
 
 procedure TFRegressiMain.ArduinoWifiDirectItemClick(Sender: TObject);
@@ -504,6 +535,7 @@ end;
 end; // litCurrentUser
 
 Procedure AppelFichier;
+const NomAviMeca = '~avireg~.rw3';
 var NomFichier,zz : String;
     i : integer;
 begin
@@ -515,10 +547,34 @@ begin
             else NomFichier := NomFichier+' '+zz;
     end;
     if NomFichier<>'' then begin
+       if nomFichier=NomAvimeca then
+          nomFichier := CheckFileAvimeca(NomAviMeca);
        ClipBoard.AsText := NomFichier;
        PostMessage(handle,wm_reg_fichier,1,0);
     end;
 end; // appelFichier
+
+procedure ResizeImageList;
+var echelle : integer;
+begin
+(*
+{$IFDEF Debug}
+  sizeEcranForm := TSizeEcranForm.create(self);
+  sizeEcranForm.Memo1.Lines.Add('Screen.DefaultPixelsPerInch='+intToStr(Screen.DefaultPixelsPerInch));
+  sizeEcranForm.Memo1.Lines.Add('Screen.PixelsPerInch='+intToStr(Screen.PixelsPerInch));
+  sizeEcranForm.Memo1.Lines.Add('Screen.width='+intToStr(Screen.width));
+  sizeEcranForm.Memo1.Lines.Add('Screen.height='+intToStr(Screen.height));
+  sizeEcranForm.showModal;
+  sizeEcranForm.free;
+{$ENDIF}
+*)
+  echelle := Screen.PixelsPerInch div Screen.DefaultPixelsPerInch;
+  if echelle>2
+     then VirtualImageListSize := 60
+     else if echelle>1
+     then VirtualImageListSize := 40
+     else VirtualImageListSize := 20;
+end;
 
 var FichierParam : string;
 begin  // FormCreate
@@ -545,7 +601,7 @@ begin  // FormCreate
   except
     // Protégé sur certains réseaux ?
   end;
-  FichierParam := ChangeFileExt(Application.ExeName,'.CHM');
+  FichierParam := ExtractFilePath(Application.ExeName)+'Regressi.chm';
   if FileExists(FichierParam)
      then Application.HelpFile := FichierParam
      else Application.HelpFile := '';
@@ -572,12 +628,17 @@ begin  // FormCreate
   NomFichierSauvegarde := TPath.Combine(tempDirReg,'Regressi.rw3');
   HauteurColonne := GridFontSize * Screen.PixelsPerInch div 46;
   LargeurUnCarac := HauteurColonne*2 div 3;
-  ResizeButtonImagesforHighDPI(self);
+  resizeImageList;
+  VirtualImageList1.height := VirtualImageListSize;
+  VirtualImageList1.width := VirtualImageListSize;
+  (*
   {$IFDEF Win32}
-  {$ELSE}
-     VideoItem.visible := false;
-     VideoItem.enabled := false;
+  VideoItem.Visible := true
   {$ENDIF}
+  {$IFDEF Win64}
+  VideoItem.Visible := false
+  {$ENDIF}
+  *)
 end; // FormCreate
 
 procedure TFRegressiMain.FormShowHint(Sender: TObject);
@@ -790,6 +851,8 @@ var extension : string;
 begin
 if SaveDialog.InitialDir=''
    then SaveDialog.InitialDir := DataDir;
+SaveDialog.Filter := 'Regressi|*.rw3|Texte avec tabulation|*.txt|OpenOffice, CSV|*.csv|Regressi XML|*.rxml|Python|*.py';
+saveDialog.defaultExt := 'rw3';
 with saveDialog do if Execute then begin
      extension := AnsiUpperCase(ExtractFileExt(FileName));
      case filterIndex of
@@ -797,6 +860,7 @@ with saveDialog do if Execute then begin
           2 : extension := '.TXT';
           3 : extension := '.CSV';
           4 : extension := '.RXML';
+          5 : extension := '.py';
      end;
      if (ofExtensionDifferent in Options) or (filterIndex>1)
         then begin
@@ -814,6 +878,11 @@ with saveDialog do if Execute then begin
                  FileName := ChangeFileExt(FileName,'.TXT');
                  FormDDE.exporteFichierTableur(FileName);
                  filterIndex := 2;
+                 exit
+            end;
+            if extension='.py' then begin
+                 FileName := ChangeFileExt(FileName,'.py');
+                 exportePython(FileName);
                  exit
             end;
     end;
@@ -1018,6 +1087,7 @@ begin
    FileCalcItem.Enabled := GrandeursBtn.enabled;
    MenuPage.Enabled := GrandeursBtn.enabled;
    MenuFenetre.Enabled := GrapheBtn.enabled;
+   ExporterPython.enabled := pages[pageCourante].nmes<1025;
    FocusAcquisitionBtn.visible := (ModeAcquisition in [AcqVideo,AcqBitmap,AcqSon,AcqChrono]) or
        (GrandeursBtn.visible and (ModeAcquisition=AcqCan));
    AcquisitionItem.visible := FocusAcquisitionBtn.visible;
@@ -1120,7 +1190,7 @@ procedure TFRegressiMain.TOCitemClick(Sender: TObject);
 begin
     if Application.HelpFile<>''
        then //Application.HelpShowTableOfContents
-           HtmlHelp(0,Application.helpFile,HH_Display_toc,0)
+           HtmlHelpW(handle,Application.helpFile,HH_Display_toc,0)
        else afficheErreur('Fichier Regressi.chm non trouvé ; effectuer l''installation de Regressi',0)
 end;
 
@@ -1317,7 +1387,7 @@ begin
          ClavierAvecGraphe := false;
          FgrapheVariab.Perform(WM_Reg_Maj,MajVide,0);
          FgrapheVariab.configCharge := true;
-         FgrapheVariab.Graphes[1].useDefault := NewClavierDlg.grapheMinMax;
+         FgrapheVariab.Graphes[1].useDefaut := NewClavierDlg.grapheMinMax;
          FgrapheVariab.Perform(WM_Reg_Maj,MajFichier,0);
          if ClavierAvecGraphe
             then dispositionFenetre := dMosaicVert
@@ -1388,6 +1458,80 @@ begin
      LatexDlg.showModal;
 end;
 
+procedure TFRegressiMain.ExporterPythonClick(Sender: TObject);
+begin
+    saveDialog.Filter := 'Python|*.py';
+    saveDialog.defaultExt := 'py';
+    if saveDialog.Execute then exportePython(saveDialog.FileName);
+end;
+
+procedure TFRegressiMain.ExportePython(NomFichier: string);
+var FichierPy : textFile;
+
+procedure ecritIncert(j,p : integer);
+var i : integer;
+begin with pages[p] do begin
+     if IncertVar[j]<>nil then begin
+          writeln(fichierPy,'# Incertitudes sur '+grandeurs[j].nom);
+          write(fichierPy,'u'+grandeurs[j].nom+'List=[');
+          for i := 0 to nmes-2 do begin
+              write(fichierPy,FloatToStrPoint(IncertVar[j,i])+',');
+              if ((i mod 11)=10) then  writeln(fichierPy);
+          end;
+          writeln(fichierPy,FloatToStrPoint(IncertVar[j,nmes-1])+']');
+          writeln(fichierPy,'u'+grandeurs[j].nom+'=np.array(u'+grandeurs[j].nom+'List)');
+          writeln(fichierPy);
+     end;
+end end;
+
+procedure ecritVariabExp(j,p : integer);
+var i : integer;
+begin with pages[p] do begin
+       if grandeurs[j].fonct.expression<>'' then
+           writeln(fichierPy,'# '+grandeurs[j].nom+'='+grandeurs[j].fonct.expression);
+       if grandeurs[j].nomUnite<>'' then
+           writeln(fichierPy,'# Unité de '+grandeurs[j].nom+'='+grandeurs[j].nomUnite);
+       write(fichierPy,grandeurs[j].nom+'List=[');
+       for i := 0 to nmes-2 do begin
+           write(fichierPy,FloatToStrPoint(valeurVar[j,i])+',');
+           if ((i mod 11)=10) then  writeln(fichierPy);
+       end;
+       writeln(fichierPy,FloatToStrPoint(valeurVar[j,nmes-1])+']');
+       writeln(fichierPy,grandeurs[j].nom+'=np.array('+grandeurs[j].nom+'List)');
+       writeln(fichierPy);
+end end;
+
+procedure ecritVariabCalc(j,p : integer);
+begin
+      writeln(fichierPy,'# '+grandeurs[j].nom+'='+grandeurs[j].fonct.expression);
+end;
+
+var j : integer;
+begin
+     FileMode := fmOpenWrite;
+     AssignFile(fichierPy,nomFichier,CP_UTF8);
+     Rewrite(fichierPy);
+     writeln(fichierPy,'#!/usr/bin/env python3');
+     writeln(fichierPy,'# -*- coding: utf-8 -*-');
+     writeln(fichierPy,'import numpy as np');
+     writeln(fichierPy);
+     writeln(fichierPy);
+     for j := 0 to pred(NbreGrandeurs) do
+         if (grandeurs[j].genreG=variable) then
+            case grandeurs[j].fonct.genreC of
+               g_experimentale : begin
+                  ecritVariabExp(j,pageCourante);
+                  ecritIncert(j,pageCourante);
+               end;
+               g_fonction : begin
+                  ecritVariabCalc(j,pageCourante);
+                  ecritIncert(j,pageCourante);
+               end;
+            end;
+     closeFile(fichierPy);
+     FileMode := fmOpenReadWrite;
+end;
+
 procedure TFRegressiMain.GrandeursOpen;
 begin
      if Fvaleurs=nil then Fvaleurs := TFvaleurs.create(self)
@@ -1419,6 +1563,9 @@ end;
 
 procedure TFRegressiMain.GrapheBtnClick(Sender: TObject);
 begin
+{$IFDEF Debug}
+   ecritDebug('grapheOpen');
+{$ENDIF}
      grapheOpen;
      verifWindowsMax(FgrapheVariab);
 //               Fvaleurs.WindowState:=wsMaximized;
@@ -1428,6 +1575,9 @@ begin
            Fvaleurs.SetFocus;
         end
         else begin
+{$IFDEF Debug}
+   ecritDebug('FgrapheVariab.show');
+{$ENDIF}
            FgrapheVariab.Show;
            FgrapheVariab.SetFocus;
         end;
@@ -1557,7 +1707,7 @@ begin
                  (Pages[1].TexteModeleP.count>0) then begin
                     ModelePagesIndependantes := true;
                     TexteModele.clear;
-                    TexteModele := pages[1].TexteModeleP;
+                    TexteModele.text := pages[1].TexteModeleP.text;
               end;
          end
          else PageCourante := 0;
@@ -1571,7 +1721,7 @@ begin
            else FgrapheVariab.show;
         windowClick(nil);
      end;
-end;
+end; // FinOuvertureFichier
 
 procedure TFRegressiMain.MenuPageClick(Sender: TObject);
 begin
@@ -1666,7 +1816,11 @@ begin
   nom := MruList[Index];
   if FileExists(nom)
      then LitFichier(nom,true,false)
-     else afficheErreur(TMenuItem(Sender).caption+erNotExists,0)
+     else begin
+         afficheErreur(TMenuItem(Sender).caption+erNotExists,0);
+         MruDel(nom);
+         MruItemUpdate;
+     end;
 end;
 
 procedure TFRegressiMain.MruItemUpdate;
@@ -1785,10 +1939,14 @@ begin
          ShowMessage(stNoAccesInstall+NomFichier);
 end;
 
+procedure TFRegressiMain.Docincertitudes1Click(Sender: TObject);
+begin
+     AppelFichier(DocIncertitudes)
+end;
+
 procedure TFRegressiMain.DocModeleClick(Sender: TObject);
 begin
-  //  appelFichier(DocModelisation)
-    AppelFichier(DocIncertitudes)
+    AppelFichier(DocModelisation)
 end;
 
 procedure TFRegressiMain.DocumentationpdfClick(Sender: TObject);
@@ -1900,7 +2058,7 @@ begin
     WriteInteger(stColor,identVitesse,couleurMecanique[1]);
     WriteInteger(stColor,identAcceleration,couleurMecanique[2]);
     WriteBool(stColor,'VitesseImposee',CouleurVitesseImposee);
-    WriteInteger(stColor,'Axe',couleurGrille);
+    WriteInteger(stColor,stAxes,couleurGrille);
     WriteInteger(stColor,stLigne,couleurLigne);
     WriteBool(stGraphe,'Reticule',ReticuleComplet);
     WriteBool(stImprimante,'Mono',imprimanteMonochrome);
@@ -2072,11 +2230,20 @@ procedure TFRegressiMain.VideoItemClick(Sender: TObject);
 var ffmpegPath : string;
 begin
      if not verifSauve then exit;
-     FFMPEGPATH := ExtractFilePath(application.exeName);
-     if not FileExists(FFMPEGPATH+'avutil-56.dll') then begin
+{$IFDEF Win64}
+     FFMPEGPATH := ExtractFilePath(application.exeName)+'Win64\';
+     if not FileExists(FFMPEGPATH+'avutil-59.dll') then begin
         showMessage('Effectuer l''installation complète de Regressi');
         exit;
      end;
+{$ENDIF}
+{$IFDEF Win32}
+     FFMPEGPATH := ExtractFilePath(application.exeName)+'Win32\';
+     if not FileExists(FFMPEGPATH+'avutil-59.dll') then begin
+        showMessage('Effectuer l''installation complète de Regressi');
+        exit;
+     end;
+{$ENDIF}
      include(menuPermis,imVitesse);
      if ffmpegForm=nil then Application.CreateForm(TffmpegForm,ffmpegForm);
      ffmpegForm.Show;
@@ -2189,7 +2356,7 @@ begin
 end;
 
 procedure TFRegressiMain.WebItemClick(Sender: TObject);
-const FileName = 'http://regressi.fr/WordPress';
+const FileName = 'https://regressi.fr/WordPress';
 begin
     AppelFichier(FileName)
 end;
@@ -2219,7 +2386,7 @@ begin
 end;
 
 procedure TFRegressiMain.ListeRegActionClick(Sender: TObject);
-const FileName = 'http://fr.groups.yahoo.com/group/regressi-demo';
+const FileName = 'https://framalistes.org/sympa/info/regressi';
 begin
     appelFichier(FileName)
 end;
@@ -2327,4 +2494,6 @@ begin
 end;
 
 end.
+
+
 

@@ -7,8 +7,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
   BorderIcons = [biSystemMenu, biHelp]
   BorderStyle = bsDialog
   Caption = 'Coordonn'#233'es du graphe'
-  ClientHeight = 965
-  ClientWidth = 1094
+  ClientHeight = 990
+  ClientWidth = 1084
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,18 +22,18 @@ object FcoordonneesPhys: TFcoordonneesPhys
   PixelsPerInch = 192
   TextHeight = 36
   object BoutonsPanel: TPanel
-    Left = 774
+    Left = 764
     Top = 0
     Width = 320
-    Height = 629
+    Height = 654
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alRight
     TabOrder = 0
-    ExplicitLeft = 802
-    ExplicitHeight = 631
+    ExplicitLeft = 778
+    ExplicitHeight = 655
     object DetailBtn: TSpeedButton
       Left = 8
       Top = 296
@@ -46,27 +46,6 @@ object FcoordonneesPhys: TFcoordonneesPhys
       AllowAllUp = True
       GroupIndex = 1
       Down = True
-      Glyph.Data = {
-        76020000424D7602000000000000760000002800000040000000100000000100
-        0400000000000002000000000000000000001000000000000000000000000000
-        80000080000000808000800000008000800080800000C0C0C000808080000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333303333
-        333333333338FF333333333333338FF333333333333033333333333333000333
-        3333333333888F3333333333333888F333333333330003333333333333070333
-        3333333F33888FF33F333333F33888FF33F3333333070333333333B33B000B33
-        B3333383F888883F833333383F888883F8333333330003333333333BBB0B0BBB
-        33333338838F8F88F33333338838F8F88F333333330F03333333333BBB0F0BBB
-        33333338338383F83F3333338338383F83F33333330F0333333333BBB0F8F0BB
-        B333338F3838F83F8F333338F3838F83F8F3333330F8F033333333BB0FB8BF0B
-        B3333F838F38F38F83FF33F838F38F38F83FF3330FF8FF033333BBBB0BF8FB0B
-        BBB3883F8F38338F38833883F8F38338F38833330FF8FF03333333BB0FBFBF0B
-        B333338F83F333838F333338F83F333838F333330FFFFF03333333BBB0FBF0BB
-        B3333383F83FF833833333383F83FF833833333330FFF0333333333BBB000BBB
-        33333338FF888338F33333338FF888338F333333330003333333333BBBBBBBBB
-        3333333883FF3F883F333333883FF3F883F3333333333333333333B33BBBBB33
-        B3333383388388338333333833883883383333333333333333333333333B3333
-        333333333338F3333333333333338F33333333333333333333333333333B3333
-        3333333333383333333333333333833333333333333333333333}
       Margin = 2
       NumGlyphs = 4
       ParentShowHint = False
@@ -94,19 +73,9 @@ object FcoordonneesPhys: TFcoordonneesPhys
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000000000000000000000000
-        8000008000000080800080000000800080008080000080808000C0C0C0000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-        3333333333FF33733337333373333333CCCC3377777777777773333300003373
-        3337333373333333000033733337333373333333000033777777777777733333
-        0000337333373333733333331608337333373333733333330AA0337777777777
-        777333333324337333373333733333338AB333333333333333333333FE6533EE
-        E3555344436663330FC933EEE355534443666333ABD933EEE355534443666333
-        0611333333333333333333330C22339993BBB32223DDD333EC77339993BBB322
-        23DDD3335136339993BBB32223DDD33333793333333333333333333300663333
-        33333333333333330011}
+      ImageIndex = 48
+      ImageName = 'OPTGR'
+      Images = FRegressiMain.VirtualImageList1
       OnClick = OptionsBtnClick
     end
     object OKBtn: TBitBtn
@@ -268,7 +237,6 @@ object FcoordonneesPhys: TFcoordonneesPhys
       Margins.Right = 6
       Margins.Bottom = 6
       Caption = 'Unit'#233' graphe impos'#233'e'
-      Margin = 2
       Spacing = -1
       TabOrder = 5
       OnClick = UniteImposeeBtnClick
@@ -277,8 +245,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
   end
   object GroupBoxOptions: TGroupBox
     Left = 0
-    Top = 805
-    Width = 1094
+    Top = 830
+    Width = 1084
     Height = 160
     Margins.Left = 6
     Margins.Top = 6
@@ -287,8 +255,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
     Align = alBottom
     Caption = 'Options g'#233'n'#233'rales'
     TabOrder = 3
-    ExplicitTop = 807
-    ExplicitWidth = 1122
+    ExplicitTop = 831
+    ExplicitWidth = 1098
     object ZoomAutoBtn: TSpeedButton
       Left = 992
       Top = 64
@@ -299,19 +267,9 @@ object FcoordonneesPhys: TFcoordonneesPhys
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000000000000000000000000
-        8000008000000080800080000000800080008080000080808000C0C0C0000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-        333333330222393333333333333333937EA633933333333333330933CCCC3339
-        3333333333309033132933339333333333090333FFFB33333933333330903333
-        00023333339333330903333377F633333709073390333333CCCC333307779709
-        33333333103133307333399033333333FFFE3377333339977333333300003307
-        3333933903333333277F33073339333793333333CCCC33073393333709333333
-        111133773933333773933333FFBB333093333370333933330000333907777703
-        33339333777733933700073333333933CCCC3933333333333333339311113333
-        3333333333333333FFFF}
+      ImageIndex = 43
+      ImageName = 'ZOOMSANS'
+      Images = FRegressiMain.VirtualImageList1
       OnClick = ZoomAutoBtnClick
     end
     object EchelleManuelleLabel: TLabel
@@ -469,8 +427,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
   object VariableLB: TTabControl
     Left = 0
     Top = 0
-    Width = 774
-    Height = 629
+    Width = 764
+    Height = 654
     Hint = '|S'#233'lectionnez le graphe que vous voulez modifier'
     Margins.Left = 6
     Margins.Top = 6
@@ -496,8 +454,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
     object Panel3: TPanel
       Left = 8
       Top = 56
-      Width = 758
-      Height = 565
+      Width = 748
+      Height = 590
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -510,7 +468,7 @@ object FcoordonneesPhys: TFcoordonneesPhys
       object AbscisseGB: TGroupBox
         Left = 0
         Top = 0
-        Width = 758
+        Width = 748
         Height = 104
         Margins.Left = 6
         Margins.Top = 6
@@ -558,9 +516,9 @@ object FcoordonneesPhys: TFcoordonneesPhys
           OnChange = ListeXChange
         end
         object ZeroXCB: TCheckBox
-          Left = 220
+          Left = 216
           Top = 56
-          Width = 30
+          Width = 32
           Height = 30
           Hint = '|Inclure le z'#233'ro sur l'#39'axe horizontal'
           Margins.Left = 6
@@ -599,19 +557,6 @@ object FcoordonneesPhys: TFcoordonneesPhys
           Margins.Bottom = 6
           Caption = '&Supprimer'
           Default = True
-          Glyph.Data = {
-            66010000424D6601000000000000760000002800000014000000140000000100
-            040000000000F000000000000000000000001000000000000000000000000000
-            80000080000000808000800000008000800080800000C0C0C000808080000000
-            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-            3333333300003333333333333333333300003333333333333333333300003333
-            3333333333333333000033333333333333333333000033333333333333333333
-            0000333333333333333333330000333333333333333333330000331111111111
-            1111113300003319999999999999913300003319999999999999913300003319
-            9999999999999133000033111111111111111133000033333333333333333333
-            0000333333333333333333330000333333333333333333330000333333333333
-            3333333300003333333333333333333300003333333333333333333300003333
-            33333333333333330000}
           TabOrder = 3
           OnClick = DeleteBtnClick
         end
@@ -619,7 +564,7 @@ object FcoordonneesPhys: TFcoordonneesPhys
       object OrdonneeGB: TGroupBox
         Left = 0
         Top = 104
-        Width = 758
+        Width = 748
         Height = 104
         Margins.Left = 6
         Margins.Top = 6
@@ -685,9 +630,9 @@ object FcoordonneesPhys: TFcoordonneesPhys
         end
         object ZeroYCB: TCheckBox
           Tag = 1
-          Left = 220
+          Left = 216
           Top = 52
-          Width = 30
+          Width = 32
           Height = 30
           Hint = '|Inclure le z'#233'ro sur l'#39'axe'
           Margins.Left = 6
@@ -756,8 +701,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
       object OptionsGB: TGroupBox
         Left = 0
         Top = 208
-        Width = 758
-        Height = 357
+        Width = 748
+        Height = 382
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -768,7 +713,7 @@ object FcoordonneesPhys: TFcoordonneesPhys
         object LigneBevel: TBevel
           Left = 2
           Top = 38
-          Width = 754
+          Width = 744
           Height = 68
           Margins.Left = 6
           Margins.Top = 6
@@ -781,7 +726,7 @@ object FcoordonneesPhys: TFcoordonneesPhys
         object PointBevel: TBevel
           Left = 2
           Top = 106
-          Width = 754
+          Width = 744
           Height = 68
           Margins.Left = 6
           Margins.Top = 6
@@ -841,8 +786,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
         end
         object PageBioMeca: TPageControl
           Left = 2
-          Top = 215
-          Width = 754
+          Top = 240
+          Width = 744
           Height = 140
           Margins.Left = 6
           Margins.Top = 6
@@ -962,7 +907,7 @@ object FcoordonneesPhys: TFcoordonneesPhys
             Caption = 'Optique'
             ImageIndex = 3
             object ContrastePanel: TPanel
-              Left = 256
+              Left = 232
               Top = 0
               Width = 524
               Height = 76
@@ -1232,137 +1177,98 @@ object FcoordonneesPhys: TFcoordonneesPhys
             Margins.Bottom = 6
             Caption = 'Point'
             ImageIndex = 5
-            object Label1: TLabel
+            object TeinteLabel: TLabel
               Left = 16
               Top = 0
-              Width = 736
+              Width = 147
               Height = 36
               Margins.Left = 6
               Margins.Top = 6
               Margins.Right = 6
               Margins.Bottom = 6
-              Caption = 
-                'L'#39'expression ci-dessous donnera la teinte du point (entre 0 et 6' +
-                ').'
+              Caption = 'expression ...'
             end
-            object Label4: TLabel
-              Left = 484
-              Top = 32
-              Width = 18
-              Height = 45
+            object HueImage: TImage
+              Left = 500
+              Top = 36
+              Width = 250
+              Height = 40
               Margins.Left = 6
               Margins.Top = 6
               Margins.Right = 6
               Margins.Bottom = 6
-              Caption = '0'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clBlack
-              Font.Height = -32
-              Font.Name = 'Segoe UI'
-              Font.Style = [fsBold]
-              ParentFont = False
+              Picture.Data = {
+                0954506E67496D61676589504E470D0A1A0A0000000D49484452000001DB0000
+                0045080600000002614CB30000000467414D410000B18F0BFC61050000005065
+                5849664D4D002A00000008000201120003000000010001000087690004000000
+                0100000026000000000003A00100030000000100010000A00200040000000100
+                0001DBA00300040000000100000045000000006B6913B0000002316954587458
+                4D4C3A636F6D2E61646F62652E786D7000000000003C783A786D706D65746120
+                786D6C6E733A783D2261646F62653A6E733A6D6574612F2220783A786D70746B
+                3D22584D5020436F726520362E302E30223E0A2020203C7264663A5244462078
+                6D6C6E733A7264663D22687474703A2F2F7777772E77332E6F72672F31393939
+                2F30322F32322D7264662D73796E7461782D6E7323223E0A2020202020203C72
+                64663A4465736372697074696F6E207264663A61626F75743D22220A20202020
+                2020202020202020786D6C6E733A657869663D22687474703A2F2F6E732E6164
+                6F62652E636F6D2F657869662F312E302F220A20202020202020202020202078
+                6D6C6E733A746966663D22687474703A2F2F6E732E61646F62652E636F6D2F74
+                6966662F312E302F223E0A2020202020202020203C657869663A506978656C59
+                44696D656E73696F6E3E36393C2F657869663A506978656C5944696D656E7369
+                6F6E3E0A2020202020202020203C657869663A506978656C5844696D656E7369
+                6F6E3E3437353C2F657869663A506978656C5844696D656E73696F6E3E0A2020
+                202020202020203C657869663A436F6C6F7253706163653E313C2F657869663A
+                436F6C6F7253706163653E0A2020202020202020203C746966663A4F7269656E
+                746174696F6E3E313C2F746966663A4F7269656E746174696F6E3E0A20202020
+                20203C2F7264663A4465736372697074696F6E3E0A2020203C2F7264663A5244
+                463E0A3C2F783A786D706D6574613E0A7D66F5740000046E4944415478DAEDD5
+                D16EDA401404504351A5E6B7FBD75580261148B4F51A0742349D9C0784C55C56
+                8BD7CCD91C7F4CC769374DD3B785D757CF0733C7ED343DBF5CEE4FAF35D76BE7
+                5AD73D4EDBE0837ED083F288FCF2804687F53FE69FB887CD61FE8EEF1E70DDB2
+                EEF6E51FFCE51E940FCA37B05D91C316B6B0ADEB50D8C216B669396C610BDBBA
+                0E852D6C619B96C316B6B0ADEB50D8C216B669396C610BDBBA0E852D6C619B96
+                C316B6B0ADEB50D8C216B669396C610BDBBA0E852D6C619B96C316B6B0ADEB50
+                D8C216B669396C610BDBBA0E852D6C619B96C316B6B0ADEB50D8C216B669396C
+                610BDBBA0E852D6C619B96C316B6B0ADEB50D8C216B669396C610BDBBA0E852D
+                6C619B96C316B6B0ADEB50D8C216B669396C610BDBBA0E852D6C619B96C316B6
+                B0ADEB50D8C216B669396C610BDBBA0E852D6C619B96C316B6B0ADEB50D8C216
+                B669396C610BDBBA0E852D6C619B96C316B6B0ADEB50D8C216B669396C610BDB
+                BA0E852D6C619B96C316B6B0ADEB50D8C216B669396C610BDBBA0E852D6C619B
+                96C316B6B0ADEB50D8C216B669396C610BDBBA0E852D6C619B96C316B6B0ADEB
+                50D8C216B669396C610BDBBA0E852D6C619B96C316B6B0ADEB50D8C216B66939
+                6C610BDBBA0E852D6C619B96C316B6B0ADEB50D8C216B669396C610BDBBA0E85
+                2D6C619B96C316B6B0ADEB50D8C216B669396C610BDBBA0E852D6C619B96C316
+                B6B0ADEB50D8C216B669396C610BDBBA0E852D6C619B96C316B6B0ADEB50D8C2
+                16B669396C610BDBBA0E852D6C619B96C316B6B0ADEB50D8C216B669396C610B
+                DBBA0E852D6C619B96C316B6B0ADEB50D8C216B669396C610BDBBA0E852D6C61
+                9B96C316B6B0ADEB50D8C216B669396C610BDBBA0E852D6C619B96C316B6B0AD
+                EB50D8C216B669396C610BDBBA0E852D6C619B96C316B6B0ADEB50D8C216B669
+                396C610BDBBA0E852D6C619B96C316B6B0ADEB50D8C216B669396C610BDBBA0E
+                852D6C619B96C316B6B0ADEB50D8C216B669396C610BDBBA0E852D6C619B96C3
+                16B6B0ADEB50D8C216B669396C610BDBBA0E852D6C619B96C316B6B0ADEB50D8
+                C216B669396C610BDBBA0E852D6C619B96C316B6B0ADEB50D8C216B669396C61
+                0BDBBA0E852D6C619B96C316B6B0ADEB50D8C216B669396C610BDBBA0E852D6C
+                619B96C316B6B0ADEB50D8C216B669396C610BDBBA0E852D6C619B96C316B6B0
+                ADEB50D8C216B669396C610BDBBA0E852D6C619B96C316B6B0ADEB50D8C216B6
+                69396C610BDBBA0E852D6C619B96C316B6B0ADEB50D8C216B669396C610BDBBA
+                0E852D6C619B96C316B6B0ADEB50D8C2F673B17D9A7EBEDDC973076E4F77F6F2
+                FDFBE0F3CBF9DDE0FAFC3E5A7B37F8CE7BD67E7D6D6E5C7B69EE727E263B9CB0
+                3D9C6EEBF97A3FFDFBF9DCDCF9280E83995BE6AEEDE19EFDEE177EC7DAFD1E86
+                0FC1F9004787F8F7F57B0EF123D64EF8235CCCFD7953C787343AACF3ECDCDCA3
+                D67E7DFFB5B0F6D27AA3876BCDFE07BF737B983FA9A5D31CD5CEDCDCB51A19AD
+                B9347BCF7EAFCDADD9EFF6ED06CE1DCE71C54371ED109F57AE7DED613D2E64F7
+                3EACB7FFCEDF8CE2FAB28CB3EA600000000049454E44AE426082}
+              Stretch = True
             end
-            object Label6: TLabel
-              Left = 524
+            object SigneLabel: TLabel
+              Left = 500
               Top = 32
-              Width = 18
-              Height = 45
+              Width = 216
+              Height = 36
               Margins.Left = 6
               Margins.Top = 6
               Margins.Right = 6
               Margins.Bottom = 6
-              Caption = '1'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clYellow
-              Font.Height = -32
-              Font.Name = 'Segoe UI'
-              Font.Style = [fsBold]
-              ParentFont = False
-            end
-            object Label7: TLabel
-              Left = 564
-              Top = 32
-              Width = 18
-              Height = 45
-              Margins.Left = 6
-              Margins.Top = 6
-              Margins.Right = 6
-              Margins.Bottom = 6
-              Caption = '2'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clGreen
-              Font.Height = -32
-              Font.Name = 'Segoe UI'
-              Font.Style = [fsBold]
-              ParentFont = False
-            end
-            object Label8: TLabel
-              Left = 604
-              Top = 32
-              Width = 18
-              Height = 45
-              Margins.Left = 6
-              Margins.Top = 6
-              Margins.Right = 6
-              Margins.Bottom = 6
-              Caption = '3'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clAqua
-              Font.Height = -32
-              Font.Name = 'Segoe UI'
-              Font.Style = [fsBold]
-              ParentFont = False
-            end
-            object Label9: TLabel
-              Left = 644
-              Top = 32
-              Width = 18
-              Height = 45
-              Margins.Left = 6
-              Margins.Top = 6
-              Margins.Right = 6
-              Margins.Bottom = 6
-              Caption = '4'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clBlue
-              Font.Height = -32
-              Font.Name = 'Segoe UI'
-              Font.Style = [fsBold]
-              ParentFont = False
-            end
-            object Label10: TLabel
-              Left = 684
-              Top = 32
-              Width = 18
-              Height = 45
-              Margins.Left = 6
-              Margins.Top = 6
-              Margins.Right = 6
-              Margins.Bottom = 6
-              Caption = '5'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clFuchsia
-              Font.Height = -32
-              Font.Name = 'Segoe UI'
-              Font.Style = [fsBold]
-              ParentFont = False
-            end
-            object Label11: TLabel
-              Left = 724
-              Top = 32
-              Width = 18
-              Height = 45
-              Margins.Left = 6
-              Margins.Top = 6
-              Margins.Right = 6
-              Margins.Bottom = 6
-              Caption = '6'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clRed
-              Font.Height = -32
-              Font.Name = 'Segoe UI'
-              Font.Style = [fsBold]
-              ParentFont = False
+              Caption = '<0 bleu ; >0 rouge'
             end
             object CouleurPointEdit: TEdit
               Left = 16
@@ -1375,6 +1281,18 @@ object FcoordonneesPhys: TFcoordonneesPhys
               Margins.Bottom = 6
               TabOrder = 0
               OnExit = CouleurPointEditExit
+            end
+            object CouleurSigneCB: TCheckBox
+              Left = 448
+              Top = 34
+              Width = 50
+              Height = 34
+              Margins.Left = 6
+              Margins.Top = 6
+              Margins.Right = 6
+              Margins.Bottom = 6
+              TabOrder = 1
+              OnClick = CouleurSigneCBClick
             end
           end
         end
@@ -1618,8 +1536,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
   end
   object pagesGB: TGroupBox
     Left = 0
-    Top = 629
-    Width = 1094
+    Top = 654
+    Width = 1084
     Height = 176
     Margins.Left = 6
     Margins.Top = 6
@@ -1628,8 +1546,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
     Align = alBottom
     Caption = 'Gestion des pages'
     TabOrder = 2
-    ExplicitTop = 631
-    ExplicitWidth = 1122
+    ExplicitTop = 655
+    ExplicitWidth = 1098
     object PagesBtn: TSpeedButton
       Left = 16
       Top = 32
@@ -1701,7 +1619,7 @@ object FcoordonneesPhys: TFcoordonneesPhys
     object ReperePageRG: TRadioGroup
       Left = 2
       Top = 82
-      Width = 1132
+      Width = 1108
       Height = 92
       Margins.Left = 6
       Margins.Top = 6
@@ -1716,7 +1634,7 @@ object FcoordonneesPhys: TFcoordonneesPhys
         'le motif'
         'la couleur')
       TabOrder = 0
-      ExplicitWidth = 1118
+      ExplicitWidth = 1094
     end
     object CommentaireEdit: TEdit
       Left = 288
@@ -1737,8 +1655,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
     Enabled = False
     Interval = 100
     OnTimer = TimerTimer
-    Left = 1040
-    Top = 912
+    Left = 1008
+    Top = 480
   end
   object ImageCollectionLigne: TImageCollection
     Images = <
@@ -1798,7 +1716,7 @@ object FcoordonneesPhys: TFcoordonneesPhys
           end>
       end>
     Left = 928
-    Top = 752
+    Top = 480
   end
   object ImageCollectionPoint: TImageCollection
     Images = <
@@ -1951,8 +1869,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
               8A76B28A1A0BA33A375E2C8BF3568321F30000000049454E44AE426082}
           end>
       end>
-    Left = 1048
-    Top = 736
+    Left = 840
+    Top = 480
   end
   object VirtualImageListLigne: TVirtualImageList
     Images = <
@@ -1982,8 +1900,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
         Name = 'Item5'
       end>
     ImageCollection = ImageCollectionLigne
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 600
     Top = 704
   end
@@ -2055,8 +1973,8 @@ object FcoordonneesPhys: TFcoordonneesPhys
         Name = 'Item13'
       end>
     ImageCollection = ImageCollectionPoint
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 400
     Top = 664
   end

@@ -2,9 +2,10 @@ object ArduinoDlg: TArduinoDlg
   Left = 0
   Top = 0
   HelpContext = 80
-  Caption = 'Param'#233'trage liaison s'#233'rie Arduino/Micro:bit'
-  ClientHeight = 1322
-  ClientWidth = 794
+  AutoSize = True
+  Caption = 'Param'#233'trage acquisition par Arduino/Micro:bit'
+  ClientHeight = 1278
+  ClientWidth = 775
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,7 +20,7 @@ object ArduinoDlg: TArduinoDlg
   object Comports: TRadioGroup
     Left = 0
     Top = 0
-    Width = 794
+    Width = 775
     Height = 80
     Hint = 
       'La vitesse est r'#233'gl'#233'e dans Arduino '#224' x bauds par Serial.begin(x)' +
@@ -31,38 +32,24 @@ object ArduinoDlg: TArduinoDlg
     Align = alTop
     Caption = 'Voie s'#233'rie'
     Columns = 4
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -27
+    Font.Name = 'Segoe UI'
+    Font.Style = []
     ItemIndex = 0
     Items.Strings = (
       'Com1'
       'Com2'
       'Com3'
       'Com4')
+    ParentFont = False
     TabOrder = 0
-    ExplicitWidth = 780
-  end
-  object MemoPoint: TMemo
-    Left = 0
-    Top = 940
-    Width = 794
-    Height = 120
-    Margins.Left = 6
-    Margins.Top = 6
-    Margins.Right = 6
-    Margins.Bottom = 6
-    Align = alTop
-    Lines.Strings = (
-      'Le logiciel s'#39'attend '#224' ce que Arduino envoie des lignes de '
-      'donn'#233'es '
-      'par println(), les donn'#233'es '#233'tant s'#233'par'#233'es par des virgules.'
-      'La premi'#232're donn'#233'e sera plac'#233'e en abscisse.')
-    ReadOnly = True
-    TabOrder = 7
-    ExplicitWidth = 780
   end
   object BaudRG: TRadioGroup
     Left = 0
     Top = 80
-    Width = 794
+    Width = 775
     Height = 80
     Margins.Left = 6
     Margins.Top = 6
@@ -71,6 +58,11 @@ object ArduinoDlg: TArduinoDlg
     Align = alTop
     Caption = 'Vitesse/baud'
     Columns = 5
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -27
+    Font.Name = 'Segoe UI'
+    Font.Style = []
     ItemIndex = 0
     Items.Strings = (
       '9600'
@@ -78,41 +70,20 @@ object ArduinoDlg: TArduinoDlg
       '38400'
       '57600'
       '115200')
+    ParentFont = False
     TabOrder = 1
-    ExplicitWidth = 780
-  end
-  object ModeRG: TRadioGroup
-    Left = 0
-    Top = 160
-    Width = 794
-    Height = 80
-    Margins.Left = 6
-    Margins.Top = 6
-    Margins.Right = 6
-    Margins.Bottom = 6
-    Align = alTop
-    Caption = 'Mode d'#39'acquisition'
-    Columns = 3
-    ItemIndex = 0
-    Items.Strings = (
-      'Point par point'
-      'Temporel')
-    TabOrder = 2
-    OnClick = ModeRGClick
-    ExplicitWidth = 780
   end
   object DureeGB: TGroupBox
     Left = 0
-    Top = 400
-    Width = 794
+    Top = 320
+    Width = 775
     Height = 242
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alTop
-    TabOrder = 5
-    ExplicitWidth = 780
+    TabOrder = 4
     object LabelDuree: TLabel
       Left = 16
       Top = 32
@@ -147,7 +118,7 @@ object ArduinoDlg: TArduinoDlg
       Caption = 'Commande d'#39'arr'#234't'
     end
     object dureeMaxSE: TSpinEdit
-      Left = 319
+      Left = 480
       Top = 18
       Width = 100
       Height = 56
@@ -167,7 +138,7 @@ object ArduinoDlg: TArduinoDlg
       Value = 1
     end
     object StartEdit: TEdit
-      Left = 400
+      Left = 480
       Top = 86
       Width = 242
       Height = 46
@@ -191,7 +162,7 @@ object ArduinoDlg: TArduinoDlg
       TabOrder = 2
     end
     object StopEdit: TEdit
-      Left = 400
+      Left = 480
       Top = 140
       Width = 242
       Height = 46
@@ -211,26 +182,14 @@ object ArduinoDlg: TArduinoDlg
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'Temps fourni par Arduino (colonne 1)'
+      Caption = 'Temps fourni par Arduino/micro:bit'
       TabOrder = 4
-    end
-    object UserDataCB: TCheckBox
-      Left = 16
-      Top = 196
-      Width = 674
-      Height = 34
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'Abscisse : donn'#233'e utilisateur (sinon index)'
-      TabOrder = 5
     end
   end
   object CommandGB: TGroupBox
     Left = 0
-    Top = 642
-    Width = 794
+    Top = 562
+    Width = 775
     Height = 298
     Margins.Left = 6
     Margins.Top = 6
@@ -238,12 +197,11 @@ object ArduinoDlg: TArduinoDlg
     Margins.Bottom = 6
     Align = alTop
     Caption = 'Boutons de commande'
-    TabOrder = 6
-    ExplicitWidth = 780
+    TabOrder = 5
     object SendGrid: TStringGrid
       Left = 2
       Top = 40
-      Width = 790
+      Width = 771
       Height = 164
       Margins.Left = 6
       Margins.Top = 6
@@ -262,13 +220,12 @@ object ArduinoDlg: TArduinoDlg
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goTabs, goAlwaysShowEditor]
       ParentFont = False
       TabOrder = 0
-      ExplicitWidth = 776
     end
     object TerminateurRG: TRadioGroup
       Left = 2
-      Top = 208
-      Width = 790
-      Height = 88
+      Top = 216
+      Width = 771
+      Height = 80
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -276,41 +233,51 @@ object ArduinoDlg: TArduinoDlg
       Align = alBottom
       Caption = 'Terminateur'
       Columns = 4
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -27
+      Font.Name = 'Segoe UI'
+      Font.Style = []
       ItemIndex = 0
       Items.Strings = (
         'Sans'
-        'CR 13'
-        'LF  10'
+        'CR 13 $0D'
+        'LF  10 $0A'
         'CR+LF')
+      ParentFont = False
       TabOrder = 1
-      ExplicitWidth = 776
     end
   end
   object ModeTempsRG: TRadioGroup
     Left = 0
-    Top = 240
-    Width = 794
+    Top = 160
+    Width = 775
     Height = 80
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alTop
-    Caption = 'Mode temporel'
+    Caption = 'Balayage'
     Columns = 3
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -27
+    Font.Name = 'Segoe UI'
+    Font.Style = []
     ItemIndex = 0
     Items.Strings = (
       'D'#233'clench'#233
       'Relax'#233
       'Rouleau')
-    TabOrder = 3
+    ParentFont = False
+    TabOrder = 2
     OnClick = ModeTempsRGClick
-    ExplicitWidth = 780
   end
   object TriggerRG: TRadioGroup
     Left = 0
-    Top = 320
-    Width = 794
+    Top = 240
+    Width = 775
     Height = 80
     Margins.Left = 6
     Margins.Top = 6
@@ -319,51 +286,58 @@ object ArduinoDlg: TArduinoDlg
     Align = alTop
     Caption = 'D'#233'clenchement'
     Columns = 3
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -27
+    Font.Name = 'Segoe UI'
+    Font.Style = []
     ItemIndex = 0
     Items.Strings = (
       'Seuil montant'
       'Seuil descendant'
       'Bouton')
-    TabOrder = 4
-    ExplicitWidth = 780
+    ParentFont = False
+    TabOrder = 3
   end
   object MemoTemps: TMemo
     Left = 0
-    Top = 1060
-    Width = 794
-    Height = 128
+    Top = 860
+    Width = 775
+    Height = 200
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alTop
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -27
+    Font.Name = 'Segoe UI'
+    Font.Style = []
     Lines.Strings = (
       'Le logiciel s'#39'attend '#224' ce que Arduino envoie des lignes de '
-      'donn'#233'es '
-      'par println(), les donn'#233'es '#233'tant s'#233'par'#233'es par des virgules.'
-      'Si la case "temps Arduino" est coch'#233'e, la premi'#232're ligne est le '
-      'temps en '
-      'seconde, sinon le temps est g'#233'r'#233' par Regressi  ')
+      'donn'#233'es par println(), les donn'#233'es '#233'tant s'#233'par'#233'es par des '
+      'virgules.'
+      'Si la case "temps Arduino" est coch'#233'e, la premi'#232're ligne est '
+      'le temps en seconde, sinon le temps est g'#233'r'#233' par Regressi.')
+    ParentFont = False
     ReadOnly = True
-    TabOrder = 9
-    ExplicitWidth = 780
+    TabOrder = 7
   end
   object BoutonsPanel: TPanel
     Left = 0
-    Top = 1002
-    Width = 794
-    Height = 320
+    Top = 1060
+    Width = 775
+    Height = 217
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
-    Align = alBottom
-    TabOrder = 8
-    ExplicitTop = 1001
-    ExplicitWidth = 780
+    Align = alTop
+    TabOrder = 6
     object EtalonBtn: TBitBtn
-      Left = 16
-      Top = 16
+      Left = 2
+      Top = 82
       Width = 550
       Height = 50
       Margins.Left = 6
@@ -375,23 +349,9 @@ object ArduinoDlg: TArduinoDlg
       TabOrder = 0
       OnClick = ExPointBtnClick
     end
-    object ExPointBtn: TBitBtn
-      Left = 16
-      Top = 76
-      Width = 550
-      Height = 50
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'Exemple Arduino point par point'
-      NumGlyphs = 2
-      TabOrder = 1
-      OnClick = ExPointBtnClick
-    end
     object exTempsArduinoBtn: TBitBtn
-      Left = 16
-      Top = 136
+      Left = 2
+      Top = 24
       Width = 550
       Height = 50
       Margins.Left = 6
@@ -400,26 +360,12 @@ object ArduinoDlg: TArduinoDlg
       Margins.Bottom = 6
       Caption = 'Exemple avec temps g'#233'r'#233' par Arduino'
       NumGlyphs = 2
-      TabOrder = 2
-      OnClick = ExPointBtnClick
-    end
-    object ExTempsBtn: TBitBtn
-      Left = 16
-      Top = 196
-      Width = 550
-      Height = 50
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'Exemple Arduino temporel'
-      NumGlyphs = 2
-      TabOrder = 3
+      TabOrder = 1
       OnClick = ExPointBtnClick
     end
     object arduinoExeBtn: TBitBtn
-      Left = 418
-      Top = 256
+      Left = 404
+      Top = 144
       Width = 314
       Height = 50
       Margins.Left = 6
@@ -427,25 +373,12 @@ object ArduinoDlg: TArduinoDlg
       Margins.Right = 6
       Margins.Bottom = 6
       Caption = 'Lancer IDE Arduino'
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000000000000000000000000
-        8000008000000080800080000000800080008080000080808000C0C0C0000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-        3333333300003333333133333333333300003333333013333333333300003333
-        3331013333333333000033333331901333333333000033333331990133333333
-        0000333333319990133333330000333333319999013333330000333333319999
-        9013333300003333333199999901333300003333333199999990333300003333
-        3331999999033333000033333331999990333333000033333331999903333333
-        0000333333319990333333330000333333319903333333330000333333319033
-        3333333300003333333103333333333300003333333033333333333300003333
-        33333333333333330000}
-      TabOrder = 4
+      TabOrder = 2
       OnClick = arduinoExeBtnClick
     end
     object Okbtn: TBitBtn
-      Left = 16
-      Top = 256
+      Left = 2
+      Top = 144
       Width = 160
       Height = 50
       Margins.Left = 6
@@ -454,11 +387,11 @@ object ArduinoDlg: TArduinoDlg
       Margins.Bottom = 6
       Kind = bkOK
       NumGlyphs = 2
-      TabOrder = 5
+      TabOrder = 3
     end
     object HelpBtn: TBitBtn
-      Left = 216
-      Top = 256
+      Left = 202
+      Top = 144
       Width = 160
       Height = 50
       Margins.Left = 6
@@ -467,68 +400,19 @@ object ArduinoDlg: TArduinoDlg
       Margins.Bottom = 6
       Kind = bkHelp
       NumGlyphs = 2
-      TabOrder = 6
+      TabOrder = 4
       OnClick = HelpBtnClick
     end
-    object exPointMBBtn: TBitBtn
-      Left = 578
-      Top = 76
-      Width = 160
-      Height = 50
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'micro:bit'
-      DoubleBuffered = False
-      NumGlyphs = 2
-      TabOrder = 7
-      OnClick = ExPointBtnClick
-    end
-    object extempsmicrobitBtn: TBitBtn
-      Left = 578
-      Top = 136
-      Width = 160
-      Height = 50
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'micro:bit'
-      DoubleBuffered = False
-      NumGlyphs = 2
-      TabOrder = 8
-      OnClick = ExPointBtnClick
-    end
-    object extempsmbbtn: TBitBtn
-      Left = 578
-      Top = 196
-      Width = 160
-      Height = 50
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'micro:bit'
-      DoubleBuffered = False
-      NumGlyphs = 2
-      TabOrder = 9
-      OnClick = ExPointBtnClick
-    end
-    object etalonmbbtn: TBitBtn
-      Left = 578
-      Top = 16
-      Width = 160
-      Height = 50
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'micro:bit'
-      DoubleBuffered = False
-      NumGlyphs = 2
-      TabOrder = 10
-      OnClick = ExPointBtnClick
-    end
+  end
+  object Panel1: TPanel
+    Left = 11
+    Top = 288
+    Width = 750
+    Height = 2
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
+    TabOrder = 8
   end
 end

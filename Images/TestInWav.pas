@@ -4,8 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  vcl.HtmlHelpViewer,
-  ExtCtrls, mmSystem, StdCtrls, ComCtrls, Buttons, ConstReg;
+  vcl.HtmlHelpViewer, inifiles, regutil,
+  ExtCtrls, mmSystem, StdCtrls, ComCtrls, Buttons, ConstReg, Vcl.MPlayer;
 
 const
      iMaxiMaxi = 32;
@@ -18,29 +18,35 @@ type
     TTestWavDlg = class(TForm)
     ModeRG: TRadioGroup;
     Panel1: TPanel;
-    BitBtn1: TBitBtn;
+    OKBtn: TBitBtn;
     BitBtn2: TBitBtn;
     Panel2: TPanel;
     CourantB: TBevel;
     VolumePB: TProgressBar;
-       procedure FormCreate(Sender: TObject);
-       procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-       procedure ModeRGClick(Sender: TObject);
-    procedure BitBtn1Click(Sender: TObject);
+    SourceRG: TRadioGroup;
+    procedure FormCreate(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure ModeRGClick(Sender: TObject);
+    procedure OKBtnClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure SourceRGClick(Sender: TObject);
     private
-         HwaveIn:PHWaveIn;
+         HwaveIn : PHWaveIn;
          Header : PWaveHdr;
-         WaveFormat:PWaveFormatEx;
-         close_invoked,change_invoked,close_complete:boolean;
-         NbreMode : integer;
+         WaveFormat : PWaveFormatEx;
+         close_invoked,mode_change,source_change,close_complete : boolean;
          is8bits : boolean;
          modes : array[0..16] of Tmode;
          oldMaxi : array[0..iMaxiMaxi] of integer;
          iMaxi : integer;
+         indexMode : integer;
+         LindexAudio : Uint;
          procedure MMInDone(var msg:Tmessage);message MM_WIM_DATA;
-         procedure OpenWavIn;
+         procedure MaJMode;
+         procedure OpenWaveIn;
          procedure RazHeader;
+         procedure Erreur;
       public
   end;
 
@@ -62,78 +68,32 @@ type
     PmemBlock16 = ^TmemBlock16;
 
 procedure TTestWavDlg.FormCreate(Sender: TObject);
-var
-   WaveCaps : PWAVEINCAPS;
-   i : integer;
-   memoire : PmemBlock8;
-
-Procedure Test(wf,f : longWord;b : integer;s : boolean);
-var texte : String;
-begin
-     if ((WaveCaps^.dwFormats and WF) = WF) then begin
-        with modes[nbreMode] do begin
-           frequence := f;
-           bits := b;
-           stereo := s;
-           texte := intToStr(f)+' Hz '+intToStr(b)+' bits';
-           if s then texte := texte + ' stéréo';
-           ModeRG.items.Add(texte);
-           if (WaveForm.FreqEch=f) and
-              (WaveForm.Nbits=b) then ModeRG.itemIndex := pred(ModeRG.items.count);
-        end;
-        inc(NbreMode);
-     end;
-end; // test
-
+var memoire : PmemBlock8;
+    ini : TInifile;
 begin // create
-     new(waveCaps);
-     NbreMode := 0;
      modeRG.items.clear;
-     caption := 'Choix du mode d''enregistrement '+wavecaps^.szPname;
-     i := waveInGetDevCaps(0,PwaveInCapsW(WAVECAPS),sizeof(waveIncaps));
-     if i<>0 then begin
-         showMessage('Pas d''entrée son');
-         close;
-     end;
-{ mono }
-     test(WAVE_FORMAT_1M08,11025,8,false);
-     test(WAVE_FORMAT_1M16,11025,16,false);
-     test(WAVE_FORMAT_2M08,22050,8,false);
-     test(WAVE_FORMAT_2M16,22050,16,false);
-     test(WAVE_FORMAT_4M08,44100,8,false);
-     test(WAVE_FORMAT_4M16,44100,16,false);
-{ stéréo }
-     test(WAVE_FORMAT_1S08,11025,8,true);
-     test(WAVE_FORMAT_1S16,11025,16,true);
-     test(WAVE_FORMAT_2S08,22050,8,true);
-     test(WAVE_FORMAT_2S16,22050,16,true);
-     test(WAVE_FORMAT_4S08,44100,8,true);
-     test(WAVE_FORMAT_4S16,44100,16,true);
      new(WaveFormat);
      with WaveFormat^ do begin
-          WFormatTag:=WAVE_FORMAT_PCM; {PCM format - the only option!}
-          NChannels:=1; {mono}
-          NSamplesPerSec:=11025; {11kHz sampling}
-          NAvgBytesPerSec:=11025; { un octet à 11 kHz }
-          NBlockAlign:=1; {only one byte in each sample}
-          wBitsPerSample:=8; {8 bits in each sample}
+          WFormatTag:=WAVE_FORMAT_PCM; // PCM format - the only option!
+          NChannels:=1; // mono
+          NSamplesPerSec:=11025; // 11kHz sampling
+          NAvgBytesPerSec:=11025; // un octet à 11 kHz
+          NBlockAlign:=1; // only one byte in each sample
+          wBitsPerSample:=8; // 8 bits in each sample
      end;
-//     i:=waveInOpen(nil,0,PWaveFormatEx(WaveFormat),0,0,WAVE_FORMAT_QUERY);
-     if ModeRG.itemIndex<0 then modeRG.itemIndex := WaveForm.indexMode;
      new(Memoire);
      new(Header);
      with header^ do begin
-               lpdata:=pointer(memoire);
-               dwbufferlength:=memblocklength;
-               dwbytesrecorded:=0;
-               dwUser:=0;
-               dwflags:=0;
-               dwloops:=0;
+           lpdata:=pointer(memoire);
+           dwbufferlength:=memblocklength;
+           dwbytesrecorded:=0;
+           dwUser:=0;
+           dwflags:=0;
+           dwloops:=0;
      end;
-(*     auxGetVolume(0,@volume); { output }
-     volume := volume mod high(word);
-     volumeTB.position := volume;*)
-     OpenWavIn;
+     Ini := TIniFile.create(nomFichierIni);
+     indexMode := ini.readInteger(stWav,'IndexMode',0);
+     Ini.Free;
 end; // formCreate
 
 procedure TTestWavDlg.RazHeader;
@@ -154,7 +114,27 @@ begin
         end
 end; // RazHeader
 
-procedure TTestWavDlg.OpenWavIn;
+procedure TTestWavDlg.SourceRGClick(Sender: TObject);
+begin
+     if (sourceRG.itemIndex>=0) and (sourceRG.Tag=0) then begin
+       LindexAudio := sourceRG.ItemIndex;
+       source_change := true;
+     end;
+end;
+
+procedure TTestWavDlg.Erreur;
+begin
+      if not close_complete then begin
+         dispose(HwaveIn);
+         HwaveIn := nil;
+         showMessage(stPbSon);
+         close_complete := true;
+         waveForm.indexAudio := 0;
+      end;
+      close;
+end;
+
+procedure TTestWavDlg.OpenWaveIn;
 var i,coeff : integer;
     channels : byte;
 begin
@@ -172,53 +152,36 @@ begin
              coeff := 44100 div frequence;
              iMaxi := iMaxi div coeff;
      end;
-     i:=waveInOpen(HWaveIn,0,PwaveFormatEx(WaveFormat),handle,0,CALLBACK_WINDOW);
-     if i<>0 then begin
-        showMessage('Problem creating record handle');
-        close;
-     end;
-{prepare the new block}
+     i:=waveInOpen(HWaveIn,LindexAudio,PwaveFormatEx(WaveFormat),handle,0,CALLBACK_WINDOW);
+     if i<>0 then erreur; // 'Problem creating record handle'
+// prepare the new block
      razHeader;
      i:=waveInPrepareHeader(HWaveIn^,Header,sizeof(TWavehdr));
-     if i<>0 then begin
-        showMessage('In Prepare error');
-        close;
-     end;
-{add it to the buffer}
+     if i<>0 then erreur; // 'In Prepare error'
+// add it to the buffer
      i:=waveInAddBuffer(HWaveIn^,Header,sizeof(TWaveHdr));
-     if i<>0 then begin
-        showMessage('Add buffer error');
-        close;
-     end;   
-{finally start recording}
+     if i<>0 then erreur; // 'Add buffer error'
+// finally start recording
      i:=waveInStart(HwaveIn^);
-     if i=0
-        then
-        else begin
-          showMessage('Start error');
-          close;
-        end;
+     if i<>0 then erreur; // 'Start error'
      close_invoked := false;
-     change_invoked := false;
+     source_change := false;
+     mode_change := false;
      close_complete := false;
 end; // OpenWaveIn
 
 procedure TTestWavDlg.MMInDone(var msg:Tmessage);
 var
    i : integer;
-   enCours : boolean;
    memoire8 : PmemBlock8;
    memoire16 : PmemBlock16;
    z,maxi : integer;
 begin
-     enCours := false;
-{block has been recorded}
-(*     HeaderLoc := PWaveHdr(msg.lparam);*)
-     i:=waveInUnPrepareHeader(HWaveIn^,Header,sizeof(TWavehdr));
-     if i<>0 then begin
-        showMessage('In UnPrepare error');
-        close;
-     end;
+     try
+// block has been recorded
+// HeaderLoc := PWaveHdr(msg.lparam);
+     i := waveInUnPrepareHeader(HWaveIn^,Header,sizeof(TWavehdr));
+     if i<>0 then erreur;
      with header^ do begin
           maxi := 0;
           if is8bits
@@ -248,63 +211,172 @@ begin
                  if oldMaxi[i]>maxi then maxi := oldMaxi[i];
              volumePB.position := maxi;
      end;
-     if not(close_invoked) and not(change_invoked) then begin
-{prepare the new block}
+     if not(close_invoked) and not(mode_change) and not(source_change) then begin
+// prepare the new block
           razHeader;
           i:=waveInPrepareHeader(HWaveIn^,Header,sizeof(TWavehdr));
-          if i<>0 then begin
-             showMessage('In Prepare error');
-             close;
-          end;
-          {add it to the buffer}
-          i:=waveInAddBuffer(HWaveIn^,Header,sizeof(TWaveHdr));
-          if i<>0 then begin
-             showMessage('Add buffer error');
-             close;
-          end;
-          enCours := true;
+          if i<>0 then erreur;
+          // add it to the buffer
+          i := waveInAddBuffer(HWaveIn^,Header,sizeof(TWaveHdr));
+          if i<>0 then erreur;
      end;
-     if change_invoked
-        then begin
+     if mode_change then begin
             WaveInClose(HWaveIn^);
             dispose(HWaveIn);
-            HwaveIn := nil;            
-            OpenWavIn;
-        end
-        else {if there's no more blocks being recorded}
-     if not EnCours then begin
+            HwaveIn := nil;
+            OpenWaveIn;
+     end;
+     if source_change then begin
+            WaveInClose(HWaveIn^);
+            dispose(HWaveIn);
+            HwaveIn := nil;
+            MajMode;
+            OpenWaveIn;
+     end;
+     if close_invoked then begin
           WaveInClose(HWaveIn^);
           dispose(HwaveIn);
           HwaveIn := nil;
-          close_complete:=true;
+          close_complete := true;
           close;
      end;
+     except
+          erreur;
+     end;
 end; // MMInDone
+
+procedure TTestWavDlg.FormActivate(Sender: TObject);
+var i : Integer;
+    iMax : Integer;
+    tWIC : PWaveInCaps;
+    S : string;
+begin
+    LindexAudio := waveForm.indexAudio;
+    sourceRG.Tag := 1;
+    sourceRG.items.clear;
+    iMax := waveInGetNumDevs()-1;
+    new(tWIC);
+    For i := 0 to iMax do
+        If waveInGetDevCaps(i,PwaveInCapsW(tWIC), SizeOf(waveIncaps)) = 0
+        Then begin
+            s := string(tWIC.szPname); // limité au 32 premiers caractères
+            SourceRG.items.Add(s+'...');
+        end
+        else SourceRG.items.Add('Erreur');
+    dispose(tWIC);
+    sourceRG.visible := SourceRG.items.count>1;
+    if LindexAudio<SourceRG.items.count
+       then sourceRG.itemIndex := LindexAudio
+       else begin
+          sourceRG.itemIndex := 0;
+          LindexAudio := 0;
+       end;
+    sourceRG.Tag := 0;
+    MajMode;
+    OpenWaveIn;
+end;
+
+procedure TTestWavDlg.MajMode;
+var WaveCaps : PWAVEINCAPS;
+    nbreMode : integer;
+
+Procedure Test(wf,f : longWord;b : integer;s : boolean);
+var texte : String;
+begin
+     if ((WaveCaps^.dwFormats and WF) = WF) then begin
+        with modes[nbreMode] do begin
+           frequence := f;
+           bits := b;
+           stereo := s;
+           texte := intToStr(f)+' Hz '+intToStr(b)+' bits';
+           if s then texte := texte + ' stéréo';
+           ModeRG.items.Add(texte);
+           if (WaveForm.FreqEch=f) and
+              (WaveForm.Nbits=b) then ModeRG.itemIndex := pred(ModeRG.items.count);
+        end;
+        inc(NbreMode);
+     end;
+end; // test
+
+procedure testAll;
+begin
+ // mono
+     test(WAVE_FORMAT_1M08,11025,8,false);
+     test(WAVE_FORMAT_1M16,11025,16,false);
+     test(WAVE_FORMAT_2M08,22050,8,false);
+     test(WAVE_FORMAT_2M16,22050,16,false);
+     test(WAVE_FORMAT_4M08,44100,8,false);
+     test(WAVE_FORMAT_4M16,44100,16,false);
+// stéréo
+     test(WAVE_FORMAT_1S08,11025,8,true);
+     test(WAVE_FORMAT_1S16,11025,16,true);
+     test(WAVE_FORMAT_2S08,22050,8,true);
+     test(WAVE_FORMAT_2S16,22050,16,true);
+     test(WAVE_FORMAT_4S08,44100,8,true);
+     test(WAVE_FORMAT_4S16,44100,16,true);
+end;
+
+begin
+     new(waveCaps);
+     NbreMode := 0;
+     modeRG.Tag := 1;
+     modeRG.items.clear;
+     if waveInGetDevCaps(LindexAudio,PwaveInCapsW(WAVECAPS),sizeof(waveIncaps))=0
+        then testAll
+        else begin
+           showMessage('Pas d''entrée son sur '+sourceRG.items[LindexAudio]);
+           if sourceRG.Items.Count>1 then begin
+              if LindexAudio=0
+                 then LindexAudio := sourceRG.Items.Count-1
+                 else LindexAudio := 0;
+              if waveInGetDevCaps(LindexAudio,PwaveInCapsW(WAVECAPS),sizeof(waveIncaps))=0
+                 then begin
+                    sourceRG.Tag := 1;
+                    testAll;
+                    sourceRG.ItemIndex := LindexAudio;
+                    sourceRG.Tag := 0;
+                 end
+                 else showMessage('Pas d''entrée non plus sur '+sourceRG.items[LindexAudio]);
+           end;
+        end;
+     modeRG.itemIndex := indexMode;
+     if (ModeRG.itemIndex<0) or (ModeRG.itemIndex>=ModeRG.items.count) then modeRG.itemIndex := 0;
+     dispose(wavecaps);
+     modeRG.Tag := 0;
+end; // Maj
 
 procedure TTestWavDlg.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
      if HwaveIn<>nil then WaveInReset(HWaveIn^);
-     close_invoked:=true;
-     canClose:=close_complete;
+     close_invoked := true;
+     canClose := close_complete;
 end;
 
 procedure TTestWavDlg.ModeRGClick(Sender: TObject);
 begin
-     if modeRG.itemIndex>=0 then change_invoked := true
+     if (modeRG.itemIndex>=0) and (modeRG.Tag=0) then begin
+         indexMode := modeRG.itemIndex;
+         mode_change := true
+     end;
 end;
 
-procedure TTestWavDlg.BitBtn1Click(Sender: TObject);
+procedure TTestWavDlg.OKBtnClick(Sender: TObject);
 begin
      WaveForm.FreqEch := modes[modeRG.itemIndex].frequence;
      WaveForm.Nbits := modes[modeRG.itemIndex].bits;
      WaveForm.stereo := modes[modeRG.itemIndex].stereo;
+     waveForm.indexAudio := LindexAudio;
 end;
 
 procedure TTestWavDlg.FormDestroy(Sender: TObject);
+var ini : TInifile;
 begin
   inherited;
   dispose(PmemBlock8(header^.lpdata));
   dispose(header);
+  Ini := TIniFile.create(nomFichierIni);
+  Ini.writeInteger(stWav,'IndexMode',indexMode);
+  Ini.Free;
 end;
 
 end.

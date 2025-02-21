@@ -235,6 +235,10 @@ type
     ToolButton77: TToolButton;
     ToolButton78: TToolButton;
     ToolButton79: TToolButton;
+    DeltaItem: TMenuItem;
+    PrintGridItem: TMenuItem;
+    SepareBtn: TToolButton;
+    PythonTimer: TTimer;
     procedure gridVariabKeyPress(Sender: TObject; var Key: Char);
     procedure FermeBtnClick(Sender: TObject);
     procedure DeleteBtnClick(Sender: TObject);
@@ -353,9 +357,15 @@ type
       Shift: TShiftState);
     procedure PythonInputOutput1SendUniData(Sender: TObject;
       const Data: string);
+    procedure PopupMenuGridPopup(Sender: TObject);
+    procedure DeltaItemClick(Sender: TObject);
+    procedure PrintGridItemClick(Sender: TObject);
+    procedure PythonTimerTimer(Sender: TObject);
+    procedure FormShow(Sender: TObject);
  private
      triTexte : boolean;
      ColPermise : array[0..1] of TsetGrandeur;
+     DerniereColVariab : integer;
      MesureCourante : integer;
      CompilationEnCours : boolean;
      Recompiler : boolean;
@@ -371,6 +381,11 @@ type
      AlertMatplotlib,AlertPyQt : boolean;
      isCaracDecimal : boolean;
      pathPython : string;
+     {$IFDEF Win32}
+          firstLinePython : integer;
+     {$ELSE}
+          firstLinePython : LongInt;
+     {$ENDIF}
      Function FormatGridVariab(Acol,Arow : Integer) : string;
      Function FormatGridConst(Acol,Arow : Integer) : string;
      Function FormatGridConstGlb(Acol,Arow : Integer) : string;
@@ -389,11 +404,10 @@ type
      procedure AfficheTrigo;
      procedure GenerateMath;
      procedure afficheSI;
-     Procedure MajNumeroLigne;
+     Procedure MajNumeroLignePython;
   public
       MajGridVariab : boolean;
       MajWidthsVariab : boolean;
-      // MajWidthsConst : boolean;
       prevenirPi : boolean;
       modifPython : boolean;
       procedure WMRegCalcul(var Msg : TWMRegMessage); message WM_Reg_Calcul;
@@ -407,6 +421,7 @@ type
       Procedure TraceGridParam;
       procedure EcritConfig;
       procedure LitConfig;
+      Procedure TrierVariables(index : integer);
   end;
 
 var
@@ -424,9 +439,8 @@ const
      TabParam = 0;
      TabVariab = 1;
      TabExpressions = 2;
-     captionAngle : array[boolean] of string = ('Radian','Degré');
-     indexAngle : array[boolean] of integer = (6,11);
-     indexAngleGr : array[boolean] of integer = (46,47);
+     indexAngle : array[boolean] of integer = (6,11);  // pi/2, 90
+     indexAngleGr : array[boolean] of integer = (46,47); // pi/2, 90
      indexSI : array[boolean] of integer = (27,26);
 
 Function TFValeurs.FormatGridVariab(Acol,Arow : Integer) : string;
@@ -554,6 +568,7 @@ var Lmaximum,z : double;
 begin with pages[PageCourante] do begin
     if deltaBtn.down then CoeffDelta := 2 else CoeffDelta := 1;
     ColPermise[TabVariab] := [];
+    derniereColVariab := 0;
     if triTexte
     then GridVariab.colWidths[0] := largeurColonneTexte
     else if nmes<100
@@ -577,6 +592,7 @@ begin with pages[PageCourante] do begin
               include(ColPermise[TabVariab],colonne);
            if (fonct.genreC=g_equation) or modifiable then
               include(ColPermise[TabVariab],colonne);
+           if modifiable then derniereColVariab := colonne;
            if deltaBtn.down and (incertCalcA.expression='') then
               include(ColPermise[TabVariab],succ(colonne));
            if not modifiable and
@@ -616,7 +632,7 @@ begin
       LigneSup := (ModeAcquisition in [AcqClavier,AcqFichier,AcqClipBoard]) or
                    DataCanModifiable;
       with GridVariab do begin
-  //         defaultRowHeight := hauteurColonne;
+           defaultRowHeight := hauteurColonne;
            ColCount := NbreVariab*CoeffDelta+1; // 1=numéro
            if majWidthsVariab then
               for k := 0 to pred(NbreVariab) do begin
@@ -777,7 +793,7 @@ Procedure AfficheConstantes;
 var index,p,i,colonne : integer;
 begin with GridParam do begin
       gestionUniteConstantes;
- //     defaultRowHeight := hauteurColonne;
+      defaultRowHeight := hauteurColonne;
       if (ModeAcquisition=AcqSimulation) and (NbrePages<MaxPages)
           then RowCount := NbrePages+3
           else RowCount := NbrePages+2;
@@ -850,7 +866,7 @@ Procedure AfficheConstGlb;
 var index,i,colonne : integer;
     coeffDeltaGlb : integer;
 begin with GridParamGlb do begin
- //     defaultRowHeight := hauteurColonne;
+      defaultRowHeight := hauteurColonne;
       if deltaBtn.down then CoeffDeltaGlb := 2 else CoeffDeltaGlb := 1;
       ColCount := CoeffDeltaGlb*(NbreConstGlb + NbreParam[paramGlb]);
       col := 0;
@@ -964,8 +980,8 @@ begin with Sender as TstringGrid do begin
                           VerifKeyGetFloat(key);
                            if charinset(key,chiffre) then
                               pages[pageCourante].TriAfaire := true
-                      end; { else }
-          end;{case}
+                      end; // else
+              end;// case formatCol
        end
        else key := #0
 end end;
@@ -1075,7 +1091,7 @@ end;
 procedure TFValeurs.MemoSourceKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-   if key=ord(crCR) then MajNumeroLigne;
+   if key=ord(crCR) then MajNumeroLignePython;
 end;
 
 procedure TFValeurs.CompileP;
@@ -1296,7 +1312,6 @@ begin
 end; // CompileLigneG
 
 var posDebutLigne : integer;
-    //longueurLigne : integer;
     posEgal : integer;
     ligne : string;
     nomLu : string;
@@ -1434,12 +1449,12 @@ begin // CompileP
              memo.selAttributes.style := [fsBold,fsUnderLine];
              ErreurCompile := true;
         end;
-     Screen.Cursor := crDefault;        
+     Screen.Cursor := crDefault;
      recompiler := false;
 // car modif du format du texte a remis recompiler à true
-     RandomBtnBis.visible := bruitPresent;
-     RandomItemBis.visible := bruitPresent;
-     FgrapheVariab.RandomBtn.Visible := bruitPresent;
+     RandomBtnBis.visible := bruitPresentGlb;
+     RandomItemBis.visible := bruitPresentGlb;
+     FgrapheVariab.RandomBtn.Visible := bruitPresentGlb;
 end; // CompileP
 
 procedure TFvaleurs.MajValeurConstGlb(i : integer);
@@ -1545,8 +1560,6 @@ begin
               MajTimer.enabled := false;
               MajBtn.ImageIndex := 16;
               Memo.Clear;
-           //   MemoSource.Clear;
-           //   MemoSource.lines.Add('#Tapez votre code Python ici');
               MajTimer.Enabled := false;
               modifPython := false;
               DeltaBtn.Down := false;
@@ -1590,9 +1603,9 @@ begin
           MajTri : begin
               MajGridVariab := true;
               grandeurs[cDeltat].nom := DeltaMaj+grandeurs[0].nom;
-              if Feuillets.ActivePage=VariabSheet then begin
+              if active and (Feuillets.ActivePage=VariabSheet) then begin
                  traceGridVariab;
-                 if active then GridVariab.SetFocus;
+                 GridVariab.SetFocus;
               end;
           end;
           MajNumeroMesure : if GridVariab.showing and
@@ -1625,10 +1638,11 @@ end;
 
 Procedure TFvaleurs.SetValeurVariabCourante;
 var index,i,ii,posFin : integer;
-    vide,isPrec,ajoutValeur : boolean;
+    isPrec,ajoutValeur : boolean;
     precdx,dx1,dx2 : double;
     precStr : string;
     coeffDelta,colonne : integer;
+    ligneSuivante : boolean;
 begin with pages[PageCourante],GridVariab do begin
 if (col<1) or (row<2) then exit;
 if GridVariab.visible then begin
@@ -1637,27 +1651,32 @@ if GridVariab.visible then begin
      isPrec := deltaBtn.down and (col mod 2=0);
      index := indexVariab[pred(col) div coeffDelta];
      if (index=grandeurInconnue) or (Row<=1) or
-        (Cells[col,row]=FormatGridVariab(col,row)) then exit;
+        ((Cells[col,row]=FormatGridVariab(col,row)) and
+         (Cells[col,row]<>'')) then exit;
      if (grandeurs[index].fonct.genreC=g_texte) then begin
         TexteVar[index,row-2] := cells[col,row];
         exit;
      end;
      if (grandeurs[index].fonct.genreC in [g_experimentale,g_equation]) then begin
            try
-           if isPrec
-              then incertVar[index,row-2] := GetFloat(Cells[col,row])
-              else valeurVar[index,row-2] := GetFloatDate(Cells[col,row],grandeurs[index].formatU);
+           if Cells[col,row]=''
+              then valeurVar[index,row-2] := Nan
+              else if isPrec
+                then incertVar[index,row-2] := GetFloat(Cells[col,row])
+                else valeurVar[index,row-2] := GetFloatDate(Cells[col,row],grandeurs[index].formatU);
            if not isPrec and (row=pred(RowCount)) and
               ((ModeAcquisition in [AcqClavier,AcqFichier,AcqClipBoard]) or
                 DataCanModifiable) then begin
-              vide := false;
-              for i := 1 to NbreVariab do begin
-                  ii := indexVariab[pred(i)];
-                  if (grandeurs[ii].fonct.genreC=g_experimentale) and
-                     isNan(ValeurVar[ii,row-2])
-                     then vide := true;
+              ligneSuivante := false;
+              if col>=derniereColVariab then begin
+                 for i := 0 to pred(NbreVariab) do begin
+                    ii := indexVariab[i];
+                    if (grandeurs[ii].fonct.genreC=g_experimentale) and
+                       not(isNan(ValeurVar[ii,row-2]))
+                       then ligneSuivante := true;
+                 end;
               end;
-              if not vide and (nmes<MaxMaxVecteur) then begin
+              if ligneSuivante and (nmes<MaxMaxVecteur) then begin
                  nmes := nmes+1;
                  ModifFichier := true;
                  if nmes>(NbrePointsSauves+8) then FregressiMain.SauveEtatCourant;
@@ -1707,12 +1726,12 @@ if GridVariab.visible then begin
            end;
 //           if fonctionGlb then tout recalculer
      end;
+     (*
      if (ModeAcquisition=AcqSimulation) and (col in colPermise[TabVariab]) then begin
            try
            valeurVar[index,row-2] := GetFloatDate(Cells[col,row],fDefaut);
            if row=pred(RowCount) then begin
-              vide := false;
-              if not vide and (nmes<MaxMaxVecteur) then begin
+              if (nmes<MaxMaxVecteur) then begin
                  nmes := nmes+1;
                  ModifFichier := true;
                  if nmes>(NbrePointsSauves+8) then FregressiMain.SauveEtatCourant;
@@ -1735,6 +1754,7 @@ if GridVariab.visible then begin
               GridVariab.setFocus;
            end;
      end;
+     *)
 end;
 end end; // SetValeurVariabCourante
 
@@ -1858,7 +1878,7 @@ begin with GridParam do begin
                setFocus;
            end;
         end;// experimentale
-     end;{ case }
+     end;// case genreC
 end end; // SetValeurConstCourante
 
 Procedure TFValeurs.SetValeurConstGlbCourante;
@@ -1884,8 +1904,8 @@ end end; // SetValeurConstGlbCourante
 procedure TFValeurs.FeuilletsClick(Sender: TObject);
 begin
     if pageCourante=0 then exit;
-    with pages[pageCourante] do if modifiedP then begin
-       RecalculP;
+    if pages[pageCourante].modifiedP then begin
+       pages[pageCourante].RecalculP;
        MajGridVariab := true;
     end;
     traceGrid;
@@ -2020,7 +2040,7 @@ begin
              key := #0
         end;
         crEsc : NomEdit.Text := grandeurs[0].nom;
-        crSupprArr : ;
+        crSupprArr,crSuppr : ;
         else if not isCaracGrandeur(key) then key := #0;
      end;
 end;
@@ -2074,7 +2094,7 @@ begin
    compilationEnCours := false;
    grandeursPC.activePage := grandeursTS;
    oldNmes := 0;
-   MajGridVariab := true;
+   MajGridVariab := false;
    MesureCourante := 0;
    Recompiler := false;
    MajSimulation := false;
@@ -2082,7 +2102,8 @@ begin
    AlertMatplotlib := true;
    AlertPyQt := true;
    perform(WM_REG_MAJ,MajPolice,0);
-   ResizeButtonImagesforHighDPI(self);
+   VirtualImageList1.height := VirtualImageListSize;
+   VirtualImageList1.width := VirtualImageListSize;
    GridVariab.defaultColWidth := largeurUnCarac*8;
    GridParam.defaultColWidth := GridVariab.defaultColWidth;
    GridParamGlb.defaultColWidth := GridVariab.defaultColWidth;
@@ -2170,7 +2191,7 @@ begin
        else if ReCompiler
            then CompileP
            else begin
-               if bruitPresent then RandomBtnClick(sender);
+               if bruitPresentGlb then RandomBtnClick(sender);
                MajTimer.enabled := false;
            end;
 end; // Mise à jour
@@ -2383,6 +2404,15 @@ begin
      if sender=DeltaParamBtn
         then DeltaBtn.down := DeltaParamBtn.down
         else DeltaParamBtn.down := DeltaBtn.down;
+     MajGridVariab := true;
+     if deltaBtn.Down then avecEllipse := true;
+     TraceGrid;
+end;
+
+procedure TFValeurs.DeltaItemClick(Sender: TObject);
+begin
+     DeltaBtn.down := not DeltaBtn.down;
+     DeltaParamBtn.Down := DeltaBtn.Down;
      MajGridVariab := true;
      if deltaBtn.Down then avecEllipse := true;
      TraceGrid;
@@ -2643,7 +2673,7 @@ begin
               cbPyVersions.ItemIndex := 0;
           cbPyVersions.enabled := cbPyVersions.Items.Count > 1;
           if cbPyVersions.enabled
-              then PythonVersionLabel.caption := 'Choix Python version :'
+              then PythonVersionLabel.caption := 'Choix de version Python :'
               else PythonVersionLabel.caption := 'Version de Python :';
           if cbPyVersions.Items.Count=0 then begin
              if Py3264Glb
@@ -2654,38 +2684,59 @@ begin
                    PythonVersionLabel.caption := 'Python 32 bits (64 nécessaire)';
                    {$ENDIF}
                  end
-                 else PythonVersionLabel.caption := 'Python non trouvé ; installer une distribution 32 bits';
+                 else begin
+                   {$IFDEF Win32}
+                   PythonVersionLabel.caption := 'Python non trouvé ; installer une distribution 32 bits';
+                   {$ELSE}
+                   PythonVersionLabel.caption := 'Python non trouvé ; installer une distribution 64 bits)';
+                   {$ENDIF}
+                 end;
               result := false;
           end;
        end;
+end;
+
+Procedure ErreurPython;
+begin
+       {$IFDEF Win32}
+       afficheErreur('Python 32 bits non trouvé ; installer une distribution 32 bits',0);
+       afficheErreur('Distribution 32 bits à télécharger : https://www.python.org',0);
+       {$ELSE}
+       afficheErreur('Python 64 bits non trouvé ; installer une distribution 64 bits',0);
+       afficheErreur('Distribution 64 bits à télécharger : https://www.python.org',0);
+       {$ENDIF}
+       feuillets.activePage := expSheet;
 end;
 
 Var tabs: Array [0..8] of Integer;
     i : integer;
 //    nom0 : string;
 begin
-    if (feuillets.ActivePage=paramSheet) or (feuillets.ActivePage=variabSheet) then traceGrid;
+    if (feuillets.ActivePage=paramSheet) or (feuillets.ActivePage=variabSheet) then begin
+     //  DeltaBtn.caption := 'Incertitudes';
+     //  DeltaBtn.imageIndex := 23;
+       traceGrid;
+    end;
+    PythonTimer.Enabled := false;
     if feuillets.ActivePage = mathSheet then generateMath;
     if feuillets.ActivePage = PythonTS then begin
+       PythonTimer.Enabled := true;
+       firstLinePython := 0;
        NumerolIgneMemo.Font.Height := Screen.PixelsPerInch div 6;
        MemoSource.Font.Height := Screen.PixelsPerInch div 6;
        PythonEngine1.FatalAbort := false;
        PythonEngine1.DllPath := PythonDllDir;
-       MajNumeroLigne;
+       MajNumeroLignePython;
        try
        if not(PythonEngine1.autoLoad) and
-          not(PythonEngine1.isHandleValid) then PythonEngine1.LoadDll;
+          not(PythonEngine1.isHandleValid) then
+             PythonEngine1.LoadDll;
        except
-          {$IFDEF Win32}
-          afficheErreur('Python non trouvé ; installer une distribution 32 bits',0);
-          {$ELSE}
-          afficheErreur('Python non trouvé ; installer une distribution 64 bits',0);
-          {$ENDIF}
-          feuillets.activePage := expSheet;
+          ErreurPython;
           exit;
        end;
        if not verifPython then begin
-          feuillets.activePage := expSheet;
+          erreurPython;
           exit;
        end;
        (*
@@ -2806,7 +2857,7 @@ begin
            until (posCarac=pos2Points) or isCaracGrandeur(ligne[posCarac]) or (ligne[posCarac]=']');
            ligne := copy(ligne,pos2Points+1,posCarac-pos2Points);
            posCarac := length(ligne);
-           if isCaracGrandeur(ligne[posCarac]) then begin // parametre
+           if (posCarac>0) and isCaracGrandeur(ligne[posCarac]) then begin // parametre
                 posDebut := posCarac;
                 repeat dec(posDebut)
                 until (posDebut=0) or not isCaracGrandeur(ligne[posDebut]);
@@ -2896,8 +2947,10 @@ var i,j : integer;
     Anom : AnsiString;
     aConstante,V : Variant;
     ComArray : array of Variant;
+    IncertArray : array of Variant;
 begin with pages[p] do begin
    setLength(ComArray,NbreVariab);
+   setLength(IncertArray,NbreVariab);
    for i := 0 to pred(NbreVariab) do begin
       ComArray[i] := VarArrayCreate([0, nmes-1], varDouble);
       index := indexVariab[i];
@@ -2908,6 +2961,13 @@ begin with pages[p] do begin
         else for j := 0 to pred(nmes) do
           ComArray[i][j] := valeurVar[index,j];
       PythonModule1.SetVarFromVariant(Anom, ComArray[i]);
+      IncertArray[i] := VarArrayCreate([0, nmes-1], varDouble);
+      if not(Grandeurs[index].incertDefinie)
+        then for j := 0 to pred(nmes) do
+           IncertArray[i][j] := 0
+        else for j := 0 to pred(nmes) do
+           incertArray[i][j] := incertVar[index,j];
+      PythonModule1.SetVarFromVariant('u_'+Anom, IncertArray[i]);
    end;
    for i := 0 to pred(NbreConst) do begin
       index := indexConst[i];
@@ -2944,22 +3004,32 @@ begin with pages[p] do begin
            grandeurs[index].valeurCourante := valeurConst[index];
    end;
    ComArray := nil;
+   incertArray := nil;
    result := true;
 end end;
 
 var p : integer;
 begin // CalcPythonBtnClick
-   MajNumeroLigne;
+   MajNumeroLignePython;
    modifPython := true;
    if not chercheRegressi then MessageDlg(stPythonRegressi,mtError,[mbOK],0);
    VerifCreation;
    if AlertMatplotlib then verifMatplotlib;
+   {$IFDEF Debug}
+   ecritDebug('Applel construireIndex');
+   {$ENDIF}
    construireIndexPython;
+   {$IFDEF Debug}
+   ecritDebug('Entrée dans try except');
+   {$ENDIF}
    try
    if calculerPage(pageCourante) then begin
       majGridVariab := true;
       for p := 1 to NbrePages do
-          if (p<>pageCourante) then calculerPage(p);
+          if (p<>pageCourante) then begin
+             memoResultat.Lines.add('Page n°'+intToStr(p)+pages[p].commentaireP);
+             calculerPage(p);
+          end;
    end;
    except
       ShowMessage('Problème Python non prévu !');
@@ -3067,8 +3137,10 @@ begin
         ListeGrandeur.Items.Add(grandeurs[cDeltat].nom);
      for i := 1 to pred(NbreGrandeurs) do begin
         ListeGrandeur.Items.Add(grandeurs[i].nom);
-        if (grandeurs[i].fonct.genreC=g_experimentale) or (modeAcquisition=AcqSimulation) then
+        if (grandeurs[i].fonct.genreC=g_experimentale) or (modeAcquisition=AcqSimulation) then begin
            ListeGrandeurPython.Items.Add(prefixeRegressiPython+grandeurs[i].nom);
+           if (Grandeurs[i].IncertDefinie) then ListeGrandeurPython.Items.Add(prefixeRegressiPython+'u_'+grandeurs[i].nom);
+        end;
      end;
      NbreLabel.caption := grandeurs[cNombre].nom;        
 end;
@@ -3107,6 +3179,14 @@ begin
          RandomBtnClick(nil);
          Handled := true;
      end;
+end;
+
+procedure TFValeurs.FormShow(Sender: TObject);
+begin
+    if (nbrePages>0) and MajGridVariab and (Feuillets.ActivePage=VariabSheet) then begin
+          traceGridVariab;
+          GridVariab.SetFocus;
+    end;
 end;
 
 procedure TFValeurs.ImporterTraitementsClick(Sender: TObject);
@@ -3362,6 +3442,23 @@ begin
      Memo.setFocus;
 end;
 
+procedure TFValeurs.PopupMenuGridPopup(Sender: TObject);
+begin
+    if DeltaBtn.down then begin
+       DeltaItem.checked := true;
+       DeltaItem.caption := 'Cacher incertitudes';
+    end
+    else begin
+       DeltaItem.checked := false;
+       DeltaItem.caption := 'Afficher incertitudes';
+    end
+end;
+
+procedure TFValeurs.PrintGridItemClick(Sender: TObject);
+begin
+    ImprimeBtnClick(sender)
+end;
+
 procedure TFValeurs.PythonDllBtnClick(Sender: TObject);
 var DllDir : String;
     AllUserInstall: Boolean;
@@ -3406,6 +3503,17 @@ procedure TFValeurs.PythonInputOutput1SendUniData(Sender: TObject;
   const Data: string);
 begin
      MemoResultat.lines.add(data)
+end;
+
+procedure TFValeurs.PythonTimerTimer(Sender: TObject);
+{$IFDEF Win32}
+var firstLine : integer;
+{$ELSE}
+var firstLine : LongInt;
+{$ENDIF}
+begin
+   firstLine := memoSource.perform(EM_GETFIRSTVISIBLELINE, 0 , 0 );
+   if firstLine<>firstLinePython then MajNumeroLignePython;
 end;
 
 procedure TFValeurs.RandomBtnClick(Sender: TObject);
@@ -3491,14 +3599,13 @@ end;
 Procedure TFValeurs.AfficheTrigo;
 begin
      TrigoBtn.imageIndex := indexAngle[angleEnDegre];
-     TrigoBtn.caption := captionAngle[angleEnDegre];
+     TrigoBtn.hint := hintCaptionAngle[angleEnDegre];
      TrigoBtnBis.imageIndex := indexAngle[angleEnDegre];
-     TrigoBtnBis.caption := captionAngle[angleEnDegre];
+     TrigoBtnBis.hint := hintCaptionAngle[angleEnDegre];
      TrigoItem.imageIndex := indexAngle[angleEnDegre];
-     TrigoItem.caption := captionAngle[angleEnDegre];
 
      FGrapheVariab.TrigoBtn.imageIndex := indexAngleGr[angleEnDegre];
-     FGrapheVariab.TrigoBtn.caption := captionAngle[angleEnDegre];
+     FGrapheVariab.TrigoBtn.hint := hintCaptionAngle[angleEnDegre];
      FGrapheVariab.TrigoLabel.caption := labelcaptionAngle[angleEnDegre];
 end;
 
@@ -3509,7 +3616,7 @@ begin
      UniteSIBtn.imageIndex := indexSI[uniteSIGlb];
      UniteSIBtn.hint := stDebutUniteSI[uniteSIGlb]+stfinUniteSI;
      UniteSIBtnBis.imageIndex := indexSI[uniteSIGlb];
-     UniteSIBtnBis.hint := stDebutUniteSI[uniteSIGlb]+stfinUniteSI;
+     UniteSIBtnBis.hint := UniteSIBtn.hint;
      avecCoeff := false;
      for k := 0 to pred(NbreGrandeurs) do
          if grandeurs[k].coeffSI<>1 then begin
@@ -3594,31 +3701,49 @@ begin
       end;
 end;
 
-Procedure TFvaleurs.MajNumeroLigne;
-var firstLine : integer;
+Procedure TFvaleurs.MajNumeroLignePython;
+var NbreLignes : integer;
     ligne : integer;
 begin
-   firstLine := memoSource.perform( EM_GETFIRSTVISIBLELINE, 0 , 0 );
+   firstLinePython := memoSource.perform(EM_GETFIRSTVISIBLELINE, 0 , 0 );
+   NbreLignes := memoSource.height div abs(memoSource.Font.Height);
    NumeroLigneMemo.lines.clear;
-   for ligne := 0 to MemoSource.Lines.count+1 do
-       NumeroLigneMemo.lines.add(intToStr(ligne+firstLine+1));
+   for ligne := 1 to NbreLignes-1 do
+       NumeroLigneMemo.lines.add(intToStr(ligne+firstLinePython));
 end;
 
-
-//how to get both the first and last visible lines in the memo:
-(*
-firstline := memo1.perform( EM_GETFIRSTVISIBLELINE, 0 , 0 );
-lastlineindex := memo1.perform( EM_LINEFROMCHAR, lastlineindex, 0 );
-Last line is not as straightforward since there is no message for it.
-  procedure lastlinevisible : integer;
-  Var
-    r: TRect;
-    lastvisibleline, lastlineindex: Integer;
-  Begin
-    memo1.perform( EM_GETRECT, 0, longint( @r ));
-    result := memo1.perform( EM_CHARFROMPOS, 0,  MakeLParam( r.left+1, r.bottom-2 ));
-  end;
-*)
+Procedure TFvaleurs.TrierVariables(index : integer);
+var sauveFichierTrie : boolean;
+    sauveGrandeur : Tgrandeur;
+    p : TcodePage;
+begin
+     sauveFichierTrie := FichierTrie;
+     FichierTrie := false;
+     if (index<>0) then case grandeurs[index].fonct.genreC of
+           g_experimentale : begin
+               NomGrandeurTri := '';
+               sauveGrandeur := grandeurs[0];
+               grandeurs[0] := grandeurs[index];
+               grandeurs[index] := sauveGrandeur;
+               for p := 1 to NbrePages do
+                   pages[p].TransfereVariabP(0,index);
+           end;
+           else begin
+               NomGrandeurTri := grandeurs[index].nom;
+               indexTri := index;
+           end;
+     end
+     else begin
+         NomGrandeurTri := grandeurs[0].nom;
+         indexTri := 0;
+     end;
+     for p := 1 to NbrePages do begin
+         pages[p].TriAfaire := true;
+         pages[p].tri;
+     end;
+     FichierTrie := sauveFichierTrie;
+     Application.MainForm.Perform(WM_Reg_Maj,MajTri,0);
+end;  // TrierVariables
 
 end.
 

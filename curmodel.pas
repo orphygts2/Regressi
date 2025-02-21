@@ -3,38 +3,41 @@ unit curmodel;
 interface
 
 uses Windows, Classes, Graphics, Forms, Controls, Buttons,
-  StdCtrls, Grids, printers, ImgList, ExtCtrls, ComCtrls,
+  StdCtrls, Grids, ImgList, ExtCtrls, ComCtrls, inifiles,
   constreg, regutil, compile, aidekey, System.ImageList, Vcl.VirtualImageList,
-  Vcl.BaseImageCollection, Vcl.ImageCollection;
+  Vcl.BaseImageCollection, Vcl.ImageCollection,
+  WinApi.messages;
 
 type
   TCurseurModeleDlg = class(TForm)
     FermeBtn: TBitBtn;
     HelpBtn: TBitBtn;
     Tableau: TStringGrid;
-    GroupBox1: TGroupBox;
-    Memo: TMemo;
     RazBtn: TBitBtn;
-    PrintBtn: TBitBtn;
     CopyBtn: TBitBtn;
     TriBtn: TBitBtn;
     LigneCombo: TComboBoxEx;
     ImageCollection1: TImageCollection;
     ImageLigne: TVirtualImageList;
+    ColorBox1: TColorBox;
+    RaztangenteBtn: TBitBtn;
     procedure FermeBtnClick(Sender: TObject);
     procedure TableauKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormActivate(Sender: TObject);
     procedure HelpBtnClick(Sender: TObject);
     procedure RazBtnClick(Sender: TObject);
-    procedure PrintBtnClick(Sender: TObject);
     procedure LigneComboClick(Sender: TObject);
     procedure CopyBtnClick(Sender: TObject);
     procedure TriBtnClick(Sender: TObject);
-    procedure TableauKeyPress(Sender: TObject; var Key: Char);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
+    procedure ColorBox1Change(Sender: TObject);
+    procedure RaztangenteBtnClick(Sender: TObject);
+    procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
   private
+    procedure sauveOptions;
+    procedure Raz(lr: TsetligneRappel);
   public
     isEquation : boolean;
     ligneXdeY : integer;
@@ -51,24 +54,27 @@ uses GraphVar, GraphKer, Regdde;
 
 procedure TCurseurModeleDlg.FermeBtnClick(Sender: TObject);
 begin
+     sauveOptions;
      Close
 end;
 
 procedure TCurseurModeleDlg.TableauKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin with tableau do
-     if (LigneRappelCourante=lrXdeY) and (key=vk_return) and (col<2) then begin
+     if (LigneRappelCourante in [lrXdeY,lrEquivalence]) and
+        (key=vk_return) and (col<2) then begin
          isEquation := col=1;
          ligneXdeY := row;
          FgrapheVariab.calculCurseurModele;
          if row<(rowCount-1) then row := row+1;
+         FgrapheVariab.setFocus;
      end;
 end;
 
 procedure TCurseurModeleDlg.FormActivate(Sender: TObject);
 begin
      inherited;
-     if (ligneRappelCourante=lrXdeY) and (NbreModele>0)
+     if (ligneRappelCourante in [lrXdeY,lrEquivalence])
         then tableau.hint := hValeurModele
         else tableau.hint := '';
      case ligneRappelCourante of
@@ -83,11 +89,32 @@ begin
            then begin
                LigneCombo.itemIndex := ord(PstyleTangente);
                LigneCombo.hint := hTraitTangente;
+               ColorBox1.Selected := PcolorTangente;
            end
            else begin
                LigneCombo.itemIndex := ord(PstyleReticule);
                LigneCombo.hint := hLigneRappel;
+               ColorBox1.Selected := PcolorReticule;
            end;
+end;
+
+procedure TCurseurModeleDlg.SauveOptions;
+var Rini : TMemIniFile;
+begin
+    try
+    Rini := TMemIniFile.create(NomFichierIni);
+    try
+    Rini.WriteInteger(stPenStyle,stTangente,ord(PstyleTangente));
+    Rini.WriteInteger(stColor,stTangente,pcolorTangente);
+    Rini.WriteInteger(stColor,stMethTangente,CouleurMethodeTangente);
+    Rini.WriteInteger(stPenStyle,stReticule,ord(PstyleReticule));
+    Rini.WriteInteger(stColor,stReticule,pcolorReticule);
+    Rini.UpdateFile;
+    finally
+    Rini.free;
+    end;
+    except
+    end;
 end;
 
 procedure TCurseurModeleDlg.HelpBtnClick(Sender: TObject);
@@ -95,56 +122,49 @@ begin
      Aide(HELP_Modelisation)
 end;
 
-procedure TCurseurModeleDlg.RazBtnClick(Sender: TObject);
+procedure TCurseurModeleDlg.Raz(lr: TsetligneRappel);
 var p : TcodePage;
-    i : integer;
+    j : integer;
 begin
-     for i := 1 to 3 do if FgrapheVariab.graphes[i].paintBox.Visible then 
-     for p := 1 to maxPages do begin
-         FgrapheVariab.Graphes[i].equivalences[p].clear;
-         FgrapheVariab.graphes[i].PaintBox.refresh;
+     with FgrapheVariab.graphes[1] do
+         if paintBox.Visible then begin
+            for p := 1 to maxPages do
+            for j := pred(equivalences[p].count) downto 0 do
+                if equivalences[p][j].ligneRappel in lr then
+                   equivalences[p].remove(equivalences[p][j]);
+             PaintBox.refresh;
      end;
-     with tableau do begin
-         rowCount := 3;
-         for i := 0 to 2 do cells[i,2] := '';
-     end;
-     refresh;
+     FgrapheVariab.graphes[1].remplitTableauEquivalence;
 end;
 
-procedure TCurseurModeleDlg.PrintBtnClick(Sender: TObject);
-var
-  i,bas : Integer;
+
+procedure TCurseurModeleDlg.RazBtnClick(Sender: TObject);
 begin
-          try
-          DebutImpressionGr(poPortrait,bas);
-          for i := 1 to 3 do if FgrapheVariab.graphes[i].paintBox.visible then
-              FgrapheVariab.graphes[i].versImprimante(hautGrapheGr,bas);
-          debutImpressionTexte(bas);
-          for i := 0 to pred(Memo.Lines.Count) do
-              ImprimerLigne(Memo.Lines[i],bas);
-          ImprimerLigne(Caption,bas);
-          for i := 0 to pred(TexteModele.count) do
-              if TexteModele[i]<>'' then
-                 ImprimerLigne(TexteModele[i],bas);
-          ImprimerGrid(Tableau,bas);
-          finImpressionGr;
-                    except
+     Raz([lrXdeY,lrX,lrY,lrPente,lrReticule])
+end;
 
-          end;
-
+procedure TCurseurModeleDlg.RazTangenteBtnClick(Sender: TObject);
+begin
+     Raz([lrEquivalence,lrEquivalenceManuelle,lrTangente])
 end;
 
 procedure TCurseurModeleDlg.LigneComboClick(Sender: TObject);
 begin
-     if ligneRappelCourante in [lrEquivalence,lrTangente]
+     if ligneRappelCourante in [lrEquivalence,lrTangente,lrEquivalenceManuelle]
         then PstyleTangente := TpenStyle(LigneCombo.itemIndex)
         else PstyleReticule := TpenStyle(LigneCombo.itemIndex)        
+end;
+
+procedure TCurseurModeleDlg.ColorBox1Change(Sender: TObject);
+begin
+    if ligneRappelCourante in [lrEquivalence,lrTangente,lrEquivalenceManuelle]
+        then PcolorTangente := ColorBox1.selected
+        else PcolorReticule := ColorBox1.selected
 end;
 
 procedure TCurseurModeleDlg.CopyBtnClick(Sender: TObject);
 begin
      formDDE.RazRTF;
-     formDDE.AjouteMemo(memo);
      formDDE.AjouteGrid(Tableau);
      formDDE.EnvoieRTF;
 end;
@@ -158,15 +178,6 @@ begin
      FgrapheVariab.graphes[1].remplitTableauEquivalence;
 end;
 
-procedure TCurseurModeleDlg.TableauKeyPress(Sender: TObject;
-  var Key: Char);
-begin
-  inherited;
-  (*if (tableau.row>1) and
-     ((tableau.col=0) or (tableau.col=1)) then
-       VerifKeyGetFloat(key);*)
-end;
-
 procedure TCurseurModeleDlg.FormClose(Sender: TObject;
   var Action: TCloseAction);
 var i : integer;
@@ -174,14 +185,21 @@ begin
   inherited;
   for i := 0 to pred(FgrapheVariab.graphes[1].equivalences[pageCourante].count) do
       with FgrapheVariab.graphes[1].equivalences[pageCourante][i] do
-           if LigneRappel in [lrXdeY,lrReticule]
+           if LigneRappel in [lrXdeY,lrX,lrY,lrReticule]
               then commentaire := tableau.cells[2,i+2]
 end;
 
 procedure TCurseurModeleDlg.FormCreate(Sender: TObject);
 begin
- //  Tableau.DefaultRowHeight := hauteurColonne;
-   ResizeButtonImagesforHighDPI(self);
+   Tableau.DefaultRowHeight := hauteurColonne;
+   ImageLigne.height := VirtualImageListSize;
+   ImageLigne.width := VirtualImageListSize;
+end;
+
+procedure TCurseurModeleDlg.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
+begin
+     FgrapheVariab.FormShortCut(Msg,Handled);
+     if handled then FgrapheVariab.setFocus;
 end;
 
 end.

@@ -124,6 +124,9 @@ begin
   SizingCursor:=crHSplit;
   MinSplitSize:=50;
   FUseThemes:=True;
+  Canvas.Font.Name:='Segoe UI';
+  Canvas.Font.Color := clBlack;
+  Canvas.Font.Style:=[];
   FUpdatingState:=False;
 end;
 
@@ -309,10 +312,7 @@ var
       texte : string;
       widthMax,largeur : integer;
   begin
-     Canvas.Font.Name:='Segoe UI';
-     Canvas.Font.Color := clBlack;
      widthMax := (gripRect.Bottom-gripRect.Top);
-     Canvas.Font.Style:=[];//[fsBold];
      texte := Fcaption;
      Canvas.Brush.Style := bsClear;
      if vertical

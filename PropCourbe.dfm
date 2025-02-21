@@ -3,8 +3,8 @@ object PropCourbeForm: TPropCourbeForm
   Top = 247
   BorderStyle = bsDialog
   Caption = 'Information'
-  ClientHeight = 922
-  ClientWidth = 572
+  ClientHeight = 920
+  ClientWidth = 544
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,7 +21,7 @@ object PropCourbeForm: TPropCourbeForm
   object Grid: TStringGrid
     Left = 0
     Top = 44
-    Width = 572
+    Width = 544
     Height = 274
     Margins.Left = 6
     Margins.Top = 6
@@ -48,7 +48,7 @@ object PropCourbeForm: TPropCourbeForm
   object LissageGB: TGroupBox
     Left = 0
     Top = 318
-    Width = 572
+    Width = 544
     Height = 98
     Margins.Left = 6
     Margins.Top = 6
@@ -96,7 +96,7 @@ object PropCourbeForm: TPropCourbeForm
   object DeriveGB: TGroupBox
     Left = 0
     Top = 514
-    Width = 572
+    Width = 544
     Height = 220
     Margins.Left = 6
     Margins.Top = 6
@@ -262,7 +262,7 @@ object PropCourbeForm: TPropCourbeForm
   object SplineGB: TGroupBox
     Left = 0
     Top = 416
-    Width = 572
+    Width = 544
     Height = 98
     Hint = '|Plus l'#39'ordre est grand, plus le lissage est proche des points'
     Margins.Left = 6
@@ -312,7 +312,7 @@ object PropCourbeForm: TPropCourbeForm
   object TexteGB: TGroupBox
     Left = 0
     Top = 734
-    Width = 572
+    Width = 544
     Height = 178
     Margins.Left = 6
     Margins.Top = 6
@@ -394,7 +394,7 @@ object PropCourbeForm: TPropCourbeForm
   object CourbeEdit: TEdit
     Left = 0
     Top = 0
-    Width = 572
+    Width = 544
     Height = 44
     Margins.Left = 6
     Margins.Top = 6
@@ -407,8 +407,8 @@ object PropCourbeForm: TPropCourbeForm
   end
   object Panel1: TPanel
     Left = 0
-    Top = 840
-    Width = 572
+    Top = 838
+    Width = 544
     Height = 82
     Margins.Left = 6
     Margins.Top = 6

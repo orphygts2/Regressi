@@ -3,12 +3,12 @@ unit graphvar;
 interface
 
 uses Windows, Classes, Graphics, Forms, Controls, Menus, ExtCtrls,
-     Dialogs, ComCtrls, ToolWin, Spin, ImgList, math, sysutils,
+     Dialogs, ComCtrls, ToolWin, Spin, ImgList, math, system.sysutils,
      system.Types, system.UITypes, system.Contnrs, System.Actions, System.ImageList,
      StdCtrls, Grids, Messages, printers, actnList,
      Vcl.htmlHelpViewer,
      indicateurU, constreg, maths, regutil, uniteKer, statCalc,
-     compile, graphKer, modeleGr, aidekey, GripSplitter, testContour,
+     compile, graphKer, modeleGr, aidekey, GripSplitter,
      Xml.xmldom, Xml.XMLIntf, Xml.XMLDoc,
      Vcl.Buttons, Vcl.BaseImageCollection, Vcl.ImageCollection,
      Vcl.VirtualImageList;
@@ -31,7 +31,6 @@ type
     ResultatGB: TGroupBox;
     HeaderXY: TStatusBar;
     TitreModeleItem: TMenuItem;
-    CornishItem: TMenuItem;
     PanelCentral: TPanel;
     BornesMenu: TPopupMenu;
     Inter1: TMenuItem;
@@ -259,11 +258,9 @@ type
     ResidusItemBis: TMenuItem;
     N1: TMenuItem;
     ModeleSepare: TMenuItem;
-    N3: TMenuItem;
     clipEPSitem: TMenuItem;
     PaintBox1: TPaintBox;
     IncertChi2Item: TMenuItem;
-    ResidusStudentCB: TCheckBox;
     AffIncert: TMenuItem;
     IncertBtn: TToolButton;
     IdentifierPagesItemC: TMenuItem;
@@ -291,15 +288,15 @@ type
     LabelToolBar: TLabel;
     ProprieteCourbeBis: TMenuItem;
     MonteCarloItem: TMenuItem;
-    StatGrid: TStringGrid;
-    ExitMonteCarloItem: TMenuItem;
     hintResultatLabel: TLabel;
     LabelDistance: TLabel;
     ImageCollection1: TImageCollection;
     ImageList1: TVirtualImageList;
     OptionsItemBis: TMenuItem;
     Enregistrergraphe1: TMenuItem;
-    ContourMenu: TMenuItem;
+    CurReticuleDataNewItem: TMenuItem;
+    ViderTangenteItem: TMenuItem;
+    ResidusNormalisesCB: TCheckBox;
     procedure PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure ZoomAvantItemClick(Sender: TObject);
@@ -333,7 +330,6 @@ type
     procedure MajBtnClick(Sender: TObject);
     procedure ImprimeGrItemClick(Sender: TObject);
     procedure MemoModeleKeyPress(Sender: TObject; var Key: Char);
-    procedure CornishItemClick(Sender: TObject);
     procedure BornesClick(Sender: TObject);
     procedure BornesMenuPopup(Sender: TObject);
     procedure RazBornesClick(Sender: TObject);
@@ -347,7 +343,6 @@ type
     procedure DessinOptionsItemClick(Sender: TObject);
     procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
     procedure identifierPages(Sender: TObject);
-    procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure HelpAnimBtnClick(Sender: TObject);
     procedure TimerAnimTimer(Sender: TObject);
     procedure DebutBtnClick(Sender: TObject);
@@ -421,7 +416,7 @@ type
     procedure ModeleItemClick(Sender: TObject);
     procedure PanelModeleResize(Sender: TObject);
     procedure IncertChi2ItemClick(Sender: TObject);
-    procedure ResidusStudentCBClick(Sender: TObject);
+    procedure ResidusNormalisesCBClick(Sender: TObject);
     procedure AffIncertClick(Sender: TObject);
     procedure IncertBtnClick(Sender: TObject);
     procedure ToolButton1Click(Sender: TObject);
@@ -438,12 +433,13 @@ type
     procedure PaintBox1Gesture(Sender: TObject;
       const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure MonteCarloItemClick(Sender: TObject);
-    procedure ExitMonteCarloItemClick(Sender: TObject);
     procedure memoResultatMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
-    procedure Convergence(Sender: TObject);
+    procedure ViderTangenteItemClick(Sender: TObject);
+   // procedure Convergence(Sender: TObject);
   private
       Sizing : boolean;
+      MonteCarloActif : boolean;
       grandeurBoutonDroit : boolean; // clic sur TButton avec bouton droit
       oldCursorPos : Tpoint;
       mouseMoving : boolean;
@@ -452,7 +448,7 @@ type
       courbePointCourant : integer;
       ValeursParamChange : boolean;
       InitiationAfaire : boolean;
-      GrapheCourant : TgrapheReg;
+      GrapheCourant,GrapheResidu : TgrapheReg;
       indexGrCourant : integer;
       selectEqCourant : TselectEquivalence;
       IndexPointModeleGr : integer;
@@ -469,7 +465,7 @@ type
       dXresidu,dYresidu : Tvecteur;
       BorneActive : TcodeIntervalle;
       ValeurDeriveeX,ValeurYDiff,ValeurYpDiff : TvecteurExtrapole;
-      ModeleCalc : array[TcodePage] of boolean;
+      ModeleCalc : array[TcodePage] of boolean; // tampon pour mise à jour fichier
       ValeurXDiff : Tvecteur;
       IsModeleSysteme : boolean;
       IsModeleMagnum : boolean;
@@ -502,9 +498,10 @@ type
       ParamAnimCourant : integer;
       ParamEditCourant : integer;
 // Fin data animation
-      suiteValeurParam : array[1..2] of array[0..maxValeurParam] of double;
-      NbreSuiteValeurParam : integer;
+   //   suiteValeurParam : array[1..2] of array[0..maxValeurParam] of double;
+   //   NbreSuiteValeurParam : integer;
 // pour tracé de convergence de modélisation
+      prevenirTri : boolean;
       procedure SetAnimTemporelle;
       Procedure SetAnimManuelle;
       procedure CalculeAnimTemporelle;
@@ -521,13 +518,12 @@ type
       Procedure VerifCoordonnee(indexGr : integer);
       procedure SetPenBrush(c : Tcurseur);
       procedure MajParametres;
-      procedure MajResultat;
       Procedure LanceModele(ajuste : boolean);
       procedure CompileModele(var PosErreur,LongErreur : integer);
       procedure ConstruitModele;
       procedure SetUniteParametre;
       Procedure CalcIntersection;
-      Procedure EffectueModele(Ajuste,WithMessage : boolean);
+      Procedure EffectueModele(Ajuste : boolean);
       Procedure EffectueModeleMono(m : integer);
       Procedure LanceCompile;
       Procedure EffectueCompile;
@@ -535,7 +531,6 @@ type
       Procedure InitCurseurModele;
       procedure TraceCurseurCourant(indexGr : integer);
       procedure setPointCourant(i,c : integer);
-      procedure SetBoutonsModele;
       Procedure ResetHeaderXY;
       procedure ModeleMagnum(indiceCoord : integer;direct : boolean);
       procedure MajIdentPage;
@@ -558,6 +553,9 @@ type
       procedure AffecteBorne;
       procedure AffecteBornes(x,y : integer);
       procedure AffecteDeplace(x,y : integer);
+      procedure verifTri;
+      procedure ToucheEspace;
+      procedure MajResultat;
   protected
       procedure WMRegMaj(var Msg : TWMRegMessage); message WM_Reg_Maj;
       procedure WMRegCalcul(var Msg : TWMRegMessage); message WM_Reg_Calcul;
@@ -584,6 +582,7 @@ type
       procedure CalculCurseurModele;
       procedure ImprimerGraphe(var bas : integer);
       procedure VersLatex(const NomFichier : string);
+      procedure MajResultatLatex(p : TcodePage);
   end;
 
 var FgrapheVariab : TFgrapheVariab;
@@ -595,8 +594,8 @@ uses
      choixModele, curModel, regmain, cursData, options,
      systDiff, identPagesU, Regdde,
      SaveParam, ChoixParamAnim, 
-     Cornish, CoordPhys, ChoixTang, Graphfft, Valeurs,
-     OrigineU, optModele, savePosition, cornopt, PropCourbe,
+     CoordPhys, ChoixTang, Graphfft, Valeurs,
+     OrigineU, optModele, savePosition, PropCourbe,
      optionsvitesse, modif, latex, OptionsAffModeleU, savemodele;
 
 {$R *.DFM}
@@ -613,6 +612,7 @@ const
    NcurseurModeleMax = 16;
    IncertNobitmap = 54;
    IncertYesbitmap = 52;
+   grResidu = 3;
 
 var
    courbeModele : Tcourbe;
@@ -633,13 +633,26 @@ begin
    graphes[1].RemplitTableauEquivalence;
    if curseurModeleDlg=nil then
       curseurModeleDlg := TcurseurModeleDlg.create(self);
-   curseurModeleDlg.show;
+   curseurModeleDlg.show; // showModal ?
 end;
 
 Procedure TfgrapheVariab.CalculCurseurModele;
+var xr,yr : double;
+    LindexCourbe : integer;
+
+procedure chercheCourbe;
 var i : integer;
-    xr,yr : double;
-    ecartY,deltaY,deltaX : double;
+begin
+   LindexCourbe := -1;
+   if (curseur=curReticuleDataNew)
+       then LindexCourbe := graphes[1].curseurOsc[curseurData1].indexCourbe
+       else for i := 0 to graphes[1].courbes.Count-1 do
+         if (trLigne in graphes[1].courbes[i].trace) and
+            (graphes[1].courbes[i].page=pageCourante) then begin
+                   LindexCourbe := i;
+                   break;
+         end;
+end;
 
 Procedure AffecteCurseurModele;
 var NewEquivalence : Tequivalence;
@@ -659,21 +672,27 @@ begin with graphes[1],CurseurModeleDlg do
     end
     else begin
        NewEquivalence := equivalences[pageCourante].items[LigneXdeY-2];
-       NewEquivalence.Draw; // efface
        NewEquivalence.ve := xr;
        NewEquivalence.ligneRappel := lrXdeY;
        NewEquivalence.pHe := yr;
     end;
-  NewEquivalence.Draw;
+  paintBox1.invalidate;
 end;
 
-Function CalculExp(const expr : string) : double;
+Function CalculExp(expr : string) : double;
 var posErreur,longErreur : integer;
+    i : integer;
 begin
    if expr=''
      then result := Nan
      else begin
         PrevenirFonctionDeParam := false;
+        for i := 2 to length(expr)-1 do begin
+            if (expr[i]=',') and
+                charInSet(expr[i-1],['0'..'9']) and
+                charInSet(expr[i+1],['0'..'9'])
+                then expr[i] := '.';
+        end;
         grandeurImmediate.fonct.expression := expr;
         if grandeurImmediate.fonct.compileF(posErreur,longErreur,false,paramNormal,0)
            then begin
@@ -687,38 +706,157 @@ begin
      end;
 end;
 
-var i1 : integer;
+procedure InterpoleX;
+var distanceMin,distance : integer;
+    i : integer;
+    xi,yi : integer;
+    Lyr : double;
 begin
-if curseurModeleDlg=nil then
-      curseurModeleDlg := TcurseurModeleDlg.create(self);
-with curseurModeleDlg do begin
-    xr := calculExp(tableau.cells[0,ligneXdeY]);
-    yr := calculExp(tableau.cells[1,ligneXdeY]);
-    if isEquation
-       then begin // interpolation
-            i := graphes[1].pointProcheReal(xr,yr,courbeModele,mondeY);
-            if i<courbeModele.debutC then exit;
-            ecartY := yr-courbeModele.valY[i];
-            if i<courbeModele.finC then i1 := succ(i) else i1 := pred(i);
-            deltaY := courbeModele.valY[i1]-courbeModele.valY[i];
-            if (i>courbeModele.debutC) and (deltaY*ecartY<0) then begin
-               i1 := pred(i);
-               deltaY := courbeModele.valY[i1]-courbeModele.valY[i];
-            end;
-            deltaX := courbeModele.valX[i1]-courbeModele.valX[i];
-            try
-                xr := courbeModele.valX[i]+deltaX*ecartY/deltaY;
-            except
-                xr := courbeModele.valX[i];
-            end;
-            tableau.cells[0,ligneXdeY] := FormatReg(xr);
-       end
-       else begin
-            grandeurs[fonctionTheorique[1].indexX].valeurCourante := xr;
-            yr := calcule(fonctionTheorique[1].calcul);
-            tableau.cells[1,ligneXdeY] := FormatReg(yr);
+          chercheCourbe;
+          if LindexCourbe<0 then exit;
+          xr := 1;
+          yr := calculExp(curseurModeleDlg.tableau.cells[1,curseurModeleDlg.ligneXdeY]);
+          with graphes[1].courbes[LindexCourbe] do begin
+               if finE>0 then begin
+                 graphes[1].windowRT(xr, yr,graphes[1].courbes[LindexCourbe].imondeC,xi, yi);
+                 distanceMin := 16;
+                 for i := 0 to finE-1 do begin
+                    distance := abs(yi - valYe[i]);
+                    if distance < distanceMin then begin
+                       distanceMin := distance;
+                       xi := valXe[i];
+                    end;
+                 end;
+                 graphes[1].mondeRT(xi, yi,graphes[1].courbes[LindexCourbe].imondeC,xr, Lyr);
+                 curseurModeleDlg.tableau.cells[0,curseurModeleDlg.ligneXdeY] := FormatReg(xr);
+               end
+               else begin
+                    xr := Nan;
+                    curseurModeleDlg.tableau.cells[0,curseurModeleDlg.ligneXdeY] := '?';
+               end;
+          end;
+end;
+
+procedure InterpoleModeles;
+
+function InterpoleModele(iC : integer) : boolean;
+var i,i1 : integer;
+    ecartY,deltaY,deltaX : double;
+begin
+       result := false;
+       LindexCourbe := iC;
+       courbeModele := graphes[1].courbes[iC];
+       i := graphes[1].pointProcheReal(xr,yr,courbeModele,courbeModele.imondeC);
+       if i<0 then exit;
+       ecartY := yr-courbeModele.valY[i];
+       if i<courbeModele.finC then i1 := succ(i) else i1 := pred(i);
+       deltaY := courbeModele.valY[i1]-courbeModele.valY[i];
+       deltaX := courbeModele.valX[i1]-courbeModele.valX[i];
+       try
+          xr := courbeModele.valX[i]+deltaX*ecartY/deltaY;
+       except
+          xr := courbeModele.valX[i];
        end;
-    affecteCurseurModele;
+       curseurModeleDlg.tableau.cells[0,curseurModeleDlg.ligneXdeY] := FormatReg(xr);
+       result := true;
+end;
+
+var i : integer;
+    iModele : shortInt;
+begin
+     yr := calculExp(curseurModeleDlg.tableau.cells[1,curseurModeleDlg.ligneXdeY]);
+     xr := Nan;
+     if nbreModele=1
+        then InterpoleModele(indexCourbeModele)
+        else begin
+             for i := 0 to pred(graphes[1].courbes.count) do begin
+                 iModele := graphes[1].courbes[i].indexModele;
+                 if (iModele>0) and InterpoleModele(i) then begin
+                     if (xr>courbeModele.varX.valeur[pages[pageCourante].Debut[iModele]]) and
+                        (xr<courbeModele.varX.valeur[pages[pageCourante].Fin[iModele]])
+                     then begin
+                          indexCourbeModele := i;
+                          break;
+                     end;
+                 end;
+             end;
+        end;
+end;
+
+procedure InterpoleY;
+var distanceMin,distance : integer;
+    i : integer;
+    xi,yi : integer;
+    Lxr : double;
+begin
+          chercheCourbe;
+          if LindexCourbe<0 then exit;
+          yr := 1;
+          xr := calculExp(curseurModeleDlg.tableau.cells[0,curseurModeleDlg.ligneXdeY]);
+          graphes[1].windowRT(xr, yr,graphes[1].courbes[LindexCourbe].imondeC,xi, yi);
+          distanceMin := 16;
+          with graphes[1].courbes[LindexCourbe] do begin
+             for i := 0 to finE-1 do begin
+                 distance := abs(xi - valXe[i]);
+                 if distance < distanceMin then begin
+                    distanceMin := distance;
+                    yi := valYe[i];
+                 end;
+             end;
+          end;
+          graphes[1].mondeRT(xi, yi,graphes[1].courbes[LindexCourbe].imondeC,Lxr, yr);
+          curseurModeleDlg.tableau.cells[1,curseurModeleDlg.ligneXdeY] := FormatReg(yr);
+end;
+
+procedure CalculModeles;
+
+procedure CalculModele(iC : integer;im : TcodeIntervalle);
+var Lxr : double;
+    grX,grY : Tgrandeur;
+begin
+         LindexCourbe := iC;
+         courbeModele := graphes[1].courbes[iC];
+         grY := courbeModele.varY;
+         grX := courbeModele.varX;
+         Lxr := xr;
+         if uniteSIGlb and (grX.puissance<>0) then Lxr := Lxr*grX.coeffSI;
+         grandeurs[fonctionTheorique[im].indexX].valeurCourante := Lxr;
+         yr := calcule(fonctionTheorique[im].calcul);
+         if uniteSIGlb and (grY.puissance<>0) then yr := yr/grY.coeffSI;
+         curseurModeleDlg.tableau.cells[1,curseurModeleDlg.ligneXdeY] := FormatReg(yr);
+end;
+
+var i : integer;
+    iModele : shortInt;
+begin
+     xr := calculExp(curseurModeleDlg.tableau.cells[0,curseurModeleDlg.ligneXdeY]);
+     if nbreModele=1
+        then calculModele(indexCourbeModele,1)
+        else begin
+             for i := 0 to pred(graphes[1].courbes.count) do begin
+                 iModele := graphes[1].courbes[i].indexModele;
+                 if (iModele>0) then begin
+                     CalculModele(i,iModele);
+                     if (xr>courbeModele.varX.valeur[pages[pageCourante].Debut[iModele]]) and
+                        (xr<courbeModele.varX.valeur[pages[pageCourante].Fin[iModele]])
+                     then begin
+                          indexCourbeModele := i;
+                          break;
+                     end;
+                 end;
+             end;
+        end;
+end;
+
+begin with curseurModeleDlg do begin
+    if (nbreModele=0) or (indexCourbeModele<0)
+    then if isEquation
+        then interpoleX  // on a donné y
+        else interpoleY  // on a donné x
+    else if isEquation
+       then interpoleModeles
+       else calculModeles;
+    if (LindexCourbe>=0) and not(iSNan(xr)) then affecteCurseurModele;
 end end; // CalculCurseurModele 
 
 procedure TFgrapheVariab.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
@@ -736,7 +874,12 @@ begin with GrapheCourant do begin
           then iCourbe := 0
           else exit;
     with courbes[iCourbe] do begin
-       MondeRT(x,y,iMondeC,xr,yr);
+       if curseur=curReticuleDataNew
+          then begin
+             xr := curseurOsc[curseurData1].xr;
+             yr := curseurOsc[curseurData1].yr;
+          end
+          else MondeRT(x,y,iMondeC,xr,yr);
        ValeurCurseur[coX] := xr;
        ValeurCurseur[coY] := yr;
        varYPos := varY;
@@ -759,11 +902,15 @@ begin with GrapheCourant do begin
           then XVal := varX.formatValeurEtUnite(Xr)
           else XVal := monde[mondeX].axe.formatValeurEtUnite(Xr);
     end;
-    if curseur=curReticule then begin
+    if curseur in [curReticule,curReticuleDataNew] then begin
         labelX.transparent := false;
         labelY.transparent := false;
         labelX.caption := XNom+'='+XVal+' ';
         labelY.caption := YNom+'='+YVal+' ';
+        if curseur=curReticuleDataNew then begin
+           x := curseurOsc[curseurData1].xc;
+           y := curseurOsc[curseurData1].yc;
+        end;
         if OgPolaire in OptionGraphe
           then begin
                windowRT(0,0,courbes[iCourbe].imondeC,x0,y0);
@@ -790,7 +937,7 @@ begin with GrapheCourant do begin
            CurseurGrid.cells[1,0] := XVal;
            CurseurGrid.cells[1,1] := YVal;
            CurseurGrid.RowCount := 4;
-           CurseurGrid.Height := 4*HauteurColonne+4;
+           CurseurGrid.Height := 4*CurseurGrid.defaultRowHeight+4;
       end;
 end end; // AffichePosition
 
@@ -815,10 +962,10 @@ try
              ref95 := fonctionTheorique[1].residuStat.t95;
              if fonctionTheorique[1].residuStat.avecIncert
                 then residu := fonctionTheorique[1].residuStat.residusNormalises[i-debut[1]]
-                else residu := fonctionTheorique[1].residuStat.residusStudent[i-debut[1]];
-             if fonctionTheorique[1].residuStat.avecIncert
-                then titre := stResiduNormalise
-                else titre := stResiduStudent;
+                else residu := fonctionTheorique[1].residuStat.residus[i-debut[1]];
+             if residusNormalisesCB.checked and fonctionTheorique[1].residuStat.avecIncert
+                then titre := stResidusNormalises
+                else titre := stResidus;
              XX := titre+FloatToStrF(residu,ffGeneral,3,1)+
                    stLimiteStudent95+FloatToStrF(ref95,ffGeneral,3,1)+')';
              ecart := valeurVar[fonctionTheorique[1].indexY,i]-valeurTheorique[1,i];
@@ -851,10 +998,10 @@ try
              ref95 := fonctionTheorique[1].residuStat.t95;
              if fonctionTheorique[1].residuStat.avecIncert
                 then residu := fonctionTheorique[1].residuStat.residusNormalises[i]
-                else residu := fonctionTheorique[1].residuStat.residusStudent[i];
+                else residu := fonctionTheorique[1].residuStat.residus[i];
              if fonctionTheorique[1].residuStat.avecIncert
                 then titre := stResiduNormalise
-                else titre := stResiduStudent;
+                else titre := stResidu;
              XX := titre+FloatToStrF(residu,ffGeneral,3,1)+
                    inegaliteResidu[residu<ref95]+
                    FloatToStrF(ref95,ffGeneral,3,1)+stLimiteStudent95;
@@ -1096,7 +1243,7 @@ with grapheCourant do begin
            case cCourant of
                 1 : hintLoc := stBarreReticule1;
                 2 : hintLoc := stBarreReticule2;
-                3 : hintLoc :=  stBarreReticule3;
+                3 : hintLoc := stBarreReticule3;
            end;
            if cCourant>1
               then afficheDelta
@@ -1126,12 +1273,19 @@ with grapheCourant do begin
                 hintLoc := hSegment;
            end;
         end;
+        curReticuleDataNew : begin
+              PointProcheNew(x,y);
+              affichePosition;
+              hintLoc := hBarreDataNew;
+        end;
+        (*
         curReticuleModele : begin
               if GetReticuleModeleProche(x,y)
                  then TgraphicControl(sender).cursor := crHandPoint
                  else TgraphicControl(sender).cursor := crCross;
               hintLoc := hSegment;
         end;
+        *)
         curEquivalence : if (equivalenceCourante<>nil) then begin
            equivalenceCourante.drawFugitif; // efface
            equivalenceCourante.mondepH := mondeDerivee;
@@ -1149,7 +1303,7 @@ with grapheCourant do begin
                  CurseurGrid.cells[1,2] := monde[mondeY].Axe.FormatValeurEtUnite(phe);
                  CurseurGrid.cells[1,3] := unitePente.formatValeurPente(pente);
                  CurseurGrid.RowCount := 4;
-                 CurseurGrid.Height := 4*hauteurColonne;
+                 CurseurGrid.Height := 4*CurseurGrid.defaultRowHeight;
               end;
            end;
            equivalenceCourante.drawFugitif; // trace
@@ -1191,7 +1345,7 @@ with grapheCourant do begin
    AffecteStatusPanel(headerXY,3,hintLoc);
    if curseur in [curBornes,curSelect]
       then for iProche := 0 to 2 do videStatusPanel(HeaderXY,iProche)
-      else if not (curseur in [curEquivalence,curReticuleData,curReticule,curReticuleModele]) then
+      else if not (curseur in [curEquivalence,curReticuleData,curReticule,curReticuleDataNew]) then  // curReticuleModele
          affichePosition;
    if (curseur in [curModeleGr,curSelect]) and
        not(splitterModele.snapped) and
@@ -1253,6 +1407,8 @@ with graphes[indexGr],canvas,paintBox do begin
             Brush.color := BrushCouleurSelect;
             Brush.style := bsSolid;
        end;
+       curModele : ;
+       (*
        curModele : if (pages[pageCourante].modeleCalcule) and
        (ModeleConstruit in etatModele) and
        (monde[mondeX].axe=grandeurs[fonctionTheorique[1].indexX]) and
@@ -1262,13 +1418,15 @@ with graphes[indexGr],canvas,paintBox do begin
              afficheErreur(ErCurseurModele,0);
              curseur := curSelect
           end;
+          *)
+       curReticuleDataNew : cursor := crCross;
        curMove : cursor := crSizeAll;
        curXmaxi,curXmini : cursor := crSizeWE;
        curYmaxi,curYMini : cursor := crSizeNS;
        else cursor := crDefault;
-    end;{case}
+    end; // case c
     panelPrinc.Cursor := cursor;
-end end;
+end end; // setPenLoc
 
 var i : integer;
 begin // SetPenBrush
@@ -1285,16 +1443,17 @@ begin // SetPenBrush
      if (c=curModeleGr) and (NbreModele>2) then c := curSelect;
      if (c=curOrigine) and (curseur<>curOrigine) then
         showMessage(hCurseurOrigine);
-     if (curseur=curReticuleData) and (c<>curReticuleData) then
+     if (curseur in [curReticuleData,curReticuleDataNew]) and
+        not (c in [curReticuleData,curReticuleDataNew]) then
          graphes[1].paintBox.invalidate;
      curseur := c;
      CurseurGrid.visible := (c in [curReticuleData, curEquivalence]) and avecTableau;
      for i := 1 to 3 do SetPenLoc(i);
      CurseurBtn.ImageIndex := iconCurseur[curseur];
      HeaderXY.visible := c in
-          [curSelect,curTexte,curLigne,curOrigine,curModele];
-     LabelX.visible := c=curReticule;
-     LabelY.visible := c=curReticule;
+          [curSelect,curTexte,curLigne,curOrigine,curReticuleDataNew]; // curModele
+     LabelX.visible := c in [curReticule,curReticuleDataNew];
+     LabelY.visible := c in [curReticule,curReticuleDataNew];
      LabelX.Color := fondReticule;
      LabelY.Color := fondReticule;
      LabelDeltaX.visible := (c=curReticule) and
@@ -1383,12 +1542,15 @@ begin // MouseDown
               then CoordonneesItemClick(nil)
               else if grapheCourant.isAxeX(x,y,isMaxi) or 
                       grapheCourant.isAxeY(x,y,isMaxi)
-                 then zoomManuelItemClick(sender);
+                 then begin
+                    zoomManuelItemClick(sender);
+                    exit;
+                 end;
    if (curseur=curSelect) and (grapheCourant.DessinCourant=nil) then begin
-           indexCoord := grapheCourant.isAxe(x,y);
-           if indexCoord>0 then
+          indexCoord := grapheCourant.isAxe(x,y);
+          if indexCoord>0 then
               if grapheCourant.Coordonnee[indexCoord].iMondeC>=mondeSans
-               then begin
+              then begin
                     grandeurRef := grandeurs[grapheCourant.Coordonnee[indexCoord].codeY];
                     for j := 1 to maxOrdonnee do with grapheCourant.Coordonnee[j] do
                         if (codeY=grandeurInconnue) or
@@ -1475,7 +1637,7 @@ begin // MouseDown
                        end;
                        for j := 0 to pred(courbes.count) do begin
                            if ((courbes[j].indexModele=0) or courbes[j].courbeExp) and
-                              (courbes[j].pag=pageCourante) then begin
+                              (courbes[j].page=pageCourante) then begin
                               iProche := PointProche(x,y,j,true,false);
                               if iProche>=0 then begin
                                  if Pages[pageCourante].PointActif[iProche]
@@ -1537,7 +1699,7 @@ begin // MouseDown
               for j := 0 to pred(statusSegment[0].count) do
                  CurseurGrid.cells[0,j] := statusSegment[0].strings[j];
               CurseurGrid.RowCount := statusSegment[0].count;
-              CurseurGrid.Height := CurseurGrid.RowCount*HauteurColonne+4;
+              CurseurGrid.Height := CurseurGrid.RowCount*CurseurGrid.DefaultRowHeight+4;
            end;
        end;
        curReticuleData : begin
@@ -1546,7 +1708,8 @@ begin // MouseDown
           if curseurGrid.visible then setStatusReticuleData(curseurGrid);
           SetPointCourant(curseurOsc[cCourant].Ic,0);
        end;
-       curReticuleModele : setReticuleModele(x,y,true,true);
+       curReticuleDataNew : ;
+       curReticuleModele : ; // setReticuleModele(x,y,true,true);
        curModeleGr : begin
             indexModeleGR := 0;
             for j := 1 to NbreModele do begin
@@ -1574,18 +1737,22 @@ procedure TFgrapheVariab.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
 
 Procedure affecteZoomAv;
 begin
-  with zoneZoom do begin
+   with zoneZoom do begin
         grapheCourant.canvas.Rectangle(left,top,right,bottom);// efface
         right := X;
         bottom := Y;
         setPenBrush(curSelect);
         if (left=right) or (bottom=top) then exit;
-        grapheCourant.affecteZoomAvant(zoneZoom,true);
    end;
+   grapheCourant.affecteZoomAvant(zoneZoom,true);
    curMovePermis := true;
    include(grapheCourant.modif,gmEchelle);
    grapheCourant.paintBox.invalidate;
-end; // affecteZoomAvant
+   if residusItem.checked then begin
+      include(grapheResidu.modif,gmEchelle);
+      grapheResidu.paintBox.invalidate;
+   end;
+end; // affecteZoomAv
 
 Procedure affecteOrigine;
 var y0 : double;
@@ -1678,7 +1845,7 @@ begin // MouseUp
          then MenuDessin.popUp(P.x,P.y)
          else if (grapheCourant.indicateur<>nil) and (x<grapheCourant.largCarac)
              then MenuIndicateur.popUp(P.x,P.y)
-             else if curseur in [curReticule,curReticuleData,curEquivalence,curReticuleModele]
+             else if curseur in [curReticule,curReticuleData,curEquivalence,curReticuleDataNew] // ,curReticuleModele
              then MenuReticule.popUp(P.x,P.y)
              else MenuAxes.popUp(P.x,P.y);
      exit;
@@ -1710,7 +1877,9 @@ begin // MouseUp
                   then affecteVecteurMeca
                   else
                else AffecteBorne;
-       curReticuleData,curReticuleModele : grapheCourant.paintbox.invalidate;
+       curReticuleData : grapheCourant.paintbox.invalidate;
+       curReticuleDataNew : ;
+       curReticuleModele : ;
        curReticule : ;
        curEquivalence : if Ydrag>0 then begin
              (sender as Tcontrol).endDrag(false);
@@ -1797,6 +1966,7 @@ begin
   end;
   indexGrCourant := 1;
   GrapheCourant := graphes[1];
+  GrapheResidu := graphes[grResidu];
   curseur := curSelect;
   selectItem.Checked := true;
   entreeValidee := false;
@@ -1817,7 +1987,8 @@ begin
   end;
   setTaillePolice;
   hintMemoResultat := TstringList.Create;
-  ResizeButtonImagesforHighDPI(self);
+  ImageList1.height := VirtualImageListSize;
+  ImageList1.width := VirtualImageListSize;
   CreateAnim;
 end; // formCreate
 
@@ -1893,7 +2064,7 @@ begin with graphes[indexGr],pages[p] do begin
       end;
       if grandeurs[iY].fonct.genreC=g_texte then begin
             for c := 0 to pred(courbes.count) do
-                if courbes[c].pag=p then begin
+                if courbes[c].page=p then begin
                    include(courbes[c].trace,trTexte);
                    courbes[c].couleurTexte := couleurModeleCourant;
                    courbes[c].texteC := TstringList.create;
@@ -1924,13 +2095,16 @@ begin with graphes[indexGr],pages[p] do begin
                    else courbeVariab.Trace := [trLigne];
               courbeVariab.Adetruire := true;
               with Coordonnee[i] do
-                   courbeVariab.setStyle(couleur,styleT,motif,'');
+                   courbeVariab.setStyle(couleur,styleT,motif);
               exit;
       end;
       courbeVariab := AjouteCourbe(valeurVar[iX],valeurVar[iY],m,nmes,
               grandeurs[iX],grandeurs[iY],p);
-      with coordonnee[i] do
-           courbeVariab.setStyle(couleur,styleT,motif,couleurPoint);
+      with coordonnee[i] do begin
+           courbeVariab.setStyle(couleur,styleT,motif);
+           if couleurPoint<>'' then
+              courbeVariab.setStylePoint(couleurPoint,codeCouleur);
+      end;
       AddIncert(courbeVariab);
       avecModele := false;
       if traceV=[] then if modeAcquisition=AcqSimulation
@@ -1982,8 +2156,11 @@ begin with graphes[indexGr],pages[p] do begin
                                 AddIncert(courbeAdd);
                                 CourbeExpAffectee := true;
                                 couleurModeleCourant := couleurModele[c];
-                                with coordonnee[i] do
-                                     courbeAdd.setStyle(couleurModeleCourant,styleT,motif,couleurPoint);
+                                with coordonnee[i] do begin
+                                     courbeAdd.setStyle(couleurModeleCourant,styleT,motif);
+                                     if couleurPoint<>'' then
+                                        courbeAdd.setStylePoint(couleurPoint,codeCouleur);
+                                end;
                                 setCouleurTexte(c);
                             end
                             else begin // UN modele sur toute les donnees
@@ -2007,13 +2184,16 @@ begin with graphes[indexGr],pages[p] do begin
                                if coordonnee[i].motif=mHisto
                                   then begin
                                       courbeAdd.Trace := [trPoint];
-                                      courbeAdd.setStyle(couleurModele[c],psSolid,mHisto,'');
+                                      courbeAdd.setStyle(couleurModele[c],psSolid,mHisto);
                                       couleurModeleCourant := courbeAdd.couleur;
                                   end
                                   else begin
                                       courbeAdd.Trace := [trLigne];
-                                      with coordonnee[i] do
-                                           courbeAdd.setStyle(couleurModeleCourant,styleT,motif,couleurPoint);
+                                      with coordonnee[i] do begin
+                                           courbeAdd.setStyle(couleurModeleCourant,styleT,motif);
+                                           if couleurPoint<>'' then
+                                              courbeAdd.setStylePoint(couleurPoint,codeCouleur);
+                                      end;
                                   end;
                                courbeAdd.Adetruire := true;
                                setCouleurTexte(c);
@@ -2034,8 +2214,8 @@ begin with graphes[indexGr],pages[p] do begin
                                   courbeAdd.Trace := [trLigne];
                                   courbeAdd.Adetruire := true;
                                   if (b in [1,2])
-                                     then courbeAdd.setStyle(couleurBandeConfiance,psDot,mCroix,'')
-                                     else courbeAdd.setStyle(couleurBandePrediction,psDash,mCroix,'');
+                                     then courbeAdd.setStyle(couleurBandeConfiance,psDot,mCroix)
+                                     else courbeAdd.setStyle(couleurBandePrediction,psDash,mCroix);
                                end;
                             end;
            end; // for c de ModeleDefini
@@ -2059,8 +2239,11 @@ begin with graphes[indexGr],pages[p] do begin
                                CourbeAdd.ModeleParamX1 := fonctionTheorique[1].indexY=iX;
                                courbeAdd.Trace := [trLigne];
                                courbeAdd.Adetruire := true;
-                               with coordonnee[i] do
-                                    courbeAdd.setStyle(couleurModeleCourant,styleT,motif,couleurPoint);
+                               with coordonnee[i] do begin
+                                    courbeAdd.setStyle(couleurModeleCourant,styleT,motif);
+                                    if couleurPoint<>'' then
+                                       courbeAdd.setStylePoint(couleurPoint,codeCouleur);
+                               end;
                                setCouleurTexte(2);
                                setCouleurTexte(1);
                 end; // Modele parametrique
@@ -2082,8 +2265,11 @@ begin with graphes[indexGr],pages[p] do begin
                                courbeAdd.PortraitDePhase := true;
                                CourbeAdd.ModeleParamX1 := fonctionTheorique[1].indexY=iX;
                                courbeAdd.Trace := [trLigne];
-                               with coordonnee[i] do
-                                    courbeAdd.setStyle(couleurModeleCourant,styleT,motif,couleurPoint);
+                               with coordonnee[i] do begin
+                                    courbeAdd.setStyle(couleurModeleCourant,styleT,motif);
+                                    if couleurPoint<>'' then
+                                       courbeAdd.setStylePoint(couleurPoint,codeCouleur);
+                               end;
                                courbeAdd.Adetruire := true;
                                setCouleurTexte(1);
                 end; // Portrait de phase avec fonction
@@ -2105,8 +2291,11 @@ begin with graphes[indexGr],pages[p] do begin
                                courbeAdd.PortraitDePhase := true;
                                CourbeAdd.ModeleParamX1 := fonctionTheorique[1].indexY=iX;
                                courbeAdd.Trace := [trLigne];
-                               with coordonnee[i] do
-                                   courbeAdd.setStyle(couleurModeleCourant,styleT,motif,couleurPoint);
+                               with coordonnee[i] do begin
+                                   courbeAdd.setStyle(couleurModeleCourant,styleT,motif);
+                                   if couleurPoint<>'' then
+                                      courbeAdd.setStylePoint(couleurPoint,codeCouleur);
+                               end;
                                courbeAdd.Adetruire := true;
                                setCouleurTexte(1);
                          end; // Portrait de phase équa diff 
@@ -2122,8 +2311,11 @@ begin with graphes[indexGr],pages[p] do begin
                    AvecModele := true;
                    courbeAdd.Trace := [trLigne];
                    courbeAdd.Adetruire := true;
-                   with coordonnee[i] do
-                        courbeAdd.setStyle(couleurModele[1],styleT,motif,couleurPoint);
+                   with coordonnee[i] do begin
+                        courbeAdd.setStyle(couleurModele[1],styleT,motif);
+                        if couleurPoint<>'' then
+                           courbeAdd.setStylePoint(couleurPoint,codeCouleur);
+                   end;
                    courbeModele := courbeAdd;
 //                   indexCourbeModele := courbes.count-1;
                 end;
@@ -2133,8 +2325,11 @@ begin with graphes[indexGr],pages[p] do begin
                        then begin
                             courbeAdd := AjouteCourbe(valeurLisse[iX],valeurLisse[iY],
                                 m,nmes,grandeurs[iX],grandeurs[iY],p);
-                            with coordonnee[i] do
-                                courbeAdd.setStyle(couleur,styleT,motif,couleurPoint);
+                            with coordonnee[i] do begin
+                                courbeAdd.setStyle(couleur,styleT,motif);
+                                if couleurPoint<>'' then
+                                   courbeAdd.setStylePoint(couleurPoint,codeCouleur);
+                            end;
                             courbeAdd.Trace := [trLigne];
                         end;
            if not(avecModele) and not(pasDeModele in etatModele) then
@@ -2143,8 +2338,11 @@ begin with graphes[indexGr],pages[p] do begin
                        then begin
                            courbeAdd := AjouteCourbe(valeurLisse[iX],valeurLisse[iY],
                                 m,nmes,grandeurs[iX],grandeurs[iY],p);
-                            with coordonnee[i] do
-                                courbeAdd.setStyle(couleur,styleT,motif,couleurPoint);
+                            with coordonnee[i] do begin
+                                courbeAdd.setStyle(couleur,styleT,motif);
+                                if couleurPoint<>'' then
+                                   courbeAdd.setStylePoint(couleurPoint,codeCouleur);
+                            end;
                             courbeAdd.Trace := [trLigne];
                         end;
         end;
@@ -2172,8 +2370,11 @@ begin with graphes[indexGr],pages[p] do begin
                  courbeAdd := AjouteCourbe(xV,yV,m,nmes,
                     grandeurs[iX],grandeurs[iY],p);
                  courbeAdd.IndexModele := -c;
-                 with coordonnee[i] do
-                      courbeAdd.setStyle(couleurModele[-c],styleT,motif,couleurPoint);
+                 with coordonnee[i] do begin
+                      courbeAdd.setStyle(couleurModele[-c],styleT,motif);
+                      if couleurPoint<>'' then
+                         courbeAdd.setStylePoint(couleurPoint,codeCouleur);
+                 end;
                  courbeAdd.Trace := [trLigne];
                  courbeAdd.Adetruire := true;
                  SimulationAffectee := true;
@@ -2184,8 +2385,11 @@ begin with graphes[indexGr],pages[p] do begin
           include(menuPermis,imVitesse);
           courbeAdd := AjouteCourbe(valeurLisse[iX],valeurLisse[iY],
                          m,nmes,grandeurs[iX],grandeurs[iY],p);
-          with coordonnee[i] do
-               courbeAdd.setStyle(couleur,styleT,motif,couleurPoint);
+          with coordonnee[i] do begin
+               courbeAdd.setStyle(couleur,styleT,motif);
+               if couleurPoint<>'' then
+                  courbeAdd.setStylePoint(couleurPoint,codeCouleur);
+          end;
           courbeAdd.Trace := [];
           if trVitesse in traceV then begin
              include(courbeAdd.Trace,trVitesse);
@@ -2221,7 +2425,7 @@ var
 begin // SetCoordonnee
 with graphes[indexGr] do begin
    indexReticuleModele := -1;
-   TypeResidu := residuN;
+   ResiduNormalise := false;
    VerifCoordonnee(indexGr);
    courbeModele := nil;
    indexCourbeModele := -1;
@@ -2263,17 +2467,20 @@ with graphes[indexGr] do begin
       withModele and
       not(CourbeExpAffectee) then with courbes[0] do begin
               courbeAdd := AjouteCourbe(
-                   valX,valY,iMondeC,pages[pag].nmes,
-                   varX,varY,pag);
-              courbeAdd.debutC := pages[pag].debut[1];
-              courbeAdd.finC := pages[pag].fin[1];
+                   valX,valY,iMondeC,pages[page].nmes,
+                   varX,varY,page);
+              courbeAdd.debutC := pages[page].debut[1];
+              courbeAdd.finC := pages[page].fin[1];
               courbeAdd.trace := [trPoint];
-              with pages[pag] do begin
+              with pages[page] do begin
                  courbeAdd.IncertX := incertVar[varX.indexG];
                  courbeAdd.IncertY := incertVar[varY.indexG];
               end;
-              with Coordonnee[1] do
-                   courbeAdd.setStyle(couleur,styleT,motif,couleurPoint);
+              with Coordonnee[1] do begin
+                   courbeAdd.setStyle(couleur,styleT,motif);
+                   if couleurPoint<>'' then
+                      courbeAdd.setStylePoint(couleurPoint,codeCouleur);
+              end;
               courbeAdd.courbeExp := true;
               courbeAdd.indexModele := 1;
    end;
@@ -2293,8 +2500,11 @@ with graphes[indexGr] do begin
                          courbes[i].varX,courbes[i].varY,pageCourante);
                     courbeAdd.IndexModele := -1;
                     fonctionSuperposee[1].indexX := courbes[i].varX.indexG;
-                    with coordonnee[i] do
-                        courbeAdd.setStyle(couleurModele[-1],styleT,motif,couleurPoint);
+                    with coordonnee[i] do begin
+                        courbeAdd.setStyle(couleurModele[-1],styleT,motif);
+                        if couleurPoint<>'' then
+                           courbeAdd.setStylePoint(couleurPoint,codeCouleur);
+                    end;
                     courbeAdd.Trace := [trLigne];
                     courbeAdd.Adetruire := true;
                  end;   
@@ -2431,18 +2641,6 @@ begin  // arrive après le dimensionnement
        ToolBarGraphe.List := (CopierBtn.Left+CopierBtn.width)<PanelCentral.width
 end;
 
-procedure TFgrapheVariab.Convergence(Sender: TObject);
-var i : integer;
-begin
-     if ConvergenceModeleForm=nil then Application.CreateForm(TConvergenceModeleForm,ConvergenceModeleForm);
-     for i := 0 to  NbreSuiteValeurParam do begin
-       ConvergenceModeleForm.valeurX[i] := suiteValeurParam[1][i];
-       ConvergenceModeleForm.valeurY[i] := suiteValeurParam[1][i];
-     end;
-     ConvergenceModeleForm.NbreValeurParam := NbreSuiteValeurParam;
-     ConvergenceModeleForm.Show;
-end;
-
 procedure TFgrapheVariab.CoordonneesItemClick(Sender: TObject);
 var oldnomx,oldnomy : string;
 begin
@@ -2465,8 +2663,8 @@ with FcoordonneesPhys do begin
            include(grapheCourant.modif,gmXY);
            if (grapheCourant.coordonnee[1].nomX<>oldNomX) or
               (grapheCourant.coordonnee[1].nomY<>oldNomY) then begin
-              if not grapheCourant.UseDefault then grapheCourant.Dessins.clear;
-              if curseur in [curReticuleData,curReticuleModele] then curseur := curSelect;
+              if not grapheCourant.UseDefaut then grapheCourant.Dessins.clear;
+              if curseur in [curReticuleData,curReticuleDataNew,curModele] then curseur := curSelect;
            end;
            ModifGraphe(indexGrCourant);
            if indexGrCourant>1 then begin
@@ -2474,15 +2672,13 @@ with FcoordonneesPhys do begin
              OptionGrapheDefault := grapheCourant.OptionGraphe;
            end;
            if PanelAnimation.visible then ZoomAutoItemClick(sender);
-           CornishBtn.down := trCouples in grapheCourant.coordonnee[1].trace;
-           if CornishBtn.down then CornishBtn.visible := true;
            if not(splitterModele.snapped) and
               not modeleEnCours then begin
                 nbreModele := 0;
                 etatModele := [];
                 setPanelModele(false);
            end;
-        end;{OK}
+        end;// OK
 end end; // CoordonneesItemClick
 
 procedure TFgrapheVariab.ZoomAutoItemClick(Sender: TObject);
@@ -2491,8 +2687,9 @@ begin
      if not grapheCourant.grapheOK then exit;
      include(grapheCourant.modif,gmEchelle);
      grapheCourant.monde[mondeX].defini := false;
-     grapheCourant.useDefault := false;
-     grapheCourant.useDefaultX := false;
+     grapheCourant.useDefaut := false;
+     grapheCourant.useDefautX := false;
+     grapheCourant.useZoom := false;
      grapheCourant.autoTick := true;
      modifGraphe(indexGrCourant);
 end; // ZoomAutoItemClick
@@ -2532,26 +2729,47 @@ begin
         end
     end;
     for i := 1 to 3 do with graphes[i] do if paintBox.visible then begin
-        useDefault := false;
+        useDefaut := false;
+        useZoom := false;
+        useDefautX := false;
         Dessins.clear;
     end;
     IdentAction.checked := false;
     for i := 1 to MaxPages do ModeleCalc[i] := false;
-end;
+end; // RazCoord
 
 Procedure FaireMajFichier;
+
+(*
+{$IFDEF Debug}
+procedure creerFichierConfig;
+var sauveNom : string;
+begin
+     sauveNom := nomFichierIni;
+     nomFichierIni := mesDocsDir+'Regressi0.ini';
+     optionsDlg.sauveOptions;
+     nomFichierIni := sauveNom;
+end;
+{$ENDIF}
+*)
+
 var i : integer;
     ouvrirModele : boolean;
 begin
+{$IFDEF Debug}
+   ecritDebug('Début FaireMajFichier');
+ //  creerFichierConfig;
+{$ENDIF}
        etatModele := [];
        setPenBrush(curSelect);
        Fvaleurs.prevenirPi := true;
+       PrevenirTri := true;
        InitManuelleAfaire := true;
        if dispositionFenetre=dMaxi
           then WindowState := wsMaximized
           else WindowState := wsNormal;
        MajFichierEnCours := false;
-       statGrid.visible := false;
+       monteCarloActif := false;
        MajModelePermis := false;
        OuvrirModele := false;
        MemoModele.Clear;
@@ -2586,7 +2804,10 @@ begin
              else begin
                 videoTrackBar.Visible := false;
              end;
-end;
+{$IFDEF Debug}
+   ecritDebug('Fin FaireMajFichier');
+{$ENDIF}
+end;  // FaireMajFichier
 
 procedure ResetForme;
 var i,j : integer;
@@ -2601,8 +2822,7 @@ begin
         include(Modif,gmXY);
         Dessins.clear;
         grapheOK := false;
-        curReticuleDataActif := false;
-        curReticuleModeleActif := false;
+        curseurActif := curSelect;
         for j := mondeX to mondeSans do monde[j].axe := nil;
         ResetEquivalence;
         OptionGraphe := OptionGrapheDefault;(***)
@@ -2611,37 +2831,54 @@ begin
     IntersectionItem.visible := false;
     IntersectionTer.visible := false;
     Fvaleurs.prevenirPi := true;
+    PrevenirTri := true;
     UnGrapheItem.checked := true;
     MemoModele.Clear;
     MemoResultat.Clear;
     etatModele := [];
     VerifGraphe := true;
-    statGrid.visible := false;
+    monteCarloActif := false;
     if not(splitterModele.snapped) then setPanelModele(false);
     if PanelAnimation.visible then cacheAnim;
     videoTrackBar.visible := false;
     for i := 0 to maxParamAnim do
         paramAnimManuelle[i].init;
-    if FCornish<>nil then begin
-       FCornish.Free;
-       FCornish := nil;
-    end;
     InitManuelleAfaire := true;
     nbreGraphe := UnGr;
     PanelBis.visible := false;
     PaintBox2.visible := false;
     PaintBox3.visible := false;
-    residusStudentCB.visible := false;
+    residusNormalisesCB.visible := false;
     ModelePagesIndependantesMenu.checked := false;
     ModelePagesIndependantes := false;
     RepeatTimer.enabled := false;
     TimerAnim.enabled := false;
     IsModeleMagnum := false;
-    for i := 1 to MaxPages do
+    for i := 1 to MaxPagesGr do
         if ConfigGraphe[i]<>nil then begin
            ConfigGraphe[i].free;
            ConfigGraphe[i] := nil;
         end;
+end;
+
+procedure MajOrdreGrandeurs;
+var i,iVar : integer;
+begin
+    for i := 0 to (ToolBarGrandeurs.ButtonCount-2) do begin
+        // le dernier est l'aide : labelToolBar
+        ToolBarGrandeurs.Buttons[i].visible := i<NbreVariab;
+        if i<NbreVariab then begin
+              iVar :=  indexVariab[i];
+              ToolBarGrandeurs.Buttons[i].caption := grandeurs[iVar].nom;
+              ToolBarGrandeurs.Buttons[i].tag := iVar;
+              ToolBarGrandeurs.Buttons[i].Hint := 'Clic '+grandeurs[iVar].nom+'=ordonnée ; clic droit : à droite'
+        end;
+    end;
+    if NbreVariab>0 then begin
+       abscisseCB.Items.Clear;
+       for i := 0 to pred(NbreVariab) do
+              abscisseCB.Items.Add(grandeurs[indexVariab[i]].nom)
+    end;
 end;
 
 procedure resetEtatModele;
@@ -2661,7 +2898,7 @@ begin
     end;
 end;
 
-var i,j,iVar : integer;
+var i,j : integer;
     m : shortInt;
     LmodifParam : boolean;
 begin // WMRegMaj
@@ -2677,13 +2914,13 @@ begin // WMRegMaj
               Graphes[1].Modif := [];
           end;
           MajChangePage,MajSupprPage : begin
-              if (curseur in [curReticuleData,curReticuleModele]) or
+              if (curseur in [curReticuleData,curReticuleDataNew]) or // curReticuleModele
                  not graphes[1].superposePage
                     then include(graphes[1].Modif,gmPage)
                     else graphes[1].Modif := [];
               if GraphePageIndependante and
-                 (ConfigGraphe[pageCourante]<>nil) then begin
-                   ConfigGraphe[pageCourante].AssignSortie(graphes[1]);
+                 (ConfigGraphe[pageCourante mod maxPagesGr]<>nil) then begin
+                   ConfigGraphe[pageCourante mod MaxPagesGr].AssignSortie(graphes[1]);
                    include(Graphes[1].modif,gmXY);
                    include(Graphes[1].modif,gmOptions);
               end;
@@ -2715,7 +2952,7 @@ begin // WMRegMaj
                           then PostMessage(handle,Wm_Reg_Calcul,CalculAjuste,0)
           end;
           MajAjoutPage : begin
-              if (curseur in [curReticuleData,curReticuleModele]) or
+              if (curseur in [curReticuleData,curReticuleDataNew]) or // curReticuleModele
                   not graphes[1].superposePage
                     then include(graphes[1].Modif,gmPage)
                     else graphes[1].Modif := [];
@@ -2762,7 +2999,10 @@ begin // WMRegMaj
                      ((fin[m]=-1) or (fin[m]=nmes-2)) then
                      fin[m] := pred(nmes)
           end;
-          MajTri : if active then exit;
+          MajTri : begin
+              MajOrdreGrandeurs;
+              if active then exit;
+          end;
           MajPolice : begin
              setTaillePolice;
              Graphes[1].Modif := [];
@@ -2772,7 +3012,6 @@ begin // WMRegMaj
              InitiationAfaire := imInitiationModele in menuPermis;
              ModeleGrBtn.visible := imModeleGr in menuPermis;
              AnimBtn.visible := imAnimation in menuPermis;
-             CornishBtn.visible := imCornish in menuPermis;
              BornesBtn.visible := imBornes in menuPermis;
              VecteursBtn.Visible := imVitesse in menuPermis;
              Graphes[1].Modif := [];
@@ -2794,20 +3033,8 @@ begin // WMRegMaj
                     AnimationTemps.caption := stAnimation+'=f('+grandeurs[indexTri].nom+')';
                     InitManuelleAfaire := true;
                     if AnimationParam.checked then setAnimManuelle;
-                    abscisseCB.Items.Clear;
-                    for i := 0 to pred(NbreVariab) do
-                        abscisseCB.Items.Add(grandeurs[indexVariab[i]].nom)
               end;
-              for i := 0 to (ToolBarGrandeurs.ButtonCount-2) do begin
-              // le dernier est l'aide : labelToolBar
-                  ToolBarGrandeurs.Buttons[i].visible := i<NbreVariab;
-                  if i<NbreVariab then begin
-                     iVar :=  indexVariab[i];
-                     ToolBarGrandeurs.Buttons[i].caption := grandeurs[iVar].nom;
-                     ToolBarGrandeurs.Buttons[i].tag := iVar;
-                     ToolBarGrandeurs.Buttons[i].Hint := 'Clic '+grandeurs[iVar].nom+'=ordonnée ; clic droit : à droite'
-                  end;
-              end;
+              MajOrdreGrandeurs;
               LabelToolBar.Visible := true;
           end;
           MajUnites : exclude(etatModele,UniteParamDefinie);
@@ -2834,17 +3061,16 @@ begin // WMRegMaj
            MajResultat;
            include(graphes[1].Modif,gmValeurModele);
       end;
-      if statGrid.visible then Graphes[1].Modif := []; //??
+      if monteCarloActif then Graphes[1].Modif := []; //??
       if (Graphes[1].Modif<>[]) and not MajFichierEnCours then begin
          if (curseur=curModeleGr) and
             (PageCourante>0) then
                for j := 1 to NbreModele do
                    modeleGraphique[j].setParametres(pages[pageCourante].valeurParam[paramNormal]);
-         setBoutonsModele;
          for i := 2 to 3 do
-             if residusItem.checked
+             (*if residusItem.checked
                 then graphes[i].Modif := []
-                else graphes[i].Modif := graphes[1].Modif;
+                else *) graphes[i].Modif := graphes[1].Modif;
          for i := 1 to 3 do modifGraphe(i);
       end;
       if not AnimationNone.checked and
@@ -2892,10 +3118,10 @@ begin
           CourbeMax := Agraphe.courbes[i];
           CourbeMin := Agraphe.courbes[i]; // pour le compilateur
           im := Agraphe.courbes[i].indexModele;
-          p := Agraphe.courbes[i].pag;
+          p := Agraphe.courbes[i].page;
           for j := succ(i) to pred(Agraphe.courbes.count) do begin
                   if (Agraphe.courbes[j].indexBande=MinConfiance) and
-                     (Agraphe.courbes[j].pag=p) and
+                     (Agraphe.courbes[j].page=p) and
                      (Agraphe.courbes[j].indexModele=im) then
                         CourbeMin := Agraphe.courbes[j];
           end;
@@ -2917,10 +3143,10 @@ begin
           CourbeMax := Agraphe.courbes[i];
           CourbeMin := Agraphe.courbes[i]; // pour le compilateur
           im := Agraphe.courbes[i].indexModele;
-          p := Agraphe.courbes[i].pag;
+          p := Agraphe.courbes[i].page;
           for j := succ(i) to pred(Agraphe.courbes.count) do begin
                   if (Agraphe.courbes[j].indexBande=MinPrediction) and
-                     (Agraphe.courbes[j].pag=p) and
+                     (Agraphe.courbes[j].page=p) and
                      (Agraphe.courbes[j].indexModele=im) then
                         CourbeMin := Agraphe.courbes[j];
           end;
@@ -2942,12 +3168,30 @@ begin
 end; // BandeConfiance
 
 Procedure TestModif(indexGr : integer);
+(*
+{$IFDEF Debug}
+procedure creerFichierConfig(numero : integer);
+var nomFichier : string;
+begin
+     nomFichier := mesDocsDir+'RegressiconfigGraphe'+intToStr(numero)+'.txt';
+     AssignFile(fichier,NomFichier);
+     Rewrite(fichier);
+     ecritConfig;
+     CloseFile(fichier);
+end;
+{$ENDIF}
+*)
+
 var i : integer;
 begin
+{$IFDEF Debug}
+   ecritDebug('Appel testModif');
+  // creerFichierConfig(1);
+{$ENDIF}
         if (([gmXY,gmModele,gmPage,gmValeurs]*Agraphe.modif)<>[]) or
            (Agraphe.courbes.count=0)
             then begin
-               if ([gmValeurs]=Agraphe.modif) or Agraphe.UseDefault
+               if ([gmValeurs]=Agraphe.modif) or Agraphe.UseDefaut or Agraphe.UseZoom
                    then Agraphe.courbes.clear
                    else begin
                        Agraphe.raz;
@@ -2959,12 +3203,16 @@ begin
               if (indexGr<>1) and residusItem.checked
                   then setCoordonneeResidu
                   else setCoordonnee(indexGr);
-              if Agraphe.UseDefault then with Agraphe do begin
+              if Agraphe.UseDefaut or Agraphe.useZoom then with Agraphe do begin
                   monde[mondeX].defini := true;
                   for i := 1 to maxOrdonnee do with Coordonnee[i] do
                       if codeX<>grandeurInconnue then
                          monde[iMondeC].defini := true;
                end;
+               {$IFDEF Debug}
+                   ecritDebug('Sortie testModif');
+              //     creerFichierConfig(2);
+               {$ENDIF}
             end;
 end;
 
@@ -3036,6 +3284,9 @@ begin // PaintBoxPaint
            or lecturePage
            or sizing
               then exit;
+{$IFDEF Debug}
+   ecritDebug('Début paintBoxPaint');
+{$ENDIF}
         indexGr := (sender as Tcontrol).tag;
         if indexGr<1 then indexGr := 1;
         Agraphe := graphes[indexGr];
@@ -3082,7 +3333,7 @@ begin // PaintBoxPaint
            AfficheAnimationManuelle;
            goto finProc;
         end;
-        ZoomManuelBtn.down := Agraphe.UseDefault;
+        ZoomManuelBtn.down := Agraphe.UseDefaut;
         if ZoomManuelBtn.down
            then begin
               ZoomManuelBtn.imageIndex := 38;
@@ -3096,11 +3347,10 @@ begin // PaintBoxPaint
               ZoomAutoBtn.imageIndex := 18;
               ZoomAutoBtn.hint := 'Echelle automatique';
            end;
-        Agraphe.curReticuleDataActif := curseur=curReticuleData;
-        Agraphe.curReticuleModeleActif := curseur=curReticuleModele;
+        Agraphe.curseurActif := curseur;
         PanelAjuste.enabled := false;
         TestModif(indexGr);
-        if not Agraphe.useDefault and (Pages[pageCourante].nmes>0) then begin
+        if not Agraphe.useDefaut and (Pages[pageCourante].nmes>0) then begin
            Agraphe.miniTemps := Pages[pageCourante].valeurVar[0,0];
            Agraphe.maxiTemps := Pages[pageCourante].valeurVar[0,pred(Pages[pageCourante].nmes)];
         end;
@@ -3135,7 +3385,13 @@ begin // PaintBoxPaint
         Agraphe.canvas.FillRect(Agraphe.paintBox.clientRect);
         Agraphe.avecBorne := not(splitterModele.snapped);
         MajIntersection;
+{$IFDEF Debug}
+   ecritDebug('Appel graphe.draw');
+{$ENDIF}
         Agraphe.draw;
+{$IFDEF Debug}
+   ecritDebug('sortie graphe.draw');
+{$ENDIF}
         Agraphe.resetEchelle;
         if active then begin
            setPenBrush(curseur);
@@ -3165,9 +3421,9 @@ begin // PaintBoxPaint
              verifierLog := false;
         end;
         if GraphePageIndependante then begin
-           if ConfigGraphe[pageCourante]=nil then
-              ConfigGraphe[pageCourante] := TtransfertGraphe.Create;
-           ConfigGraphe[pageCourante].AssignEntree(graphes[1]);
+           if ConfigGraphe[pageCourante mod maxPagesGr]=nil then
+              ConfigGraphe[pageCourante mod maxPagesGr] := TtransfertGraphe.Create;
+           ConfigGraphe[pageCourante mod maxPagesGr].AssignEntree(graphes[1]);
         end;
         finProc :
         VecteursBtn.visible := (agraphe.courbes.Count>0) and agraphe.grapheOK;
@@ -3188,6 +3444,20 @@ begin // PaintBoxPaint
             PropCourbeForm.Acourbe := Agraphe.coordonnee[iPropCourbe];
             PropCourbeForm.MaJ;
         end;
+        if Agraphe.curseurActif=CurReticuleDataNew then with Agraphe.curseurOsc[curseurData1] do begin
+           for i := 0 to Agraphe.courbes.Count-1 do
+               if (trLigne in Agraphe.courbes[i].trace) and
+                  (Agraphe.courbes[i].page=pageCourante) then begin
+                     indexCourbe := i;
+                     mondeC := Agraphe.courbes[i].imondeC;
+                     break;
+               end;
+           mondeC := Agraphe.courbes[indexCourbe].iMondeC;
+           grandeurCurseur := Agraphe.courbes[indexCourbe].varY;
+        end;
+{$IFDEF Debug}
+   ecritDebug('Fin paintBoxPaint');
+{$ENDIF}
 end; // PaintBoxPaint
 
 procedure TFgrapheVariab.SetPanelModele(avecModele : boolean);
@@ -3220,8 +3490,7 @@ begin
            ModeleItem.checked := true;
            AnimationNone.checked := true;
            if not(ModeleDefini in etatModele)
-               then LanceCompile
-               else SetBoutonsModele;
+               then LanceCompile;
            MajParametres;
            Resize;
            MemoModele.setFocus;
@@ -3231,7 +3500,7 @@ end;
 
 procedure TFgrapheVariab.AjusteBtnClick(Sender: TObject);
 begin
-// vérification : entrée dans éditeur paramètres à valider }
+// vérification : entrée dans éditeur paramètres à valider
      if (activeControl<>nil) and
         (activeControl.width=editValeur1.width) and
         (activeControl.height=editValeur1.height) and
@@ -3243,7 +3512,7 @@ end;
 procedure TFgrapheVariab.MemoModeleChange(Sender: TObject);
 var i : TcodePage;
 begin
-if statGrid.Visible then exit;
+if monteCarloActif then exit;
 if MajModelePermis then begin
      MajModelePermis := false;
      etatModele := [];
@@ -3271,7 +3540,6 @@ if MajModelePermis then begin
      end;
      if curseur=curModeleGr then setPenBrush(curSelect);
      MajModelePermis := true;
-     setBoutonsModele;
 end end;
 
 Procedure TFgrapheVariab.MajParametres;
@@ -3286,22 +3554,21 @@ begin with pages[pageCourante] do begin
        end;
        for i := succ(NbreParam[paramNormal]) to MaxParametres do
            PanelParam[i].visible := false;
-       setBoutonsModele;
 end end; // MajParametres
 
 procedure TFgrapheVariab.MajResultat;
+var couleurM : Tcolor;
 
-Procedure Ajoute(const Aligne : string;couleur : Tcolor;const aHint : string);
+Procedure Ajoute(const Aligne : string);
 begin
-    memoResultat.selAttributes.color := couleur;
+    memoResultat.selAttributes.color := couleurM;
     MemoResultat.Lines.add(Aligne);
-    hintMemoResultat.add(aHint);
     Pages[pageCourante].TexteResultatModele.add(Aligne);
 end;
 
 procedure verifAleatoire;
 var m,i : integer;
-    curneg,prevneg : boolean;
+    curneg,prevneg,probleme : boolean;
     runs,npos,nneg : integer;
     hintAleatoire : string;
 begin
@@ -3328,153 +3595,274 @@ begin
                   end;
             end;
             inc(runs);
-            pvalueWald := pValue_Wald(runs,nneg,npos);
-            hintAleatoire := 'H0 : les résidus sont aléatoires'+crCR+crLF+
-                             'Proba(modélisation|H0) = '+chainePrec(pValueWald);
-            if pvalueWald<0.05 then Ajoute('Résidus aléatoires ?',clRed,hintAleatoire);
+            probleme := (runs<2) or (nneg<2) or (npos<2);
+            if probleme then begin
+                 couleurM := clRed;
+                 Ajoute('Résidus aléatoires ?');
+            end
+            else begin
+              pvalueWald := pValue_Wald(runs,nneg,npos);
+              if pvalueWald<0.05 then begin
+                 couleurM := clRed;
+                 Ajoute('Résidus aléatoires ?');
+                 hintAleatoire := 'H0 : les résidus sont aléatoires'+crCR+crLF+
+                                'Proba(modélisation|H0) = '+chainePrec(pValueWald);
+                 hintMemoresultat.add(hintAleatoire);
+            end;
+            end;
           end;
       end;
 end;
 
 var m : shortInt;
     i : integer;
-    PourCent : string;
+    indexP : integer;
     DebutCalcul : integer;
     setParam : TsetGrandeur;
-    couleurM : Tcolor;
     testOrigine : double;
     hintOrigine : string;
 begin
-if statGrid.Visible then exit;
+if monteCarloActif then exit;
 with pages[pageCourante] do begin
-    MemoResultat.Clear;
-    hintMemoResultat.clear;
-    hintResultatLabel.visible := false;
-    TexteResultatModele.clear;
-    setParam := [];
-    if ModeleCalcule then begin
-    for m := 1 to NbreModele do with fonctionTheorique[m] do begin
-        couleurM := fonctionTheorique[m].couleur;
-        if modelePourCent then begin
-           PourCent := chainePrec(PrecisionModele[m]);
-           Ajoute(stEcartRelatif,clBlack,'');
-           Ajoute('  '+enTete+' : '+pourCent,couleurM,'');
-        end;
-        if Chi2Actif
-           then Ajoute('Chi2/(N-p)='+formatGeneral(chi2Relatif,precisionMin),couleurM,'Devrait être proche de 1')
-           else begin
-               Ajoute(stEcartTypeModele,clBlack,'');
-               Ajoute('  '+addrY.formatNomEtUnite(sigmaY),couleurM,'');
-               if Lineaire then begin
-                  if withCoeffCorrel then begin
-                     stat2.init(valeurVar[indexX],valeurVar[indexY],debut[m],fin[m]);
-                     Ajoute(stCoeffCorrel+'='+FormatGeneral(stat2.Correlation,precisionCorrel),couleurM,'');
-                  end;
-                  if withPvaleur then begin
-                     stat2.init(valeurVar[indexX],valeurVar[indexY],debut[m],fin[m]);
-                  //   Ajoute('F='+FormatGeneral(stat2.Fisher,5),couleurM,'');
-                  //   Ajoute(stPvaleur+'Fisher)'+chainePrec(pValueFisher),couleurM,'');
-//                         chainePrec(PSnedecor(1,NbrePointsModele,Fisher)),couleur,'');
+   MemoResultat.Clear;
+   hintMemoResultat.clear;
+   hintResultatLabel.visible := false;
+   TexteResultatModele.clear;
+   setParam := [];
+   couleurM := clBlack;
+   if ModeleCalcule and modelePourCent then begin
+      Ajoute(stEcartRelatif);
+      for m := 1 to NbreModele do with fonctionTheorique[m] do begin
+         couleurM := couleur;
+         Ajoute('  '+enTete+' : '+chainePrec(PrecisionModele[m]));
+      end;
+   end;
+   if ModeleCalcule and not chi2Actif then begin
+      couleurM := clBlack;
+      Ajoute(stEcartTypeModele);
+      for m := 1 to NbreModele do with fonctionTheorique[m] do begin
+          couleurM := couleur;
+          Ajoute(addrY.formatNomEtUnite(sigmaY));
+      end;
+   end;
+   if ModeleCalcule then begin
+      for m := 1 to NbreModele do with fonctionTheorique[m] do begin
+         couleurM := couleur;
+         if Chi2Actif
+            then begin
+                Ajoute('Chi2/(N-p)='+formatGeneral(chi2Relatif,precisionMin));
+                hintMemoResultat.add('Devrait être proche de 1');
+            end
+            else begin
+                if Lineaire then begin
+                   if withCoeffCorrel then begin
+                      stat2.init(valeurVar[indexX],valeurVar[indexY],debut[m],fin[m]);
+                      Ajoute(stCoeffCorrel+'='+FormatGeneral(stat2.Correlation,precisionCorrel));
+                   end;
+                   if withPvaleur then begin
+                  //   stat2.init(valeurVar[indexX],valeurVar[indexY],debut[m],fin[m]);
+                  //   Ajoute('F='+FormatGeneral(stat2.Fisher,5));
+                  //   Ajoute(stPvaleur+'Fisher)'+chainePrec(pValueFisher));
+//                         chainePrec(PSnedecor(1,NbrePointsModele,Fisher)));
 // function PSnedecor(Nu1, Nu2 : Integer; X : Float) : Float; // Prob(F >= X)
                      if ParamAjustes then for i := 1 to NbreParam[paramNormal] do begin
+                        indexP := ParamToIndex(paramNormal,i);
                         try
-                         Ajoute(stPvaleur+parametres[paramNormal,i].nom+')'+
-                               chainePrec(PStudent(NbrePointsModele-1,
-                                      abs(ValeurParam[paramNormal,i]/incertParam[i]))),
-                                      couleurM,'');
+                        if indexP in depend then Ajoute(stPvaleur+parametres[paramNormal,i].nom+')'+
+                                chainePrec(PStudent(NbrePointsModele-1,
+                                      abs(ValeurParam[paramNormal,i]/incertParam[i]))));
 // FStudent(Nu : Integer; X : Float) : Float; // Prob(|t| >= X)
 // P-valeur = Prob(t(n-p-1)>valeur/ecarttype)
                         except
                         end;
                      end; // paramAjustes
                    end // Pvaleur
-               end; // lineaire
-           end; // non Chi2
-        if (PrecisionModele[m]>0.5) and InitiationAfaire then begin
-           InitiationAfaire := false;
-           afficheErreur(erEcart,HELP_EcartModelisationExperience);
-        end;
-        if ErreurModele then Ajoute(erPointModele+IntToStr(PosErreurModele),couleurM,'');
-    end;
-    IntersectionItem.visible := false;
-    for m := 2 to NbreModele do with fonctionTheorique[m] do
-        if isCorrect(Y_inter[m]) and isCorrect(X_inter[m]) then begin
+                end; // lineaire
+            end; // non Chi2
+         if (PrecisionModele[m]>0.5) and InitiationAfaire then begin
+            InitiationAfaire := false;
+            afficheErreur(erEcart,HELP_EcartModelisationExperience);
+         end;
+         if ErreurModele then Ajoute(erPointModele+IntToStr(PosErreurModele));
+      end; // for m
+      IntersectionItem.visible := false;
+      for m := 2 to NbreModele do with fonctionTheorique[m] do
+         if isCorrect(Y_inter[m]) and isCorrect(X_inter[m]) then begin
+             couleurM := clBlue;
              Ajoute(stIntersection+
-                    IntToStr(pred(m))+'-'+IntToStr(m)+' : ',clBlue,'');
+                    IntToStr(pred(m))+'-'+IntToStr(m)+' : ');
              if sigmaX_inter[m]>0
-                then Ajoute(grandeurs[indexX].formatNomPrecisionUnite(X_inter[m],sigmaX_inter[m]),clBlue,'')
-                else Ajoute(grandeurs[indexX].formatNomEtUnite(X_inter[m]),clBlue,'');
+                then Ajoute(grandeurs[indexX].formatNomPrecisionUnite(X_inter[m],sigmaX_inter[m]))
+                else Ajoute(grandeurs[indexX].formatNomEtUnite(X_inter[m]));
              if sigmaY_inter[m]>0
-                then Ajoute(grandeurs[indexY].formatNomPrecisionUnite(Y_inter[m],sigmaY_inter[m]),clBlue,'')
-                else Ajoute(grandeurs[indexY].formatNomEtUnite(Y_inter[m]),clBlue,'');
-             Ajoute('',clBlue,'');
+                then Ajoute(grandeurs[indexY].formatNomPrecisionUnite(Y_inter[m],sigmaY_inter[m]))
+                else Ajoute(grandeurs[indexY].formatNomEtUnite(Y_inter[m]));
+             Ajoute('');
              IntersectionItem.visible := true;
-        end;
-    IntersectionTer.visible := IntersectionItem.visible;
-    if ParamAjustes
-       then begin
-          for i := 1 to NbreParam[paramNormal] do begin
-             EditValeur[i].text := FormatGeneral(ValeurParam[paramNormal,i],3);
-             include(setParam,ParamToIndex(paramNormal,i));
-          end;
-          if AffIncertParam in [i95,iBoth] then begin
-             Ajoute(stIntervalle95,clBlack,'');
-             for i := 1 to NbreParam[paramNormal] do begin
-                 Ajoute(ParamEtPrec(i,false),clBlack,'');
-                 if abs(incert95Param[i]/ValeurParam[paramNormal,i])<PrecisionMaxParam then
-                    Ajoute(stTropPrecis,clRed,'');
-             end;
-          end;
-          if not withPvaleur then begin
-             for i := 1 to NbreParam[paramNormal] do
-             // if isOrigine[i] then begin
+         end;
+      IntersectionTer.visible := IntersectionItem.visible;
+      if ParamAjustes
+         then begin
+            for i := 1 to NbreParam[paramNormal] do begin
+              EditValeur[i].text := FormatGeneral(ValeurParam[paramNormal,i],3);
+              include(setParam,ParamToIndex(paramNormal,i));
+            end;
+            if AffIncertParam in [i95,iBoth] then begin
+               couleurM := clBlack;
+               Ajoute(stIntervalle95);
+               for i := 1 to NbreParam[paramNormal] do begin
+                  Ajoute(ParamEtPrec(i,false));
+                  if abs(incert95Param[i]/ValeurParam[paramNormal,i])<PrecisionMaxParam then begin
+                     couleurM := clRed;
+                     Ajoute(stTropPrecis);
+                  end;
+               end;
+            end;
+            if not withPvaleur then begin
+                couleurM := clRed;
+                for i := 1 to NbreParam[paramNormal] do begin
+             //  if isOrigine[i] then begin
              // test origine=0 pour régression linéaire
              // On peut considérer origine=0 avec un seuil critique de x%
-                 if ParamToIndex(paramNormal,i) in FonctionTheorique[1].depend
-                    then begin
-                       testOrigine := PStudent(FonctionTheorique[1].NbrePointsModele-1,
-                                abs(ValeurParam[paramNormal,i]/incertParam[i]));
-                       if testOrigine>0.05 then begin
-                          hintOrigine := 'H0 : '+parametres[paramNormal,i].nom+'=0'+crCR+crLF+
-                               'Proba(modélisation|H0) = '+chainePrec(testOrigine);
-                          Ajoute(parametres[paramNormal,i].nom+'=0 ?',clRed,hintOrigine);
-                       end
-                       else if testOrigine=0 then begin
-                            testOrigine :=  abs(ValeurParam[paramNormal,i]/incertParam[i]);
-                            if testOrigine<1 then begin // Zscore<1
-                               hintOrigine := parametres[paramNormal,i].nom+' : incertitude>valeur !';
-                               Ajoute(parametres[paramNormal,i].nom+'=0 ?',clRed,hintOrigine);
-                            end
-                       end
+       (*          if ParamToIndex(paramNormal,i) in FonctionTheorique[1].depend
+                    then begin  *)
+                    testOrigine := PStudent(FonctionTheorique[1].NbrePointsModele-1,
+                                            abs(ValeurParam[paramNormal,i]/incertParam[i]));
+                    if testOrigine>0.05 then begin
+                       hintOrigine := 'H0 : '+parametres[paramNormal,i].nom+'=0'+crCR+crLF+
+                                      'Proba(modélisation|H0) = '+chainePrec(testOrigine);
+                       Ajoute(parametres[paramNormal,i].nom+'=0 ?');
+                       hintmemoResultat.Add(hintOrigine);
                     end
-          end;
-          if AffIncertParam in [iType,iBoth] then begin
-              Ajoute(stIncertitudeType,clBlack,'');
-              for i := 1 to NbreParam[paramNormal] do begin
-                  Ajoute(ParamEtPrec(i,true),clBlack,'');
-                  if abs(incertParam[i]/ValeurParam[paramNormal,i])<PrecisionMaxParam then
-                     Ajoute(stTropPrecis,clRed,'');
-              end;
-          end;
-          verifAleatoire;
+                    else if testOrigine=0 then begin
+                         testOrigine :=  abs(ValeurParam[paramNormal,i]/incertParam[i]);
+                         if testOrigine<1 then begin // Zscore<1
+                              hintOrigine := parametres[paramNormal,i].nom+' : incertitude>valeur !';
+                              Ajoute(parametres[paramNormal,i].nom+'=0 ?');
+                              hintmemoResultat.Add(hintOrigine);
+                         end
+                    end;
+                end; // for i
+            end; // not Pvaleur
+            if AffIncertParam in [iType,iBoth] then begin
+               couleurM := clBlack;
+               Ajoute(stIncertitudeType);
+               for i := 1 to NbreParam[paramNormal] do begin
+                  Ajoute(ParamEtPrec(i,true));
+                  if abs(incertParam[i]/ValeurParam[paramNormal,i])<PrecisionMaxParam then begin
+                     couleurM := clRed;
+                     Ajoute(stTropPrecis);
+                  end;
+               end;
+            end;
+            verifAleatoire;
        end
        else begin
-           Ajoute(stTest1,clRed,'');
-           Ajoute(stTest2,clRed,'');
-           Ajoute(stTest3,clRed,'');
+           couleurM := clRed;
+           Ajoute(stTest1);
+           Ajoute(stTest2);
+           Ajoute(stTest3);
            MajBtn.Enabled := true;
        end;
-    debutCalcul := 0;
-    for i := 0 to pred(NbreGrandeurs) do with grandeurs[i] do begin
+     debutCalcul := 0;
+     for i := 0 to pred(NbreGrandeurs) do with grandeurs[i] do begin
         if (fonct.genreC<>g_experimentale) and
            ((setParam * fonct.depend) <> [] ) then begin
            debutCalcul := i;
            break;
         end;
-    end;
-    if debutCalcul>0 then RecalculP;
-    end; // ModeleCalcule
+     end;
+     if debutCalcul>0 then RecalculP;
+   end; // ModeleCalcule
 end end; // MajResultat
+
+procedure TFgrapheVariab.MajResultatLatex(p : TcodePage);
+
+Procedure Ajoute(Aligne : string;Acolor : Tcolor);
+begin
+    if (Acolor<>clBlack) and (NbreModele>1) then Aligne := '{\color{'+couleurLatex(Acolor)+'} '+Aligne+'}';
+    Pages[pageCourante].TexteResultatModele.add(Aligne);
+end;
+
+var m : shortInt;
+    i : integer;
+    testOrigine : double;
+    hintOrigine : string;
+begin with pages[p] do begin
+   TexteResultatModele.clear;
+   if ModeleCalcule and modelePourCent then
+      for m := 1 to NbreModele do with fonctionTheorique[m] do
+         Ajoute(stEcartRelatif+'  '+enTete+' : '+chainePrec(PrecisionModele[m]),couleur);
+   if ModeleCalcule and not chi2Actif then
+      for m := 1 to NbreModele do with fonctionTheorique[m] do
+          Ajoute(stEcartTypeModele+' '+addrY.formatNomEtUnite(sigmaY),couleur);
+   if ModeleCalcule then begin
+      for m := 1 to NbreModele do with fonctionTheorique[m] do begin
+         if Chi2Actif
+            then Ajoute('Chi2/(N-p)='+formatGeneral(chi2Relatif,precisionMin),couleur)
+            else if Lineaire and withCoeffCorrel then begin
+                   stat2.init(valeurVar[indexX],valeurVar[indexY],debut[m],fin[m]);
+                   Ajoute(stCoeffCorrel+'='+FormatGeneral(stat2.Correlation,precisionCorrel),couleur);
+            end; // lineaire
+         if ErreurModele then Ajoute(erPointModele+IntToStr(PosErreurModele),couleur);
+      end; // for m
+      for m := 2 to NbreModele do with fonctionTheorique[m] do
+         if isCorrect(Y_inter[m]) and isCorrect(X_inter[m]) then begin
+             hintOrigine := stIntersection+IntToStr(pred(m))+'-'+IntToStr(m)+' : ';
+             if sigmaX_inter[m]>0
+                then hintOrigine := hintOrigine+grandeurs[indexX].formatNomPrecisionUnite(X_inter[m],sigmaX_inter[m])
+                else hintOrigine := hintOrigine+grandeurs[indexX].formatNomEtUnite(X_inter[m]);
+             hintOrigine := hintOrigine+', ';
+             if sigmaY_inter[m]>0
+                then hintOrigine := hintOrigine+grandeurs[indexY].formatNomPrecisionUnite(Y_inter[m],sigmaY_inter[m])
+                else hintOrigine := hintOrigine+grandeurs[indexY].formatNomEtUnite(Y_inter[m]);
+             Ajoute(hintOrigine,clBlack);
+         end;
+      if ParamAjustes
+         then begin
+            if AffIncertParam in [i95,iBoth] then begin
+               Ajoute('Les incertitude sont des incertitudes élargies à \95%',clBlack);
+               for i := 1 to NbreParam[paramNormal] do begin
+                  hintOrigine := ParamEtPrec(i,false);
+                  if abs(incert95Param[i]/ValeurParam[paramNormal,i])<PrecisionMaxParam
+                     then Ajoute(hintOrigine+' '+stTropPrecis,clred)
+                     else Ajoute(hintOrigine,clBlack);
+               end;
+            end;
+            if not withPvaleur then begin
+               for i := 1 to NbreParam[paramNormal] do
+                 if ParamToIndex(paramNormal,i) in FonctionTheorique[1].depend
+                    then begin
+                       testOrigine := PStudent(FonctionTheorique[1].NbrePointsModele-1,
+                                abs(ValeurParam[paramNormal,i]/incertParam[i]));
+                       if testOrigine>0.05 then begin
+                          hintOrigine := 'H0 : '+parametres[paramNormal,i].nom+'=0';
+                          hintOrigine := hintOrigine+' Proba(modélisation|H0) = '+chainePrec(testOrigine);
+                          hintOrigine := hintOrigine+' ; '+parametres[paramNormal,i].nom+'=0 ?';
+                          Ajoute(hintOrigine,clRed);
+                       end
+                       else if testOrigine=0 then begin
+                            testOrigine :=  abs(ValeurParam[paramNormal,i]/incertParam[i]);
+                            if testOrigine<1 then begin // Zscore<1
+                               hintOrigine := parametres[paramNormal,i].nom+' : incertitude>valeur !';
+                               hintOrigine := hintOrigine+' ; '+parametres[paramNormal,i].nom+'=0 ?';
+                               Ajoute(hintOrigine,clred);
+                            end
+                       end
+                    end
+            end;
+            if AffIncertParam in [iType,iBoth] then begin
+               Ajoute('Les incertitudes sont des incertitudes types',clBlack);
+               for i := 1 to NbreParam[paramNormal] do begin
+                  hintOrigine := ParamEtPrec(i,true);
+                  if abs(incertParam[i]/ValeurParam[paramNormal,i])<PrecisionMaxParam
+                     then Ajoute(hintOrigine+ ' '+stTropPrecis,clRed)
+                     else Ajoute(hintOrigine,clBlack);
+               end;
+            end;
+       end;
+   end; // ModeleCalcule
+end end; // MajResultatLatex
 
 procedure TFgrapheVariab.LanceModele(ajuste : boolean);
 var k : TcodePage;
@@ -3484,7 +3872,7 @@ begin
      if not(ajuste) and
        ( (OmManuel in Graphes[1].OptionModele) or
          splitterModele.snapped) then exit;
-     if ajuste then NbreSuiteValeurParam := 0;
+//     if ajuste then NbreSuiteValeurParam := 0;
      Screen.cursor := crHourGlass;
      PanelAjuste.enabled := true;
      if not (ModeleDefini in etatModele) then begin
@@ -3506,7 +3894,7 @@ begin
      VerifParametres;
      ajoutGrandeurNonModele := False;
      if modeleDependant or not ajuste
-        then EffectueModele(ajuste,true)
+        then EffectueModele(ajuste)
         else begin
           for m := 1 to NbreModele do
               EffectueModeleMono(m);
@@ -3514,7 +3902,7 @@ begin
         end;
      if ajuste and
         (OmManuel in Graphes[1].OptionModele)
-        and not pages[pageCourante].modeleCalcule then EffectueModele(false,true);
+        and not pages[pageCourante].modeleCalcule then EffectueModele(false);
      MajBtn.enabled := false;
      if (OmEchelle in graphes[1].OptionModele) then
         graphes[1].monde[mondeX].Defini := false;
@@ -3523,11 +3911,9 @@ begin
 //     if active then SetFocus;
      if ajuste then ModifFichier := true;
      Screen.cursor := crDefault;
-     setBoutonsModele;
      if not(splitterModele.snapped) then setParamEdit;
      for k := 1 to NbrePages do ModeleCalc[k] := false;
-     if StatGrid.Visible then exit;
-     Application.MainForm.Perform(WM_Reg_Maj,MajModele,0);
+     if not monteCarloActif then Application.MainForm.Perform(WM_Reg_Maj,MajModele,0);
 end;// LanceModele
 
 procedure TFgrapheVariab.LanceCompile;
@@ -3567,9 +3953,9 @@ begin
              MajBtn.enabled := true;
              if showing then setFocus;
         end;
-    setBoutonsModele;
     MajModelePermis := true;
     TrigoLabel.Visible := fonctionTheorique[1].isSinusoide;
+    if PrevenirTri then verifTri;
     AjustePanelModele;
 end; // LanceCompile
 
@@ -3604,6 +3990,33 @@ begin
 end;
 
 Procedure TFgrapheVariab.ecritConfig;
+
+procedure ecritDefaut;
+
+procedure ecritMonde(m : TindiceMonde);
+begin with graphes[1].monde[m] do begin
+       if graphes[1].useZoom then getMinMaxdefaut;
+       writeln(fichier,minDefaut);
+       writeln(fichier,maxDefaut);
+       writeln(fichier,deltaAxe);
+       writeln(fichier,NTicks);
+end end;
+
+begin
+    if (graphes[1].useDefaut) or
+       (graphes[1].useDefautX) or
+       (graphes[1].useZoom) then begin
+       writeln(fichier,symbReg2,'13 '+stDefaut);
+       ecritMonde(mondeX);
+       ecritMonde(mondeY);
+       if not graphes[1].monde[mondeDroit].defini then begin
+           graphes[1].monde[mondeDroit].minDefaut := 0;
+           graphes[1].monde[mondeDroit].maxDefaut := 1;
+       end;
+       ecritMonde(mondeDroit);
+       writeln(fichier,ord(graphes[1].autoTick));
+    end;
+end;
 
 Procedure ecritAnimation;
 var i : integer;
@@ -3656,6 +4069,9 @@ begin with Graphes[indexGr] do begin
       writeln(fichier,symbReg2,NbreOrdonnee,' '+stCouleurPoint+Code);
       for i := 1 to NbreOrdonnee do
           writeln(fichier,coordonnee[i].couleurPoint);
+      writeln(fichier,symbReg2,NbreOrdonnee,' '+stCodeCouleurPoint+Code);
+      for i := 1 to NbreOrdonnee do
+          writeln(fichier,ord(coordonnee[i].codeCouleur));
    end;
    writeln(fichier,symbReg2,NbreOrdonnee,' MONDE'+Code);
    for i := 1 to NbreOrdonnee do
@@ -3669,7 +4085,7 @@ begin with Graphes[indexGr] do begin
    writeln(fichier,symbReg2,succ(mondeDroit-mondeX),' INVERSE'+Code);
    for i := mondeX to MondeDroit do
        writeln(fichier,ord(monde[i].axeInverse));
-   writeln(fichier,symbReg2,'25 '+stOptions+Code);
+   writeln(fichier,symbReg2,'26 '+stOptions+Code);
    writeln(fichier,byte(optionGraphe));{1}
    writeln(fichier,byte(optionModele));{2}
    writeln(fichier,ord(traceDefaut));{3}
@@ -3693,10 +4109,11 @@ begin with Graphes[indexGr] do begin
    writeln(fichier,ord(UseSelect));{19}
    writeln(fichier,NbreVecteurVitesseMax);{20}
    writeln(fichier,NbreTexteMax);{21}
-   writeln(fichier,PenWidthVGA);{22}
+   writeln(fichier,PenWidthCourbe);{22}
    writeln(fichier,zeroPolaire);{23}
    writeln(fichier,ord(withBandeConfiance));{24}
    writeln(fichier,ord(withBandePrediction));{25}
+   writeln(fichier,ord(reperePage));{26}
    for i := 0 to pred(Dessins.count) do
        if not(dessins[i].identification in [identDroite,identRaie,identAnimation]) and
          (dessins[i].repere=nil) then begin
@@ -3708,7 +4125,7 @@ begin with Graphes[indexGr] do begin
           writeln(fichier,symbReg2,IntToStr(NbreDataEquiv)+' TANGENTE'+intToStr(p));
           equivalences[p][i].Store;
        end;
-   if curseur=curReticuleData then begin
+   if curseur=curReticuleData then begin // TODO
       writeln(fichier,symbReg2,'17 CURSEUR');
       for i := curseurData1 to curseurData2 do with curseurOsc[i] do begin // 8*2=16
           writeln(fichier,xc);
@@ -3730,6 +4147,7 @@ var i : integer;
     p : TcodePage;
 begin  // ecritConfig
    ecritGraphe(1,'');
+   ecritDefaut;
    if paintBox2.visible and
       not residusItem.Checked then ecritGraphe(2,'Bis');
    if paintBox3.visible and
@@ -3745,7 +4163,7 @@ begin  // ecritConfig
       writeln(fichier,height);
    end;
    if graphePageIndependante then begin
-       for p := 1 to nbrePages do
+       for p := 1 to maxPagesGr do
            if configGraphe[p]<>nil then
               configGraphe[p].ecrit(p);
    end;
@@ -3758,6 +4176,49 @@ begin  // ecritConfig
 end; // ecritConfig
 
 Procedure TFGrapheVariab.EcritConfigXML(Anode : IXMLNode);
+
+procedure ecritDefaut;
+
+procedure ecritMonde(m : TindiceMonde);
+var  DefautXML : IXMLNode;
+begin with graphes[1].monde[m] do begin
+       if graphes[1].useZoom then getMinMaxdefaut;
+       DefautXML := ANode.AddChild(stDefaut);
+       DefautXML.Attributes['Index'] := intToStr(ord(m));
+       writeFloatXML(DefautXML,'MinD',minDefaut);
+       writeFloatXML(DefautXML,'MaxD',maxDefaut);
+       writeFloatXML(DefautXML,'Delta',deltaAxe);
+       writeIntegerXML(DefautXML,'NTicks',NTicks);
+end end;
+
+var m : TIndiceMonde;
+begin
+    if (graphes[1].useDefaut) or
+       (graphes[1].useDefautX) or
+       (graphes[1].useZoom) then begin
+       for m := mondeX to mondeDroit do
+           ecritMonde(m);
+    end;
+end; // ecritDefaut
+
+Procedure ecritAnimation;
+var i : integer;
+    AnimXML,ParamXML : IXMLNode;
+begin
+   AnimXML := Anode.AddChild('ANIMATION');
+   writeBoolXML(AnimXML,'AnimationTemporelle',AnimationTemps.checked);
+   writeBoolXML(AnimXML,'AnimationManuelle',AnimationParam.checked);
+   writeBoolXML(AnimXML,'TitreAnimation',titreAnimCB.checked);
+   writeIntegerXML(AnimXML,'NbreTick',NbreTickbar.position);
+   writeBoolXML(AnimXML,'LignePoint',LignePointCB.checked);
+   writeIntegerXML(AnimXML,'NbreParamAnim',NbreParamAnim);
+   for i := 0 to pred(NbreParamAnim) do begin
+       ParamXML := AnimXML.AddChild('ParamAnim');
+       ParamXML.Attributes['Index'] := intToStr(i);
+       paramAnimManuelle[i].storeXML(ParamXML);
+   end;
+end;
+
 var i,p : integer;
     OptionsXML,CoordXML : IXMLNode;
 begin with Graphes[1] do begin
@@ -3788,30 +4249,59 @@ begin with Graphes[1] do begin
    writeIntegerXML(optionsXML,'OrdreLissage',OrdreLissage);
    writeIntegerXML(optionsXML,'NvecteurMax',NbreVecteurVitesseMax);
    writeIntegerXML(optionsXML,'NtexteMax',NbreTexteMax);
+   writeBoolXML(optionsXML,'AutoTick',graphes[1].autoTick);
  //  writeFloatXML(optionsXML,'ZeroPolaire',zeroPolaire);
+   ecritDefaut;
    for i := 0 to pred(Dessins.count) do begin
          if dessins[i].isTexte
-         then OptionsXML := ANode.addChild('TEXTE')
-         else OptionsXML := ANode.addChild('SHAPE');
+            then OptionsXML := ANode.addChild('TEXTE')
+            else OptionsXML := ANode.addChild('SHAPE');
          dessins[i].StoreXML(OptionsXML);
    end;
-   for p := 1 to nbrePages do
+   for p := 1 to nbrePages do begin
        for i := 0 to pred(Equivalences[p].count) do begin
            OptionsXML := ANode.addChild(stTangente);
            OptionsXML.Attributes[stPage] := intToStr(p);
            equivalences[p][i].StoreXML(OptionsXML);
-           OptionsXML := writeBoolXML(ANode,'MODELECALC',Pages[p].ModeleCalcule);
-           OptionsXML.Attributes[stPage] := intToStr(p);
        end;
+       OptionsXML := writeBoolXML(ANode,'MODELECALC',Pages[p].ModeleCalcule);
+       OptionsXML.Attributes[stPage] := intToStr(p);
+    end;
+    if not animationNone.checked or
+       (NbreParamAnim>0) then ecritAnimation;
 end end;  // ecritConfigXML
 
 Procedure TFgrapheVariab.litConfig;
 var imax : integer;
 
+procedure litDefaut;
+
+Procedure litMonde(amonde : TindiceMonde);
+var min, max : double;
+begin with graphes[1].monde[aMonde] do begin
+    readLnNombreWin(min);
+    readLnNombreWin(max);
+    readLnNombreWin(deltaAxe);
+    readLn(fichier,NTicks);
+    SetMinMaxDefaut(min, max);
+end end;
+
+var i : integer;
+begin
+    graphes[1].useDefaut := true;
+    graphes[1].useDefautX := true;
+    graphes[1].useZoom := false;
+    graphes[1].monde[mondeX].defini := true;
+    litMonde(mondeX);
+    litMonde(mondeY);
+    litMonde(mondeDroit);
+    graphes[1].autoTick := litBooleanWin;
+    for i := 14 to imax do readln(fichier);
+end;
+
 procedure VerifCoord(indexGr : integer);
 var i : integer;
 begin with graphes[indexGr] do begin
-    for i := mondeX to mondeSans do monde[i].axe := nil;
     for i := 1 to maxOrdonnee do with coordonnee[i] do begin
         codeY := indexNom(nomY);
         if codeY<>grandeurInconnue
@@ -3819,11 +4309,8 @@ begin with graphes[indexGr] do begin
         codeX := indexNom(nomX);
         if codeX<>grandeurInconnue then
            monde[mondeX].axe := grandeurs[codeX];
-        monde[iMondeC].defini := false;
         exclude(trace,trSonagramme);
     end;
-    if not grapheCourant.useDefaultX then
-       monde[MondeX].defini := false; // ??
 end end;
 
 Procedure litAnimationTemporelle;
@@ -3858,8 +4345,9 @@ begin
      for i := (Nparam*Nitem+supplement+1) to imax do readln(fichier);
      AnimationParam.checked := check;
      include(graphes[1].modif,gmEchelle);
-     graphes[1].useDefault := false;
-     graphes[1].useDefaultX := false;
+     graphes[1].useDefaut := false;
+     graphes[1].useDefautX := false;
+     graphes[1].useZoom := false;
      graphes[1].autoTick := true;
      initManuelleAfaire := true;
 end;
@@ -3923,6 +4411,10 @@ begin
          result := 27;
          exit;
       end;
+      if pos(stCodeCouleurPoint,ligneWin)<>0 then begin
+         result := 29;
+         exit;
+      end;
       if pos('ANIMATION',ligneWin)<>0 then begin
          if pos('temporelle',ligneWin)<>0 then begin
             result := 14;
@@ -3971,6 +4463,10 @@ begin
          result := 25;
          exit;
       end;
+      if pos(stDefaut,ligneWin)<>0 then begin
+         result := 28;
+         exit;
+      end;
 //      if pos('Identification',ligneWin)<>0 then choix := 26;
 
 end;
@@ -3992,12 +4488,14 @@ begin // litConfig
    majFichierEnCours := true;
    Curseur := curSelect;
    for i := mondeX to mondeSans do
-       for j := 1 to 3 do
+       for j := 1 to 3 do begin
            graphes[j].monde[i].axe := nil;
+           graphes[j].monde[i].defini := false;
+       end;
    for i := 1 to MaxPages do ModeleCalc[i] := false;
    animationNone.checked := true;
    nbreGraphe := UnGr;
-   penWidthVGA := 1;
+   penWidthCourbe := 1;
    while (Length(LigneWin)>0) and (ligneWin[1]=symbReg2) do begin
       configCharge := true;
       imax := NbreLigneWin(ligneWin);
@@ -4005,7 +4503,7 @@ begin // litConfig
       if pos('DEBUT PAGE',ligneWin)<>0 then begin
          litLigneWin;
          zInt := strToInt(ligneWin); // numéro de page
-         if (zint>0) and (zint<=maxPages) then begin
+         if (zint>0) and (zint<=maxPagesGr) then begin
             if ConfigGraphe[zint]=nil then
                ConfigGraphe[zint] := TTransfertGraphe.create;
             litLigneWin;
@@ -4073,8 +4571,8 @@ begin // litConfig
              litLigneWin; {5}
              DimPointVGA := strToInt(ligneWin);
              if imax>=6 then begin
-                useDefault := litBooleanWin; {6}
-                useDefault := false;
+                useDefaut := litBooleanWin; {6}
+                useDefaut := false;
              end;
              if imax>=7 then superposePage := litBooleanWin; {7}
              if imax>=8 then avecEllipse := litBooleanWin; {8}
@@ -4113,12 +4611,17 @@ begin // litConfig
              if imax>=21 then readln(fichier,NbreTexteMax); {21 }
              if imax>=22 then begin
                 readln(fichier,zFloat);{22}
-                PenWidthVGA := round(zFloat);
+                PenWidthCourbe := round(zFloat);
              end;
              if imax>=23 then readln(fichier,zeroPolaire);{23}
              if imax>=24 then withBandeConfiance := litBooleanWin;{24}
              if imax>=25 then withBandePrediction := litBooleanWin;{25}
-             for i := 26 to imax do readln(fichier);
+             if imax>=26 then begin {26}
+                 litLigneWin;
+                 zint := strToInt(ligneWin);
+                 reperePage := TreperePage(zint);
+             end;
+             for i := 27 to imax do readln(fichier);
            end;
            6 : for i := 1 to imax do
                 Agraphe.monde[pred(i)].zeroInclus := litBooleanWin;
@@ -4211,7 +4714,8 @@ begin // litConfig
               modeleGraphique[1].graphe := graphes[1];
            end;
            25 : with Agraphe.CurseurOsc[curseurData2] do begin
-                  curseur := curReticuleModele;
+                 // curseur := curReticuleModele;
+                  curseur := curSelect;
                   readln(fichier,xc);
                   readln(fichier,yc);
                   readln(fichier,ic);
@@ -4232,6 +4736,11 @@ begin // litConfig
            end;
            27 : for i := 1 to imax do
                 Agraphe.coordonnee[i].couleurPoint := litLigneWinU;
+           28 : litDefaut;
+           29 : for i := 1 to imax do begin
+                readln(fichier,zWord);
+                Agraphe.coordonnee[i].codeCouleur := TcodeCouleur(zWord);
+           end;
        end; // case
        if lectureOK then litLigneWinU;
     end;
@@ -4243,6 +4752,8 @@ end; // litConfig
 
 Procedure TFgrapheVariab.litConfigXML(ANode : IXMLNode);
 var CoordCourante : integer;
+    mondeCourant : TIndiceMonde;
+    avecDefaut : boolean;
 
 procedure ResetCoord(g : integer);
 var i : integer;
@@ -4260,6 +4771,18 @@ begin with graphes[g] do begin
 end end;
 
 procedure VerifCoord;
+
+procedure affecteDefaut;
+var m : TindiceMonde;
+begin
+    graphes[1].useDefaut := true;
+    graphes[1].useDefautX := true;
+    graphes[1].useZoom := false;
+    graphes[1].monde[mondeX].defini := true;
+    for m := mondeX to mondeDroit do with graphes[1].monde[m] do
+        SetMinMaxDefaut(mini, maxi);
+end;
+
 var i : integer;
 begin with graphes[1] do begin
     for i := 1 to maxOrdonnee do with coordonnee[i] do begin
@@ -4270,7 +4793,24 @@ begin with graphes[1] do begin
         if codeX<>grandeurInconnue then
            monde[mondeX].axe := grandeurs[codeX];
     end;
+    if avecDefaut then affecteDefaut;
 end end;
+
+Procedure AffecteAnimation;
+var i : integer;
+begin
+     for i := 0 to pred(NbreParamAnim) do with paramAnimManuelle[i] do begin
+         sliderA.max := sliderMaxValue;
+         SliderA.lineSize := succ(sliderA.max div 8);
+         SliderA.pageSize := succ(sliderA.max div 32);
+     end;
+     include(graphes[1].modif,gmEchelle);
+     graphes[1].useDefaut := false;
+     graphes[1].useDefautX := false;
+     graphes[1].useZoom := false;
+     graphes[1].autoTick := true;
+     initManuelleAfaire := true;
+end;
 
 procedure LoadXMLInReg(ANode: IXMLNode);
 
@@ -4290,9 +4830,42 @@ var Adessin : Tdessin;
     NewEquivalence : Tequivalence;
 begin // loadXMLInReg
       with graphes[1] do begin
+      if ANode.NodeName='AnimationTemporelle' then begin
+         AnimationTemps.checked := GetBoolXML(ANode);
+         exit;
+      end;
+      if ANode.NodeName='AnimationManuelle' then begin
+         AnimationParam.checked := GetBoolXML(ANode);
+         exit;
+      end;
+      if ANode.NodeName='TitreAnimation' then begin
+         titreAnimCB.checked := GetBoolXML(ANode);
+         exit;
+      end;
+      if ANode.NodeName='NbreTick' then begin
+         NbreTickbar.position := GetIntegerXML(ANode);
+         exit;
+      end;
+      if ANode.NodeName='LignePoint' then begin
+         LignePointCB.checked := GetBoolXML(ANode);
+         exit;
+      end;
+      if ANode.NodeName='NbreParamAnim' then begin
+         NbreParamAnim := GetIntegerXML(ANode);
+         exit;
+      end;
       if ANode.NodeName='COORD' then begin
          coordCourante := ANode.Attributes['Index'];
          suite;
+         exit;
+      end;
+      if ANode.NodeName='ANIMATION' then begin
+         suite;
+         exit;
+      end;
+      if ANode.NodeName='ParamAnim' then begin
+         p := ANode.Attributes['Index'];
+         paramAnimManuelle[p].loadXML(ANode);
          exit;
       end;
       if ANode.NodeName='X' then begin
@@ -4314,6 +4887,11 @@ begin // loadXMLInReg
          exit;
       end;
       if ANode.NodeName=stOptions then begin
+         suite;
+         exit;
+      end;
+      if ANode.NodeName=stDefaut then begin
+         mondeCourant := TIndiceMonde(ANode.Attributes['Index']);
          suite;
          exit;
       end;
@@ -4379,8 +4957,33 @@ begin // loadXMLInReg
          superposePage := GetBoolXML(ANode);
          exit;
       end;
-      if ANode.NodeName='UseDefault' then begin
-         useDefault := GetBoolXML(ANode);
+      if ANode.NodeName='AutoTick' then begin
+         autoTick := GetBoolXML(ANode);
+         exit;
+      end;
+      if ANode.NodeName='NTicks' then begin
+         graphes[1].monde[mondeCourant].NTicks := GetIntegerXML(ANode);
+         exit;
+      end;
+      if ANode.NodeName='MinD' then begin
+         graphes[1].monde[mondeCourant].Mini := GetFloatXML(ANode);
+         avecDefaut := true;
+         exit;
+      end;
+      if ANode.NodeName='MaxD' then begin
+         graphes[1].monde[mondeCourant].Maxi := GetFloatXML(ANode);
+         exit;
+      end;
+      if ANode.NodeName='Delta' then begin
+         graphes[1].monde[mondeCourant].DeltaAxe := GetFloatXML(ANode);
+         exit;
+      end;
+      if Anode.NodeName='NvecteurMax' then begin
+          NbreVecteurVitesseMax := GetIntegerXML(ANode);
+          exit;
+      end;
+      if ANode.NodeName='UseDefaut' then begin
+         useDefaut := GetBoolXML(ANode);
          exit;
       end;
       if ANode.NodeName='ProjeteVect' then begin
@@ -4435,12 +5038,14 @@ begin
    for i := 1 to MaxPages do ModeleCalc[i] := false;
    animationNone.checked := true;
    nbreGraphe := UnGr;
-   penWidthVGA := 1;
+   penWidthCourbe := 1;
    configCharge := true;
+   avecDefaut := false;
    if ANode.HasChildNodes then
       for I := 0 to ANode.ChildNodes.Count - 1 do
           LoadXMLInReg(ANode.ChildNodes.Nodes[I]);
    verifCoord;
+   if AnimationTemps.Checked or AnimationParam.Checked then affecteAnimation;
 end; // litConfigXML
 
 procedure TFgrapheVariab.LineaireItemClick(Sender: TObject);
@@ -4473,32 +5078,15 @@ begin
 end;
 
 procedure TFgrapheVariab.FormActivate(Sender: TObject);
-(*
-var i,j : integer;
-    Lpanel : TPanel;
-    *)
 begin
      inherited;
      InitiationAfaire := InitiationAFaire and
           (imInitiationModele in MenuPermis);
      AnimBtn.visible := imAnimation in menuPermis;
-     CornishBtn.visible := imCornish in menuPermis;
      BornesBtn.visible := imBornes in menuPermis;
      ModeleGrBtn.visible := imModeleGr in menuPermis;
      FregressiMain.GrapheBtn.down := true;
-     (*
-     for i := 0 to paramScrollBox.ControlCount-1 do
-         if paramScrollBox.Controls[i] IS TPanel then begin
-            LPanel := TPanel(paramScrollBox.Controls[i]);
-            for j := 0 to LPanel.controlCount-1 do begin
-              if LPanel.Controls[j] IS TSpeedButton then
-                SetFontSpeedButtonGr(Lpanel.Controls[j] as TSpeedButton,PixelsPerInch);
-              if LPanel.Controls[j] IS TEdit then
-                SetFontTedit(Lpanel.Controls[j] as TEdit,PixelsPerInch);
-            end;
-            LPanel.Height := abs(LPanel.Font.Height)*2
-         end;
-         *)
+     SplitterModele.Width := Screen.PixelsPerInch div 6;
 end;
 
 procedure TFgrapheVariab.ZoomManuelItemClick(Sender: TObject);
@@ -4670,7 +5258,6 @@ procedure TFgrapheVariab.memoResultatMouseMove(Sender: TObject;
 
 function ClientPosToLigne(aEdit: TRichEdit; ClientPos: TPoint): Integer;
 var
-  lParam : Integer;
   charPos : integer;
 begin
     (*
@@ -4678,12 +5265,15 @@ begin
      structure de type TRect contenant la position en coordonnées écran
      relative au composant.
     *)
-    lParam:= Integer(@ClientPos);
     (* La valeur retournée correspond à l'index absolu du caractère le plus
      près du point ou du dernier caractère si le point est plus bas que le
      dernier caractère du contrôle.
     *)
-    charPos := aEdit.Perform(EM_CHARFROMPOS, 0, lParam);
+{$IFDEF Win32}
+    charPos := aEdit.Perform(EM_CHARFROMPOS, 0, Integer(@ClientPos));
+{$ELSE}
+    charPos := aEdit.Perform(EM_CHARFROMPOS, 0, LPARAM(@ClientPos));
+{$ENDIF}
     result := aEdit.Perform(EM_LINEFROMCHAR, charPos, 0);
 end;
 
@@ -4695,16 +5285,19 @@ begin
            hintResultatLabel.top := y+resultatGB.top-toolBarGraphe.height;
            hintResultatLabel.left := 0;
            hintResultatLabel.caption := hintMemoResultat[lLigne];
+           memoResultat.Hint := hintMemoResultat[lLigne];
            hintResultatLabel.visible := true;
        end
-       else hintResultatLabel.visible := false;
+       else begin
+          hintResultatLabel.visible := false;
+          memoResultat.Hint := '';
+       end;
 end;
 
 procedure TFgrapheVariab.MenuAxesPopup(Sender: TObject);
 var P : Tpoint;
 begin
      TableauXYItem.visible := graphes[1].equivalences[pageCourante].count>0;
-     CornishItem.visible := imCornish in menuPermis;
      if  TableauXYItem.visible and
         (graphes[1].equivalences[pageCourante][0].ligneRappel in [lrXdeY,lrReticule])
            then begin
@@ -4725,7 +5318,7 @@ begin
      identAction.enabled := (grapheCourant.superposePage and (NbrePages>1)) or
                             (grapheCourant.NbreOrdonnee>1);
      identAction.visible := identAction.enabled;
-     SavePosItem.visible := curseur in [curReticule,curEquivalence,curReticuleData,curReticuleModele];
+     SavePosItem.visible := curseur in [curReticule,curEquivalence,curReticuleData,curReticuleDataNew];  // curReticuleModele
 end;
 
 procedure TFgrapheVariab.TableauXYItemClick(Sender: TObject);
@@ -4733,9 +5326,7 @@ begin
     graphes[1].RemplitTableauEquivalence;
     if curseurModeleDlg=nil then
        curseurModeleDlg := TcurseurModeleDlg.create(self);
-    if ligneRappelCourante=lrXdeY
-      then CurseurModeleDlg.show
-      else CurseurModeleDlg.showModal;
+    CurseurModeleDlg.show; // CurseurModeleDlg.showModal ?
     PaintBox1.invalidate;
 end;
 
@@ -4777,18 +5368,33 @@ begin
 end;
 
 procedure TFgrapheVariab.ModeleMagnum(indiceCoord : integer;direct : boolean);
+var t0 : double;
+
+Procedure setOrigineTemps;
+var j : integer;
+    indexX : integer;
+begin
+     indexX := grapheCourant.coordonnee[1].codeX;
+     with pages[pageCourante] do
+          for j := 0 to pred(nmes) do
+              valeurVar[indexX,j] := valeurVar[indexX,j]-t0;
+     Application.MainForm.Perform(WM_Reg_Maj,MajValeurGr,0);
+end; // setOrigineTemps
+
 var j : integer;
 begin with ModeleGraphique[NbreModele] do begin
      init(ChoixModeleDlg.ModeleChoisi,graphes[1],NbreModele,indiceCoord);
      initialiseParametre(
         Pages[pageCourante].debut[NbreModele],
         Pages[pageCourante].fin[NbreModele],
+        t0,
         direct);
      if not ModeleOK then begin
         afficheErreur(erModeleGr,0);
         NbreModele := 0;
         exit;
      end;
+     if t0<>0 then setOrigineTemps;
      MajModelePermis := false;
      if ChoixModeleDlg.effaceModele then MemoModele.clear;
      for j := 0 to pred(expression.count) do
@@ -4804,7 +5410,8 @@ begin with ModeleGraphique[NbreModele] do begin
      if not avecModeleManuel
         then setPenBrush(curModeleGr)
         else setPenBrush(curSelect);
-     if direct then pages[pageCourante].resetDebutFin(NbreModele);
+     if direct and not(ModeleGraphique[1].genre in [mgEchelon,mgRadio])
+        then pages[pageCourante].resetDebutFin(NbreModele);
      MajModeleGr(NbreModele);
      LanceModele(OptionsDlg.AjustageAutoGrCB.checked);
 end end; // modeleMagnum
@@ -4816,7 +5423,7 @@ begin with pages[pageCourante] do begin
      ModeleGraphique[NumeroGr].GetParametres(valeurParam[paramNormal]);
      if ModeleGraphique[NumeroGr].ModeleOK
         then begin
-            EffectueModele(false,false);
+            EffectueModele(false);
             MajParametres;
             MajResultat;
         end
@@ -4827,7 +5434,6 @@ begin with pages[pageCourante] do begin
      PaintBox1.invalidate;
 end end;
 
-
 procedure TFgrapheVariab.VideoTrackBarChange(Sender: TObject);
 begin
    tempsCourant := pages[pageCourante].ValeurVar[0,VideoTrackBar.Position];
@@ -4836,14 +5442,32 @@ begin
 //   setToolTip ?
 end;
 
-procedure TFgrapheVariab.ViderXYItemClick(Sender: TObject);
-var i : integer;
+procedure TFgrapheVariab.ViderTangenteItemClick(Sender: TObject);
+var p : TcodePage;
+    i,j : integer;
 begin
-     for i := 1 to 3 do with Graphes[i] do
-     if paintBox.Visible then begin
-         resetEquivalence;
-         paintBox.invalidate;
-     end;
+     for i := 1 to 3 do with graphes[i] do
+         if paintBox.Visible then begin
+            for p := 1 to maxPages do
+                for j := pred(equivalences[p].count) downto 0 do
+                    if equivalences[p][j].ligneRappel in [lrEquivalence,lrEquivalenceManuelle,lrTangente] then
+                       equivalences[p].remove(equivalences[p][j]);
+            PaintBox.refresh;
+         end;
+end;
+
+procedure TFgrapheVariab.ViderXYItemClick(Sender: TObject);
+var p : TcodePage;
+    i,j : integer;
+begin
+     for i := 1 to 3 do with graphes[i] do
+         if paintBox.Visible then begin
+            for p := 1 to maxPages do
+                for j := pred(equivalences[p].count) downto 0 do
+                    if equivalences[p][j].ligneRappel in [lrXdeY,lrX,lrY,lrReticule,lrPente] then
+                       equivalences[p].remove(equivalences[p][j]);
+            PaintBox.refresh;
+         end;
 end;
 
 procedure TFgrapheVariab.SetPointCourant(i,c : integer);
@@ -4884,6 +5508,7 @@ begin with graphes[indexGr] do
             if cCourant>1 then traceEcart;
           end;
           curReticuleData : if curseurGrid.visible then setStatusReticuleData(curseurGrid);
+          curReticuleDataNew : traceReticule(curseurData1);
           curReticuleModele : ;
           curEquivalence : if equivalenceCourante<>nil then
                equivalenceCourante.drawFugitif;
@@ -4969,11 +5594,6 @@ begin
         else include(Graphes[1].OptionModele,OmManuel)
 end;
 
-procedure TFgrapheVariab.SetBoutonsModele;
-begin
-     SaveParamItem.enabled := pages[pageCourante].ModeleCalcule;
-     TitreModeleItem.enabled := pages[pageCourante].ModeleCalcule;
-end;
 
 procedure TFgrapheVariab.MemoModeleClick(Sender: TObject);
 begin
@@ -5081,17 +5701,6 @@ begin
      etatModele := []; // ??
 end;
 
-procedure TFgrapheVariab.CornishItemClick(Sender: TObject);
-begin
-     if CornishOptDlg=nil then
-        Application.CreateForm(TcornishOptDlg,cornishOptDlg);
-     with graphes[1].coordonnee[1] do
-        CornishOptDlg.SetVitesseConcentration(nomY,nomX);
-     if Fcornish=nil then
-        FCornish := TFcornish.Create(self);
-     FCornish.show;
-end;
-
 procedure TFgrapheVariab.BornesClick(Sender: TObject);
 begin
      BorneActive := (sender as Tcomponent).tag;
@@ -5138,8 +5747,9 @@ begin
      ResidusItem.checked := not ResidusItem.checked;
      ResidusItemBis.checked := ResidusItem.checked;
      if ResidusItem.checked then begin
-        if fonctionTheorique[1].residuStat.avecIncert
-           then residusStudentCB.checked := true;
+        residusNormalisesCB.visible := fonctionTheorique[1].residuStat.avecIncert;
+        if (fonctionTheorique[1].residuStat.avecIncert)
+           then residusNormalisesCB.checked := true;
         Application.MainForm.Perform(WM_Reg_Maj,MajModele,0);
         PaintBox3.height := panelPrinc.height div 3;
      end
@@ -5153,7 +5763,7 @@ begin
      invalidate;
 end;
 
-procedure TFgrapheVariab.ResidusStudentCBClick(Sender: TObject);
+procedure TFgrapheVariab.ResidusNormalisesCBClick(Sender: TObject);
 begin
   setCoordonneeResidu;
 end;
@@ -5263,6 +5873,7 @@ begin with pages[pageCourante] do begin
        if result then key := 0;
 end end;
 
+(*
 Function MajImodele  : boolean;
 var xc,yc : integer;
 begin with grapheCourant do begin
@@ -5291,6 +5902,7 @@ begin with grapheCourant do begin
        end;
        if result then key := 0;
 end end;
+*)
 
 Function MajParamAnim: boolean;
 
@@ -5353,6 +5965,8 @@ begin // FormKeyDown
            grapheCourant.dessinCourant := nil;
            exit;
         end;
+        curReticuleModele : ;
+         (*
         curReticuleModele : begin
            if key=vk_escape then begin
               setPenBrush(CurSelect);
@@ -5360,7 +5974,8 @@ begin // FormKeyDown
            end;
            if MajImodele then exit;
         end;
-        curEfface,curReticule : if key=vk_escape then begin
+        *)
+        curEfface,curReticule,curReticuleDataNew : if key=vk_escape then begin
            setPenBrush(CurSelect);
            exit;
         end;
@@ -5379,7 +5994,7 @@ begin // FormKeyDown
                  for i := 0 to pred(grapheCourant.statusSegment[0].count) do
                     CurseurGrid.cells[0,i] := grapheCourant.statusSegment[0].strings[i];
                  CurseurGrid.rowCount := grapheCourant.statusSegment[0].count;
-                 CurseurGrid.height := CurseurGrid.RowCount*hauteurColonne;
+                 CurseurGrid.height := CurseurGrid.RowCount*CurseurGrid.DefaultRowHeight;
               end;
               exit;
            end;
@@ -5393,7 +6008,7 @@ begin // FormKeyDown
                  CurseurGrid.cells[1,2] := grapheCourant.monde[mondeY].Axe.FormatNomEtUnite(phe);
                  CurseurGrid.cells[1,3] := grapheCourant.unitePente.formatValeurPente(pente);
                  CurseurGrid.rowCount := 4;
-                 CurseurGrid.height := 4*hauteurColonne;
+                 CurseurGrid.height := 4*CurseurGrid.DefaultRowHeight;
               end;
               grapheCourant.equivalenceCourante.drawFugitif; // trace
               exit;
@@ -5408,7 +6023,7 @@ begin // FormKeyDown
           vk_prior : dec(P.X,16);
           vk_next : inc(P.X,16);
           vk_escape : ;
-          vk_delete,8,110 : begin
+          vk_delete,vk_back,110 : begin
              if curseur=curSelect then begin
                 if supprime(P) then exit;
                 grapheCourant.SetDessinCourant(P.x,P.y);
@@ -5476,7 +6091,7 @@ var posSouris : Tpoint;
     EquivalenceLoc : Tequivalence;
 begin
     result := false;
-    if not (curseur in [curReticule,curReticuleData,curSelect]) then exit;
+    if not (curseur in [curReticule,curReticuleData,curReticuleDataNew,curSelect]) then exit;
     GetCursorPos(PosSouris);
     PosSouris := grapheCourant.PaintBox.ScreenToClient(PosSouris);
     if (PosSouris.X<0) or (PosSouris.X>grapheCourant.paintBox.width) or
@@ -5521,7 +6136,7 @@ begin
                 AjusteBtnClick(nil);
                 handled := true;
           end;
-          vk_F4 : if bruitPresent then begin
+          vk_F4 : if bruitPresentGlb then begin
                 randomBtnClick(nil);
                 handled := true;
           end;
@@ -5530,7 +6145,7 @@ begin
               handled := true;
           end;
           vk_F10 : if curseur in [curReticule,curEquivalence,
-                                  curReticuleData,curReticuleModele] then begin
+                                  curReticuleData,curReticuleDataNew] then begin //  curReticuleModele
               SavePosItemClick(nil);
               handled := true;
           end;
@@ -5539,8 +6154,12 @@ begin
                 grapheCourant.PaintBox.invalidate;
                 handled := true;
           end;
+          vk_space : begin
+             toucheEspace;
+             handled := true;
+          end;
      end;
-end;
+end;  // FormShortCut
 
 procedure TFgrapheVariab.identPages;
 var Deltax : integer;
@@ -5728,7 +6347,21 @@ begin
     modifGraphe(indexGrCourant);
 end; // MajIdentCoord
 
-procedure TFgrapheVariab.FormKeyPress(Sender: TObject; var Key: Char);
+procedure TFgrapheVariab.ToucheEspace;
+
+Procedure affecteXY(x,y : double);
+var Lligne : integer;
+begin
+     if curseurModeleDlg=nil then
+        curseurModeleDlg := TcurseurModeleDlg.create(self);
+     if curseurModeleDlg.visible then begin
+         Lligne := grapheCourant.equivalences[pageCourante].count+1; // ligne 0 : nom, 1 : unité
+         if Lligne>(curseurModeleDlg.tableau.rowCount-2) then
+            curseurModeleDlg.tableau.rowCount := Lligne+2;
+         curseurModeleDlg.tableau.cells[0,Lligne] := FormatReg(x);
+         curseurModeleDlg.tableau.cells[1,Lligne] := FormatReg(y);
+     end;
+end;
 
 procedure CreerXYdata(typeXY : TligneRappel);
 var NewEquivalence : Tequivalence;
@@ -5739,6 +6372,7 @@ begin with grapheCourant,curseurOsc[curseurData1] do begin
      NewEquivalence.mondepH := mondeC;
      NewEquivalence.ligneRappel := typeXY;
      equivalences[pageCourante].Add(NewEquivalence);
+     affecteXY(xr,yr);
 end end;
 
 procedure CreerXY(typeXY : TligneRappel);
@@ -5750,6 +6384,7 @@ begin with grapheCourant,curseurOsc[1] do begin
      NewEquivalence.mondepH := mondeC;
      NewEquivalence.ligneRappel := typeXY;
      equivalences[pageCourante].Add(NewEquivalence);
+     affecteXY(xr,yr);
 end end;
 
 Function Supprime(posSouris : Tpoint;aMonde : TindiceMonde) : boolean;
@@ -5791,8 +6426,8 @@ var posSouris : Tpoint;
     xrS,yrS : double;
     NewEquivalence : Tequivalence;
     icourbe,mondeLoc : integer;
-begin // FormKeyPress
-if (key=' ') then case curseur of
+begin // ToucheEspace
+   case curseur of
     curReticule : with grapheCourant do begin
         GetCursorPos(PosSouris);
         PosSouris := PaintBox.ScreenToClient(PosSouris);
@@ -5815,6 +6450,7 @@ if (key=' ') then case curseur of
             NewEquivalence.mondepH := mondeLoc;
             NewEquivalence.ligneRappel := lrReticule;
             equivalences[pageCourante].Add(NewEquivalence);
+            affecteXY(xrS,yrS);
          end;
          PaintBox.invalidate;
    end;// curReticule
@@ -5827,6 +6463,7 @@ if (key=' ') then case curseur of
             NewEquivalence.mondepH := mondeC;
             NewEquivalence.ligneRappel := lrReticule;
             equivalences[pageCourante].Add(NewEquivalence);
+            affecteXY(xr,yr);
          end;
          if ([coPente, coDeltaX, coDeltaY] * optionCurseur <> []) and
             (curseurOsc[curseurData1].mondeC=curseurOsc[curseurData2].mondeC) then begin
@@ -5836,6 +6473,20 @@ if (key=' ') then case curseur of
          end;
          PaintBox.invalidate;
    end;// curReticuleData
+   curReticuleDataNew : with grapheCourant do begin
+        if supprime(posSouris,curseurOsc[curseurData1].mondeC) then exit;
+        with curseurOsc[curseurData1] do begin
+            NewEquivalence := Tequivalence.Create(0,0,0,0,
+                         xr,yr,0,grapheCourant);
+            NewEquivalence.mondepH := mondeC;
+            NewEquivalence.ligneRappel := lrXdeY;
+            equivalences[pageCourante].Add(NewEquivalence);
+            affecteXY(xr,yr);
+         end;
+         PaintBox.invalidate;
+   end;// curReticuleDataNew
+   curReticuleModele : ;
+   (*
    curReticuleModele : with grapheCourant.curseurOsc[1] do begin
         posSouris.X := xc;posSouris.y := yc;
         if supprime(posSouris,mondeC) then exit;
@@ -5844,15 +6495,17 @@ if (key=' ') then case curseur of
         NewEquivalence.mondepH := mondeC;
         NewEquivalence.ligneRappel := lrReticule;
         grapheCourant.equivalences[pageCourante].Add(NewEquivalence);
+        affecteXY(xr,yr);
         grapheCourant.PaintBox.invalidate;
    end;// curReticuleModele
+   *)
    curSelect : if (indexPointCourant>=0) then begin
          Pages[pageCourante].PointActif[indexPointCourant] :=
               not Pages[pageCourante].PointActif[indexPointCourant];
          Application.MainForm.Perform(WM_Reg_Maj,MajSupprPoints,0);
    end;
    end;// case curseur
-end; // FormKeyPress
+end; // ToucheEspace
 
 procedure TFgrapheVariab.HelpAnimBtnClick(Sender: TObject);
 begin
@@ -5906,8 +6559,8 @@ if AnimationTemps.checked
                    exit;
                 end;
         calculeAnimTemporelle;
-     end
-     else with paramAnimManuelle[paramAnimCourant].sliderA do
+    end
+    else with paramAnimManuelle[paramAnimCourant].sliderA do
        if position<max
        then position := position+1
        else if boucleCB.checked
@@ -5963,7 +6616,7 @@ with pages[pageCourante] do begin
              valeurConst[codeTemps] := TempsCourant;
              grandeurs[codeTemps].valeurCourante := TempsCourant;
              RecalculP;
-             if graphes[1].useDefault
+             if graphes[1].useDefaut
                 then modifMonde := false
                 else modifMonde := graphes[1].AjusteMonde;
              Screen.cursor := crDefault;
@@ -6292,7 +6945,7 @@ with graphes[1] do begin
           if ModifNmes or pages[pageCourante].changeAdresse
              then addCourbesAnim
              else for j := 0 to pred(Courbes.count) do with Courbes[j] do
-                if (courbes[j].pag=pageCourante) then begin
+                if (courbes[j].page=pageCourante) then begin
                 debutC := 0;
                 finC := pred(pages[pageCourante].nmes);
                 if varY.genreG=constante then begin
@@ -6314,11 +6967,12 @@ with graphes[1] do begin
                    for i := 0 to pred(pages[pageCourante].nmes) do valx[i] := varX.valeurCourante;
                 end;
              end;
+          if (ModeleDefini in etatModele) then EffectueModele(true);
           affecteModele(1);
           zoomModele(1);
           zoomSuperpose(1);
           Screen.cursor := crDefault;
-      if useDefault
+      if useDefaut
          then modifMonde := false
          else modifMonde := AjusteMonde;
       afficheAnimationManuelle;
@@ -6513,6 +7167,7 @@ end;
 
 Procedure TFgrapheVariab.WmRegInitMagnum;
 var i : integer;
+    t0 : double;
 begin
      if ModeleGraphique[1].nX='' then
         ModeleGraphique[1].nX := graphes[1].monde[mondeX].axe.nom;
@@ -6521,7 +7176,7 @@ begin
      for i := 1 to NbreModele do begin
         ModeleGraphique[i].initialiseParametre(
            Pages[pageCourante].debut[i],
-           Pages[pageCourante].fin[i],true);
+           Pages[pageCourante].fin[i],t0,true);
         if not ModeleGraphique[i].ModeleOK then begin
            afficheErreur(erModeleGr,0);
            NbreModele := i-1;
@@ -6612,17 +7267,12 @@ begin
        Graphes[1].VersFichier(saveDialog.fileName);
        if unGrapheItem.checked and
           residusItem.checked then
-             Graphes[2].VersFichier(nomFichier('R'));
+             Graphes[3].VersFichier(nomFichier('R'));
        if deuxGraphesVert.checked then
            Graphes[2].VersFichier(nomFichier('2'));
        if deuxGraphesHoriz.checked then
           Graphes[3].VersFichier(nomFichier('3'));
     end;
-end;
-
-procedure TFgrapheVariab.ExitMonteCarloItemClick(Sender: TObject);
-begin
-      statGrid.visible := false;
 end;
 
 procedure TFgrapheVariab.EchelonItemClick(Sender: TObject);
@@ -6636,36 +7286,105 @@ begin
 end;
 
 procedure TFgrapheVariab.MonteCarloItemClick(Sender: TObject);
-const NMC = 1024;
-var i : integer;
-    j : TcodeParam;
+var i,j,k,m : integer;
     StatParam : array of TcalculStatistique;
+    sauveVisu : boolean;
+    sauveValeur : array[0..8] of Tvecteur;
+    g : TGrandeur;
+    z,somme,coeffChi2 : double;
+    incertitudeConnue : array[TcodeGrandeur] of boolean;
+    dy,dt : double;
+    indexG : TcodeGrandeur;
 begin
+    for j := 0 to pred(NbreVariab) do
+        incertitudeConnue[j] := grandeurs[j].incertDefinie;
+    for j := 1 to NbreModele do with fonctionTheorique[j] do begin
+        if not(incertitudeConnue[indexY] or
+               grandeurs[indexY].fonct.bruitPresent or
+               incertitudeConnue[indexX] or
+               grandeurs[indexX].fonct.bruitPresent) then begin
+               afficheErreur('Incertitudes non définies',0);
+               exit;
+         end;
+    end;
+    sauveVisu := VisualisationAjustement;
     VisualisationAjustement := false;
+    MonteCarloActif := true;
     setLength(statParam,NbreParam[paramNormal]+1);
     for j := 1 to NbreParam[paramNormal] do begin
         statParam[j] := TcalculStatistique.create;
-        statParam[j].nbre := NMC;
+        statParam[j].nbre := NbreMC;
+        setLength(statParam[j].Donnees,NbreMC);
     end;
-    statGrid.rowCount := 4;
-    statGrid.colCount := NbreParam[paramNormal]+1;
-    statGrid.cells[0,0] := stNom;
-    statGrid.cells[0,1] := 'Moyenne';
-    statGrid.cells[0,2] := 'Ecart-type';
-    statGrid.visible := true;
-    for i := 0 to pred(NMC) do begin
-       Fvaleurs.RandomBtnClick(sender);
-       AjusteBtnClick(Sender);
+    pages[pageCourante].affecteVariableP(false);
+    for j := 0 to pred(NbreVariabExp) do begin
+        indexG := indexVariabExp[j];
+        copyVecteur(sauveValeur[indexG],grandeurs[indexG].valeur);
+    end;
+    for i := 0 to pred(NbreMC) do begin
+       if not bruitPresentGlb then begin
+          for j := 0 to pred(NbreVariabExp) do begin
+             indexG := indexVariabExp[j];
+             if incertitudeConnue[indexG] then begin
+                G := grandeurs[indexG];
+                for k := 0 to pred(pages[pageCourante].nmes) do
+                    G.valeur[k] := randG(sauveValeur[indexG][k],G.ValIncert[k]);
+             end;
+          end;
+       end;
+       pages[pageCourante].recalculP; // MonteCarlo sur grandeurs calculées
+       LanceModele(true);
        for j := 1 to NbreParam[paramNormal] do
            statParam[j].donnees[i] := parametres[paramNormal,j].valeurCourante;
     end;
+    for j := 0 to pred(NbreVariabExp) do begin
+        indexG := indexVariabExp[j];
+        for k := 0 to pred(pages[pageCourante].nmes) do
+            grandeurs[indexG].valeur[k] := sauveValeur[indexG][k];
+        sauveValeur[indexG] := nil;
+    end;
+    pages[pageCourante].recalculP; // les grandeurs calculées reprennent leur valeurs iniitiales
+    memoResultat.Lines.Clear;
+    memoResultat.Lines.Add('Méthode de Monte-Carlo');
+    memoResultat.Lines.Add(intToStr(NbreMC)+' itérations');
+    memoResultat.Lines.Add('u(x)=incertitude-type sur x');
     for j := 1 to NbreParam[paramNormal] do begin
         statParam[j].calcul;
-        statGrid.cells[j,0] := parametres[paramNormal,j].nom;
-        statGrid.cells[j,1] := parametres[paramNormal,j].formatNombre(statParam[j].moyenne);
-        statGrid.cells[j,2] := parametres[paramNormal,j].formatNombre(statParam[j].sigma);
+        memoResultat.Lines.add(parametres[paramNormal,j].nom+'='+parametres[paramNormal,j].formatValeurEtUnite(statParam[j].moyenne));
+        memoResultat.Lines.add('u('+parametres[paramNormal,j].nom+')='+parametres[paramNormal,j].formatValeurEtUnite(statParam[j].sigma));
+        pages[pageCourante].valeurParam[paramNormal,j] := statParam[j].moyenne;
+        parametres[paramNormal,j].valeurCourante := statParam[j].moyenne;
         statParam[j].free;
     end;
+    for m := 1 to NbreModele do with fonctionTheorique[m] do begin
+        somme := 0;
+        for k := pages[pageCourante].debut[m] to pages[pageCourante].fin[m] do begin
+           AffecteVariableE(k);
+           z := calcule(calcul);
+           try
+              dy := grandeurs[indexY].ValIncert[k];
+              if isNan(dy)
+                 then dy := 0
+                 else if uniteSIglb then dy := dy*grandeurs[indexY].coeffSI;
+              dt := grandeurs[indexX].ValIncert[k];
+              if isNan(dt)
+                 then dt := 0
+                 else begin
+                    dt := dt*valeurDeriveeX[m,k];
+                    if uniteSIglb then dt := dt*grandeurs[indexX].coeffSI;
+                 end;
+              coeffChi2 := 1/(sqr(dy)+sqr(dt));
+           except
+              coeffChi2 := 1;
+           end;
+           z := sqr(z-grandeurs[indexY].valeur[k])*coeffChi2;
+           somme := somme+z;
+        end;
+        somme := somme/NbrePointsModele;
+        memoResultat.Lines.add('Chi2/(N-p)='+formatGeneral(somme,precisionMin))
+    end;
+    MonteCarloActif := false;
+    VisualisationAjustement := sauveVisu;
 end;
 
 procedure TFgrapheVariab.MoinsBtnClick(Sender: TObject);
@@ -6684,16 +7403,35 @@ begin
 end;
 
 procedure TFgrapheVariab.PopupMenuModelePopup(Sender: TObject);
+
+function incertConnue : boolean;
+var j : integer;
+begin
+    result := nbreModele>0;
+    for j := 1 to NbreModele do with fonctionTheorique[j] do begin
+        if not(grandeurs[indexY].incertDefinie or
+               grandeurs[indexY].fonct.bruitPresent or
+               grandeurs[indexX].incertDefinie or
+               grandeurs[indexX].fonct.bruitPresent) then begin
+               result := false;
+               break;
+         end;
+    end;
+end;
+
 begin
   inherited;
-  residusItem.Visible := UnGrapheItem.checked and fonctionTheorique[1].residuStat.statOK;
+  residusItem.visible := UnGrapheItem.checked and fonctionTheorique[1].residuStat.statOK;
   residusItem.checked := residusItem.checked and residusItem.Visible;
-  ResidusItemBis.visible := residusItem.Visible;
+  ResidusItemBis.visible := residusItem.visible;
   ResidusItemBis.checked := residusItem.checked;
+  SaveParamItem.enabled := pages[pageCourante].ModeleCalcule;
+  TitreModeleItem.enabled := ModeleDefini in etatModele;
   Incertchi2Item.checked := avecChi2;
   AffIncert.checked := avecEllipse;
-  monteCarloItem.visible := RandomBtn.visible;
-  exitMonteCarloItem.visible := statGrid.visible;
+  monteCarloItem.visible := (modeleDefini in etatModele) and
+                            (ModeleConstruit in etatModele) and
+                            pages[pageCourante].modeleCalcule and incertConnue;
 end;
 
 procedure TFgrapheVariab.SigneBtnClick(Sender: TObject);
@@ -6781,16 +7519,14 @@ begin
      if TrigoLabel.Visible
         then panel1.Height := Screen.PixelsPerInch div 2
         else panel1.Height := 2*Screen.PixelsPerInch div 7;
-     hauteurPanel := ClientHeight-ModeleToolbar.height;
+     hauteurPanel := PanelModele.Height-ModeleToolbar.height;
 // valeurs par défaut
-     if MemoModele.lines.count<3
-        then i := 3
-        else i := MemoModele.lines.count;
-     hauteurMemo := (abs(memoModele.Font.height)+4)*(i+2)+20; // 20 = titre GroupBox
-     if NbreParam[paramNormal]<3
-        then i := 3
-        else i := NbreParam[paramNormal];
-     HauteurAjuste := PanelParam1.height*(i+1)+Panel1.height+abs(EditValeur1.Font.height);
+     i := MemoModele.lines.count+4;  // tenir compte titre GroupBox et scrollBar
+     if i<6 then i := 6;
+     hauteurMemo := abs(memoModele.Font.height)*i*5 div 4;
+     i := NbreParam[paramNormal]+1;
+     if i<3 then i := 3;
+     HauteurAjuste := PanelParam1.height*i+Panel1.height;
      hauteurResultat := hauteurPanel-hauteurMemo-HauteurAjuste;
 // on teste si résultat pas trop petit
      if (hauteurResultat<HauteurMini) then
@@ -7056,7 +7792,9 @@ begin with graphes[1],pages[pageCourante],Coordonnee[j]  do begin
                     continue;
                  end;
         end;
-        courbeVariab.setStyle(couleur,styleT,motif,couleurPoint);
+        courbeVariab.setStyle(couleur,styleT,motif);
+        if couleurPoint<>'' then
+           courbeVariab.setStylePoint(couleurPoint,codeCouleur);
      monde[iMondeC].defini := true;
 end end;
 
@@ -7112,6 +7850,8 @@ begin
 end;
 
 procedure TFgrapheVariab.ChoixCurseurClick(Sender: TObject);
+var newCurseur : Tcurseur;
+    i : integer;
 
 Procedure ChangeGraphe(indexGr : integer);
 var Origin : Tpoint;
@@ -7124,8 +7864,12 @@ begin with graphes[indexGr],paintBox do begin
               pages[pageCourante].affecteConstParam(true);
               ligneRappelCourante := lrReticule;
           end;
-          curReticuleData,curSelect,curReticuleModele : paintBox.invalidate;
-          curModele : initCurseurModele;
+          curReticuleData,curSelect : paintBox.invalidate; //   curReticuleModele
+          curReticuleDataNew : begin
+             paintBox.invalidate;
+             if indexCourbeModele>=0 then initCurseurModele;
+          end;
+   //       curModele : initCurseurModele;
           curEquivalence : begin
               if (monde[mondeX].graduation<>gLin) or
                  (monde[mondeY].graduation<>gLin)
@@ -7236,33 +7980,53 @@ begin
          end; // equivalence manuelle
 end;
 
+procedure InitCurseurDataNew;
+begin with graphes[1] do begin
+      ReticuleComplet := true;
+      curseurOsc[curseurData1].grandeurCurseur := courbes[0].varY;
+      curseurOsc[curseurData1].mondeC := courbes[0].imondeC;
+      avecTableau := false;
+    //  PstyleReticule := psSolid;
+      optionCurseur := [];
+      ligneRappelCourante := lrXdeY;
+   //   pColorReticule := clRed;
+      include(optionCurseur,coX);
+      include(optionCurseur,coY);
+end end;
+
+procedure InitCurseurData;
 var i : integer;
-    newCurseur : Tcurseur;
-begin // ChoixCurseurClick
-     newCurseur := Tcurseur((sender as Tcomponent).tag);
-     if (newCurseur=curEquivalence) and
-         setEquivalence then exit;
-     if NewCurseur=curReticuleData then begin
+begin
         ReticuleDataDlg := TReticuleDataDlg.create(self);
         ReticuleDataDlg.Agraphe := graphes[1];
         if ReticuleDataDlg.showModal<>mrOK then begin
            setPenBrush(curSelect);
            for i := 1 to 3 do modifGraphe(i);
-           exit;
+           NewCurseur := curSelect;
         end;
         if PaintBox2.visible then begin
            ReticuleDataDlg.Agraphe := graphes[2];
            ReticuleDataDlg.showModal;
         end;
         ReticuleDataDlg.free;
-     end;
-     if NewCurseur=curReticuleModele then begin
+end;
+
+procedure InitCurReticuleModele;
+begin
         graphes[1].curseurOsc[curseurData1].mondeC := mondeX;
         graphes[1].curseurOsc[curseurData2].mondeC := mondeX;
         ReticuleComplet := true;
         graphes[1].curseurOsc[curseurData1].grandeurCurseur := nil;
         graphes[1].curseurOsc[curseurData2].grandeurCurseur := nil;
-     end;
+end;
+
+begin // ChoixCurseurClick
+     newCurseur := Tcurseur((sender as Tcomponent).tag);
+     if (newCurseur=curEquivalence) and
+         setEquivalence then exit;
+     if NewCurseur=curReticuleData then initCurseurData;
+     if NewCurseur=curReticuleDataNew then initCurseurDataNew;
+  //   if NewCurseur=curReticuleModele then initCurReticuleModele;
      exclude(etatModele,ajustementGraphique);
      for i := 1 to 3 do
          if graphes[i].paintBox.Visible then
@@ -7326,7 +8090,7 @@ begin
    LabelTempsAnim.visible := true;
    TitreAnimCB.visible := false;
    LignePointCB.visible := true;
-   RandomBtn.visible := bruitPresent;
+   RandomBtn.visible := bruitPresentGlb;
    AnimationTemps.checked := true;
    OptionsAnimBtn.visible := false;
    if pages[pageCourante].nmes<MaxPasAnimTemps then
@@ -7371,7 +8135,7 @@ begin
    LabelTempsAnim.visible := false;
    videoTrackBar.Visible := false;
    TitreAnimCB.visible := true;
-   RandomBtn.visible := bruitPresent;
+   RandomBtn.visible := bruitPresentGlb;
    LignePointCB.visible := false;
    for i := 1 to 3 do
        graphes[i].modif := [gmXY];
@@ -7392,12 +8156,25 @@ begin
 end;
 
 procedure TFgrapheVariab.CurseurMenuPopup(Sender: TObject);
+var i : integer;
+    mC : boolean;
 begin
   inherited;
-  ModeleSepare.Visible := pages[pageCourante].modeleCalcule;
-  curModeleItem.Visible := pages[pageCourante].modeleCalcule;
-  curReticuleModeleItem.Visible := pages[pageCourante].modeleCalcule;
-  addModeleItem.Visible := pages[pageCourante].modeleCalcule;
+  ModeleSepare.Visible := true;
+  mC := pages[pageCourante].modeleCalcule;
+  curModeleItem.Visible := mC;
+  addModeleItem.Visible := mC;
+  curReticuleModeleItem.Visible := false; // mC
+  curReticuleDataNewItem.Visible := mc;
+  curModeleItem.Visible := false;
+  if not mc then
+  for i := 0 to grapheCourant.courbes.Count-1 do
+     if trLigne in grapheCourant.courbes[i].trace then
+        curReticuleDataNewItem.Visible := true;
+  if mc and (indexCourbeModele>=0)
+     then curReticuleDataNewItem.caption := 'Réticule modèle'
+     else curReticuleDataNewItem.caption := 'Réticule lissage'
+
 end;
 
 procedure TFgrapheVariab.AnimationMenuPopup(Sender: TObject);
@@ -7435,28 +8212,27 @@ begin
 end;
 
 procedure TFgrapheVariab.MenuReticulePopup(Sender: TObject);
-const finCaption = 'Terminez ';
 var P : TPoint;
+    avecTangente : boolean;
+    i : integer;
 begin
-     TableauXYItemBis.visible := graphes[1].equivalences[pageCourante].count>0;
-     if TableauXYItemBis.visible and
-        (graphes[1].equivalences[pageCourante][0].ligneRappel in [lrXdeY,lrReticule])
-        then begin
-            TableauXYItemBis.caption := stGridValeurs;
-            ViderXYItemBis.caption := stRazValeurs;
-        end
-        else begin
-            TableauXYItemBis.caption := stGridTangente;
-            ViderXYItemBis.caption := stRazTangente;
-        end;
+     avecTangente := false;
+     TableauXYItemBis.visible := (graphes[1].equivalences[pageCourante].count>0) or (curseur=curReticuleDataNew);
+     if graphes[1].equivalences[pageCourante].count>0
+        then for i := 0 to pred(graphes[1].equivalences[pageCourante].count) do
+             if graphes[1].equivalences[pageCourante][i].ligneRappel in [lrEquivalence,lrTangente,lrEquivalenceManuelle] then avecTangente := true;
+     ViderTangenteItem.visible := avectangente;
      case curseur of
-          curReticule : FinReticuleItem.caption := Fincaption+'réticule libre';
-          curReticuleModele : FinReticuleItem.caption := Fincaption+'réticule modèle';
-          curReticuleData : FinReticuleItem.caption := Fincaption+'réticule données';
-          curEquivalence : FinReticuleItem.caption := Fincaption+'équivalence';
-          else FinReticuleItem.caption := '';
+          curReticule : FinReticuleItem.caption := 'réticule libre';
+          curReticuleModele : FinReticuleItem.caption := 'réticule modèle';
+          curReticuleData : FinReticuleItem.caption := 'réticule données';
+          curReticuleDataNew : if indexCourbeModele<0
+              then FinReticuleItem.caption := 'réticule lissage'
+              else FinReticuleItem.caption := 'réticule modèle';
+          curEquivalence : FinReticuleItem.caption := 'équivalence';
+          else FinReticuleItem.caption := '' // pour le compilateur
      end;
-     FinReticuleItem.caption := FinReticuleItem.caption+' (ESC)';
+     FinReticuleItem.caption := 'Terminez '+FinReticuleItem.caption+' (ESC)';
      ViderXYItemBis.visible := TableauXYItem.visible;
      P := grapheCourant.PaintBox.ScreenToClient(P);
      iPropCourbe := grapheCourant.CoordProche(P.x,P.y);
@@ -7518,13 +8294,13 @@ var iX,iY : integer;
 procedure TraceSigma;
 var Xlegende : double;
 
-Procedure traceH(yr : double;couleur : Tcolor;const titre : string);
+Procedure traceH(yr : double;const titre : string);
 var dessin : Tdessin;
-begin with graphes[3] do begin
-     Dessin := Tdessin.create(graphes[3]);
+begin with grapheResidu do begin
+     Dessin := Tdessin.create(grapheResidu);
      with Dessin do begin
         isTexte := false;
-        pen.color := couleur;
+        pen.color := clNavy;
         pen.style := psSolid;
         x1 := monde[mondeX].mini;
         y1 := yr;
@@ -7533,47 +8309,43 @@ begin with graphes[3] do begin
      end;
      dessins.Add(Dessin);
      if titre='' then  exit;
-     Dessin := Tdessin.create(graphes[3]);
+     Dessin := Tdessin.create(grapheResidu);
      with Dessin do begin
         isTexte := true;
         isOpaque := true;
         couleurFond := colorToRGB(clWindow);
         texte.add(titre);
-        pen.color := couleur;
-        x1 := xLegende;
-        y1 := yr;
-        x2 := x1;
-        y2 := y1;
+        pen.color := clNavy;
+        x1 := xLegende;x2 := x1;
+        y1 := yr;y2 := y1;
      end;
      dessins.Add(Dessin);
 end end; // traceH
 
-begin with fonctionTheorique[1].residuStat,PaintBox3.Canvas do begin
-      with graphes[3].monde[mondeX] do
-         xLegende := (mini+maxi)/3;
-      traceH(-t95,clNavy,'95%');
-      traceH(+t95,clNavy,'95%');
-end end; // TraceSigma
+var valeur : double;
+begin
+      with grapheResidu.monde[mondeX] do
+           xLegende := (mini+maxi)/3;
+      valeur := fonctionTheorique[1].residuStat.sigma*fonctionTheorique[1].residuStat.t95;
+      traceH(-valeur,'95%');
+      traceH(+valeur,'95%');
+end; // TraceSigma
 
+(*
 procedure TraceResidusStudent;
 var Acourbe : Tcourbe;
     mini,maxi : double;
     i,j : integer;
-begin with pages[pageCourante],graphes[3] do begin
+begin with pages[pageCourante],grapheResidu do begin
         j := 0;
         for i := debut[1] to fin[1] do begin
             valeurX[j] := valeurVar[iX,i];
-            valeurY[j] := fonctionTheorique[1].residuStat.residusStudent[i];
-            inc(j);
-        end;
-        if (NbreModele>1) then for i := debut[2] to fin[2] do begin
-            valeurY[j] := fonctionTheorique[2].residuStat.residusStudent[i];
-            valeurX[j] := valeurVar[iX,i];
+            valeurY[j] := fonctionTheorique[1].residuStat.residusStudent[j];
             inc(j);
         end;
         Acourbe := Tcourbe.create(valeurX,valeurY,0,pred(j),
                   grandeurs[iX],grandeurs[iY]);
-        Acourbe.pag := pageCourante;
+        Acourbe.page := pageCourante;
         Acourbe.setStyle(clRed,psSolid,mCroix,'');
         Acourbe.trace := [trResidus];
         monde[mondeX].mini := Graphes[1].monde[mondeX].mini;
@@ -7594,29 +8366,25 @@ begin with pages[pageCourante],graphes[3] do begin
         courbes.Add(Acourbe);
         Acourbe.aDetruire := true;
         typeResidu := ResiduStudent;
-        TraceSigma;
+        TraceSigma(fonctionTheorique[1].residuStat.t95);
 end end; // traceResidusStudent
+*)
 
 procedure TraceResidusNormalises;
 var Acourbe : Tcourbe;
     mini,maxi : double;
     i,j : integer;
-begin with pages[pageCourante],graphes[3] do begin
+begin with pages[pageCourante],grapheResidu do begin
         j := 0;
         for i := debut[1] to fin[1] do begin
             valeurX[j] := valeurVar[iX,i];
-            valeurY[j] := fonctionTheorique[1].residuStat.residusNormalises[i];
-            inc(j);
-        end;
-        if (NbreModele>1) then for i := debut[2] to fin[2] do begin
-            valeurY[j] := fonctionTheorique[2].residuStat.residusNormalises[i];
-            valeurX[j] := valeurVar[iX,i];
+            valeurY[j] := fonctionTheorique[1].residuStat.residusNormalises[j];
             inc(j);
         end;
         Acourbe := Tcourbe.create(valeurX,valeurY,0,pred(j),
                   grandeurs[iX],grandeurs[iY]);
-        Acourbe.pag := pageCourante;
-        Acourbe.setStyle(clRed,psSolid,mCroix,'');
+        Acourbe.page := pageCourante;
+        Acourbe.setStyle(clRed,psSolid,mCroix);
         Acourbe.trace := [trResidus];
         monde[mondeX].mini := Graphes[1].monde[mondeX].mini;
         monde[mondeX].maxi := Graphes[1].monde[mondeX].maxi;
@@ -7631,16 +8399,16 @@ begin with pages[pageCourante],graphes[3] do begin
         monde[mondeY].Axe := grandeurs[iY];
         courbes.Add(Acourbe);
         Acourbe.aDetruire := true;
-        typeResidu := ResiduNormalise;
+        ResiduNormalise := true;
 end end; // traceResidusNormalises
 
-procedure TraceResiduNormal;
+procedure TraceResidus;
 var Acourbe : Tcourbe;
     mini,maxi : double;
     i,j : integer;
     Vminmax : Tvecteur;
     tampon : double;
-begin with pages[pageCourante],graphes[3] do begin
+begin with pages[pageCourante],grapheResidu do begin
         j := 0;
         if avecEllipse then begin
            setLength(dXresidu,NmesMax+1);
@@ -7648,22 +8416,17 @@ begin with pages[pageCourante],graphes[3] do begin
         end;
         for i := debut[1] to fin[1] do begin
             valeurX[j] := valeurVar[iX,i];
-            valeurY[j] := fonctionTheorique[1].residuStat.residus[i];
+            valeurY[j] := fonctionTheorique[1].residuStat.residus[j];
             if avecEllipse then begin
                dXresidu[j] := incertVar[iX,i];
                dYresidu[j] := incertVar[iY,i];
             end;
             inc(j);
         end;
-        if (NbreModele>1) then for i := debut[2] to fin[2] do begin
-            valeurY[j] := fonctionTheorique[2].residuStat.residus[i];
-            valeurX[j] := valeurVar[iX,i];
-            inc(j);
-        end;
         Acourbe := Tcourbe.create(valeurX,valeurY,0,pred(j),
                   grandeurs[iX],grandeurs[iY]);
-        Acourbe.pag := pageCourante;
-        Acourbe.setStyle(clRed,psSolid,mCroix,'');
+        Acourbe.page := pageCourante;
+        Acourbe.setStyle(clRed,psSolid,mCroix);
         Acourbe.trace := [trResidus];
         monde[mondeX].mini := Graphes[1].monde[mondeX].mini;
         monde[mondeX].maxi := Graphes[1].monde[mondeX].maxi;
@@ -7692,21 +8455,22 @@ begin with pages[pageCourante],graphes[3] do begin
         monde[mondeY].Axe := grandeurs[iY];
         courbes.Add(Acourbe);
         Acourbe.aDetruire := true;
-        typeResidu := residuN;
-end end; // traceResiduNormal
+        ResiduNormalise := false;
+        traceSigma;
+end end; // traceResidus
 
-begin with pages[pageCourante],graphes[3] do begin
+begin with pages[pageCourante],grapheResidu do begin
         panelBis.visible := false;
         paintBox2.Visible := false;
         paintBox3.Visible := false;
-        residusStudentCB.Visible := false;
+        residusNormalisesCB.Visible := false;
         if not fonctionTheorique[1].residuStat.statOK then exit;
         grapheOK := (NbreVariab>1) and (NbrePages>0) and
               pages[pageCourante].modeleCalcule and
                 (ModeleDefini in etatModele) and
                 (ModeleConstruit in etatModele);
         if not grapheOK  then exit;
-        residusStudentCB.Visible := true;
+        residusNormalisesCB.Visible := fonctionTheorique[1].residuStat.avecIncert;
         paintBox3.Visible := true;
         optionGraphe := [];
         iX := fonctionTheorique[1].indexX;
@@ -7716,11 +8480,9 @@ begin with pages[pageCourante],graphes[3] do begin
         superposePage := false;
         Raz;
         Dessins.clear;
-        if residusStudentCB.checked
-           then if fonctionTheorique[1].residuStat.avecIncert
-              then traceResidusNormalises
-              else traceResidusStudent
-           else traceResiduNormal;
+        if residusNormalisesCB.checked and fonctionTheorique[1].residuStat.avecIncert
+           then traceResidusNormalises
+           else traceResidus;
         monde[mondeY].defini := true;
         monde[mondeX].defini := true;
         with PaintBox3.Canvas do begin
@@ -7729,9 +8491,7 @@ begin with pages[pageCourante],graphes[3] do begin
            pen.style := psSolid;
         end;
         modif := [];
-        if fonctionTheorique[1].residuStat.avecIncert
-           then residusStudentCB.Caption := stResidusNormalises
-           else residusStudentCB.Caption := stResidusStudent
+        residusNormalisesCB.Caption := stResidusNormalises
 end end; // setCoordonneeResidu
 
 procedure TFgrapheVariab.PaintBoxClick(Sender: TObject);
@@ -7752,7 +8512,7 @@ procedure TFgrapheVariab.FormPaint(Sender: TObject);
 begin
   PanelBis.visible := DeuxGraphesVert.checked;
   PaintBox2.visible := PanelBis.visible;
-  ResidusStudentCB.Visible := residusItem.checked and not(splitterModele.snapped);
+  ResidusNormalisesCB.Visible := residusItem.checked and not(splitterModele.snapped);
   PaintBox3.visible := DeuxGraphesHoriz.checked or
                      (residusItem.checked and not(splitterModele.snapped));
 end;
@@ -7786,8 +8546,9 @@ begin with graphes[1] do begin
          for i := 0 to pred(Dessins.count) do
            if dessins[i].isTexte and
               (pos('%M',dessins[i].texte[0])>0) then begin
-               dessin := dessins[i];
-               nouveauDessin := false;
+                dessin := dessins[i];
+                nouveauDessin := false;
+                break;
               end;
          if nouveauDessin then Dessin := Tdessin.create(graphes[1]);
          with Dessin do begin
@@ -7809,9 +8570,11 @@ begin with graphes[1] do begin
             for i := 1 to NbreModele do
                if OptionsAffModeleDlg.listeModeleBox.checked[i-1] then
                   texte.Add('%M'+intToStr(i));
-            for i := 1 to NbreParam[paramNormal] do
-               if OptionsAffModeleDlg.listeParamBox.checked[i-1] then
-                  texte.Add('%P'+intToStr(i));
+            if pages[pageCourante].ModeleCalcule and (NbreParam[paramNormal]>0) then begin
+               for i := 1 to NbreParam[paramNormal] do
+                   if OptionsAffModeleDlg.listeParamBox.checked[i-1] then
+                      texte.Add('%P'+intToStr(i));
+            end;
          end;
          if nouveauDessin then dessins.add(Dessin);
       end
@@ -7836,7 +8599,7 @@ Agraphe := graphes[indexGr];
 for i := 0 to pred(Agraphe.courbes.count) do
    with Agraphe.courbes[i] do begin
     if (indexModele<0) and (-indexModele<=NbreFonctionSuper) then
-        with fonctionSuperposee[-indexModele],Pages[pag] do begin
+        with fonctionSuperposee[-indexModele],Pages[page] do begin
              DebutC := 0;
              AffecteConstParam(true);
              AffecteVariableP(false);
@@ -7845,12 +8608,12 @@ for i := 0 to pred(Agraphe.courbes.count) do
                    Agraphe.monde[mondeX].graduation=gLog,FinC);
              if genreC=g_equation then GenereEquation(valX,valY,
                           Agraphe.monde[mondeX].axe,
-                          Agraphe.monde[mondeY].axe,pag,FinC);
+                          Agraphe.monde[mondeY].axe,page,FinC);
         end;
     if (indexModele>0) and (indexBande=0) and
         not courbeExp and
        (indexModele<=NbreModele) then
-        with fonctionTheorique[indexModele],Pages[pag] do begin
+        with fonctionTheorique[indexModele],Pages[page] do begin
                DebutC := debut[indexModele];
                FinC := fin[indexModele];
                copyVecteur(valX,valeurVar[indexX]);
@@ -7860,7 +8623,7 @@ for i := 0 to pred(Agraphe.courbes.count) do
                continue;
         end; // with
     if ModeleParametrique and (NbreModele=2) then
-       with Pages[pag] do begin
+       with Pages[page] do begin
                DebutC := debut[1];
                FinC := fin[1];
                if ModeleCalcule
@@ -7884,7 +8647,7 @@ for i := 0 to pred(Agraphe.courbes.count) do
                            end;
                 continue;
        end; // with pages
-       if PortraitDePhase and (NbreModele=1) then with Pages[pag] do begin
+       if PortraitDePhase and (NbreModele=1) then with Pages[page] do begin
                DebutC := debut[1];
                FinC := fin[1];
                if ModeleCalcule
@@ -7919,9 +8682,9 @@ with graphes[indexGr] do begin
     if (NbreModele=0) or not(ModeleDefini in etatModele) then exit;
     ChercheMinMax;
     for i := 0 to pred(courbes.count) do with courbes[i] do begin
-        if pages[pag].modeleErrone then continue;
-        pages[pag].AffecteConstParam(true);
-        pages[pag].AffecteVariableP(false);
+        if pages[page].modeleErrone then continue;
+        pages[page].AffecteConstParam(true);
+        pages[page].AffecteVariableP(false);
         if (indexModele>0) and
            (indexBande=0) and
             not courbeExp and
@@ -7935,7 +8698,7 @@ with graphes[indexGr] do begin
                         then GenereM(valX,valY,miniMod,maxiMod,
                            monde[mondeX].graduation=gLog,FinC)
                         else begin
-                            if (indexX=0) and useDefault
+                            if (indexX=0) and useDefaut
                                then begin
                                     maxiMod := maxiTemps;
                                     miniMod := miniTemps;
@@ -7946,45 +8709,45 @@ with graphes[indexGr] do begin
                   end;// fonction
                   g_equation : GenereEquation(valX,valY,
                           monde[mondeX].axe,
-                          monde[mondeY].axe,pag,FinC);
+                          monde[mondeY].axe,page,FinC);
                   g_diff2 : begin
                         if isModeleSysteme
                            then begin if indexModele=1 then
-                               ExtrapoleDiff2(pag,Pages[pag].debut[1],
+                               ExtrapoleDiff2(page,Pages[page].debut[1],
                                          monde[mondeX].mini,monde[mondeX].maxi,
                                          ValeurXDiff,ValeurYDiff,valeurYpDiff,1,NbreModele);
                             end
-                            else ExtrapoleDiff2(pag,Pages[pag].debut[indexModele],
+                            else ExtrapoleDiff2(page,Pages[page].debut[indexModele],
                                          monde[mondeX].mini,monde[mondeX].maxi,
                                          ValeurXDiff,ValeurYDiff,valeurYpDiff,indexModele,indexModele);
                         copyVecteur(valX,valeurXDiff);
                         copyVecteur(valY,ValeurYDiff[indexModele]);
                         debutC := 0;
-                        finC := pred(Pages[pag].NmesMax);
+                        finC := pred(Pages[page].NmesMax);
                    end;// diff2
                    g_diff1 : begin
                         if isModeleSysteme
                            then begin if indexModele=1 then
-                               ExtrapoleDiff1(pag,Pages[pag].debut[1],
+                               ExtrapoleDiff1(page,Pages[page].debut[1],
                                          monde[mondeX].mini,monde[mondeX].maxi,
                                          ValeurXDiff,ValeurYDiff,1,NbreModele);
                            end
-                           else ExtrapoleDiff1(pag,Pages[pag].debut[indexModele],
+                           else ExtrapoleDiff1(page,Pages[page].debut[indexModele],
                                          monde[mondeX].mini,monde[mondeX].maxi,
                                          ValeurXDiff,ValeurYDiff,indexModele,indexModele);
                         copyVecteur(valX,valeurXDiff);
                         copyVecteur(valY,ValeurYDiff[indexModele]);
                         debutC := 0;
-                        finC := pred(pages[pag].NmesMax);
+                        finC := pred(pages[page].NmesMax);
                    end; // diff1
                 end;// case
-                if modeleParametrique and (NbreModele=2) then begin { Fonction }
-                      if useDefault
+                if modeleParametrique and (NbreModele=2) then begin // Fonction
+                      if useDefaut
                          then begin
                               maxiMod := maxiTemps;
                               miniMod := miniTemps;
                          end
-                         else GetMinMax(Pages[pag].ValeurVar[0],pages[pag].nmes,miniMod,maxiMod);
+                         else GetMinMax(Pages[page].ValeurVar[0],pages[page].nmes,miniMod,maxiMod);
                       GenereModeleParametrique(valY,valX,miniMod,maxiMod,finC);
                       if ModeleParamX1 then swap(valX,valY);
                       debutC := 0;
@@ -7993,12 +8756,12 @@ with graphes[indexGr] do begin
                 if portraitDePhase and
                    (fonctionTheorique[1].genreC=g_fonction) and
                    (NbreModele=1) then begin
-                     if useDefault
+                     if useDefaut
                          then begin
                               maxiMod := maxiTemps;
                               miniMod := miniTemps;
                          end
-                         else GetMinMax(Pages[pag].ValeurVar[0],pages[pag].nmes,miniMod,maxiMod);
+                         else GetMinMax(Pages[page].ValeurVar[0],pages[page].nmes,miniMod,maxiMod);
                       FonctionTheorique[1].GenereM(valX,valY,miniMod,maxiMod,false,FinC);
                       copyVecteur(valT,valX);
                       DeriveeGauss(valT,valY,finC+1,valX,degreDerivee,NbrePointDerivee);
@@ -8010,13 +8773,13 @@ with graphes[indexGr] do begin
                 if portraitDePhase and
                    (fonctionTheorique[1].genreC=g_diff2) and
                    (NbreModele=1) then begin
-                     if useDefault
+                     if useDefaut
                          then begin
                               maxiMod := maxiTemps;
                               miniMod := miniTemps;
                          end
-                         else GetMinMax(Pages[pag].ValeurVar[0],pages[pag].nmes,miniMod,maxiMod);
-                       ExtrapoleDiff2(pag,Pages[pag].debut[1],
+                         else GetMinMax(Pages[page].ValeurVar[0],pages[page].nmes,miniMod,maxiMod);
+                       ExtrapoleDiff2(page,Pages[page].debut[1],
                               miniMod,maxiMod,
                               ValeurXDiff,ValeurYDiff,valeurYpDiff,1,1);
                        if ModeleParamX1
@@ -8029,7 +8792,7 @@ with graphes[indexGr] do begin
                               copyVecteur(valY,valeurYDiff[1]);
                           end;
                        debutC := 0;
-                       finC := pred(pages[pag].NmesMax);
+                       finC := pred(pages[page].NmesMax);
                        continue;
                 end; // case
                 if (indexModele=1) and
@@ -8050,18 +8813,18 @@ begin with graphes[indexGr] do begin
     for i := 0 to pred(courbes.count) do with courbes[i] do begin
         if (indexModele<0) and (-indexModele<=NbreFonctionSuper) then
             with fonctionSuperposee[-indexModele] do begin
-                 pages[pag].AffecteConstParam(true);
-                 pages[pag].AffecteVariableP(false);
+                 pages[page].AffecteConstParam(true);
+                 pages[page].AffecteVariableP(false);
                  debutC := 0;
                  if genreC=g_equation
                     then GenereEquation(valX,valY,
                           monde[mondeX].axe,
-                          monde[mondeY].axe,pag,FinC)
+                          monde[mondeY].axe,page,FinC)
                     else if indexX=varX.indexG
                     then GenereM(valX,valY,
                                  miniMod,maxiMod,monde[mondeX].Graduation=gLog,FinC)
                     else begin
-                         if (varX=grandeurs[0]) and useDefault
+                         if (varX=grandeurs[0]) and useDefaut
                             then begin
                                  maxiMod := maxiTemps;
                                  miniMod := miniTemps;
@@ -8079,7 +8842,7 @@ begin
          VerifMemo(MemoModele);
          majModelePermis := true;
          verifMemo(memoResultat);
-         panelModele.width := 16*abs(Font.Height);
+         panelModele.width := 18*abs(Font.Height);
          AjustePanelModele;
 end;
 
@@ -8100,23 +8863,19 @@ begin with grapheCourant do begin
                  Application.CreateForm(TsavePositionDlg, savePositionDlg);
               varXPos := monde[mondeX].axe;
               varYpos := nil;
-              if curseur=curReticuleData then begin
-                 varYPos := curseurOsc[curseurData1].grandeurCurseur;
-                 if varYpos=nil then varYPos := monde[mondeY].axe;
+              case curseur of
+                 curReticuleData,curReticuleDataNew : varYPos := curseurOsc[curseurData1].grandeurCurseur;
+                 curReticule,curReticuleModele : varYPos := curseurOsc[1].grandeurCurseur;
+                 curEquivalence : begin
+                     varYPos := equivalenceCourante.varY;
+                     if (equivalenceCourante<>nil) then begin
+                       valeurCurseur[coX] := equivalenceCourante.ve;
+                       valeurCurseur[coY] := equivalenceCourante.phe;
+                       valeurCurseur[coPente] := equivalenceCourante.pente;
+                     end;
+                 end;
               end;
-              if curseur=curReticule then
-                 varYPos := curseurOsc[1].grandeurCurseur;
-              if curseur=curReticuleModele then
-                 varYPos := curseurOsc[1].grandeurCurseur;
-              if curseur=curEquivalence then
-                 varYPos := equivalenceCourante.varY;
               if varYpos=nil then varYPos := monde[mondeY].axe;
-              if (curseur=curEquivalence) and
-                 (equivalenceCourante<>nil) then begin
-                     valeurCurseur[coX] := equivalenceCourante.ve;
-                     valeurCurseur[coY] := equivalenceCourante.phe;
-                     valeurCurseur[coPente] := equivalenceCourante.pente;
-              end;
               savePositionDlg.curseur := curseur;
               for i := 1 to 5 do
                   savePositionDlg.curseurData[i] := curseurOsc[i];
@@ -8259,7 +9018,7 @@ begin
               panEnCours := false;
             end
             else if TInteractiveGestureFlag.gfEnd in EventInfo.Flags
-            then grapheCourant.useDefault := true
+            then grapheCourant.useDefaut := true
             else begin
                 if grapheCourant.affecteZoom(EventInfo.location,(EventInfo.Distance - FLastDistance),true)
                 then begin
@@ -8335,7 +9094,7 @@ begin with graphes[1] do begin
       limiteFenetre := paintBox1.clientRect; // non à jour au début ?
       LabelTempsAnim.caption := grandeurs[0].formatNomEtUnite(tempsCourant);
       for j := 0 to pred(graphes[1].Courbes.count) do with graphes[1].Courbes[j] do
-         if pag=pageCourante then begin
+         if page=pageCourante then begin
                finC := pages[pageCourante].NumeroAnim;
                debutC := finC;
                NumAnim := finC;
@@ -8442,9 +9201,10 @@ var x1,x2,y1,y2 : double;
     i : integer;
     indexX,indexY : integer;
     mSelect,m : TindiceMonde;
+    t0 : double;
 begin with zoneZoom,grapheCourant do begin
         VideStatusPanel(HeaderXY,0);
-        canvas.Rectangle(left,top,right,bottom);{ efface }
+        canvas.Rectangle(left,top,right,bottom);// efface
         right := X;
         bottom := Y;
         setPenBrush(curSelect);
@@ -8521,7 +9281,7 @@ begin with zoneZoom,grapheCourant do begin
                else if (curseur=curModeleGr) and (indexModeleGr>0) then begin
                    ModeleGraphique[indexModeleGr].initialiseParametre(
                        Pages[pageCourante].debut[indexModeleGr],
-                       Pages[pageCourante].fin[indexModeleGr],false);
+                       Pages[pageCourante].fin[indexModeleGr],t0,false);
                end;
         end;
         if ModeleDefini in etatModele then
@@ -8567,7 +9327,76 @@ begin with grapheCourant do begin
             end;
 end end;
 
+procedure TFgrapheVariab.verifTri;
+var indexTriNew : integer;
 
+procedure effectuerTri;
+var i,m : integer;
+    xdebut,xfin : array[1..MaxIntervalles] of double;
+    Boutons : TMsgDlgButtons;
+begin with pages[pageCourante] do begin
+       for m := 1 to NbreModele do with fonctionTheorique[m] do
+           if (indexX=indexTriNew) then begin
+              xdebut[m] := valeurVar[indexX,debut[m]];
+              xfin[m] := valeurVar[indexX,fin[m]];
+           end;
+       Fvaleurs.trierVariables(indexTriNew);
+       for m := 1 to NbreModele do with fonctionTheorique[m] do
+           if (indexX=indexTriNew) then begin
+              for i := 0 to pred(nmes) do begin
+                  if xdebut[m] = valeurVar[indexX,i] then debut[m] := i;
+                  if xfin[m] = valeurVar[indexX,i] then fin[m] := i;
+              end;
+           end;
+       PostMessage(FgrapheVariab.handle,WM_Reg_Maj,MajGrandeur,0);
+    //  mtWarning  mtInformation
+       boutons := [mbOK];
+       MessageDlg('Cliquer sur le bouton "Ajuster"',mtWarning,boutons,0);
+end end;
+
+var m,j : integer;
+    atrier : boolean;
+    xdebut,xfin,xcourant : double;
+begin with pages[pageCourante] do begin
+    if nmes>512 then exit;
+    atrier := false;
+    for m := 1 to NbreModele do with fonctionTheorique[m] do begin
+        if (indexX<>indexTri) and ((debut[m]>0) or (fin[m]<(nmes-1))) then begin
+            xdebut := valeurVar[indexX,debut[m]];
+            xfin := valeurVar[indexX,fin[m]];
+            verifMinMaxReal(xdebut,xfin);
+            for j := 0 to debut[m]-1 do begin
+                xcourant := valeurVar[indexX,j];
+                if (xcourant>xdebut) or (xcourant<xfin) then begin
+                   atrier := true;
+                   indexTriNew := indexX;
+                   break; // boucle j
+                end;
+            end;
+            if not atrier then for j := debut[m]+1 to fin[m]-1 do begin
+                xcourant := valeurVar[indexX,j];
+                if (xcourant<xdebut) or (xcourant>xfin) then begin
+                   atrier := true;
+                   indexTriNew := indexX;
+                   break;
+                end;
+            end;
+            if not atrier then for j := fin[m]+1 to pred(nmes) do begin
+                xcourant := valeurVar[indexX,j];
+                if (xcourant>xdebut) or (xcourant<xfin) then begin
+                   atrier := true;
+                   indexTriNew := indexX;
+                   break;
+                end;
+            end;
+        end;
+        if aTrier then break; // boucle m
+    end;
+    if atrier then
+        if OKReg('Données à trier selon '+Grandeurs[indexTriNew].nom+' ?',0)
+           then effectuerTri
+           else prevenirTri := false;
+end end;
 
 end.
 

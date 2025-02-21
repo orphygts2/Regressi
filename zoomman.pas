@@ -43,6 +43,8 @@ var
 
 implementation
 
+uses regmain;
+
 {$R *.DFM}
 
 procedure TZoomManuelDlg.FormActivate(Sender: TObject);
@@ -61,7 +63,7 @@ with minMaxGrid do begin
     AutoTickCB.checked  := echelle.autoTick;
     AjouterTemps := true;
     LigneTemps := -1;
-    ZoomAutoBtn.visible := echelle.useDefault;
+    ZoomAutoBtn.visible := echelle.useDefaut;
     for m := mondeX to high(TindiceMonde) do with echelle.monde[m] do if defini then begin
        inc(Arow);
        ligne[m] := Arow;
@@ -97,7 +99,7 @@ with minMaxGrid do begin
               cells[3,ARow] := formatReg(X[3,Arow]);
               cells[4,ARow] := intToStr(NTicks);
            end;
-    end; { monde }
+    end; // for monde
     if OgPolaire in echelle.OptionGraphe then begin
        Cells[0,1] := stAbscisse;
        Cells[0,2] := stOrdonnee;
@@ -127,8 +129,7 @@ end end;
 
 procedure TZoomManuelDlg.FormCreate(Sender: TObject);
 begin
- //  MinMaxGrid.DefaultRowHeight := hauteurColonne;
-   ResizeButtonImagesforHighDPI(self);
+   MinMaxGrid.DefaultRowHeight := hauteurColonne;
 end;
 
 procedure TZoomManuelDlg.OKBtnClick(Sender: TObject);
@@ -155,7 +156,8 @@ var m : TindiceMonde;
 begin with echelle do begin
     MinMaxGridExit(nil);
     autoTick := AutoTickCB.checked;
-    useDefault := true;
+    useDefaut := true;
+    useZoom := false;
     for m := mondeX to high(TindiceMonde) do begin
         if Monde[m].defini then verif(m);
          Monde[m].zeroInclus := false;
@@ -167,7 +169,7 @@ begin with echelle do begin
        miniTemps := x[1,ligneTemps];
        maxiTemps := x[2,ligneTemps];
     end;
-    UseDefault := true;
+    UseDefautX := true;
     if MemeZeroCB.visible then if MemeZeroCB.checked
         then include(echelle.OptionGraphe,OgMemeZero)
         else exclude(echelle.OptionGraphe,OgMemeZero)
@@ -250,7 +252,9 @@ end;
 
 procedure TZoomManuelDlg.ZoomAutoBtnClick(Sender: TObject);
 begin
-     echelle.useDefault := false;
+     echelle.useDefaut := false;
+     echelle.useDefautX := false;
+     echelle.useZoom := false;
      echelle.autoTick := true;
 end;
 

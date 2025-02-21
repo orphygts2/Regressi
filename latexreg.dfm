@@ -2,9 +2,9 @@ object LatexDlg: TLatexDlg
   Left = 450
   Top = 187
   BorderStyle = bsDialog
-  Caption = 'Latex'
-  ClientHeight = 846
-  ClientWidth = 568
+  Caption = '+'
+  ClientHeight = 956
+  ClientWidth = 420
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,19 +14,22 @@ object LatexDlg: TLatexDlg
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 192
   TextHeight = 30
   object PanelOption: TPanel
-    Left = 308
+    Left = 160
     Top = 0
     Width = 260
-    Height = 674
+    Height = 654
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alRight
     TabOrder = 0
+    ExplicitLeft = 230
+    ExplicitHeight = 659
     object HelpBtn: TBitBtn
       Left = 26
       Top = 152
@@ -46,31 +49,6 @@ object LatexDlg: TLatexDlg
       OnClick = HelpBtnClick
       IsControl = True
     end
-    object GroupBox1: TGroupBox
-      Left = 1
-      Top = 423
-      Width = 258
-      Height = 250
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alBottom
-      Caption = 'Options'
-      TabOrder = 1
-      object DateCB: TCheckBox
-        Left = 18
-        Top = 32
-        Width = 208
-        Height = 38
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Caption = 'date'
-        TabOrder = 0
-      end
-    end
     object SaveBtn: TBitBtn
       Left = 26
       Top = 288
@@ -85,7 +63,7 @@ object LatexDlg: TLatexDlg
       Margin = 2
       NumGlyphs = 2
       Spacing = -1
-      TabOrder = 2
+      TabOrder = 1
       OnClick = SaveBtnClick
       IsControl = True
     end
@@ -103,21 +81,23 @@ object LatexDlg: TLatexDlg
       Margin = 2
       NumGlyphs = 2
       Spacing = -1
-      TabOrder = 3
+      TabOrder = 2
       IsControl = True
     end
   end
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 308
-    Height = 674
+    Width = 160
+    Height = 654
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alClient
     TabOrder = 1
+    ExplicitWidth = 230
+    ExplicitHeight = 659
     object GrandeursCB: TCheckBox
       Left = 18
       Top = 18
@@ -134,8 +114,8 @@ object LatexDlg: TLatexDlg
     end
     object VariabGB: TGroupBox
       Left = 1
-      Top = 59
-      Width = 306
+      Top = 45
+      Width = 242
       Height = 204
       Margins.Left = 6
       Margins.Top = 6
@@ -144,6 +124,8 @@ object LatexDlg: TLatexDlg
       Align = alBottom
       Caption = '&Variables'
       TabOrder = 1
+      ExplicitTop = 44
+      ExplicitWidth = 228
       object TableauVariabCB: TCheckBox
         Left = 18
         Top = 32
@@ -198,8 +180,8 @@ object LatexDlg: TLatexDlg
     end
     object ParamGB: TGroupBox
       Left = 1
-      Top = 263
-      Width = 306
+      Top = 249
+      Width = 242
       Height = 168
       Margins.Left = 6
       Margins.Top = 6
@@ -208,6 +190,8 @@ object LatexDlg: TLatexDlg
       Align = alBottom
       Caption = '&Param'#232'tres'
       TabOrder = 2
+      ExplicitTop = 248
+      ExplicitWidth = 228
       object GrapheParamCB: TCheckBox
         Left = 18
         Top = 72
@@ -249,8 +233,8 @@ object LatexDlg: TLatexDlg
     end
     object FourierGB: TGroupBox
       Left = 1
-      Top = 431
-      Width = 306
+      Top = 417
+      Width = 242
       Height = 122
       Margins.Left = 6
       Margins.Top = 6
@@ -259,6 +243,8 @@ object LatexDlg: TLatexDlg
       Align = alBottom
       Caption = 'Fourier'
       TabOrder = 3
+      ExplicitTop = 416
+      ExplicitWidth = 228
       object TableauFourierCB: TCheckBox
         Left = 18
         Top = 32
@@ -288,8 +274,8 @@ object LatexDlg: TLatexDlg
     end
     object StatistiqueGB: TGroupBox
       Left = 1
-      Top = 553
-      Width = 306
+      Top = 539
+      Width = 242
       Height = 120
       Margins.Left = 6
       Margins.Top = 6
@@ -298,6 +284,8 @@ object LatexDlg: TLatexDlg
       Align = alBottom
       Caption = 'Statistique'
       TabOrder = 4
+      ExplicitTop = 538
+      ExplicitWidth = 228
       object TableauStatCB: TCheckBox
         Left = 18
         Top = 32
@@ -328,8 +316,8 @@ object LatexDlg: TLatexDlg
   end
   object GroupBox2: TGroupBox
     Left = 0
-    Top = 760
-    Width = 568
+    Top = 870
+    Width = 420
     Height = 86
     Margins.Left = 6
     Margins.Top = 6
@@ -338,6 +326,8 @@ object LatexDlg: TLatexDlg
     Align = alBottom
     Caption = 'Titre'
     TabOrder = 2
+    ExplicitTop = 875
+    ExplicitWidth = 490
     object EnteteEdit: TEdit
       Left = 4
       Top = 30
@@ -352,8 +342,8 @@ object LatexDlg: TLatexDlg
   end
   object Panel2: TPanel
     Left = 0
-    Top = 674
-    Width = 568
+    Top = 784
+    Width = 420
     Height = 86
     Margins.Left = 6
     Margins.Top = 6
@@ -361,29 +351,20 @@ object LatexDlg: TLatexDlg
     Margins.Bottom = 6
     Align = alBottom
     TabOrder = 3
+    ExplicitTop = 789
+    ExplicitWidth = 490
     object PagesBtn: TSpeedButton
       Left = 500
       Top = 22
       Width = 52
       Height = 46
-      Hint = 'Choix|Choix des pages superpos'#233'es'
+      Hint = 'Choix|Choix des pages enregistr'#233'es'
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000000000000000000000000
-        80000080000000808000800000008000800080800000C0C0C000808080000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-        3333333300003333333333333333333300003333333333333333333300003333
-        33333333333333330000333333000000000033330000333330BFBFBFBFB03333
-        0000333300FBFBFBFBF0333300003330B0BFBFBFBFB0333300003300F0FBFBFB
-        FBF03333000030B0B0BFBFBFBFB03333000030F0F0FBFBFBFBF03333000030B0
-        B008999998033333000030F0FB0FBFB0F0333333000030B00080000803333333
-        000030FB0FBFB0F0333333330000300089999803333333330000330FBFB03333
-        3333333300003380000833333333333300003333333333333333333300003333
-        33333333333333330000}
+      ImageIndex = 17
+      ImageName = 'Item18'
       OnClick = PagesBtnClick
     end
     object GraphePageRG: TRadioGroup
@@ -407,9 +388,64 @@ object LatexDlg: TLatexDlg
       OnClick = GraphePageRGClick
     end
   end
+  object EditorGB: TGroupBox
+    Left = 0
+    Top = 654
+    Width = 420
+    Height = 130
+    Margins.Left = 6
+    Margins.Top = 6
+    Margins.Right = 6
+    Margins.Bottom = 6
+    Align = alBottom
+    Caption = 'Editeur Latex'
+    TabOrder = 4
+    ExplicitTop = 659
+    ExplicitWidth = 490
+    object EditorDirBtn: TSpeedButton
+      Left = 506
+      Top = 80
+      Width = 42
+      Height = 42
+      Hint = 'Choix de l'#39#233'diteur Latex '
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
+      ImageIndex = 5
+      ImageName = 'Item6'
+      OnClick = EditorDirBtnClick
+    end
+    object LanceEditorCB: TCheckBox
+      Left = 8
+      Top = 32
+      Width = 363
+      Height = 34
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
+      Caption = 'Lancer apr'#232's enregistrement'
+      TabOrder = 0
+    end
+    object PathEditorEdit: TEdit
+      Left = 8
+      Top = 80
+      Width = 480
+      Height = 38
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
+      TabOrder = 1
+      OnExit = PathEditorEditExit
+    end
+  end
   object SaveDialog: TSaveDialog
     DefaultExt = 'tex'
     Filter = 'Fichier TeX|*.tex'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Title = 'Export Latex pour Regressi'
     Left = 220
     Top = 168
   end

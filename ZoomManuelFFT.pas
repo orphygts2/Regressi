@@ -20,7 +20,6 @@ type
     procedure FormActivate(Sender: TObject);
     procedure OKBtnClick(Sender: TObject);
     procedure CancelBtnClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
   private
   public
   end;
@@ -30,7 +29,7 @@ var
 
 implementation
 
-uses graphfft;
+uses graphfft, regmain;
 
 {$R *.dfm}
 
@@ -43,15 +42,10 @@ begin
      end;
 end;
 
-procedure TZoomManuelFFTdlg.FormCreate(Sender: TObject);
-begin
- ResizeButtonImagesforHighDPI(self);
-end;
-
 procedure TZoomManuelFFTdlg.OKBtnClick(Sender: TObject);
 var fmin,fmax : double;
 begin with FgrapheFFT.GrapheFrequence do begin
-    UseDefaultX := true;
+    UseDefautX := true;
     with grandeurs[cFrequence] do begin
          MiniLabel.Caption := nom+' Mini ('+nomUnite+')';
          MaxiLabel.Caption := nom+' Maxi ('+nomUnite+')';
@@ -70,7 +64,7 @@ end end;
 
 procedure TZoomManuelFFTdlg.CancelBtnClick(Sender: TObject);
 begin with FgrapheFFT.GrapheFrequence do begin
-    UseDefaultX := false;
+    UseDefautX := false;
     monde[mondeX].defini := false;
     modif := [gmXY,gmEchelle];
 end end;

@@ -5,13 +5,14 @@ interface
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, Buttons, Printers, Math, Vcl.ComCtrls, clipbrd,
-  jpeg, gifimg, pngimage, inifiles,
-  Vcl.HtmlHelpViewer,
-  Menus, Spin, ImgList, ToolWin, grids,
-  constreg, grapheU, regUtil,
-  system.Types, System.ImageList,
+  Menus, Spin, ImgList, ToolWin, grids, inifiles,
+  system.Types, System.ImageList, system.UITypes,
   Vcl.Mask, Vcl.BaseImageCollection,
-  Vcl.ImageCollection, Vcl.VirtualImageList;
+  Vcl.ImageCollection, Vcl.VirtualImageList, Vcl.HtmlHelpViewer,
+
+  jpeg, pngimage, gifImg,
+
+  constreg, grapheU, regUtil;
 
 const
    maxObjet = 6;
@@ -40,21 +41,24 @@ type
     EchelleBtn: TToolButton;
     EditBidon: TEdit;
     OpenDialog: TOpenDialog;
-    ProgressBar: TProgressBar;
     SignifEdit: TLabeledEdit;
     NbreSE: TSpinEdit;
     Label1: TLabel;
-    ToolButton1: TToolButton;
+    AideBtn: TToolButton;
     GroupBox1: TGroupBox;
     CouleurPointsCB: TColorBox;
-    GroupBox2: TGroupBox;
-    CouleurAxeCB: TColorBox;
     LoupeBtn: TToolButton;
     zoomUD: TSpinEdit;
     TimerMove: TTimer;
     PaintBox: TPaintBox;
     ImageCollection1: TImageCollection;
     VirtualImageList1: TVirtualImageList;
+    GroupBox2: TGroupBox;
+    CouleurAxeCB: TColorBox;
+    AutoBtn: TToolButton;
+    CouleurCibleP: TPanel;
+    PythonBtn: TToolButton;
+    SaveDialog: TSaveDialog;
     procedure FormCreate(Sender: TObject);
     procedure RegressiBtnClick(Sender: TObject);
     procedure ImageMouseDown(Sender: TObject; Button: TMouseButton;
@@ -78,14 +82,14 @@ type
     procedure SplitterMoved(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SerieSEChange(Sender: TObject);
-    procedure GridDrawCell(Sender: TObject; ACol, ARow: Integer;
-      Rect: TRect; State: TGridDrawState);
     procedure SignifEditChange(Sender: TObject);
     procedure NbreSEChange(Sender: TObject);
     procedure FormResize(Sender: TObject);
-    procedure ToolButton1Click(Sender: TObject);
+    procedure AideBtnClick(Sender: TObject);
     procedure TimerMoveTimer(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    procedure AutoBtnClick(Sender: TObject);
+    procedure PythonBtnClick(Sender: TObject);
   private
     penWidth : integer;
     e_PointRepere : TarrayPoint;
@@ -104,11 +108,14 @@ type
     ZeroX,ZeroY : double;
     NbrePoints : array[TindiceObjet] of integer;
     NomFichier : String;
-    Couleur : array[0..maxObjet] of Tcolor;
-    CouleurGrid : array[0..2*maxObjet+1] of Tcolor;
+    Couleur : array[0..maxObjet] of Tcolor; // 0 pour axe
     Abitmap,bitmapLoupe : Tbitmap;
     Largeur,Hauteur : integer;
     LargeurAff,HauteurAff : integer;
+    BlueCible,RedCible,GreenCible : integer;
+    couleurFond : TColor;
+    BlueFond,RedFond,GreenFond : integer;
+    Ymax,Ymin,Xmax,Xmin  : integer;
     Procedure envoieDonneesReg;
     Function GetBorne(x,y : integer) : TstyleDrag;
     Function PointProche(x,y : Integer) : integer;
@@ -124,10 +131,14 @@ type
     procedure ConvertitXY(Sender: TObject;var X, Y: Integer);
     procedure cacheLoupe;
     procedure SetCurseur(Acursor : Tcursor);
+    procedure effectueModeAuto;
+    procedure choixCibleAuto(X, Y: Integer);
   public
     MaxiX,MaxiY : double;
     MiniX,MiniY : double;
     echelleX,echelleY : Techelle;
+    orthonorme : boolean;
+    modifierPointCourant : boolean;
   end;
 
 var
@@ -135,7 +146,7 @@ var
 
 implementation
 
-uses courbesEch, regdde, compile, regmain, graphvar, loupeU, aidekey;
+uses courbesEch, regdde, compile, regmain, graphvar, loupeU, aidekey, maths;
 
 const
       Rayon = 5;
@@ -148,9 +159,10 @@ const
 
 procedure TCourbesForm.FormCreate(Sender: TObject);
 var i : tstyleDrag;
-    j : integer;
+    j,w : integer;
     Fichier : TIniFile;
 begin
+    couleurCibleP.Visible := false;
     NbreSE.MaxValue := maxObjet;
     NbreObjet := 1;
     NomFichier := '';
@@ -168,7 +180,7 @@ begin
         Couleur[j] := Fichier.readInteger(Titre,stCouleur+intToStr(j),clRed);
     CouleurPointsCB.selected := Couleur[1];
     CouleurAxeCB.selected := couleur[0];
-    Application.CreateForm(TechelleBmpDlg,echelleBmpDlg);
+    if echelleBmpDlg=nil then Application.CreateForm(TechelleBmpDlg,echelleBmpDlg);
     MaxiX := 10;
     MaxiY := 10;
     MiniX := 0;
@@ -178,6 +190,8 @@ begin
          uniteY.text := Fichier.readString(Titre,'UniteY','m');
          editX.text := Fichier.readString(Titre,'EditX','m');
          editY.text := Fichier.readString(Titre,'EditY','m');
+         modifierPointCourant := Fichier.readBool(Titre,'ModifPoint',true);
+         modifPointCB.checked := modifierPointCourant;
     end;
     Fichier.free;
     bitmapLoupe := Tbitmap.create;
@@ -194,8 +208,111 @@ begin
     UndoBtn.enabled := false;
     RegressiBtn.enabled := false;
     Grid.DefaultRowHeight := hauteurColonne;
-    ResizeButtonImagesforHighDPI(self);
+    w := (Grid.Width-8) div (2*NbreSE.value);
+    if (w<64) and (NbreSE.value>1) then
+        w := (Grid.Width-8) div 2;
+    Grid.DefaultColWidth := w;
+    VirtualImageList1.height := VirtualImageListSize;
+    VirtualImageList1.width := VirtualImageListSize;
 end;
+
+procedure TCourbesForm.ChoixCibleAuto(x,y : integer);
+
+function InitMesure : boolean;
+var
+    Lcouleur : TRGBtriple;
+    xCible,yCible : integer;
+    scanLine : pRGBTripleArray;
+begin
+     result := false;
+     xCible := round(pointRepere[bsChronoInit].x);
+     if (xcible<Xmin) or (xcible>Xmax) then exit;
+     yCible := round(pointRepere[bsChronoInit].y);
+     if (ycible<Ymin) or (ycible>Ymax) then exit;
+     scanLine := Abitmap.scanLine[yCible];
+     Lcouleur := scanLine[xCible];
+     RedCible := Lcouleur.rgbtRed;
+     BlueCible := Lcouleur.rgbtBlue;
+     GreenCible := Lcouleur.rgbtGreen;
+     result := true;
+end; // initMesure
+
+begin
+  if initMesure then begin
+     borneSelect := bsChrono;
+     setCurseur(crNone);
+     PaintBox.hint := hChronoEnCours;
+     effectueModeAuto;
+  end;
+end; //ChoixCibleAuto
+
+procedure TCourbesForm.effectueModeAuto;
+
+procedure chercheUnPoint(xc : integer;var yprec : integer);
+var ecart,ecartMin : integer;
+    yc,y0 : integer;
+    couleurC :  TRGBtriple;
+    scanLine : pRGBTripleArray;
+begin
+    EcartMin := 50;
+    y0 := 0;
+    for yc := Ymin to Ymax do begin
+        scanLine := Abitmap.scanLine[yc];
+        couleurC := scanLine[xc];
+        ecart := abs(BlueCible-couleurC.rgbtBlue)+
+                 abs(GreenCible-couleurC.rgbtGreen)+
+                 abs(RedCible-couleurC.rgbtRed);
+        // test couleur=couleurCible
+        if (y0>0) and (abs(ecart-ecartMin)<4)  then begin
+            if abs(y0-yprec)>abs(yc-yprec) then begin
+               y0 := yc;
+               ecartMin := ecart;
+            end;
+        end
+        else if ecart<ecartMin then begin
+            ecartMin := ecart;
+            y0 := yc;
+        end
+    end; // for yc
+    if y0>0 then begin
+       XY[ObjetCourant,NbrePoints[ObjetCourant]] := point(xc,y0);
+       inc(NbrePoints[ObjetCourant]);
+       yprec := y0;
+    end;
+end; // chercheMobile
+
+var xx, pasXX, yprec : integer;
+begin
+    pasXX := (Xmax-Xmin) div 64;
+    if pasXX<2 then pasXX := 2;
+    xx := Xmin+2;
+    yprec := 0;
+    while xx<=xMax do begin
+        chercheUnPoint(xx,yprec);
+        inc(xx,pasXX);
+    end;
+    PaintBox.refresh;
+    traceGrid;
+    if objetCourant<NbreSE.value then begin
+       inc(objetCourant);
+       serieSE.Value := objetCourant;
+       ShowMessage('Sélectionnez la couleur de la courbe suivante');
+       setCurseur(crCible);
+       BorneSelect := bsChronoInit;
+    end
+    else begin
+       BorneSelect := bsNone;
+       setCurseur(crDefault);
+       EchelleBtn.enabled := true;
+       MesureBtn.Down := false;
+       MesureBtn.Hint :=  hStartMes;
+       MesureBtn.imageIndex := 9;
+       MesureBtn.Caption := 'Mesures';
+       RazBtn.enabled := true;
+       RegressiBtn.enabled := true;
+       CouleurCibleP.Visible := false;
+    end;
+end; // effectueModeleAuto
 
 procedure TCourbesForm.RegressiBtnClick(Sender: TObject);
 begin
@@ -299,18 +416,18 @@ end;
 Procedure TCourbesForm.SetEchelle;
 var PixelX,PixelY : double;
 begin
-       if PointRepere[bsEchelle2].y<0 then
+       if (PointRepere[bsEchelle2].y<0) and not orthonorme then
               PointRepere[bsEchelle2].y := 0;
-       if PointRepere[bsEchelle2].y>hauteur then
+       if (PointRepere[bsEchelle2].y>hauteur) and not orthonorme then
               PointRepere[bsEchelle2].y := hauteur;
-       if PointRepere[bsEchelle1].x>largeur then
+       if (PointRepere[bsEchelle1].x>largeur) and not orthonorme then
               PointRepere[bsEchelle1].x := largeur;
-       if PointRepere[bsEchelle1].x<0 then
+       if (PointRepere[bsEchelle1].x<0) and not orthonorme then
               PointRepere[bsEchelle1].x := 0;
        PixelX := PointRepere[bsEchelle1].x-PointRepere[bsOrigine].x;
        PixelY := PointRepere[bsEchelle2].y-PointRepere[bsOrigine].y;
        case echelleX of
-            eLog : begin
+          eLog : begin
              penteX := log10(MaxiX/MiniX)/PixelX;
              zeroX := PointRepere[bsOrigine].x;
              if maxiX>miniX
@@ -333,7 +450,9 @@ begin
                 else arrondiY := power(10,floor(log10(maxiY)-1));
           end;
           eLin,ePolaire : begin
-             penteY := (MaxiY-MiniY)/PixelY;
+             if orthonorme
+                then penteY := penteX
+                else penteY := (MaxiY-MiniY)/PixelY;
              zeroY := PointRepere[bsOrigine].y;
              ArrondiY := power(10,floor(log10(abs(penteY))));
           end;
@@ -347,20 +466,45 @@ var i : TstyleDrag;
 begin
       result := bsNone;
       for i in [bsOrigine,bsEchelle1,bsEchelle2] do
-          if (abs(x-e_PointRepere[i].x)+abs(y-e_PointRepere[i].y) < Magnet)
+          if sqrt(sqr(x-e_PointRepere[i].x)+sqr(y-e_PointRepere[i].y)) < Magnet
                 then begin
                      result := i;
                      break;
                 end;
-end;                         
+end;
 
 Procedure TCourbesForm.AffecteBorne(x,y : integer);
+var delta : single;
+
+Procedure setOrtho;
+begin
+        case BorneSelect of
+           bsOrigine :  begin
+               e_PointRepere[bsEchelle1] := e_PointRepere[bsOrigine];
+               e_PointRepere[bsEchelle1].offset(delta,0);
+               e_PointRepere[bsEchelle2] := e_PointRepere[bsOrigine];
+               e_PointRepere[bsEchelle2].offset(0,-delta);
+           end;
+           bsEchelle1 : begin
+               delta := e_PointRepere[bsEchelle1].x-e_PointRepere[bsOrigine].x;
+               e_PointRepere[bsEchelle2] := e_PointRepere[bsOrigine];
+               e_PointRepere[bsEchelle2].offset(0,-delta);
+           end;
+           bsEchelle2 : begin
+               delta := e_PointRepere[bsEchelle1].y-e_PointRepere[bsOrigine].y;
+               e_PointRepere[bsEchelle1] := e_PointRepere[bsOrigine];
+               e_PointRepere[bsEchelle1].offset(delta,0);
+           end;
+        end; // case
+end;
+
 begin
     if x<0 then x := 0;
     if y<0 then y := 0;
     if y>hauteurAff-marge then y := hauteurAff-marge;
     if x>largeurAff-marge then x := largeurAff-marge;
-    e_PointRepere[BorneSelect] := point(x,y);
+    e_PointRepere[BorneSelect] := pointF(x,y);
+    delta := e_PointRepere[bsEchelle1].x-e_PointRepere[bsOrigine].x;
     case BorneSelect of
         bsOrigine : begin
            e_PointRepere[bsEchelle1].y := e_PointRepere[bsOrigine].y;
@@ -369,6 +513,7 @@ begin
         bsEchelle1 : e_PointRepere[bsOrigine].y := e_PointRepere[bsEchelle1].y;
         bsEchelle2 : e_PointRepere[bsOrigine].x := e_PointRepere[bsEchelle2].x;
     end; // case
+    if orthonorme then setOrtho;
     EcranVersImage;
     PaintBox.repaint;
     TimerMove.enabled := true;
@@ -378,20 +523,23 @@ procedure TCourbesForm.ImageMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
    convertitXY(sender,x,y);
-   if BorneSelect=bsMesure then begin
-      pointCourant := pointProche(x,y);
-      if pointCourant>=0
-          then begin
+   case BorneSelect of
+      bsMesure : begin
+         pointCourant := pointProche(x,y);
+         if pointCourant>=0
+         then begin
              setCurseur(crCibleMove);
              hint := hDeplacerPoint;
-          end
-          else begin
+         end
+         else begin
              setCurseur(crCible);
              hint := hRepererPoint;
-          end;
-      exit;
+         end;
+         exit;
+      end;
+      bsChronoInit : exit;
+      bsSuppr : exit;
    end;
-   if BorneSelect=bsSuppr then exit;
    BorneSelect := GetBorne(x,y);
    case borneSelect of
       bsNone : begin
@@ -504,6 +652,22 @@ begin
    end;
 end; // loupe
 
+procedure ChercheCouleurCible;
+var
+    Lcouleur : TRGBtriple;
+    xCible,yCible : integer;
+    scanLine : pRGBTripleArray;
+begin
+     xCible := round(x/pasZoom);
+     if (xcible<Xmin) or (xcible>Xmax) then exit;
+     yCible := round(y/pasZoom);
+     if (ycible<Ymin) or (ycible>Ymax) then exit;
+     scanLine := Abitmap.scanLine[yCible];
+     Lcouleur := scanLine[xCible];
+     couleurCibleP.Color := RGB(Lcouleur.rgbtRed,Lcouleur.rgbtGreen,Lcouleur.rgbtBlue);
+     CouleurCibleP.repaint;
+end; //ChercheCouleurCible
+
 var BS : tstyleDrag;
 begin
    if NomFichier='' then exit;
@@ -527,6 +691,7 @@ begin
                end;
         end;
         bsSuppr : ;
+        bsChronoInit : chercheCouleurCible;
         bsNone : begin
            BS := GetBorne(x,y);
            case BS of
@@ -545,29 +710,37 @@ begin
         end;
         else if not timerMove.Enabled then AffecteBorne(x,y);
    end; // case borne select
-   if (borneSelect<>bsNone) and loupeBtn.down and (zoomUD.value>1)
+   if (borneSelect<>bsNone) and (zoomUD.value>1)
       then Loupe
       else cacheloupe;
 end; // mouseMove
 
 procedure TCourbesForm.ImagePaint(Sender: TObject);
 
-Procedure TraceLigne(P1,P2 : Tpoint);
+Procedure TraceLigne(P1,P2 : TpointF);
+var xx,yy : integer;
 begin
-         with P1 do PaintBox.canvas.moveto(x,y);
-         with P2 do PaintBox.canvas.lineto(x,y);
+    xx := round(P1.x);
+    yy := round(P1.y);
+    PaintBox.canvas.moveto(xx,yy);
+    xx := round(P2.x);
+    yy := round(P2.y);
+    PaintBox.canvas.lineto(xx,yy);
 end;
 
-Procedure TraceCercle(Apoint : Tpoint);
-begin with Apoint do
-      PaintBox.canvas.ellipse(x-rayon,y-rayon,
-                              x+rayon+1,y+rayon+1)
+Procedure TraceCercle(Apoint : TpointF);
+var xx,yy : integer;
+begin
+    xx := round(Apoint.x);
+    yy := round(Apoint.y);
+    PaintBox.canvas.ellipse(xx-rayon,yy-rayon,
+                            xx+rayon+1,yy+rayon+1)
 end;
 
-Procedure TraceCroix(Apoint : Tpoint;taille : integer);
+Procedure TraceCroix(Apoint : TpointF;taille : integer);
 begin with Apoint do begin
-         TraceLigne(Point(x-taille,y),point(x+taille,y));
-         TraceLigne(point(x,y-taille),point(x,y+taille));
+         TraceLigne(PointF(x-taille,y),pointF(x+taille,y));
+         TraceLigne(pointF(x,y-taille),pointF(x,y+taille));
 end end;
 
 Procedure TraceCroixData(i : integer;j : TindiceObjet);
@@ -586,8 +759,8 @@ end;
 
 Procedure TraceBorne;
 
-Procedure TraceFleche(P1i,P2i : Tpoint);
-var delta,zz : Tpoint;
+Procedure TraceFleche(P1i,P2i : TpointF);
+var delta,zz : TpointF;
     norme : integer;
 begin
             delta.X := P1i.x-P2i.x;
@@ -601,8 +774,8 @@ begin
             delta.x := round(delta.x/3);
             delta.y := round(delta.y/3);
             TraceLigne(P1i,P2i);
-            TraceLigne(P2i,point(zz.x-delta.Y,zz.y+delta.X));
-            TraceLigne(P2i,point(zz.x+delta.Y,zz.y-delta.X));
+            TraceLigne(P2i,pointF(zz.x-delta.Y,zz.y+delta.X));
+            TraceLigne(P2i,pointF(zz.x+delta.Y,zz.y-delta.X));
             TraceCercle(P1i);
 end; // traceFleche
 
@@ -619,29 +792,35 @@ Procedure ImageVersEcran;
     var i : TstyleDrag;
     begin
        for i := low(TstyleDrag) to High(TstyleDrag) do begin
-           if PointRepere[i].y<marge then PointRepere[i].y := marge;
-           if PointRepere[i].x<marge then PointRepere[i].x := marge;
-           if PointRepere[i].x>(largeur-marge) then
+           if (PointRepere[i].y<marge) and
+              ((not orthonorme) or (i<>bsEchelle2)) then PointRepere[i].y := marge;
+           if (PointRepere[i].x<marge) and
+              ((not orthonorme) or (i<>bsEchelle1))then PointRepere[i].x := marge;
+           if (PointRepere[i].x>(largeur-marge)) and
+              ((not orthonorme) or (i<>bsEchelle1))  then
               PointRepere[i].x := largeur-marge;
-           if PointRepere[i].y>(hauteur-marge) then
+           if (PointRepere[i].y>(hauteur-marge)) and
+              ((not orthonorme) or (i<>bsEchelle2))then
               PointRepere[i].y := hauteur-marge;
-           e_pointRepere[i].x := round(pointRepere[i].x*pasZoom);
-           e_pointRepere[i].y := round(pointRepere[i].y*pasZoom);
+           e_pointRepere[i].x := pointRepere[i].x*pasZoom;
+           e_pointRepere[i].y := pointRepere[i].y*pasZoom;
        end;
     end;
 
 var i,j : integer;
     zoomH,zoomV : double;
-begin
+begin // imagePaint
     if NomFichier='' then exit;
     ZoomH := paintBox.Height/hauteur;
     ZoomV := paintBox.Width/largeur;
     if zoomV<zoomH
          then pasZoom := ZoomV
          else pasZoom := ZoomH;
+    (*
     ZoomEdit.text := hNoZoom;
     if pasZoom>1.1 then ZoomEdit.text := 'Zoom x'+FloatToStrF(pasZoom,ffFixed,3,2);
     if pasZoom<0.9 then ZoomEdit.text := 'Zoom /'+FloatToStrF(1/pasZoom,ffFixed,3,2);
+    *)
     PaintBox.canvas.pen.color := couleur[0];
     ImageVersEcran;
     hauteurAff := round(hauteur*pasZoom);
@@ -649,11 +828,20 @@ begin
     PaintBox.canvas.CopyRect(rect(0,0,largeurAff,hauteurAff),
                Abitmap.canvas,rect(0,0,largeur,hauteur));
     PaintBox.canvas.brush.style := bsClear;
-    for j := 1 to NbreObjet do
+    for j := 1 to NbreObjet do begin
+        if NbrePoints[j]>grid.rowCount then
+           grid.rowCount := NbrePoints[j]+12;
         for i := 0 to pred(NbrePoints[j]) do
             traceCroixData(i,j);
+    end;
     grid.Row := NbrePoints[1]+1;
     TraceBorne;
+    Ymax := round(PointRepere[bsEchelle2].y);
+    Ymin := round(PointRepere[bsOrigine].y);
+    Xmax := round(PointRepere[bsEchelle1].x);
+    Xmin := round(PointRepere[bsOrigine].x);
+    verifMinMaxInt(Xmin,Xmax);
+    verifMinMaxInt(Ymin,Ymax);
     EditBidon.setFocus;
 end; // ImagePaint
 
@@ -667,12 +855,13 @@ procedure TCourbesForm.ImageMouseUp(Sender: TObject;
 begin
      if Button<>mbLeft then exit;
      convertitXY(sender,x,y);
+     AffecteBorne(x,y);
      case BorneSelect of
           bsMesure : AjoutePoint(x,y);
           bsSuppr : supprimePoint(x,y);
           bsNone : setCurseur(crDefault);
+          bsChronoInit : ChoixCibleAuto(x,y);
           else begin
-             AffecteBorne(x,y);
              borneSelect := bsNone;
              setCurseur(crDefault);
              setEchelle;
@@ -686,19 +875,68 @@ var distance, newDistance : double;
 begin
          result := -1;
          ObjetSelect := 1;
-         Distance := 10;
+         Distance := 8;
          x := round(x/pasZoom);
          y := round(y/pasZoom);
          for j := 1 to NbreObjet do
          for i := 0 to pred(NbrePoints[j]) do begin
-             newDistance := abs(xy[j,i].x-x)+
-                            abs(xy[j,i].y-y);
+             newDistance := sqrt(sqr(xy[j,i].x-x)+
+                                 sqr(xy[j,i].y-y));
              if (newDistance<distance) then begin
                 distance := newDistance;
                 result := i;
                 ObjetSelect := j;
              end;
          end;
+end;
+
+procedure TCourbesForm.PythonBtnClick(Sender: TObject);
+var FichierPy : textFile;
+
+procedure ecritObjet(j : integer;avecIndex : boolean);
+var i : integer;
+    index : string;
+begin
+       if avecIndex then index := IntToStr(j) else index := '';
+       write(fichierPy,EchelleBmpDlg.nomX.text+index+'List=[');
+       for i := 0 to NbrePoints[j]-2 do begin
+           write(fichierPy,strx(j,i)+',');
+           if ((i mod 11)=10) then  writeln(fichierPy);
+       end;
+       writeln(fichierPy,strx(j,NbrePoints[1]-1)+']');
+       writeln(fichierPy,EchelleBmpDlg.nomX.text+index+'=np.array('+EchelleBmpDlg.nomX.text+index+'List)');
+       writeln(fichierPy);
+       write(fichierPy,EchelleBmpDlg.nomY.text+index+'List=[');
+       for i := 0 to NbrePoints[j]-2 do begin
+             write(fichierPy,stry(1,i)+',');
+             if ((i mod 11)=10) then  writeln(fichierPy);
+       end;
+       writeln(fichierPy,stry(1,NbrePoints[j]-1)+']');
+       writeln(fichierPy,EchelleBmpDlg.nomY.text+index+'=np.array('+EchelleBmpDlg.nomY.text+index+'List)');
+end;
+
+var j : integer;
+begin
+with saveDialog do if Execute then begin
+     FileMode := fmOpenWrite;
+     AssignFile(fichierPy,FileName,CP_UTF8);
+     Rewrite(fichierPy);
+     writeln(fichierPy,'#!/usr/bin/env python3');
+     writeln(fichierPy,'# -*- coding: utf-8 -*-');
+     writeln(fichierPy,'import numpy as np');
+     writeln(fichierPy);
+     writeln(fichierPy,'# Unité de '+EchelleBmpDlg.nomX.text+'='+EchelleBmpDlg.uniteX.text);
+     writeln(fichierPy,'# Unité de '+EchelleBmpDlg.nomY.text+'='+EchelleBmpDlg.uniteY.text);
+     writeln(fichierPy);
+     if NbreObjet=1
+        then ecritObjet(1,false)
+        else begin
+           for j := 1 to NbreObjet do
+               ecritObjet(j,true);
+        end;
+     closeFile(fichierPy);
+     FileMode := fmOpenReadWrite;
+end
 end;
 
 procedure TCourbesForm.EditBidonKeyDown(Sender: TObject; var Key: Word;
@@ -717,7 +955,7 @@ begin
           vk_next : if ssShift in shift
               then inc(P.X,10)
               else inc(P.Y,10);
-          vk_delete : ;
+          vk_delete,vk_back : ;
           vk_space,vk_return : case BorneSelect of
              bsMesure : begin
                 P := PaintBox.ScreenToClient(P);
@@ -739,6 +977,7 @@ procedure TCourbesForm.EchelleBtnClick(Sender: TObject);
 begin
     if EchelleBmpDlg.showModal=mrOK then begin
       setEchelle;
+      modifierPointCourant := EchelleBmpDlg.modifPointCB.checked;
       BorneSelect := bsNone;
       setCurseur(crCible);
       statusBar.Panels[0].text := hRepererPoint;
@@ -760,35 +999,10 @@ end;
 
 procedure TCourbesForm.OuvreFichier(const Nom: String);
 
-procedure ConvertitGifBmp(var AnomFichier: string);
-var
-  GIF		 : TGIFImage;
-  Bitmap : TBitmap;
-begin
-    GIF := TGIFImage.Create;
-    try
-      GIF.OnProgress := Nil;
-      // Load the GIF that will be converted
-      AnomFichier := ChangeFileExt(AnomFichier,'.gif');
-      GIF.LoadFromFile(AnomFichier);
-      Bitmap := TBitmap.Create;
-      try
-        // Convert the GIF to a BMP
-        Bitmap.Assign(GIF);
-        // Save the BMP
-        AnomFichier := ChangeFileExt(AnomFichier,'.bmp');
-        Bitmap.SaveToFile(AnomFichier);
-      finally
-        Bitmap.Free;
-      end;
-    finally
-      GIF.Free;
-    end;
-end;
-
 procedure MajBitmap;
 var i : integer;
     j : TindiceObjet;
+    cc : TColor;
 begin
      Largeur := Abitmap.width;
      Hauteur := Abitmap.height;
@@ -803,10 +1017,15 @@ begin
      PointRepere[bsEchelle1].y := PointRepere[bsOrigine].y;
      PointRepere[bsEchelle1].x := 4*Largeur div 5;
      PointRepere[bsEchelle2].y := Hauteur div 5;
-     couleur[0] := couleurComplementaire(Abitmap);
-     couleur[1] := couleur[0];
-     CouleurPointsCB.selected := couleur[1];
-     CouleurAxeCB.selected := couleur[0];
+     couleurFond := GetCouleurFond(Abitmap);
+     RedFond := GetRValue(couleurFond);
+     BlueFond := GetBValue(couleurFond);
+     GreenFond := GetGValue(couleurFond);
+     cc := CouleurComplementaire(couleurFond);
+     couleur[1] := cc;
+     couleur[0] := cc;
+     CouleurPointsCB.selected := cc;
+     CouleurAxeCB.selected := cc;
      BorneSelect := bsNone;
      EchelleBtn.enabled := true;
      MesureBtn.Enabled := true;
@@ -821,43 +1040,68 @@ begin
 end; // MajBitmap
 
 var extension : String;
-    Ajpeg : TjpegImage;
-    Apng : TpngImage;
+    Ljpeg : TjpegImage;
+    Lpng : TpngImage;
+    LGIF : TGIFImage;
 begin
      screen.cursor := crHourGlass;
-     NomFichier := AnsiUpperCase(Nom);
+     NomFichier := Nom;
      extension := AnsiUpperCase(extractFileExt(NomFichier));
      if (extension='.GIF') then begin
-          ProgressBar.visible := true;
-          ConvertitGifBmp(nomFichier);
-          extension := '.BMP';
-          ProgressBar.visible := false;
+        LGIF := TGIFImage.Create;
+        try
+       // LGIF.OnProgress := Nil;
+        LGIF.LoadFromFile(nom);
+        with Abitmap do begin
+            height := LGIF.Height;
+            width := LGIF.Width;
+            Assign(LGIF);
+            pixelFormat := pf24bit;
+        //    NomFichier := changeFileExt(Nom,'.bmp');
+        //    saveToFile(NomFichier);
+        //    extension := '.BMP';
+        end;
+        finally
+           LGIF.Free;
+        end;
      end;
      if (extension='.PNG') then begin
-           Apng := TpngImage.create;
-           Apng.LoadFromFile(Nom);
+           Lpng := TpngImage.create;
+           try
+           Lpng.LoadFromFile(Nom);
            with Abitmap do begin
+                height := Lpng.Height;
+                width := Lpng.Width;
+                assign(Lpng);
                 pixelFormat := pf24bit;
-                height := Apng.Height;
-                width := Apng.Width;
-                assign(Apng);
-                nomFichier := changeFileExt(nom,'.BMP');
-                saveToFile(nomFichier);
+           //     NomFichier := changeFileExt(Nom,'.bmp');
+           //     saveToFile(NomFichier);
+           //     extension := '.BMP';
            end;
-           Apng.free;
-           extension := '.BMP';
+           finally
+              Lpng.free;
+           end;
      end;
-     if (extension='.BMP') then ABitmap.LoadFromFile(NomFichier);
      if (extension='.JPG') or (extension='.JPEG') then begin
-         Ajpeg := TjpegImage.create;
-         Ajpeg.LoadFromFile(NomFichier);
+         Ljpeg := TjpegImage.create;
+         try
+         Ljpeg.LoadFromFile(Nom);
          with Abitmap do begin
+              height := Ljpeg.Height;
+              width := Ljpeg.Width;
+              assign(Ljpeg);
               pixelFormat := pf24bit;
-              height := hauteur; // ??
-              width := largeur;
+          //    NomFichier := changeFileExt(Nom,'.bmp');
+          //    saveToFile(NomFichier);
+          //    extension := '.BMP';
          end;
-         Abitmap.assign(Ajpeg);
-         Ajpeg.free;
+         finally
+           Ljpeg.free;
+         end;
+     end;
+     if (extension='.BMP') then begin
+        ABitmap.LoadFromFile(nomFichier);
+        ABitmap.pixelFormat := pf24bit;
      end;
      MajBitMap;
      screen.cursor := crDefault;
@@ -947,9 +1191,10 @@ end;
 procedure TCourbesForm.FormResize(Sender: TObject);
 begin
   inherited;
-  signifEdit.width := Panel3.width - signifEdit.left - 8;
   if gridPanel.Width>clientWidth div 3 then
        gridPanel.Width := clientWidth div 3;
+  CouleurCibleP.left := GroupBox2.Left - 90;
+  signifEdit.width := CouleurCibleP.left - signifEdit.left - 64;
 end;
 
 procedure TCourbesForm.RazBtnClick(Sender: TObject);
@@ -1005,6 +1250,28 @@ begin
     traceGrid;
 end;
 
+procedure TCourbesForm.AutoBtnClick(Sender: TObject);
+var i : integer;
+    P : TPoint;
+begin
+         setCurseur(crCible);
+         BorneSelect := bsChronoInit;
+         SerieSE.value := 1;
+         for i := 1 to maxObjet do NbrePoints[i] := 0;
+         objetCourant := 1;
+         MesureBtn.Down := true;
+         MesureBtn.Hint := hStopMes;
+         MesureBtn.imageIndex := 1;
+         MesureBtn.Caption := stStop;
+         Grid.ColCount := NbreSE.value*2;
+         P.X := AutoBtn.Left;
+         P.Y := AutoBtn.top;
+         P := Toolbar.ClientToScreen(P);
+         ShowMessagePos('Sélectionnez la couleur de la courbe',P.X-AutoBtn.Width,P.Y+AutoBtn.height);
+         statusBar.Panels[0].text := 'Sélectionnez la couleur de la courbe';
+         CouleurCibleP.Visible := true;
+end;
+
 Procedure TCourbesForm.SupprimePoint(x,y : integer);
 var i,num,N : integer;
 begin
@@ -1032,14 +1299,19 @@ begin
     TimerMove.Enabled := false;
 end;
 
-procedure TCourbesForm.ToolButton1Click(Sender: TObject);
+procedure TCourbesForm.AideBtnClick(Sender: TObject);
 begin
     Aide(Help_Numerisationdunecourbe);
 end;
 
 procedure TCourbesForm.SplitterMoved(Sender: TObject);
+var w : integer;
 begin
      PaintBox.refresh;
+     w := (Grid.Width-8) div (2*NbreSE.value);
+     if (w<64) and (NbreSE.value>1) then
+        w := (Grid.Width-8) div 2;
+     Grid.defaultColWidth := w
 end;
 
 procedure TCourbesForm.SignifEditChange(Sender: TObject);
@@ -1066,6 +1338,7 @@ begin
          Fichier.writeString(Titre,'UniteY',uniteY.text);
          Fichier.writeString(Titre,'EditX',editX.text);
          Fichier.writeString(Titre,'EditY',editX.text);
+         Fichier.writeBool(Titre,'ModifPoint',modifierPointCourant);
      end;
      if openDialog.InitialDir<>'' then
         imagesDir := openDialog.InitialDir;
@@ -1117,45 +1390,9 @@ begin
     end;
 end;
 
-procedure TCourbesForm.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
-  Rect: TRect; State: TGridDrawState);
-var s : String;
-begin
-   TstringGrid(sender).canvas.Font.Color := CouleurGrid[Acol];
-   S := TstringGrid(sender).cells[ACol,ARow];
-   with TstringGrid(sender).canvas do
-        TextOut(Rect.Left + 2, Rect.Top + 2,S);
-end;
-
 Procedure TCourbesForm.TraceGrid;
-
-function GetCouleurGrid(ACol : integer) : TColor;
-begin
-result := couleur[1+(ACol div 2)];
-case result of
-    clMaroon: ;
-    clGreen: ;
-    clOlive: ;
-    clNavy: ;
-    clPurple: ;
-    clTeal: ;
-    clGray: ;
-    clBlue: ;
-    clFuchsia: ;
-    clRed: ;
-    clLime,clMoneyGreen: Result := clGreen;
-    clAqua,clSkyBlue: Result := clBlue;
-    clMedGray: Result := clGray;
-    else Result := clBlack;
-end; // case
-end;
-
 var i,j : integer;
 begin
-    if (NbrePoints[1]+4)>grid.rowCount then
-          grid.rowCount := NbrePoints[1]+12;
-    for i := 0 to pred(grid.ColCount) do
-        couleurGrid[i] := GetCouleurGrid(i);
     Grid.ColCount := NbreObjet*2;
     if NbreObjet>1 then begin
     for j := 1 to NbreObjet do begin
@@ -1172,6 +1409,8 @@ begin
                                EchelleBmpDlg.uniteY.text+')';
     end;
     for j := 1 to NbreObjet do begin
+       if (NbrePoints[j]+3)>grid.rowCount then
+          grid.rowCount := NbrePoints[j]+12;
        for i := 0 to pred(NbrePoints[j]) do begin
            Grid.cells[j*2-2,i+1] := strX(j,i);
            Grid.cells[j*2-1,i+1] := strY(j,i);

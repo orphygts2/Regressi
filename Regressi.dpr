@@ -47,8 +47,6 @@ uses
   regdde in 'regdde.pas' {FormDDE},
   selparam in 'selparam.pas' {selParamDlg},
   origineu in 'origineu.pas' {OrigineDlg},
-  cornish in 'cornish.pas' {Fcornish},
-  cornopt in 'cornopt.pas' {CornishOptDlg},
   choixmodele in 'choixmodele.pas' {ChoixModeleDlg},
   optModele in 'optModele.pas' {OptionModeleDlg},
   compile in 'compile.pas',
@@ -95,16 +93,15 @@ uses
   ArduinoCfg in 'arduino\ArduinoCfg.pas' {ArduinoDlg},
   ArduinoOscilloCfg in 'arduino\ArduinoOscilloCfg.pas' {ArduinoOscilloDlg},
   arduinoU in 'arduino\arduinoU.pas' {ArduinoForm},
-  arduinoWifi in 'arduino\arduinoWifi.pas' {ArduinoWifiForm},
-  ArduinoWifiCfg in 'arduino\ArduinoWifiCfg.pas' {ArduinoWifiDlg},
   arduinoWifiDirect in 'arduino\arduinoWifiDirect.pas' {ArduinoWifiDirectForm},
   ArduinoWifiDirectCfg in 'arduino\ArduinoWifiDirectCfg.pas' {ArduinoWifiDirectDlg},
   arduinoGraphe in 'arduino\arduinoGraphe.pas',
   arduinoOscillo in 'arduino\arduinoOscillo.pas' {ArduinoOscilloForm},
   captureCamera in 'Images\captureCamera.pas' {VideoForm},
   unitGraphe in 'unitGraphe.pas' {unitGrapheDlg},
-  contour in 'contour.pas',
-  TestContour in 'TestContour.pas' {ConvergenceModeleForm};
+  arduinoNew in 'arduino\arduinoNew.pas' {ArduinoNewForm},
+  ArduinoCfgNew in 'arduino\ArduinoCfgNew.pas' {ArduinoNewDlg},
+  InterfCapture in 'Images\InterfCapture.pas' {InterfCaptureForm};
 
 {$R *.RES}
 
@@ -118,6 +115,6 @@ begin
   Application.CreateForm(TindicateurDlg, indicateurDlg);
   Application.CreateForm(TConstanteUnivDlg, ConstanteUnivDlg);
   Application.CreateForm(TFcoordonneesPhys, FcoordonneesPhys);
-  Application.CreateForm(TConvergenceModeleForm, ConvergenceModeleForm);
+  Application.CreateForm(TInterfCaptureForm, InterfCaptureForm);
   Application.Run;
 end.

@@ -5,8 +5,8 @@ object OptionsVitesseDlg: TOptionsVitesseDlg
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   BorderStyle = bsDialog
   Caption = 'Options des vecteurs'
-  ClientHeight = 814
-  ClientWidth = 660
+  ClientHeight = 813
+  ClientWidth = 666
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -74,7 +74,7 @@ object OptionsVitesseDlg: TOptionsVitesseDlg
     Left = 0
     Top = 0
     Width = 430
-    Height = 814
+    Height = 813
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -88,12 +88,12 @@ object OptionsVitesseDlg: TOptionsVitesseDlg
     Font.Style = []
     ParentFont = False
     TabOrder = 3
-    ExplicitHeight = 813
+    ExplicitHeight = 812
     object GroupBox3: TGroupBox
       Left = 0
       Top = 0
       Width = 430
-      Height = 282
+      Height = 281
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -106,7 +106,7 @@ object OptionsVitesseDlg: TOptionsVitesseDlg
       Font.Style = []
       ParentFont = False
       TabOrder = 0
-      ExplicitHeight = 281
+      ExplicitHeight = 280
       object LabelX: TLabel
         Left = 16
         Top = 16
@@ -241,7 +241,7 @@ object OptionsVitesseDlg: TOptionsVitesseDlg
     end
     object GroupBox2: TGroupBox
       Left = 0
-      Top = 558
+      Top = 557
       Width = 430
       Height = 256
       Margins.Left = 6
@@ -251,7 +251,7 @@ object OptionsVitesseDlg: TOptionsVitesseDlg
       Align = alBottom
       Caption = 'Vecteur "acc'#233'l'#233'ration"'
       TabOrder = 2
-      ExplicitTop = 557
+      ExplicitTop = 556
       object Label3: TLabel
         Left = 16
         Top = 40
@@ -348,7 +348,7 @@ object OptionsVitesseDlg: TOptionsVitesseDlg
     end
     object GroupBox1: TGroupBox
       Left = 0
-      Top = 282
+      Top = 281
       Width = 430
       Height = 276
       Margins.Left = 6
@@ -364,7 +364,7 @@ object OptionsVitesseDlg: TOptionsVitesseDlg
       Font.Style = []
       ParentFont = False
       TabOrder = 1
-      ExplicitTop = 281
+      ExplicitTop = 280
       object Label1: TLabel
         Left = 16
         Top = 40

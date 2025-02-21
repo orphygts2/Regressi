@@ -55,6 +55,8 @@ type
     ModelePourCentCB: TCheckBox;
     BandePredictionCB: TCheckBox;
     ChiffreSignifRG: TRadioGroup;
+    NbreMCSE: TSpinEdit;
+    Label1: TLabel;
     procedure FormActivate(Sender: TObject);
     procedure HelpBtnClick(Sender: TObject);
     procedure OKBtnClick(Sender: TObject);
@@ -62,7 +64,6 @@ type
     procedure OptionCouleursBtnClick(Sender: TObject);
     procedure ColorBox1Change(Sender: TObject);
     procedure IncertitudeHelpBtnClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
   private
   public
     DlgGraphique : TgrapheReg;
@@ -73,7 +74,7 @@ var
 
 implementation
 
-uses optcolordlg;
+uses optcolordlg, regmain;
 
 {$R *.DFM}
 
@@ -100,17 +101,13 @@ begin
      modeleManuelCB.checked := avecModeleManuel;
      incertParamRG.itemIndex := ord(AffIncertParam);
      chiffreSignifRG.itemIndex := ord(ChiffreSignif);
+     NbreMCSE.Value := NbreMC;
      with TabSheet3 do
         for i := 0 to pred(controlCount) do
            if controls[i] is TcolorBox then begin
               j := TcolorBox(controls[i]).tag;
               TcolorBox(controls[i]).selected := couleurModele[j];
            end;
-end;
-
-procedure TOptionModeleDlg.FormCreate(Sender: TObject);
-begin
-   ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TOptionModeleDlg.HelpBtnClick(Sender: TObject);
@@ -147,7 +144,8 @@ begin
     ajusteOrigine := ajusteOrigineCB.Checked;
     avecModeleManuel := modeleManuelCB.checked;
     AffIncertParam := TAffIncertParam(incertParamRG.itemIndex);
-    ChiffreSignif := TChiffreSignif(chiffreSignifRG.itemIndex)
+    ChiffreSignif := TChiffreSignif(chiffreSignifRG.itemIndex);
+    NbreMC := NbreMCSE.Value;
 end;
 
 procedure TOptionModeleDlg.AfficheCorrelClick(Sender: TObject);

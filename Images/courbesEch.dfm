@@ -4,8 +4,8 @@ object EchelleBmpDlg: TEchelleBmpDlg
   HelpContext = 47
   BorderStyle = bsDialog
   Caption = 'D'#233'termination de l'#39#233'chelle'
-  ClientHeight = 312
-  ClientWidth = 992
+  ClientHeight = 363
+  ClientWidth = 950
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,8 +19,8 @@ object EchelleBmpDlg: TEchelleBmpDlg
   object GroupBox1: TGroupBox
     Left = 0
     Top = 0
-    Width = 992
-    Height = 226
+    Width = 950
+    Height = 270
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -36,6 +36,7 @@ object EchelleBmpDlg: TEchelleBmpDlg
     ParentShowHint = False
     ShowHint = True
     TabOrder = 0
+    ExplicitWidth = 978
     object LabelX: TLabel
       Left = 16
       Top = 80
@@ -266,10 +267,34 @@ object EchelleBmpDlg: TEchelleBmpDlg
       TabOrder = 10
       OnClick = PolaireCBClick
     end
+    object OrthoCB: TCheckBox
+      Left = 432
+      Top = 180
+      Width = 374
+      Height = 34
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
+      Caption = 'Axes orthonorm'#233's'
+      TabOrder = 11
+    end
+    object modifPointCB: TCheckBox
+      Left = 200
+      Top = 230
+      Width = 625
+      Height = 32
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
+      Caption = 'Autoriser la correction locale des points'
+      TabOrder = 12
+    end
   end
   object OKBtn: TBitBtn
     Left = 90
-    Top = 238
+    Top = 290
     Width = 200
     Height = 50
     Margins.Left = 6
@@ -283,7 +308,7 @@ object EchelleBmpDlg: TEchelleBmpDlg
   end
   object BitBtn2: TBitBtn
     Left = 554
-    Top = 238
+    Top = 290
     Width = 200
     Height = 50
     Margins.Left = 6

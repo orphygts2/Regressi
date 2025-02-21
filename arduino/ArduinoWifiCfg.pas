@@ -33,6 +33,9 @@ type
     BoutonsPanel: TPanel;
     TechSE: TSpinEdit;
     Label3: TLabel;
+    GrandeursGB: TGroupBox;
+    grid: TStringGrid;
+    Panel1: TPanel;
     procedure FormActivate(Sender: TObject);
     procedure ExPointBtnClick(Sender: TObject);
     procedure arduinoExeBtnClick(Sender: TObject);
@@ -86,14 +89,19 @@ begin
 end;
 
 procedure TArduinoWifiDlg.FormCreate(Sender: TObject);
-var i : integer;
+var col : integer;
 begin
-      for i := 1 to 3 do
-          sendGrid.Cells[i,0] := intToStr(i);
+      for col := 1 to 3 do
+          sendGrid.Cells[col,0] := intToStr(col);
+      sendGrid.Cells[0,0] := 'Numéro';
       sendGrid.Cells[0,1] := 'Commande';
       sendGrid.Cells[0,2] := 'Texte';
- //     SendGrid.DefaultRowHeight := hauteurColonne;
-      ResizeButtonImagesforHighDPI(self);
+      SendGrid.DefaultRowHeight := hauteurColonne;
+      grid.DefaultRowHeight := hauteurColonne;
+      grid.Cells[0,0] := stNom;
+      grid.Cells[1,0] := stUnite;
+      grid.Cells[2,0] := stMini;
+      grid.Cells[3,0] := stMaxi;
 end;
 
 procedure TArduinoWifiDlg.HelpBtnClick(Sender: TObject);
@@ -103,7 +111,7 @@ end;
 
 procedure TArduinoWifiDlg.HostEditKeyPress(Sender: TObject; var Key: Char);
 begin
- if not charInSet(key,['0'..'9','.',crGauche,crDroite,crSupprArr]) then key := #0;
+ if not charInSet(key,['0'..'9','.',crGauche,crDroite,crSupprArr,crSuppr]) then key := #0;
 end;
 
 procedure TArduinoWifiDlg.ModeRGClick(Sender: TObject);
@@ -116,7 +124,7 @@ end;
 
 procedure TArduinoWifiDlg.PortEditKeyPress(Sender: TObject; var Key: Char);
 begin
-if not charInSet(key,['0'..'9',crGauche,crDroite,crSupprArr]) then key := #0;
+   if not charInSet(key,['0'..'9',crGauche,crDroite,crSupprArr,crSuppr]) then key := #0;
 end;
 
 end.

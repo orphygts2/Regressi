@@ -8,7 +8,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Buttons, Vcl.Samples.Spin,
   OOmisc, adport, lnswin32, awuser, shellApi,
-  regutil, constreg, Vcl.Mask;
+  regutil, constreg, Vcl.Mask, Vcl.Grids;
 
 type
   TArduinoOscilloDlg = class(TForm)
@@ -27,14 +27,11 @@ type
     ordreSincSE: TSpinEdit;
     ResolutionRG: TRadioGroup;
     Panel1: TPanel;
-    UdpGB: TGroupBox;
-    HostEdit: TLabeledEdit;
-    PortEdit: TLabeledEdit;
     WifiBtn: TBitBtn;
-    UdpCB: TCheckBox;
-    WifiGB: TGroupBox;
-    Label1: TLabel;
     microbitBtn: TBitBtn;
+    GroupBox1: TGroupBox;
+    grid: TStringGrid;
+    Panel2: TPanel;
     procedure FormActivate(Sender: TObject);
     procedure UnoBtnClick(Sender: TObject);
     procedure arduinoExeBtnClick(Sender: TObject);
@@ -62,35 +59,30 @@ begin
       nbreRG.ItemIndex := 0; // 256
       resolutionRG.ItemIndex := 1;
       baudRG.ItemIndex := 3;
-      UdpCB.Checked := false;
    end;
    if sender=microbitBtn then begin
       cheminPy := chemin+'oscillo.py';
       nbreRG.ItemIndex := 0; // 256
       resolutionRG.ItemIndex := 1;
       baudRG.ItemIndex := 4;
-      UdpCB.Checked := false;
    end;
    if sender=DueBtn then begin
       cheminPy := chemin+'oscilloDue\oscilloDue.ino';
       nbreRG.ItemIndex := 3;// 2048
       resolutionRG.ItemIndex := 2;
       baudRG.ItemIndex := 3;
-      UdpCB.Checked := false;
    end;
    if sender=CurieBtn then begin
       cheminPy := chemin+'oscilloCurie101\oscilloCurie101.ino';
       nbreRG.ItemIndex := 2; // 1024
       resolutionRG.ItemIndex := 1;
       baudRG.ItemIndex := 4;
-      UdpCB.Checked := false;
    end;
    if sender=WifiBtn then begin
       cheminPy := chemin+'oscilloWifi\oscilloCurieWifi.ino';
       nbreRG.ItemIndex := 1; // 512
       resolutionRG.ItemIndex := 1;
       baudRG.ItemIndex := 4;
-      UdpCB.Checked := true;
    end;
    if ShellExecute(Handle, 'open', PChar(cheminPy), nil, nil, SW_SHOW) <= 32 then
       ShowMessage(stNoAccesInstall+chemin);
@@ -112,14 +104,19 @@ begin
      ArduinoExeBtn.Visible := fileExists(arduinoExe);
      Comports.Visible := ArduinoOscilloDlg.comports.Items.count>0;
      BaudRG.Visible := ArduinoOscilloDlg.comports.Items.count>0;
-     WifiGB.Visible := ArduinoOscilloDlg.comports.Items.count=0;
 end;
 
 procedure TArduinoOscilloDlg.FormCreate(Sender: TObject);
 begin
    left := (screen.Width-width) div 2;
    chemin := extractFilePath(application.ExeName)+'Arduino\';
-   ResizeButtonImagesforHighDPI(self);
+   grid.DefaultRowHeight := hauteurColonne;
+   grid.Cells[0,0] := stNom;
+   grid.Cells[1,0] := stUnite;
+   grid.colWidths[0] := 150;
+   grid.colWidths[1] := 150;
+   grid.colWidths[2] := 300;
+   grid.Cells[2,0] := stConversion;
 end;
 
 procedure TArduinoOscilloDlg.HelpBtnClick(Sender: TObject);

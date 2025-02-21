@@ -87,7 +87,9 @@ end;
 
 procedure TReticuleDataDlg.FormCreate(Sender: TObject);
 begin
-    ListeVar := TstringList.create
+    ListeVar := TstringList.create;
+    VirtualImageList2.height := VirtualImageListSize;
+    VirtualImageList2.width := VirtualImageListSize;
 end;
 
 procedure TReticuleDataDlg.FormDestroy(Sender: TObject);

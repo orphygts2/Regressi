@@ -138,6 +138,9 @@ type
     GroupBox10: TGroupBox;
     ImageCollection1: TImageCollection;
     VirtualImageList1: TVirtualImageList;
+    SaveHarmItem: TMenuItem;
+    SaveDialogCSV: TSaveDialog;
+    EnregistrerSpectreItem: TMenuItem;
     procedure FrequenceMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure ZoomAvantItemClick(Sender: TObject);
@@ -238,6 +241,8 @@ type
     procedure OptionsAnimBtnClick(Sender: TObject);
     procedure AnimationBtnClick(Sender: TObject);
     procedure TitreAnimCBClick(Sender: TObject);
+    procedure SaveHarmItemClick(Sender: TObject);
+    procedure EnregistrerSpectreItemClick(Sender: TObject);
   
   private
       reelClick : boolean;
@@ -649,7 +654,7 @@ begin with grapheFrequence do begin
     monde[mondeX].defini := true;
     monde[mondeX].minDefaut := monde[mondeX].mini;
     monde[mondeX].maxDefaut := monde[mondeX].maxi;
-    useDefaultX := true;
+    useDefautX := true;
     if SonagrammeBtn.down then begin
         monde[mondeY].ZeroInclus := false;
         monde[mondeY].defini := true;
@@ -720,7 +725,7 @@ with grapheFrequence do begin
           monde[mondeX].defini := true;
           monde[mondeX].minDefaut := monde[mondeX].mini;
           monde[mondeX].maxDefaut := monde[mondeX].maxi;
-          useDefaultX := true;
+          useDefautX := true;
        end;
        curSelectF : if reelClick
           then begin
@@ -814,9 +819,10 @@ begin
    freqMaxEdit.text := formatReg(freqMaxSonagramme);
    freqMaxSonUD.position := round(freqMaxSonagramme);
    freqMaxSonUD.increment := round(freqMaxSonagramme/10);
-   ResizeButtonImagesforHighDPI(self);
-  // ValeursGrid.DefaultRowHeight := hauteurColonne;
-  // CurseurGrid.DefaultRowHeight := hauteurColonne;
+   ValeursGrid.DefaultRowHeight := hauteurColonne;
+   CurseurGrid.DefaultRowHeight := hauteurColonne;
+   VirtualImageList1.height := VirtualImageListSize;
+   VirtualImageList1.width := VirtualImageListSize;
    createAnim;
 end;
 
@@ -835,7 +841,6 @@ var Ay,Ax : Tvecteur; // sert au graphe et au tableau
 
 Procedure InitGrid(nbre : integer);
 begin with valeursGrid,pages[PageCourante] do begin
-   //   defaultRowHeight := hauteurColonne;
       defaultColWidth := largeurUnCarac*8;
       colCount := 2*listeY.count;
       if RowCount<3 then RowCount := 3;
@@ -861,8 +866,7 @@ end end; // InitGrid
 
 Procedure RemplitColonne(colCourante : integer;nbre : integer);
 var ligne,ligne0 : integer;
-    z,zprecedent,zsuivant : double;
-    maxiA : double;
+    maxiA,z : double;
     i,i0 : integer;
 begin with valeursGrid,pages[Apage] do begin
       initGrid(nbre);
@@ -871,32 +875,39 @@ begin with valeursGrid,pages[Apage] do begin
       maxiA := Ay[i0]*precisionFFT;
       ligne0 := i0 div 8;
       if ligne0=0 then ligne0 := 1;
-      z := Ay[ligne0];
-      zsuivant := Ay[ligne0+1];
       listePic[indicePic].index := indexY;
-      for ligne := succ(ligne0) to (Nbre-2) do begin
-           zprecedent := z;
-           z := zsuivant;
-           zsuivant := Ay[ligne+1];
-           if z>maxiA
-              then if (avecPeriode and (fenetre=rectangulaire)) or
-                      ((z>zprecedent) and (z>zsuivant))
-                      then listePic[indicePic].Add(ax[ligne],ay[ligne]);
-       end;
-       listePic[indicePic].Nettoie(FreqMax);
-       if listePic[indicePic].nbre>128 then begin
-          listePic[indicePic].TriValeur;
-          listePic[indicePic].TriFrequence;
-       end;
-       if valeursGrid.RowCount<listePic[indicePic].nbre+2 then
-          valeursGrid.RowCount := listePic[indicePic].nbre+2;
-       for i := 0 to pred(listePic[indicePic].nbre) do begin
-           valeursGrid.Cells[colCourante,i+2] :=
+      if avecPeriode and (fenetre=rectangulaire)
+      then begin
+         for ligne := succ(ligne0) to (Nbre-2) do begin
+           z := Ay[ligne];
+           if z>maxiA then listePic[indicePic].Add(ax[ligne],z);
+         end;
+      end
+      else begin
+         for ligne := succ(ligne0) to (Nbre-2) do begin
+            z := Ay[ligne];
+            if (z>maxiA) and (z>Ay[ligne-1]) and (z>Ay[ligne+1])
+              then listePic[indicePic].Add(ax[ligne],z);
+
+         end;
+      end;
+      listePic[indicePic].Nettoie(FreqMax);
+      if listePic[indicePic].nbre>128 then begin
+          listePic[indicePic].TriValeurDecroissante;
+          listePic[indicePic].TriFrequenceCroissante;
+      end;
+      if valeursGrid.RowCount<listePic[indicePic].nbre+3 then
+          valeursGrid.RowCount := listePic[indicePic].nbre+3;
+      valeursGrid.Cells[colCourante,2] :=
+             grandeurs[indexY].FormatNombre(Ay[0]*grandeurs[indexY].coeffAff);
+      valeursGrid.Cells[colCourante-1,2] := 'DC';
+      for i := 0 to pred(listePic[indicePic].nbre) do begin
+           valeursGrid.Cells[colCourante,i+3] :=
                grandeurs[indexY].FormatNombre(listePic[indicePic].picsH[i]*grandeurs[indexY].coeffAff);
-           valeursGrid.Cells[colCourante-1,i+2] :=
+           valeursGrid.Cells[colCourante-1,i+3] :=
                Grandeurs[cFrequence].FormatNombre(listePic[indicePic].picsF[i]*Grandeurs[cFrequence].coeffAff);
-       end;
-       listePic[indicePic].TriValeur; // selon la valeur alors que le remplissage est selon la fréquence
+      end;
+      listePic[indicePic].TriValeurDecroissante; // selon la valeur alors que le remplissage est selon la fréquence
 end end; // RemplitColonne
 
 Procedure AjouteCourbeFreq(var Nbre : integer);
@@ -909,7 +920,7 @@ begin with GrapheFrequence do begin
          grandeurs[cFrequence],grandeurs[indexY],Apage);
      monde[Amonde].graduation := monde[mondeY].graduation;
      monde[Amonde].MinidB := monde[mondeY].MinidB;
-     Acourbe.setStyle(Acouleur,psSolid,mCroix,'');
+     Acourbe.setStyle(Acouleur,psSolid,mCroix);
      if continuInclus
         then Acourbe.debutC := 0
         else Acourbe.debutC := 1;
@@ -964,7 +975,7 @@ begin // AjouteCourbeEnv
      end;
      Acourbe := GrapheFrequence.AjouteCourbe(envFreq,envAmpl,Amonde,Nbre,
          grandeurs[cFrequence],grandeurs[indexY],Apage);
-     Acourbe.setStyle(Acouleur,psSolid,mLosange,'');
+     Acourbe.setStyle(Acouleur,psSolid,mLosange);
      if ordonneeFFTgr=oReduite then
          for i := 0 to pred(Nbre) do
              envAmpl[i] := envAmpl[i]/amplitudeMax;
@@ -980,8 +991,6 @@ begin // AjouteCourbeEnv
      end;
      Acourbe.debutC := i;
      Acourbe.trace := [trLigne];
-     Acourbe.dimPointC := 1;
-     Acourbe.penWidthC := 1;
      Acourbe.Adetruire := true;
      if Apage=pageCourante then listePic[indicePic].cherchePicEnv(envAmpl,envFreq,FreqMax);
 end; // AjouteCourbeEnv
@@ -994,12 +1003,12 @@ with Pages[Apage] do begin
      If Fenetre in [Hamming,Flattop,Blackman] then begin
         Acourbe := GrapheTemps.AjouteCourbe(valeurLisse[indexTri],fenetreFourier[indexY],
             Amonde,NbreFFT,grandeurs[indexTri],grandeurs[indexY],Apage);
-        Acourbe.setStyle(GetCouleurPale(Acouleur),psSolid,mCroix,'');
+        Acourbe.setStyle(GetCouleurPale(Acouleur),psSolid,mCroix);
         Acourbe.trace := [trLigne];
      end;
      Acourbe := GrapheTemps.AjouteCourbe(valeurVar[indexTri],valeurVar[indexY],
             Amonde,Nmes,grandeurs[indexTri],grandeurs[indexY],Apage);
-     Acourbe.setStyle(Acouleur,psSolid,mCroix,'');
+     Acourbe.setStyle(Acouleur,psSolid,mCroix);
      Acourbe.trace := [trLigne];
 end end;
 
@@ -1073,14 +1082,14 @@ begin // SetCoordonneeFFT
                  monde[mondeX].maxi := freqMax;
                  monde[mondeX].minDefaut := 0;
                  monde[mondeX].maxDefaut := freqMax;
-                 useDefaultX := false;
+                 useDefautX := false;
                  MaJTempsAfaire := tempsBtn.down;
               end
-              else if not UseDefaultX then begin
+              else if not UseDefautX then begin
                   monde[mondeX].mini := 0;
                   monde[mondeX].maxi := freqMax;
               end;
-           if not useDefaultX then
+           if not useDefautX then
               for j := 0 to pred(courbes.count) do with courbes[j] do
                   finC := round(finC*freqMax/valX[finc]);
         end;
@@ -1121,7 +1130,7 @@ begin with Pages[pageCourante] do begin
          grandeurs[indexTri],grandeurs[cFrequence],pageCourante);
      grapheFrequence.monde[mondeY].graduation := gLin;
      Acourbe.trace := [trSonagramme];
-     GrapheFrequence.useDefaultX := false;
+     GrapheFrequence.useDefautX := false;
 end end; // AjouteCourbeSonagramme;
 
 var Acourbe : Tcourbe;
@@ -1142,7 +1151,7 @@ begin // SetCoordonneeSonagramme
                   pages[pageCourante].valeurVar[indexY],
                   mondeY,pages[pageCourante].Nmes,
                   grandeurs[indexTri],grandeurs[indexY],pageCourante);
-       Acourbe.setStyle(couleurInit[1],psSolid,mCroix,'');
+       Acourbe.setStyle(couleurInit[1],psSolid,mCroix);
        Acourbe.trace := [trLigne];
        grapheOK := true;
        modif := [];
@@ -1234,8 +1243,8 @@ begin with GrapheFrequence do begin
      monde[mondeX].defini := false;
      monde[mondeX].ZeroInclus := true;
      curMovePermis := false;
-     useDefaultX := false;
-     useDefault := false;
+     useDefautX := false;
+     useDefaut := false;
      for i := 0 to pred(courbes.count) do
          with courbes.items[i] do begin
            if continuInclus
@@ -1382,12 +1391,16 @@ begin
                iMonde := mondeY+j-1;
             end;
             grapheFrequence.dessins.add(Dessin);
-            texte.add(grandeurs[cFrequence].formatValeurEtUnite(xx));
+            if xx<1
+               then texte.add(grandeurs[indextri].formatValeurEtUnite(1/xx))
+               else texte.add(grandeurs[cFrequence].formatValeurEtUnite(xx));
       end;
+      if j=1 then begin
       with grandeurs[cFrequence] do
          CurseurGrid.Cells[0,i+2] := formatNombre(XX*coeffAff);
       with grandeurs[listePic[j].index] do
-         CurseurGrid.Cells[1,i+2] := formatNombre(YY*coeffAff);
+         CurseurGrid.Cells[+1,i+2] := formatNombre(YY*coeffAff);
+      end;
 end; // TraceMarque
 
 Procedure SupprTout;
@@ -1746,6 +1759,59 @@ begin
     end;
 end;
 
+procedure TFGrapheFFT.EnregistrerSpectreItemClick(Sender: TObject);
+
+procedure ecritUneCourbe(i : integer);
+var fichier : textFile;
+    j : integer;
+    nomFichier : string;
+begin
+   nomFichier := saveDialogCSV.FileName;
+   if i>0 then insert(IntToStr(i),nomFichier,length(nomFichier)-3);
+   with grapheFrequence.courbes[i] do begin
+      AssignFile(fichier,nomFichier);
+      Rewrite(fichier);
+      writeln(fichier,grandeurs[cFrequence].nom+','+varY.nom);
+      writeln(fichier,grandeurs[cFrequence].nomUnite+','+varY.nomUnite);
+      for j := debutC to finC do
+          writeln(fichier,FloatToStrPoint(valX[j])+','+FloatToStrPoint(valY[j]));
+      CloseFile(fichier);
+   end;
+end;
+
+procedure ecritCourbes;
+var fichier : textFile;
+    i,j : integer;
+begin
+   AssignFile(fichier,saveDialogCSV.FileName);
+   Rewrite(fichier);
+   write(fichier,grandeurs[cFrequence].nom);
+   for i := 0 to pred(grapheFrequence.courbes.Count)  do
+       write(fichier,','+grapheFrequence.courbes[i].varY.nom);
+   writeln(fichier);
+   write(fichier,grandeurs[cFrequence].nomUnite);
+   for i := 0 to pred(grapheFrequence.courbes.Count)  do
+       write(fichier,','+grapheFrequence.courbes[i].varY.nomUnite);
+   writeln(fichier);
+   for j := grapheFrequence.courbes[0].debutC to grapheFrequence.courbes[0].finC do begin
+       write(fichier,FloatToStrPoint(grapheFrequence.courbes[0].valX[j]));
+       for i := 0 to pred(grapheFrequence.courbes.Count)  do
+           write(fichier,','+FloatToStrPoint(grapheFrequence.courbes[i].valY[j]));
+       writeln(fichier);
+   end;
+   CloseFile(fichier);
+end;
+
+var i : integer;
+begin
+   saveDialogCSV.title := 'Sauvegarde du spectre';
+   if saveDialogCSV.Execute then
+      if grapheFrequence.superposepage
+          then for i := 0 to pred(grapheFrequence.courbes.Count) do
+             ecritUneCourbe(i)
+          else ecritCourbes
+end;
+
 procedure TFGrapheFFT.EnregistrerGrapheItemClick(Sender: TObject);
 begin
    saveDialog.options := saveDialog.options-[ofOverwritePrompt];
@@ -1781,7 +1847,7 @@ begin
          titreAnimCB.checked := litBooleanWin;
      for i := (Nparam*Nitem+supplement+1) to imax do readln(fichier);
      AnimationBtn.down := true;
-     grapheFrequence.useDefault := false;
+     grapheFrequence.useDefaut := false;
      initManuelleAfaire := true;
      lignesLues := true;
 end;
@@ -2092,7 +2158,8 @@ end;
 procedure TFGrapheFFT.PopupMenuFFTPopup(Sender: TObject);
 begin
      SaveFreqItem.visible := curseurF=curReticuleF;
-     ZoomManuel.checked := grapheFrequence.UseDefaultX;
+     ZoomManuel.checked := grapheFrequence.UseDefautX;
+     SaveHarmitem.Visible := NbreHarmoniqueAff>6;
 end;
 
 procedure TFGrapheFFT.TempsMouseDown(Sender: TObject;
@@ -2811,6 +2878,13 @@ begin
     end;
 end;
 
+procedure TFGrapheFFT.SaveHarmItemClick(Sender: TObject);
+begin
+   saveDialogCSV.title := 'Sauvegarde des raies ("harmoniques")';
+   if saveDialogCSV.Execute then
+      listePic[1].ecritCSV(saveDialogCSV.FileName);
+end;
+
 procedure TFGrapheFFT.SauverFrequence(f,a : double);
 begin with grapheFrequence do begin
        if saveHarmoniqueDlg=nil then
@@ -3065,7 +3139,7 @@ begin   // à vérifier dans le cas sonagramme
         with grapheFrequence.courbes[0] do
           if (((trace=[trLigne]) and (motif=mLosange)) or
               ((trace=[trPoint]) and (motif=mSpectre))) and
-             (pag=pageCourante) then with grapheFrequence do begin
+             (page=pageCourante) then with grapheFrequence do begin
                   mondeRT(posSouris.x,posSouris.y,mondeY,xr,yr);
                   iCourant := listePic[1].Proche(xr,yr,monde[mondeX].maxi);
                   xr := listePic[1].picsF[iCourant];

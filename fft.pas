@@ -2,7 +2,8 @@ Unit fft;
 
 interface
 
-uses windows, math, maths, sysUtils, classes, constreg, regutil,
+uses windows, math, maths, system.sysUtils, system.classes, vcl.Forms,
+     constreg, regutil,
      System.Generics.Collections;
 
 // algorithme FFT fourni par Claude Cance, groupe Evariste
@@ -21,8 +22,8 @@ var
       ZeroPadding : boolean = false;
       avecReglagePeriode : boolean = false;
       avecPeriode : boolean = false;
-      PrecisionFFT: double;
-      NbreHarmoniqueAff: integer;
+      PrecisionFFT : double;
+      NbreHarmoniqueAff : integer;
 
 type
         EWavError = class(Exception);
@@ -40,6 +41,7 @@ type
              property NbrePoints : longInt read FNbrePoints;
              procedure lit(const NomFichier : string);
              procedure ecrit(const NomFichier : string);
+         //    procedure ecritBruit(const NomFichier : string);
              destructor Destroy; override;
         end;
 
@@ -54,11 +56,12 @@ type
       picsH,picsF : TList<double>;
       index : integer;
       procedure Nettoie(fMax : double);
-      procedure TriFrequence;
-      procedure TriValeur;
+      procedure TriFrequenceCroissante;
+      procedure TriValeurDecroissante;
       procedure Add(valF,valH : double);
       function proche(x,y : double;xmax : double) : integer;
       procedure Clear;
+      procedure ecritCSV(nomFichier : string);
       Procedure CherchePicEnv(AA,AF : Tvecteur;FreqMax : double);
       property nbre : integer read getNbre;
       property nbreAff : integer read getNbreAff;
@@ -141,7 +144,7 @@ begin
            tableau[j] := tableau[j]*coeffFenetrage;
         end;
       except
-      end;  
+      end;
 end;
 
 procedure fenetrerInverse(xr,xi : Tvecteur;nb : integer);
@@ -400,8 +403,7 @@ var deltat : double;
     i : integer;
 begin
      NbreF := Puiss2Sup(Nbre);
-     if (calculFFT=c_correlation) and
-        (2*NbreF<=Maxi) then NbreF := 2*NbreF;
+     if (calculFFT=c_correlation) and (2*NbreF<=Maxi) then NbreF := 2*NbreF;
 // Interdit pour spectre car on obtient le spectre du signal discrétisé 
      Deltat := Periode/Nbre;
      Periode := NbreF*deltat;
@@ -756,8 +758,36 @@ begin
      finalize(xxr);finalize(xxi);
 end;
 
-Procedure TVecteurSon.lit(const NomFichier : string);
+(*
+Procedure TVecteurSon.ecritBruit(const NomFichier : string);
+var i : integer;
+    alpha,t,omegas : double;
+const fs = 40000;
+      Nperiode = 3;
+      frep = 5;
+      fech = 192000;
+      duree = 2;
+begin
+        FNbrePoints := duree*fech;
+        stereo := false;
+        formatWave := f16;
+        freqAudio := fech;
+        setLength(valeur,FnbrePoints);
+        setLength(valeurBis,FnbrePoints);
+        alpha := 1-frep*Nperiode/fs;
+        omegas := 2*pi*fs;
+        for i := 0 to pred(FnbrePoints) do begin
+            t := i/fech;
+            valeur[i] := sin(omegas*t);
+            valeurBis[i] := creneau(t,frep,alpha)+1;
+            valeur[i] := valeur[i]*valeurBis[i]/2;
+        end;
+        fichierTronque := false;
+        ecrit(NomFichier)
+end;
+*)
 
+Procedure TVecteurSon.lit(const NomFichier : string);
 var taille,N : longInt;
     Nbits,Nvoie : byte;
     texte : ansiString;
@@ -768,6 +798,25 @@ var taille,N : longInt;
     son16 : array of smallInt;
     son32 : array of single;
     testPCM : byte;
+    avecCorrection : boolean;
+
+procedure corrige16bits;
+const debut = 1500;
+var i : LongInt;
+begin
+     for i := debut to FnbrePoints-1 do
+         if son16[i]>0
+            then son16[i] := son16[i]-32768
+            else son16[i] := son16[i]+32768;
+end;
+
+procedure sauveCor16bits;
+var nom : string;
+begin
+     nom := nomFichier;
+     insert('-cor',nom,length(nom)-3); // corrigé
+     ecrit(nom);
+end;
 
 begin
      FNbrePoints := 0;
@@ -874,6 +923,11 @@ begin
      if stereo then FNbrePoints := FNbrePoints div 2;
      setLength(valeur,FNbrePoints);
      if stereo then setLength(valeurBis,FNbrePoints);
+     FileClose(Hfichier);
+     avecCorrection := (formatWave=f16) and not(stereo) and (freqAudio>96000);
+     if avecCorrection then FFTperiodique := false;
+     avecCorrection := avecCorrection and (pos('-cor.wav',nomFichier)=0);
+     if avecCorrection then corrige16bits;
      case formatWave of
         f8 : if stereo
           then for i := 0 to FNbrePoints-1 do begin
@@ -907,7 +961,7 @@ begin
            else for i := 0 to FNbrePoints do
                 valeur[i] := son32[i];
      end;
-     FileClose(Hfichier);
+     if avecCorrection then sauveCor16bits;
      son8 := nil;
      son16 := nil;
      son32 := nil;
@@ -933,6 +987,54 @@ begin
    inherited
 end;
 
+Procedure TlistePic.ecritCSV(nomFichier : string);
+
+Procedure TriFreq;
+// Tri Shell Meyer-Baudoin p 456 selon valeurH
+var increment : integer;
+    cle : double;
+    sauvePicH,sauvePicF : double;
+    i,j,k,FNbre : integer;
+Begin
+   increment := 1;
+   FNbre := NbreAff;
+   while ( increment<(FNbre div 3) ) do increment := succ(3*increment);
+   repeat
+	  for k := 0 to pred(increment) do begin
+		  i := increment+k;
+		  while (i<FNbre) do begin
+			  sauvePicH := picsH[i];
+        sauvePicF := picsF[i];
+			  cle := picsF[i];
+			  j := i-increment;
+			  while (j>=0) and (picsF[j]>cle) do begin
+				  picsH[j+increment] := picsH[j];
+          picsF[j+increment] := picsF[j];
+				  dec(j,increment);
+			  end;
+			  picsH[j+increment] := sauvePicH;
+        picsF[j+increment] := sauvePicF;
+			  inc(i,increment);
+		   end;
+	  end;
+	  increment := increment div 3;
+   Until increment=0;
+end;
+
+var i : integer;
+begin
+     TriFreq;
+     FileMode := fmOpenWrite;
+     AssignFile(fichier,nomFichier);
+     Rewrite(fichier);
+     writeln(fichier,'f,a');
+     writeln(fichier,'Hz,');
+     for i := 0 to NbreAff-1 do
+         writeln(fichier,FloatToStrPoint(picsF[i])+','+FloatToStrPoint(picsH[i]));
+     closeFile(fichier);
+     FileMode := fmOpenReadWrite;
+end;
+
 Procedure TlistePic.Nettoie(fMax : double);
 var deltaf : double;
 
@@ -945,9 +1047,11 @@ end;
 var k : integer;
     picmax : double;
     fMaxHarm : double;
-begin
+begin // nettoie
     if picsF.Count=0 then exit;
-    deltaf := fMax / 100;
+    if FFTperiodique
+       then deltaf := fMax / 100
+       else deltaf := fMax / 512;
     fMaxHarm := fMax;
     picmax := picsH[0];
     for k := 1 to pred(picsF.Count) do
@@ -955,7 +1059,9 @@ begin
            picmax := picsH[k];
            fMaxHarm := picsF[k];
         end;
-    if deltaf>fmaxHarm/4 then deltaf := fmaxHarm/4;
+    if FFTperiodique
+       then begin if deltaf>fmaxHarm/4 then deltaf := fmaxHarm/4; end
+       else begin if deltaf>fmaxHarm/32 then deltaf := fmaxHarm/32; end;
     k := 0;
     while (k<(picsF.Count-2)) do begin
         if (picsF[k+1]-picsF[k])<deltaf
@@ -964,9 +1070,9 @@ begin
                else supprime(k+1)
         else inc(k);
     end;
-end;
+end; // nettoie
 
-Procedure TlistePic.TriValeur;
+Procedure TlistePic.TriValeurDecroissante;
 // Tri Shell Meyer-Baudoin p 456 selon valeurH
 var increment : integer;
     cle : double;
@@ -1004,7 +1110,7 @@ Begin
    end;
 end; // triValeur
 
-Procedure TlistePic.TriFrequence;
+Procedure TlistePic.TriFrequenceCroissante;
 // Tri Shell Meyer-Baudoin p 456 selon valeurH
 var increment : integer;
     cle : double;
@@ -1013,7 +1119,7 @@ var increment : integer;
 Begin
    increment := 1;
    FNbre := picsH.Count;
-   while ( increment<(Nbre div 3) ) do increment := succ(3*increment);
+   while ( increment<(FNbre div 3) ) do increment := succ(3*increment);
    repeat
 	  for k := 0 to pred(increment) do begin
 		  i := increment+k;
@@ -1022,7 +1128,7 @@ Begin
         sauvePicF := picsF[i];
 			  cle := picsF[i];
 			  j := i-increment;
-			  while (j>=0) and (picsF[j]<cle) do begin
+			  while (j>=0) and (picsF[j]>cle) do begin
 				  picsH[j+increment] := picsH[j];
           picsF[j+increment] := picsF[j];
 				  dec(j,increment);
@@ -1072,7 +1178,7 @@ begin
              end;
       end;  // tous les pics plus grands que maxi*precision
       Nettoie(FreqMax);
-      TriValeur;
+      TriValeurDecroissante;
 end; // CherchePicEnv
 
 procedure TListePic.Add(valF,valH : double);
@@ -1185,7 +1291,6 @@ begin
          FileClose(Hfichier);
      end
 end;
-
 
 initialization
 {$IFDEF Debug}

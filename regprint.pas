@@ -63,7 +63,7 @@ var
 
 implementation
 
-uses Options, Graphpar, Graphfft, Statisti, Curmodel, Selpage;
+uses Options, Graphpar, Graphfft, Statisti, Curmodel, Selpage, regmain;
 
 {$R *.DFM}
 
@@ -245,8 +245,13 @@ try
          else ImprimerModeles;
       if TangenteCB.visible and TangenteCB.checked then begin
            FgrapheVariab.graphes[1].RemplitTableauEquivalence;
-           if curseurModeleDlg<>nil then
+           if curseurModeleDlg<>nil then begin
                ImprimerGrid(curseurModeleDlg.tableau,debutImp);
+               (*
+               for i := 0 to pred(curseurModeleDlg.memo.Lines.Count) do
+                   ImprimerLigne(curseurModeleDlg.memo.Lines[i],debutImp);
+               *)
+           end;
       end;
       if FourierGB.visible then ImprimeFourier;
       if StatistiqueGB.visible then ImprimeStat;
@@ -343,7 +348,6 @@ begin
   Rini.free;
   end;
   enTeteEdit.text := userName;
-  ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TPrintDlg.PrintCBChange(Sender: TObject);

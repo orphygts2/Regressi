@@ -6,8 +6,8 @@ object ReticuleDataDlg: TReticuleDataDlg
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   BorderStyle = bsDialog
   Caption = 'Curseur donn'#233'es'
-  ClientHeight = 552
-  ClientWidth = 504
+  ClientHeight = 548
+  ClientWidth = 470
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
@@ -132,8 +132,8 @@ object ReticuleDataDlg: TReticuleDataDlg
   end
   object OptionsGB: TGroupBox
     Left = 0
-    Top = 316
-    Width = 504
+    Top = 312
+    Width = 470
     Height = 236
     Margins.Left = 6
     Margins.Top = 6
@@ -142,6 +142,8 @@ object ReticuleDataDlg: TReticuleDataDlg
     Align = alBottom
     Caption = 'Affichage'
     TabOrder = 5
+    ExplicitTop = 313
+    ExplicitWidth = 484
     object PenteCB: TCheckBox
       Left = 16
       Top = 40
@@ -238,7 +240,7 @@ object ReticuleDataDlg: TReticuleDataDlg
     Left = 16
     Top = 258
     Width = 200
-    Height = 38
+    Height = 22
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -251,7 +253,7 @@ object ReticuleDataDlg: TReticuleDataDlg
     Left = 234
     Top = 258
     Width = 200
-    Height = 38
+    Height = 34
     Hint = 'Lignes de rappel'
     Margins.Left = 6
     Margins.Top = 6
@@ -288,7 +290,6 @@ object ReticuleDataDlg: TReticuleDataDlg
     Font.Height = -22
     Font.Name = 'Regressi'
     Font.Style = []
-    ItemHeight = 32
     ParentFont = False
     TabOrder = 7
     Images = VirtualImageList2
@@ -365,8 +366,8 @@ object ReticuleDataDlg: TReticuleDataDlg
               0049454E44AE426082}
           end>
       end>
-    Left = 184
-    Top = 348
+    Left = 264
+    Top = 236
   end
   object VirtualImageList2: TVirtualImageList
     Images = <
@@ -396,9 +397,9 @@ object ReticuleDataDlg: TReticuleDataDlg
         Name = 'Item5'
       end>
     ImageCollection = ImageCollection2
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 400
-    Top = 324
+    Top = 308
   end
 end

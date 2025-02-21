@@ -4,8 +4,8 @@ object ChronoForm: TChronoForm
   HelpContext = 47
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   Caption = 'Lecture de chronophotographie (position, angle)'
-  ClientHeight = 1662
-  ClientWidth = 2234
+  ClientHeight = 1654
+  ClientWidth = 2122
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
@@ -24,10 +24,10 @@ object ChronoForm: TChronoForm
   PixelsPerInch = 192
   TextHeight = 36
   object Splitter: TSplitter
-    Left = 1624
-    Top = 136
+    Left = 1512
+    Top = 157
     Width = 10
-    Height = 1488
+    Height = 1459
     Hint = '|D'#233'placer pour changer les dimensions relatives des deux images'
     Margins.Left = 6
     Margins.Top = 6
@@ -39,14 +39,15 @@ object ChronoForm: TChronoForm
     Color = clHighlight
     MinSize = 300
     ParentColor = False
+    ExplicitLeft = 1624
     ExplicitTop = 140
     ExplicitHeight = 1484
   end
   object PaintBox: TPaintBox
     Left = 0
-    Top = 136
-    Width = 1624
-    Height = 1488
+    Top = 157
+    Width = 1512
+    Height = 1459
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -61,12 +62,13 @@ object ChronoForm: TChronoForm
     OnMouseUp = ImageMouseUp
     OnPaint = ImagePaint
     ExplicitTop = 140
+    ExplicitWidth = 1624
     ExplicitHeight = 1484
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 1624
-    Width = 2234
+    Top = 1616
+    Width = 2122
     Height = 38
     Margins.Left = 6
     Margins.Top = 6
@@ -81,14 +83,14 @@ object ChronoForm: TChronoForm
       end>
     ParentFont = True
     UseSystemFont = False
-    ExplicitTop = 1623
-    ExplicitWidth = 2220
+    ExplicitTop = 1615
+    ExplicitWidth = 2108
   end
   object GridPanel: TPanel
-    Left = 1634
-    Top = 136
+    Left = 1522
+    Top = 157
     Width = 600
-    Height = 1488
+    Height = 1459
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -96,13 +98,14 @@ object ChronoForm: TChronoForm
     Align = alRight
     ParentColor = True
     TabOrder = 1
-    ExplicitLeft = 1620
-    ExplicitHeight = 1487
+    ExplicitLeft = 1508
+    ExplicitTop = 136
+    ExplicitHeight = 1479
     object Grid: TStringGrid
       Left = 1
       Top = 1
       Width = 598
-      Height = 1486
+      Height = 1457
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -112,13 +115,15 @@ object ChronoForm: TChronoForm
       ColCount = 3
       DefaultColWidth = 100
       DefaultRowHeight = 48
+      DoubleBuffered = True
       Enabled = False
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
+      ParentDoubleBuffered = False
       ScrollBars = ssVertical
       TabOrder = 0
       OnDrawCell = GridDrawCell
-      ExplicitHeight = 1485
+      ExplicitHeight = 1477
       ColWidths = (
         100
         100
@@ -133,22 +138,30 @@ object ChronoForm: TChronoForm
   end
   object ParamPanel: TPanel
     Left = 0
-    Top = 44
-    Width = 2234
+    Top = 65
+    Width = 2122
     Height = 92
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alTop
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -32
+    Font.Name = 'Segoe UI'
+    Font.Style = []
     ParentBackground = False
+    ParentColor = True
+    ParentFont = False
     TabOrder = 2
-    ExplicitWidth = 2220
+    ExplicitTop = 44
+    ExplicitWidth = 2108
     object SerieLabel: TLabel
       Left = 280
       Top = 12
-      Width = 166
-      Height = 36
+      Width = 204
+      Height = 45
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -157,8 +170,8 @@ object ChronoForm: TChronoForm
       Visible = False
     end
     object SerieSE: TSpinEdit
-      Left = 460
-      Top = 8
+      Left = 496
+      Top = 12
       Width = 66
       Height = 56
       Margins.Left = 6
@@ -182,7 +195,7 @@ object ChronoForm: TChronoForm
       Left = 1344
       Top = 0
       Width = 2
-      Height = 44
+      Height = 53
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -193,8 +206,8 @@ object ChronoForm: TChronoForm
     object angleCB: TCheckBox
       Left = 8
       Top = 12
-      Width = 216
-      Height = 34
+      Width = 260
+      Height = 40
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -204,10 +217,10 @@ object ChronoForm: TChronoForm
       OnClick = angleCBClick
     end
     object EtiquetteCB: TCheckBox
-      Left = 560
+      Left = 600
       Top = 12
-      Width = 140
-      Height = 34
+      Width = 185
+      Height = 40
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -218,10 +231,10 @@ object ChronoForm: TChronoForm
       TabOrder = 3
       OnClick = EtiquetteCBClick
     end
-    object GroupBox2: TGroupBox
-      Left = 1993
+    object CouleurTraceGB: TGroupBox
+      Left = 1871
       Top = 1
-      Width = 240
+      Width = 250
       Height = 90
       Hint = 'Couleur de la courbe courante'
       Margins.Left = 6
@@ -231,18 +244,17 @@ object ChronoForm: TChronoForm
       Align = alRight
       Caption = 'Couleur de trac'#233
       TabOrder = 5
-      ExplicitLeft = 1979
+      ExplicitLeft = 1857
       object CouleurPointsCB: TColorBox
         Left = 2
         Top = 50
-        Width = 236
-        Height = 38
+        Width = 266
+        Height = 22
         Hint = 'Couleur de la courbe courante'
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
-        Align = alBottom
         Style = [cbStandardColors, cbPrettyNames]
         DropDownCount = 16
         ItemHeight = 32
@@ -250,10 +262,10 @@ object ChronoForm: TChronoForm
         OnChange = CouleurPointsCBChange
       end
     end
-    object GroupBox3: TGroupBox
-      Left = 1753
+    object CouleurAxeGB: TGroupBox
+      Left = 1621
       Top = 1
-      Width = 240
+      Width = 250
       Height = 90
       Margins.Left = 6
       Margins.Top = 6
@@ -262,17 +274,16 @@ object ChronoForm: TChronoForm
       Align = alRight
       Caption = 'Couleur des axes'
       TabOrder = 4
-      ExplicitLeft = 1739
+      ExplicitLeft = 1607
       object CouleurAxeCB: TColorBox
         Left = 2
         Top = 50
-        Width = 236
-        Height = 38
+        Width = 266
+        Height = 22
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
-        Align = alBottom
         Style = [cbStandardColors, cbPrettyNames]
         ItemHeight = 32
         TabOrder = 0
@@ -283,27 +294,26 @@ object ChronoForm: TChronoForm
   object ToolBar: TToolBar
     Left = 0
     Top = 0
-    Width = 2234
-    Height = 44
+    Width = 2122
+    Height = 65
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     AutoSize = True
-    ButtonHeight = 42
-    ButtonWidth = 138
-    Color = clBtnFace
+    ButtonHeight = 63
+    ButtonWidth = 169
+    DoubleBuffered = True
     EdgeBorders = [ebBottom]
     GradientEndColor = clSkyBlue
     HotTrackColor = clAqua
     Images = VirtualImageList1
-    List = True
-    ParentColor = False
+    ParentDoubleBuffered = False
     ShowCaptions = True
     TabOrder = 3
     Transparent = False
     Wrapable = False
-    ExplicitWidth = 2220
+    ExplicitHeight = 44
     object FileBtn: TToolButton
       Left = 0
       Top = 0
@@ -319,7 +329,7 @@ object ChronoForm: TChronoForm
       OnClick = FileBtnClick
     end
     object EchelleBtn: TToolButton
-      Left = 118
+      Left = 82
       Top = 0
       Hint = 'D'#233'finition de l'#39#233'chelle...'
       Margins.Left = 6
@@ -333,7 +343,7 @@ object ChronoForm: TChronoForm
       OnClick = EchelleBtnClick
     end
     object MesureBtn: TToolButton
-      Left = 245
+      Left = 173
       Top = 0
       Hint = 'R'#224'Z et d'#233'but des mesures'
       Margins.Left = 6
@@ -348,7 +358,7 @@ object ChronoForm: TChronoForm
       OnClick = MesureBtnClick
     end
     object LoupeBtn: TToolButton
-      Left = 387
+      Left = 279
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -361,10 +371,10 @@ object ChronoForm: TChronoForm
       Style = tbsCheck
     end
     object zoomUD: TSpinEdit
-      Left = 524
+      Left = 380
       Top = 0
       Width = 68
-      Height = 47
+      Height = 63
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -375,7 +385,7 @@ object ChronoForm: TChronoForm
       Value = 2
     end
     object RazBtn: TToolButton
-      Left = 592
+      Left = 448
       Top = 0
       Hint = 'R'#224'Z|Remise '#224' z'#233'ro'
       Margins.Left = 6
@@ -389,7 +399,7 @@ object ChronoForm: TChronoForm
       OnClick = RazBtnClick
     end
     object UndoBtn: TToolButton
-      Left = 683
+      Left = 503
       Top = 0
       Hint = 'Annuler dernier point'
       Margins.Left = 6
@@ -403,7 +413,7 @@ object ChronoForm: TChronoForm
       OnClick = UndoBtnClick
     end
     object SupprBtn: TToolButton
-      Left = 812
+      Left = 596
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -416,7 +426,7 @@ object ChronoForm: TChronoForm
       OnClick = SupprBtnClick
     end
     object RegressiBtn: TToolButton
-      Left = 936
+      Left = 684
       Top = 0
       Hint = 'Traitement des donn'#233'es'
       Margins.Left = 6
@@ -429,8 +439,16 @@ object ChronoForm: TChronoForm
       ImageName = 'Item4'
       OnClick = RegressiBtnClick
     end
+    object PythonBtn: TToolButton
+      Left = 767
+      Top = 0
+      Caption = 'Export Python'
+      ImageIndex = 3
+      ImageName = 'Item4'
+      OnClick = PythonBtnClick
+    end
     object HelpBtn: TToolButton
-      Left = 1055
+      Left = 936
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -443,7 +461,7 @@ object ChronoForm: TChronoForm
       OnClick = HelpBtnClick
     end
     object ExiBtn: TToolButton
-      Left = 1154
+      Left = 999
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -457,7 +475,7 @@ object ChronoForm: TChronoForm
     end
   end
   object OpenDialog: TOpenDialog
-    Filter = 'bitmap|*.bmp|Jpeg|*.jpg;*.jpeg|GIF|*.gif|Png|*.png'
+    Filter = 'Bitmap Png Jpeg Gif|*.bmp;*.jpg;*.jpeg;*.gif;*.png'
     Options = [ofHideReadOnly, ofNoChangeDir, ofEnableSizing]
     Left = 24
     Top = 106
@@ -845,9 +863,15 @@ object ChronoForm: TChronoForm
         Name = 'Item20'
       end>
     ImageCollection = ImageCollection1
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 232
     Top = 356
+  end
+  object SaveDialog: TSaveDialog
+    DefaultExt = '.py'
+    Filter = 'Python|.py'
+    Left = 360
+    Top = 384
   end
 end

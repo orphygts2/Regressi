@@ -51,7 +51,6 @@ type
     procedure helpMagnumBtnClick(Sender: TObject);
     procedure HelpManuelBtnClick(Sender: TObject);
     procedure ModeleBtnDblClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
   private
     Procedure MajTexte;
   public
@@ -64,6 +63,8 @@ var
     ChoixModeleGlbDlg: TChoixModeleGlbDlg;
 
 implementation
+
+uses regmain;
 
 {$R *.DFM}
 
@@ -152,11 +153,6 @@ begin
             NouveauBtn.visible := true;
         end;
      MajTexte;
-end;
-
-procedure TChoixModeleGlbDlg.FormCreate(Sender: TObject);
-begin
- ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TChoixModeleGlbDlg.ModeleBtnClick(Sender: TObject);

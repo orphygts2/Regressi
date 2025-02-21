@@ -3,8 +3,8 @@ object unitGrapheDlg: TunitGrapheDlg
   Top = 194
   BorderStyle = bsDialog
   Caption = 'Unit'#233' du graphe'
-  ClientHeight = 492
-  ClientWidth = 876
+  ClientHeight = 348
+  ClientWidth = 644
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,7 +16,7 @@ object unitGrapheDlg: TunitGrapheDlg
   PixelsPerInch = 192
   TextHeight = 38
   object OKBtn: TBitBtn
-    Left = 472
+    Left = 408
     Top = 32
     Width = 200
     Height = 54
@@ -34,7 +34,7 @@ object unitGrapheDlg: TunitGrapheDlg
     IsControl = True
   end
   object CancelBtn: TBitBtn
-    Left = 472
+    Left = 408
     Top = 138
     Width = 200
     Height = 54
@@ -51,7 +51,7 @@ object unitGrapheDlg: TunitGrapheDlg
     IsControl = True
   end
   object HelpBtn: TBitBtn
-    Left = 472
+    Left = 408
     Top = 234
     Width = 200
     Height = 54

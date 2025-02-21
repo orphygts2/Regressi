@@ -23,7 +23,6 @@ type
     procedure OneBtnClick(Sender: TObject);
     procedure AllOKBtnClick(Sender: TObject);
     procedure OneOKBtnClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
   private
   public
     appelPrint : boolean;
@@ -34,7 +33,7 @@ var
 
 implementation
 
-uses regutil, Regmain;
+uses regutil, Regmain, graphvar;
 
 {$R *.DFM}
 
@@ -63,11 +62,6 @@ begin
         end
         else if hauteur<500 then hauteur := 500;
      height := hauteur;
-end;
-
-procedure TSelectPageDlg.FormCreate(Sender: TObject);
-begin
-   ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TSelectPageDlg.OKBtnClick(Sender: TObject);
@@ -115,10 +109,10 @@ begin
 end;
 
 procedure TSelectPageDlg.OneOKBtnClick(Sender: TObject);
-var p : TcodePage;
+var i : integer;
 begin
-     for p := 1 to NbrePages do pages[p].active := false;
-     pages[pageCourante].active := true;
+     for i := 1 to 3 do
+         FgrapheVariab.graphes[i].superposePage := false;
      Application.MainForm.perform(WM_Reg_Maj,MajSelectPage,1);
 end;
 

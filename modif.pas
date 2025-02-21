@@ -28,13 +28,13 @@ type
     ExpressionEdit: TLabeledEdit;
     Memo1: TMemo;
     CalculVersExpCB: TCheckBox;
-    Image2: TImage;
     EditComm: TLabeledEdit;
     EditIncertitude: TLabeledEdit;
     IncertitudeHelpBtn: TSpeedButton;
     EditIncertitude_TypeB: TLabeledEdit;
     UniteGrapheImposeeCB: TCheckBox;
     EditUniteGraphe: TEdit;
+    SpeedButton1: TSpeedButton;
     procedure FormActivate(Sender: TObject);
     procedure OKBtnClick(Sender: TObject);
     procedure PrecisionCBChange(Sender: TObject);
@@ -46,7 +46,6 @@ type
     procedure EditNomKeyPress(Sender: TObject; var Key: Char);
     procedure UniteGrapheImposeeCBClick(Sender: TObject);
     procedure EditUniteKeyPress(Sender: TObject; var Key: Char);
-    procedure FormCreate(Sender: TObject);
   private
       oldFormatU : TnombreFormat;
   public
@@ -72,27 +71,20 @@ end;
 procedure TModifDlg.EditIncertitude_TypeBKeyPress(Sender: TObject;
   var Key: Char);
 begin
-    if Key=',' then key := '.'
+//    if Key=',' then key := '.'
+// problème avec if (x>1,0.01,0.1) !
 end;
 
 procedure TModifDlg.EditNomKeyPress(Sender: TObject; var Key: Char);
 begin
-     case key of
-        crCR,crTab : ;
-        crEsc : ;
-        crSupprArr : ;
-        else if not isCaracGrandeur(key) then key := #0;
-     end;
+     if not charInSet(key,charNavigationDG)
+        and not isCaracGrandeur(key) then key := #0;
 end;
 
 procedure TModifDlg.EditUniteKeyPress(Sender: TObject; var Key: Char);
 begin
-     case key of
-        crCR,crTab : ;
-        crEsc : ;
-        crSupprArr : ;
-        else if not isCaracUnite(key) then key := #0;
-     end;
+     if not charInSet(key,charNavigationDG)
+        and not isCaracUnite(key) then key := #0;
 end;
 
 procedure TModifDlg.FormActivate(Sender: TObject);
@@ -112,7 +104,9 @@ with grandeurModif do begin
            CalculExpGB.visible := false;
            GenreLabel.caption := 'Variable de contrôle de la simulation'
         end
-        else GenreLabel.caption := NomGenreGrandeur[genreG]+' '+nomGenreCalcul[fonct.genreC];
+        else if genreG in [paramNormal,paramGlb]
+           then GenreLabel.caption := NomGenreGrandeur[genreG]+' de modélisation'
+           else GenreLabel.caption := NomGenreGrandeur[genreG]+'/'+nomGenreCalcul[fonct.genreC];
      CalculVersExpCB.visible := (fonct.genreC=g_fonction) and (genreG=variable);
      CalculVersExpCB.checked := false;
      expressionEdit.Text := '';
@@ -137,11 +131,6 @@ with grandeurModif do begin
      EditUniteGraphe.Text := uniteGraphe;
      EditUniteGraphe.visible := UniteGrapheImposee;
 end end;
-
-procedure TModifDlg.FormCreate(Sender: TObject);
-begin
-    ResizeButtonImagesforHighDPI(self);
-end;
 
 procedure TModifDlg.OKBtnClick(Sender: TObject);
 

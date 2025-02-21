@@ -1,4 +1,5 @@
-﻿unit regutil;
+﻿
+unit regutil;
 
 interface
 
@@ -8,13 +9,13 @@ uses
   Windows, Messages, Classes, Dialogs, Forms,
   Graphics, printers, controls, grids, clipBrd,
   Math, StdCtrls, comctrls, richedit, registry, shlObj,
-  Vcl.FileCtrl, Vcl.graphUtil,
+  Vcl.FileCtrl, Vcl.graphUtil, Vcl.Menus,
   Xml.xmldom, Xml.XMLIntf, Xml.XMLDoc,
   constreg, maths,
   //Winapi.GDIPAPI,
-  pngImage, gripSplitter,
+  pngImage, gripSplitter, gifImg,
   OOmisc, adport, lnswin32, awuser,
-  VCL.buttons,vcl.samples.spin;
+  VCL.buttons,VCL.samples.spin,VCL.VirtualImageList;
 
 var
   fichier : textFile;
@@ -67,6 +68,7 @@ const
         UnMois = UnJour*365.25/12;
         QuartdHeure = 15*60;
         UneMinute = 60;
+        UneSeconde = 1;
 
         UneHeureWin = 1/24; { 1 jour = 1.000 }
         QuartdHeureWin = 1/(24*4);
@@ -74,6 +76,7 @@ const
         UneSecondeWin = 1/(24*60*60);
         UnMoisWin = 365.25/12;
         unAnWin = 365.25;
+        unJourWin = 1;
 
         crLettre = 1;
         crGomme = 2;
@@ -187,15 +190,19 @@ const
        SeparateurConst =  '________________';
 
 type
+    TRGBTripleArray = ARRAY[Word] of TRGBTriple;
+    pRGBTripleArray = ^TRGBTripleArray; // Use a PByteArray for pf8bit color.
     Tincertitude = (iEllipse,iCroix,iRectangle);
     TAffIncertParam = (iType,i95,iBoth);
     EGetFloatError = class(Exception);
     TdispositionFenetre = (dMaxi,dCascade,dMosaicVert,dMosaicHoriz,dNone);
-    TgrapheClipBoard = (gcEMF,gcJpeg,gcBitmap,gcPng);
+ //   TgrapheClipBoard = (gcEMF,gcJpeg,gcBitmap,gcPng);
+    TgrapheClipBoard = (gcJpeg,gcBitmap,gcPng);
     TnombreFormat = (fDefaut,fExponent,fFixed,
        fLongueDuree,fDateTime,fDate,fTime,fDegreMinute,
        fBinary,fHexa);
     TligneRappel = (lrEquivalence,lrTangente,lrXdeY,lrReticule,lrEquivalenceManuelle,lrX,lrY,lrPente);
+    TsetLigneRappel = set of TligneRappel;
     Tgraduation = (gLin,gLog,gInv,gdB,gBits);
 
     TstrListe = class(TstringList)
@@ -208,6 +215,28 @@ type
           false: (WParam: WParam;LParam: LParam;Result: LResult);
           true: (TypeMaJ: WParam;CodeMaj : LParam;ResultR: LResult);
     end;
+
+(*
+TMessage = record
+    Msg: Cardinal;
+    case Integer of
+      0: (
+        WParam: WPARAM;
+        LParam: LPARAM;
+        Result: LRESULT);
+      1: (
+        WParamLo: Word;
+        WParamHi: Word;
+        WParamFiller: TDWordFiller;
+        LParamLo: Word;
+        LParamHi: Word;
+        LParamFiller: TDWordFiller;
+        ResultLo: Word;
+        ResultHi: Word;
+        ResultFiller: TDWordFiller);
+  end;
+
+*)
 
     TPrinterRecord = record
         Cur: TPoint;
@@ -237,12 +266,15 @@ type
            procedure init;
            procedure litFichier(NbreItem : integer);
            procedure ecritFichier;
+           procedure loadXML(Anode : IXMLNode);
+           procedure storeXML(Anode : IXMLNode);
            function sliderMaxValue : integer;
         end;
 
 const
         GridFontSize = 10;
         crSupprArr = char(vk_back);
+        crSuppr = char(vk_delete);
         crHaut = char(vk_up);
         crBas = char(vk_down);
         crGauche = char(vk_left);
@@ -265,10 +297,11 @@ const
         ChiffreEtc : tSysCharSet = ['0'..'9','+','-','e','E','.'];
         ChiffreWin : tSysCharSet = ['0'..'9','+','-','e','E','.',','];
         CaracNombre : tSysCharSet = ['0'..'9','+','-','e','E','.',',','/',':'];
-        CaracDateTime : tSysCharSet = ['0'..'9','/',':',' ',crSupprArr,crTab,crCR];
-        CaracDate : tSysCharSet = ['0'..'9','/',crSupprArr,crTab,crCR];
-        CaracTime : tSysCharSet = ['0'..'9',':',crSupprArr,crTab,crCR];
-        CaracDegre : tSysCharSet = ['0'..'9','+','-',':','°','''','"',crSupprArr,crTab,crCR];
+        CaracArduino : tSysCharSet = ['0'..'9','+','-','e','E',',',';','.',crCR,crLF];
+        CaracDateTime : tSysCharSet = ['0'..'9','/',':',' ',crSupprArr,crSuppr,crTab,crCR];
+        CaracDate : tSysCharSet = ['0'..'9','/',crSupprArr,crSuppr,crTab,crCR];
+        CaracTime : tSysCharSet = ['0'..'9',':',crSupprArr,crSuppr,crTab,crCR];
+        CaracDegre : tSysCharSet = ['0'..'9','+','-',':','°','''','"',crSupprArr,crSuppr,crTab,crCR];
         ChiffreExpStr = WideChar($2070)+WideChar($00B9)+WideChar($00B2)+
                WideChar($00B3)+WideChar($2074)+WideChar($2075)+WideChar($2076)+
                WideChar($2077)+WideChar($2078)+WideChar($2079);
@@ -301,10 +334,9 @@ var
         FichierTrie : boolean = false;
         DataTrieGlb : boolean = false;
         Recuit : boolean = false;
-        recuitFaible : boolean = true;
         modeleCosinus : boolean = true;
         VisualisationAjustement : boolean = false;
-        DispositionFenetre : TDispositionFenetre = dMaxi; 
+        DispositionFenetre : TDispositionFenetre = dMaxi;
         GridPrint : boolean = false;
         StoechBecherGlb : integer = 1;
         StoechBuretteGlb : integer = 1;
@@ -333,6 +365,8 @@ var
         largeurColonneTexte : integer = 80;
         HauteurColonne : integer;
         LargeurUnCarac : integer;
+        NbreMC : integer = 1024;
+        FFTperiodique : boolean = true;
 
 Function OKReg(const strOk : string;const helpCtx : LongInt) : boolean;
 Function OKformat(const strOk : string;args : array of const) : boolean;
@@ -361,10 +395,11 @@ function litBooleanWin : boolean;
 procedure ecritChaineRW3(const s : String);
 procedure readLnNombreWin(var z : double);
 Function NbreLigneWin(const s : String) : LongInt;
-Function PuissToStr(puiss : integer) : string;
+Function PowerToStr(puiss : integer) : string;
 Function IsLigneComment(const ligneCourante : String) : boolean;
 Function FloatToStrPoint(const valeur : double) : string;
 Function FloatToStrLatex(const valeur : double) : string;
+Function FloatToStrFixedLatex(const valeur : double;Precision,Decimales : integer) : string;
 Function StrToFloatWin(nombre : String) : double;
 Function StrToFloatSex(degStr : string;const minStr,secStr : string) : double;
 function IniReadFloat(const Ini : TMemIniFile;const Section, Name: string; ValDefault: Double): Double;
@@ -396,32 +431,43 @@ Function isLettre(carac : char) : boolean;
 function litColor(couleurDefaut : TColor) : Tcolor;
 function SelectDir(var aDirectory : string) : boolean;
 function IsPortAvailable(ComNum: cardinal): boolean;
-Function couleurComplementaire(Abitmap : Tbitmap) : Tcolor;
+Function getcouleurFond(Abitmap : Tbitmap) : TColor;
+Function couleurComplementaire(couleur : Tcolor) : TColor;
 Function TeinteToRGB(teinte : double) : Tcolor;
+Function SigneToRGB(teinte : double) : Tcolor;
+function RGBToValue(const R, G, B: Single) : single;
 
 function writeStringXML(ANode : IXMLNOde;const Nom,valeur : string) : IXMLNode;
 function writeIntegerXML(ANode : IXMLNOde;const Nom : string;valeur : integer) : IXMLNode;
 function writeBoolXML(ANode : IXMLNOde;const Nom : string;valeur : boolean) : IXMLNode;
 function writeFloatXML(ANode : IXMLNOde;const Nom : string;valeur : double) : IXMLNode;
+function writeColorXML(ANode : IXMLNOde;const Nom : string;valeur : TColor) : IXMLNode;
 function writeDateTimeXML(ANode : IXMLNOde;const Nom : string;valeur : TDateTime) : IXMLNode;
 
 Function GetBoolXML(ANode : IXMLNOde) : boolean;
 Function GetIntegerXML(ANode : IXMLNOde) : integer;
 Function GetFloatXML(ANode : IXMLNOde) : double;
 Function GetColorXML(ANode : IXMLNOde) : Tcolor;
+function GetDateTimeXML(ANode : IXMLNOde) : TdateTime;
 
-procedure ResizeButtonImagesforHighDPI(const container: TWinControl);
+//procedure ResizeButtonImagesforHighDPI(const container: TWinControl);
 //procedure SetFontTedit(const sb : TEdit;const DPI : integer);
 
 Function GetFolder(CSIDLValue: integer): String;
+function CheckFileAvimeca(FileName : string) : string;
+
 
 {$IFDEF Debug}
 procedure ecritDebug(s : string);
 {$ENDIF}
 
-PROCEDURE Zoom_Lineaire(VAR BMP : TBitmap; CONST zoom : single);
+//PROCEDURE Zoom_Lineaire(VAR BMP : TBitmap; CONST zoom : single);
 procedure RotateBitmap(var bmp : TBitmap;sensHoraire : boolean);
 procedure RotateBitmap2(Bmp: TBitmap; Rads: integer);
+procedure ConvertitGifBmp(var nomFichier: string);
+function CouleurLatex(color: Tcolor): string;
+function TranslateNomMath(const anom : string) : string;
+function TranslateNomTexte(const anom : string) : string;
 
 Procedure Aide(index : integer);
 Procedure AideStr(st : string);
@@ -441,10 +487,12 @@ var
      LectureFichier,LecturePage : boolean;
      ParamAnimManuelle : array[0..MaxParamAnim] of TparamAnimation;
      PrinterParam : TprinterRecord;
+     virtualImageListSize : integer;
 
 // graphique pour configRegressi
 const
     MaxOrdonnee   = 6;
+    MaxPagesGr = 13;
 type
     TindiceOrdonnee  = 1..MaxOrdonnee;
     Tmotif = (mCroix, mCroixDiag, mCercle, mCarre, mLosange,
@@ -453,32 +501,24 @@ type
 // etoile, triangle, pentagone, asterisque, losangePlein, pentagonePlein, trianglePlein
 
 var
-    CouleurPages: array[0..MaxPages] of
+    CouleurPages: array[0..MaxPagesGr] of
     Tcolor = (clGray, clBlue, clRed, clOlive, clNavy, clPurple, clTeal, clBlack,
-      clMaroon, clFuchsia, clBlue, clGray, clAqua, clTeal, clBlue, clRed,
-      clGray, clBlue, clRed, clOlive, clNavy, clPurple, clTeal, clBlack,
-      clMaroon, clFuchsia, clBlue, clGray, clAqua, clTeal, clBlue, clRed,
-      clGreen);
-    StylePages: array[0..MaxPages] of
+              clMaroon, clFuchsia, clBlue, clGray, clAqua, clTeal);
+    StylePages: array[0..MaxPagesGr] of
     TpenStyle = (psSolid, psDash, psDot, psDashDot, psDashDotDot,
-      psSolid, psDash, psDot, psDashDot, psDashDotDot,
-      psSolid, psDash, psDot, psDashDot, psDashDotDot,
-      psSolid, psDash, psDot, psDashDot, psDashDotDot,
-      psSolid, psDash, psDot, psDashDot, psDashDotDot,
-      psSolid, psDash, psDot, psDashDot, psDashDotDot,
-      psSolid, psDash, psDot);
-    MotifPages: array[0..MaxPages] of
-    Tmotif = (mCroix, mCroixDiag, mCercle, mCarre, mLosange,mCerclePlein, mCarrePlein,
-      mCroix, mCroixDiag, mCercle, mCarre, mLosange, mCerclePlein, mCarrePlein,
-      mCroix, mCroixDiag, mCercle, mCarre, mLosange, mCerclePlein, mCarrePlein,
-      mCroix, mCroixDiag, mCercle, mCarre, mLosange, mCerclePlein, mCarrePlein,
-      mCroix, mCroixDiag, mCercle, mCarre, mLosange);
+                 psSolid, psDash, psDot, psDashDot, psDashDotDot,
+                 psSolid, psDash, psDot, psDashDot);
+    MotifPages: array[0..MaxPagesGr] of
+    Tmotif = (mCroix, mCroixDiag, mCercle, mCarre, mLosange, mCerclePlein, mCarrePlein,
+              mCroix, mCroixDiag, mCercle, mCarre, mLosange, mCerclePlein, mCarrePlein);
     CouleurModele: array[-MaxIntervalles..MaxIntervalles] of
     Tcolor = (clTeal, clMaroon, clFuchsia, clNavy, clWhite, clBlue, clRed, clPurple, clGreen);
     CouleurInit: array[TindiceOrdonnee] of Tcolor =
          (clBlack, clBlue, clRed, clPurple, clGreen, clNavy);
     MotifInit: array[TindiceOrdonnee] of Tmotif =
          (mCroix, mCroixDiag, mCercle, mCarre, mLosange, mCerclePlein);
+    CharNavigationDG : tSysCharSet = [crGauche,crDroite,crSupprArr,crSuppr,crTab,crCR];
+    CharNavigationHB : tSysCharSet = [crHaut,crBas,crSupprArr,crSuppr,crTab,crCR];
 
 
 implementation
@@ -497,8 +537,8 @@ const
                WideChar($2077)+WideChar($2078)+WideChar($2079)+MoinsExp+PlusExp;
     CharGetFloat : tSysCharSet = ['0'..'9','+','-','e','E','.',',','*','/','^',
             'P','p','I','i',piMin,piMaj,'m','µ','n','f','k','M','G','T',
-            '(',')',crSupprArr,crTab,crCR];
-    CharGetInt : tSysCharSet = ['0'..'9',crGauche,crDroite,crSupprArr,crTab,crCR];
+            '(',')',crSupprArr,crSuppr,crTab,crCR];
+    CharGetInt : tSysCharSet = ['0'..'9',crGauche,crDroite,crSupprArr,crSuppr,crTab,crCR];
     MargeImprimante = 21;
     MargeImprimantePaysage = 30; // soit 1 cm
 
@@ -561,6 +601,197 @@ const
     S = Saturation. Range = 0..1. 0 = white, 1 = no saturation.
     V = Value or intensity. Range 0..255
 }
+
+var avecExposantLatex : boolean;
+
+Function UnicodeToLatexMath(carac : char) : string;
+var j : integer;
+begin
+     avecExposantLatex := false;
+     case carac of
+                      alpha : result := '\alpha ';
+                      beta : result := '\beta ';
+                      gammaMin: result := '\gamma ' ;
+                      gammaMaj: result := '\Gamma ';
+                      deltaMin: result := '\delta ';
+                      deltaMaj: result := '\Delta ';
+                      epsilon: result := '\epsilon ';
+                      zeta: result := '\zeta ';
+                      eta: result := '\eta ';
+                      kappa: result := '\kappa ';
+                      lambdaMin: result := '\lambda ';
+                      lambdaMaj: result := '\Lambda ';
+                      mu: result := '\mu ';
+                      nu: result := '\nu ';
+                      xi: result := '\xi ';
+                      xiMaj: result := '\Xi ';
+                      pimin: result := '\pi ';
+                      piMaj: result := '\Pi ';
+                      rho: result := '\rho ';
+                      sigmaMin: result := '\sigma ';
+                      sigmaMaj: result := '\Sigma ';
+                      tau: result := '\tau ';
+                      theta: result := '\theta ';
+                      thetaMaj: result := '\Theta ';
+                      phiMin: result := '\phi ';
+                      phiMaj: result := '\Phi ';
+                      chi: result := '\chi ';
+                      psi: result := '\psi ';
+                      psiMaj: result := '\Psi ';
+                      omegaMin: result := '\omega ';
+                      omegaMaj: result := '\Omega ';
+                      '§' : result := '\S';
+                      '&' : result := '\&';
+                      '#' : result := '\#';
+                   //   '°' : result := '°';
+                      '±' : result := '\pm ';
+                      '%' : result := '\%';
+                      pourMille : result := '\textperthousand ';
+                      MoinsExp : result := '-';
+                      PlusExp : result := '+';
+                      InfEgal : result := '\leq ';
+                      SupEgal : result := '\geq ';
+                      pointMedian : result := '\cdot ';
+                      cdot : result := '\cdot ';
+                      else begin
+                         result := carac;
+                         for j := 0 to 9 do
+                            if carac=ChiffreExp[j] then begin
+                               result := intToStr(j);
+                               break;
+                            end;
+                      end;
+     end;
+end;
+
+Function UnicodeToLatexTexte(carac : char) : string;
+var j : integer;
+begin
+     avecExposantLatex := false;
+     case carac of
+                      alpha : result := '$\alpha$';
+                      beta : result := '$\beta$';
+                      gammaMin: result := '$\gamma$' ;
+                      gammaMaj: result := '$\Gamma$';
+                      deltaMin: result := '$\delta$';
+                      deltaMaj: result := '$\Delta$';
+                      epsilon: result := '$\epsilon$';
+                      zeta: result := '$\zeta$';
+                      eta: result := '$\eta$';
+                      kappa: result := '$\kappa$';
+                      lambdaMin: result := '$\lambda$';
+                      lambdaMaj: result := '$\Lambda$';
+                      mu: result := '$\mu$';
+                      nu: result := '$\nu$';
+                      xi: result := '$\xi$';
+                      xiMaj: result := '$\Xi$';
+                      pimin: result := '$\pi$';
+                      piMaj: result := '$\Pi$';
+                      rho: result := '$\rho$';
+                      sigmaMin: result := '$\sigma$';
+                      sigmaMaj: result := '$\Sigma$';
+                      tau: result := '$\tau$';
+                      theta: result := '$\theta$';
+                      thetaMaj: result := '$\Theta$';
+                      phiMin: result := '$\phi$';
+                      phiMaj: result := '$\Phi$';
+                      chi: result := '$\chi$';
+                      psi: result := '$\psi$';
+                      psiMaj: result := '$\Psi$';
+                      omegaMin: result := '$\omega$';
+                      omegaMaj: result := '$\Omega$';
+                      '%' : result := '\%';
+                      pourmille : result := '\textperthousand';
+                      '§' : result := '\S';
+                      '&' : result := '\&';
+                      '#' : result := '\#';
+                      '°' : result := '°';
+                      MoinsExp : begin
+                         avecExposantLatex := true;
+                         result := '-';
+                      end;
+                      PlusExp : begin
+                         avecExposantLatex := true;
+                         result := '+';
+                      end;
+                      InfEgal : result := '$\leq$';
+                      SupEgal : result := '$\geq$';
+                      '±' : result := '$\pm$';
+                      pointMedian : result := '\cdot ';
+                      cdot : result := '\cdot ';
+                      else begin
+                         result := carac;
+                         for j := 0 to 9 do
+                            if carac=ChiffreExp[j] then begin
+                               avecExposantLatex := true;
+                               result := intToStr(j);
+                               break;
+                            end;
+                      end;
+     end;
+end;
+
+function TranslateNomMath(const anom : string) : string;
+var i : integer;
+begin
+    result := '';
+    for i := 1 to length(anom) do
+        result := result+unicodeToLatexMath(anom[i]);
+end;
+
+function TranslateNomTexte(const anom : string) : string;
+var i : integer;
+    tr : string;
+    exposantEnCours : boolean;
+begin
+    result := '';
+    exposantEnCours := false;
+    for i := 1 to length(anom) do begin
+        tr := unicodeToLatexTexte(anom[i]);
+        if exposantEnCours
+           then if avecExposantLatex
+              then
+              else begin
+                 exposantEnCours := false;
+                 result := result+'}$';
+              end
+           else if avecExposantLatex
+              then begin
+               result := result+'$^{';
+               exposantEnCours := true;
+              end;
+        result := result+tr;
+    end;
+    if exposantEnCours then
+        result := result+'}$';
+end;
+
+function CouleurLatex(color: Tcolor): string;
+begin
+  case color of
+    clBlack: Result := 'black';
+    clMaroon: Result := 'brown';
+    clGreen: Result := 'green';
+    clOlive: Result := 'olive';
+    clNavy: Result := 'blue';
+    clPurple: Result := 'red';
+    clTeal: Result := 'teal';
+    clGray: Result := 'gray';
+    clSilver: Result := 'lightgray';
+    clRed: Result  := 'red';
+    clLime: Result := 'lime';
+    clYellow: Result := 'yellow';
+    clBlue: Result := 'blue';
+    clFuchsia: Result := 'purple';
+    clAqua: Result := 'blue';
+    clWhite: Result := 'white';
+    clMoneyGreen: Result := 'green';
+    clSkyBlue: Result := 'blue';
+    clCream: Result := 'lightgray';
+    clMedGray: Result := 'darkgray';
+    else Result := 'black';
+  end;
+end;
 
 procedure HSVToRGB(const H, S, V: Single; out R, G, B: Single);
 const
@@ -653,18 +884,44 @@ begin
   end;
 end;
 
-Function couleurComplementaire(Abitmap : Tbitmap) : Tcolor;
-type
-  TRGBTripleArray = ARRAY[Word] of TRGBTriple;
-  pRGBTripleArray = ^TRGBTripleArray; // Use a PByteArray for pf8bit color.
+function RGBToValue(const R, G, B: Single) : single;
+var
+  RGB: array[0..2] of Single;
+  MinIndex, MaxIndex: Integer;
+  Range,H: Single;
+begin
+  RGB[0] := R;
+  RGB[1] := G;
+  RGB[2] := B;
+  MinIndex := 0;
+  if G < R then MinIndex := 1;
+  if B < RGB[MinIndex] then MinIndex := 2;
+  MaxIndex := 0;
+  if G > R then MaxIndex := 1;
+  if B > RGB[MaxIndex] then MaxIndex := 2;
+  Range := RGB[MaxIndex] - RGB[MinIndex];
+  // Check for a gray level
+  if Range = 0 then result := R // could choose R, G, or B because they are all the same value.
+  else begin
+    case MaxIndex of
+      0: H := (G - B) / Range;
+      1: H := 2 + (B - R) / Range;
+      2: H := 4 + (R - G) / Range;
+      else H := 0;//pour le compilateur
+    end;
+    H := H * (1 / 6);
+    if H < 0 then H := 1 + H;
+    result := H;
+  end;
+end;
+
+Function GetCouleurFond(Abitmap : Tbitmap) : Tcolor;
 var zz : TRGBtriple;
     i,j : integer;
     scanLine : pRGBTripleArray;
     rouge,vert,bleu : integer;
     pasY,pasX : integer;
-    H,L,S : word;
     aColor : TcolorRef;
-    rr,gg,bb : byte;
 begin
        rouge := 0;
        vert := 0;
@@ -672,16 +929,23 @@ begin
        pasY := Abitmap.height div 9;
        pasX := Abitmap.width div 9;
        for i := 1 to 8 do begin
-         scanLine := Abitmap.scanLine[i*pasY];
-         for j := 1 to 8 do begin
-             zz := scanLine[j*pasX];
-             rouge := rouge+(zz.rgbtRed);
-             vert := vert+(zz.rgbtGreen);
-             bleu := bleu+(zz.rgbtBlue);
-         end;
+           scanLine := Abitmap.scanLine[i*pasY];
+           for j := 1 to 8 do begin
+              zz := scanLine[j*pasX];
+              rouge := rouge+(zz.rgbtRed);
+              vert := vert+(zz.rgbtGreen);
+              bleu := bleu+(zz.rgbtBlue);
+           end;
        end;
        acolor := RGB(rouge div 64,vert div 64,bleu div 64);
-       ColorRGBToHLS(aColor,H,L,S); // 0..240 pour H
+       result := aColor;
+end;
+
+Function CouleurComplementaire(couleur : Tcolor) : Tcolor;
+var H,L,S : word;
+    rr,gg,bb : byte;
+begin
+       ColorRGBToHLS(couleur,H,L,S); // 0..240 pour H
        if H>120
           then H := H-120
           else H := H+120; // couleur complémentaire
@@ -690,23 +954,62 @@ begin
              then L := 255
              else L := 0;
        S := 255; // saturation maxi
-       result := ColorHLSToRGB(H,L,S);
-       rr := 64*(GetRvalue(result) div 64);
-       gg := 64*(GetGvalue(result) div 64);
-       bb := 64*(GetBvalue(result) div 64);
+       couleur := ColorHLSToRGB(H,L,S);
+       rr := 64*(GetRvalue(Couleur) div 64);
+       gg := 64*(GetGvalue(Couleur) div 64);
+       bb := 64*(GetBvalue(Couleur) div 64);
        result := RGB(rr,gg,bb);
 end;
 
 Function TeinteToRGB(teinte : double) : Tcolor;
-// 0 noir 1 jaune 2 vert 3 cyan 4 bleu 5 magenta 6 rouge
+// 0 noir 0.15 jaune 0.35 vert 0.5 cyan 0.7 bleu 0.85 magenta 1 rouge
 var H : word;
 begin
     if teinte<0 then teinte := 0;
-    if teinte>6 then teinte := 1;
-    H:= round(teinte*40);
+    if teinte>1 then teinte := 1;
+    H:= round(teinte*240);
     if H<20
        then result := clBlack
        else result := ColorHLSToRGB(H,127,255);  // L=255 blanc L=0 noir
+end;
+
+Function SigneToRGB(teinte : double) : Tcolor;
+// <0 bleu >0 rouge
+var H : word;
+begin
+    if teinte<-1 then teinte := -1;
+    if teinte>1 then teinte := 1;
+    H := round(255*(1-abs(teinte)));
+    if teinte<0
+       then result := RGB(H,H,255)  // bleu
+       else result := RGB(255,H,H); // rouge
+end;
+
+procedure ConvertitGifBmp(var nomFichier: string);
+var
+  GIF		 : TGIFImage;
+  Bitmap : TBitmap;
+begin
+    GIF := TGIFImage.Create;
+    try
+      GIF.OnProgress := Nil;
+      // Load the GIF that will be converted
+      nomFichier := ChangeFileExt(nomFichier,'.gif');
+      GIF.LoadFromFile(nomFichier);
+      Bitmap := TBitmap.Create;
+      try
+        // Convert the GIF to a BMP
+        Bitmap.Assign(GIF);
+        Bitmap.pixelFormat := pf24bit;
+        // Save the BMP
+        nomFichier := ChangeFileExt(nomFichier,'.bmp');
+        Bitmap.SaveToFile(nomFichier);
+      finally
+        Bitmap.Free;
+      end;
+    finally
+      GIF.Free;
+    end;
 end;
 
 (**** XML *****)
@@ -751,6 +1054,14 @@ begin
     result := newNode;
 end;
 
+function writeColorXML(ANode : IXMLNOde;const Nom : string;valeur : TColor) : IXMLNode;
+var newNode : IXMLNode;
+begin
+    newNode := Anode.AddChild(Nom);
+    newNode.nodeValue := colorToString(valeur);
+    result := newNode;
+end;
+
 Function GetBoolXML(ANode : IXMLNOde) : boolean;
 var s : string;
 begin
@@ -778,11 +1089,22 @@ begin
      end;
 end;
 
-Function GetColorXML(ANode : IXMLNOde) : Tcolor;
-var zword : word;
+Function GetDateTimeXML(ANode : IXMLNOde) : TDateTime;
+var s : string;
+    z : double;
 begin
-    zWord := strToInt(ANode.Text);
-    result := TColor(zWord);
+     try
+     s := ANode.NodeValue;
+     z := StrToFloatWin(s);
+     result := TDateTime(z);
+     except
+       result := Nan
+     end;
+end;
+
+Function GetColorXML(ANode : IXMLNOde) : Tcolor;
+begin
+    result := stringToColor(ANode.Text);
 end;
 
 (**** fin XML *****)
@@ -1322,6 +1644,16 @@ begin
    end;
 end;
 
+Function FloatToStrFixedLatex(const valeur : double;Precision,Decimales : integer) : string;
+var posSeparator : integer;
+begin
+      result := FloatToStrF(valeur,ffFixed,precision,decimales);
+      if FormatSettings.decimalSeparator<>'.' then begin
+         posSeparator := pos(FormatSettings.decimalSeparator,result);
+         if posSeparator>0 then result[posSeparator] := '.';
+      end;
+end;
+
 Procedure ConvertitPrefixe(var nombre : string);
 var u : TcoefUnite;
     c : char;
@@ -1513,7 +1845,7 @@ begin
      end;
      if exposant<>'' then begin
          Nexp := strToInt(exposant);
-         result := result+pointMedian+'10'+puissToStr(Nexp);
+         result := result+pointMedian+'10'+powerToStr(Nexp);
      end;
 end; // FormatGeneral
 
@@ -1609,11 +1941,12 @@ begin
         else boutons := [mbOK,mbHelp];
      SauveCursor := Screen.cursor;
      Screen.cursor := crDefault;
+  //   (mtWarning, mtError, mtInformation, mtConfirmation, mtCustom);
      MessageDlg(strErreur,mtError,boutons,HelpCtx);
      Screen.cursor := SauveCursor;
 end;
 
-Function PuissToStr(puiss : integer) : string;
+Function PowerToStr(puiss : integer) : string;
 var tampon : string;
     i : integer;
     numero : integer;
@@ -2161,6 +2494,47 @@ begin
      for i := 8 to NbreItem do readln(fichier);
 end;
 
+procedure TparamAnimation.LoadXML(ANode : IXMLNode);
+
+procedure LitEnfant(Anode : IXMLNode);
+begin
+   if ANode.NodeName='valeur' then begin
+      valeura := getFloatXML(ANode);
+      exit;
+   end;
+   if ANode.NodeName='debut' then begin
+      debuta := getFloatXML(ANode);
+      exit;
+   end;
+   if ANode.NodeName='fin' then begin
+       fina := getFloatXML(ANode);
+       exit;
+   end;
+   if ANode.NodeName='pas' then begin
+       pasa := getFloatXML(ANode);
+       exit;
+   end;
+   if ANode.NodeName='active' then begin
+     active := getBoolXML(ANode);
+     exit;
+   end;
+   if ANode.NodeName='Log' then begin
+     variationLog := getBoolXML(ANode);
+     exit;
+   end;
+   if ANode.NodeName='Nom' then begin
+     nomA := ANode.text;
+     exit;
+   end;
+end;
+
+var i : integer;
+begin
+   if ANode.HasChildNodes then
+      for i := 0 to ANode.ChildNodes.Count - 1 do
+          LitEnfant(ANode.ChildNodes.Nodes[i]);
+end; // TParamAnimation.loadXML
+
 Function FormatLongueDureeAxe(const nombre : double) : string;
 var t : longInt;
     min,hour,day : integer;
@@ -2178,6 +2552,17 @@ begin
        result := result+IntToStr(min);
     end;
 end;
+
+procedure TParamAnimation.StoreXML(ANode : IXMLNode);
+begin
+  writeFloatXML(ANode,'valeur',valeurA);
+  writeFloatXML(ANode,'debut',debutA);
+  writeFloatXML(ANode,'fin',finA);
+  writeFloatXML(ANode,'pas',pasA);
+  writeBoolXML(ANode,'Log',variationLog);
+  writeBoolXML(ANode,'active',active);
+  writeStringXML(ANode,'Nom',nomA);
+end; // dessin.storexml
 
 Procedure TparamAnimation.ecritFichier;
 begin
@@ -2224,7 +2609,7 @@ end;
 procedure AffecteStatusPanel(var Astatus : TstatusBar;i : integer;const Atext : string);
 begin with Astatus.panels[i] do begin
      text := ' '+Atext+' ';
-     width := Length(text)*8;
+     width := Length(Atext)*abs(Astatus.font.height)*2 div 3;
 end end;
 
 procedure VideStatusPanel(var Astatus : TstatusBar;i : integer);
@@ -2495,6 +2880,7 @@ begin
     result := SelectDirectory(aDirectory,[sdAllowCreate,sdPerformCreate,sdPrompt],0)
 end;
 
+(*
 //Module permettant d'effectuer un Redimensionnement par Interpolation BiLinéaire
 //l'Image résultante est bien meilleur qu'avec un redimensionnement brute (problème d'Aliasing)
 //Créé par MORLET Alexandre en Mai 2002
@@ -2521,14 +2907,14 @@ B0,B1,B2,B3 : integer;
 TabScanlineBMP : array of PRGBArray;
 TabScanlineBMPF : PRGBArray;
 V : single;
-BMPF : TBitmap;
+BMPF : vcl.Graphics.Tbitmap;
 BEGIN
    WITH BMP DO BEGIN
         largeur := Width;
         hauteur := Height;
         pixelFormat := pf24bit;
    END;
-   BMPF := TBitmap.Create;
+   BMPF := vcl.Graphics.TBitmap.Create;
    WITH BMPF DO BEGIN
         Width := round(Largeur*zoom);
         Height := round(Hauteur*zoom);
@@ -2645,6 +3031,7 @@ BEGIN
    BMP.Assign(BMPF);
    BMPF.Free;
 END;
+*)
 
 procedure RotateBitmap(var Bmp: TBitmap;sensHoraire : boolean);
 var
@@ -2762,19 +3149,12 @@ begin
 end; //setFontSpeedButton
 *)
 
+(*
 procedure ResizeButtonImagesforHighDPI(const container: TWinControl);
 var
   b : TBitmap;
   i : integer;
 
-(*
-procedure ResizeToolBar(const tb : TToolBar);
-begin
-      tb.Font.Height := Screen.PixelsPerInch div 6;
-end;
-*)
-
-  (*
   procedure ResizeGlyph(const sb : TSpeedButton; const bb : TBitBtn);
   var
     ng : integer;
@@ -2785,8 +3165,8 @@ end;
 
     b := TBitmap.Create;
     try
-      b.Width := ng * MulDiv(20, Screen.PixelsPerInch, 96);
-      b.Height := MulDiv(20, Screen.PixelsPerInch, 96);
+      b.Width := ng * MulDiv(20, Screen.PixelsPerInch, Screen.DefaultPixelsPerInch);
+      b.Height := MulDiv(20, Screen.PixelsPerInch, Screen.DefaultPixelsPerInch);
       b.Canvas.FillRect(b.Canvas.ClipRect);
 
       if Assigned(sb) AND (NOT sb.Glyph.Empty) then begin
@@ -2802,7 +3182,6 @@ end;
       b.Free;
     end;
   end; //ResizeGlyph
-*)
 
   procedure ResizeGlyphSB(const sb : TSpeedButton);
   var
@@ -2812,7 +3191,7 @@ end;
     if ng>0 then begin
       b := TBitmap.Create;
       try
-        b.Height := MulDiv(20, Screen.PixelsPerInch, 96);
+        b.Height := MulDiv(20, Screen.PixelsPerInch, Screen.DefaultPixelsPerInch);
         b.Width := ng * b.Height;
         b.Canvas.FillRect(b.Canvas.ClipRect);
         b.Canvas.StretchDraw(Rect(0, 0, b.Width, b.Height), sb.Glyph) ;
@@ -2831,7 +3210,7 @@ end;
     if ng>0 then begin
       b := TBitmap.Create;
       try
-        b.Height := MulDiv(20, Screen.PixelsPerInch, 96);
+        b.Height := MulDiv(20, Screen.PixelsPerInch, Screen.DefaultPixelsPerInch);
         b.Width := ng * b.Height;
         b.Canvas.FillRect(b.Canvas.ClipRect);
         b.Canvas.StretchDraw(Rect(0, 0, b.Width, b.Height), bb.Glyph) ;
@@ -2842,34 +3221,68 @@ end;
     end;
   end; //ResizeGlyphBB
 
-  procedure ResizeGripSplitter(const gs:TGripSplitter);
-  begin
-       gs.Width := Screen.PixelsPerInch div 4;
-  end;
-
-(*
-  procedure ResizeGrid(bb : TStringGrid);
-  begin
-       bb.DefaultRowHeight := hauteurColonne;
-  end;
-*)
-
 begin
-  if Screen.PixelsPerInch = 96 then Exit;
+  if Screen.PixelsPerInch = Screen.DefaultPixelsPerInch then Exit;
 
   for i := 0 to -1 + container.ControlCount do begin
      if container.Controls[i] is TBitBtn then ResizeGlyphBB(TBitBtn(container.Controls[i]));
-     if container.Controls[i] is TGripSplitter then ResizeGripSplitter(TGripSplitter(container.Controls[i]));
+     if container.Controls[i] is TGripSplitter then continue;
      if container.Controls[i] is TSpeedButton then ResizeGlyphSB(TSpeedButton(container.Controls[i]));
      if container.Controls[i] is TSpinEdit then continue;
      if container.Controls[i] is TSpinButton then continue;
-  //   if container.Controls[i] is TToolbar then ResizeToolBar(TToolBar(container.Controls[i]));
-  //   if container.Controls[i] is TStringGrid then ResizeGrid(TStringGrid(container.Controls[i]));
+     if container.Controls[i] is TStringGrid then TStringGrid(container.Controls[i]).DefaultRowHeight := hauteurColonne;
      if container.Controls[i] is TWinControl then
         ResizeButtonImagesforHighDPI(TWinControl(container.Controls[i]));
   end;
 
 end; // ResizeButtonImagesforHighDPI
+*)
+
+
+(*
+function CheckFile(FileName : string) : string;
+var VirtualStorePath : string;
+    Filepath : string;
+begin
+    if FileExists(FileName) then result := fileName;
+    // Make sure path is padded to the right with a \
+    FilePath := extractFilePath(fileName);
+    FileName := extractFileName(fileName);
+    AddbackSlash(FilePath);
+    if pos(':',FilePath)=2 then FilePath := copy(FilePath,3,length(filePath));
+    VirtualStorePath := GetFolder(CSIDL_Local_AppData);
+    VirtualStorePath := VirtualStorePath + 'VirtualStore';
+    AddbackSlash(VirtualStorePath);
+    VirtualStorePath := VirtualStorePath + FilePath;
+// CSIDL_LOCAL_APPDATA : C:\Documents and Settings\username\Local Settings\Application Data.
+// return first VirtualStorePath if the file exists in user VirtualStore
+    if (FileExists(VirtualStorePath + FileName)) then
+        result:= VirtualStorePath + FileName;
+    if (FileExists(FilePath + FileName)) then
+        result := FilePath + FileName;
+end;
+*)
+
+function CheckFileAvimeca(fileName : string) : string;
+var VirtualStorePath : string;
+    RegPath : string;
+// Avimeca écrit dans
+// C:\Users\JMM\AppData\Local\VirtualStore\Program Files (x86)\Evariste\Regressi
+begin
+    VirtualStorePath := GetFolder(CSIDL_Local_AppData);
+// CSIDL_LOCAL_APPDATA : C:\Documents and Settings\username\Local Settings\Application Data.
+    VirtualStorePath := VirtualStorePath + 'VirtualStore';
+    AddBackSlash(VirtualStorePath);
+    RegPath := extractFilePath(application.ExeName);
+    if pos(':',regPath)=2 then delete(RegPath,1,3); // enlève c:\
+    VirtualStorePath := TPath.combine(VirtualStorePath,RegPath);
+// return first VirtualStorePath if the file exists in user VirtualStore
+    AddBackSlash(VirtualStorePath);
+    if (FileExists(VirtualStorePath + FileName))
+       then result:= VirtualStorePath + FileName
+       else result := fileName;
+end;
+
 
 Initialization
 
@@ -2905,6 +3318,7 @@ Initialization
      AcqList := TStringList.Create;
      AcqList.sorted := true;
      AcqList.Duplicates := dupIgnore;
+     TexteModele := TStringList.Create;
      GraduationPi := false;
      Lettres := ['a'..'z','A'..'Z'];
  //    SuiteCaracGrandeur := ['''','%','"','0'..'9']; // '_' utilisé pour unité

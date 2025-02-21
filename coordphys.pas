@@ -8,7 +8,7 @@ uses
   vcl.HtmlHelpViewer,
   Constreg, regutil, uniteKer, compile, graphker, selpage, aidekey,
   system.Contnrs, System.ImageList, Vcl.VirtualImageList,
-  Vcl.BaseImageCollection, Vcl.ImageCollection;
+  Vcl.BaseImageCollection, Vcl.ImageCollection, Vcl.Imaging.pngimage;
 
 type
 TFcoordonneesPhys = class(TForm)
@@ -100,15 +100,8 @@ TFcoordonneesPhys = class(TForm)
     Label12: TLabel;
     OptionsBtn: TSpeedButton;
     CouleurPointTS: TTabSheet;
-    Label1: TLabel;
+    TeinteLabel: TLabel;
     CouleurPointEdit: TEdit;
-    Label4: TLabel;
-    Label6: TLabel;
-    Label7: TLabel;
-    Label8: TLabel;
-    Label9: TLabel;
-    Label10: TLabel;
-    Label11: TLabel;
     dimPointSE: TSpinEdit;
     widthEcranSE: TSpinEdit;
     PasPointSE: TSpinEdit;
@@ -117,6 +110,9 @@ TFcoordonneesPhys = class(TForm)
     VirtualImageListLigne: TVirtualImageList;
     VirtualImageListPoint: TVirtualImageList;
     UniteImposeeBtn: TBitBtn;
+    CouleurSigneCB: TCheckBox;
+    HueImage: TImage;
+    SigneLabel: TLabel;
     procedure MemeXCBClick(Sender: TObject);
     procedure MemeEchelleCBClick(Sender: TObject);
     procedure OrthonormeCBClick(Sender: TObject);
@@ -173,6 +169,7 @@ TFcoordonneesPhys = class(TForm)
     procedure OptionsBtnClick(Sender: TObject);
     procedure CouleurPointEditExit(Sender: TObject);
     procedure UniteImposeeBtnClick(Sender: TObject);
+    procedure CouleurSigneCBClick(Sender: TObject);
   private
     ListeVar : TstrListe;
     CourbeCourante : TindiceOrdonnee;
@@ -199,7 +196,7 @@ var
 
 implementation
 
-uses Valeurs, optionsVitesse, indicateurU, options, optcolordlg, unitGraphe;
+uses Valeurs, optionsVitesse, indicateurU, options, optcolordlg, unitGraphe, regmain;
 
 {$R *.DFM}
 
@@ -335,7 +332,7 @@ begin with transfert do begin
         then include(OptionGr,OgQuadrillage)
         else exclude(OptionGr,OgQuadrillage);
      OrdreLissage := OrdreLissageSE.Value;
-     penWidthVGA := widthEcranSE.value;
+     penWidthCourbe := widthEcranSE.value;
      TexteGrapheSize := spinEditHauteur.value;
      NbreTexteMax := NbreSE.value;
      DimPointVGA := DimPointSE.value;
@@ -480,6 +477,10 @@ with transfert do begin
      ligneRG.Enabled := not modeleEnCours;
      OrdreLissageSE.visible := LigneRG.Visible and (LigneRG.itemIndex=2);
      couleurPointEdit.Text := couleurPoint[courbeCourante];
+     couleurSigneCB.checked := (codeCouleur[courbeCourante]=tSigne);
+     HueImage.Visible := (codeCouleur[courbeCourante]=tHue);
+     SigneLabel.Visible := (codeCouleur[courbeCourante]=tSigne);
+     TeinteLabel.caption := codeCouleurStr[codeCouleur[courbeCourante]];
      SetNom;
      if PolaireCB.checked
         then begin
@@ -538,7 +539,7 @@ with transfert do begin
     activation := true;
     pageActive := pageCourante;
     reperePageRG.itemIndex := ord(reperePage);
-    widthEcranSE.value := penWidthVGA;
+    widthEcranSE.value := penWidthCourbe;
     DimPointSE.Value := DimPointVGA;
     PasPointSE.Value := PasPoint;
     spinEditHauteur.Value := texteGrapheSize;
@@ -616,8 +617,8 @@ with transfert do begin
     if DetailBtn.visible
        then DetailBtn.down := avecOptionsXY
        else DetailBtn.down := false;
-    EchelleManuelleLabel.visible := UseDefault;
-    ZoomAutoBtn.visible := UseDefault;
+    EchelleManuelleLabel.visible := UseDefaut;
+    ZoomAutoBtn.visible := UseDefaut;
     GraduationZeroCB.checked := OgZeroGradue in optionGr;
     pagesGB.visible := superPagesCB.checked;
     Maj;
@@ -857,7 +858,10 @@ begin
     ListeVar := TstrListe.create;
     PageOption := MecaniqueTS;
     if transfert=nil then transfert := TtransfertGraphe.Create;
-    ResizeButtonImagesforHighDPI(self);
+    VirtualImageListLigne.height := VirtualImageListSize;
+    VirtualImageListLigne.width := VirtualImageListSize;
+    VirtualImageListPoint.height := VirtualImageListSize;
+    VirtualImageListPoint.width := VirtualImageListSize;
 end;
 
 procedure TFcoordonneesPhys.FormDestroy(Sender: TObject);
@@ -910,7 +914,7 @@ begin
      zeroXCB.visible := not(PolaireCB.checked) and
                         (transfert.grad[mondeX]=gLin);
      ZoomAutoBtnClick(sender);
-     transfert.useDefaultX := false;
+     transfert.useDefautX := false;
 end;
 
 procedure TFcoordonneesPhys.GraduationYChange(Sender: TObject);
@@ -947,7 +951,7 @@ procedure TFcoordonneesPhys.CouleurComboChange(Sender: TObject);
 begin
      if transfert=nil then Transfert := TtransfertGraphe.Create;
      if pagesGB.visible and (reperePageRG.itemIndex=2)
-        then couleurPages[PageActive] := CouleurCombo.selected
+        then couleurPages[PageActive mod MaxPagesGr] := CouleurCombo.selected
         else begin
             couleurInit[CourbeCourante] := CouleurCombo.selected;
             Transfert.couleur[CourbeCourante] := CouleurCombo.selected;
@@ -960,6 +964,16 @@ begin
     Transfert.couleurPoint[CourbeCourante] := CouleurPointEdit.text;
 end;
 
+procedure TFcoordonneesPhys.CouleurSigneCBClick(Sender: TObject);
+begin
+   if CouleurSigneCB.checked
+      then Transfert.codeCouleur[CourbeCourante] := tSigne
+      else Transfert.codeCouleur[CourbeCourante] := tHue;
+   TeinteLabel.caption := codeCouleurstr[Transfert.codeCouleur[CourbeCourante]]  ;
+   HueImage.Visible := not CouleurSigneCB.checked;
+   SigneLabel.Visible := CouleurSigneCB.checked;
+end;
+
 procedure TFcoordonneesPhys.CouleursSpectreCBClick(Sender: TObject);
 begin
      if CouleursSpectreCB.checked
@@ -970,7 +984,7 @@ end;
 procedure TFcoordonneesPhys.PointComboChange(Sender: TObject);
 begin
 if pagesGB.visible and (reperePageRG.itemIndex=1)
-     then motifPages[pageActive] := Tmotif(PointCombo.itemIndex)
+     then motifPages[pageActive mod MaxPagesGr] := Tmotif(PointCombo.itemIndex)
      else begin
         motifInit[CourbeCourante] := Tmotif(PointCombo.itemIndex);
         Transfert.Motif[CourbeCourante] := Tmotif(PointCombo.itemIndex);
@@ -978,7 +992,7 @@ if pagesGB.visible and (reperePageRG.itemIndex=1)
      if Transfert.Motif[CourbeCourante]=mIncert then begin
          avecEllipse := true;
          PointCombo.hint := hMotif[true];
-     end;    
+     end;
 end;
 
 procedure TFcoordonneesPhys.ZeroXCBClick(Sender: TObject);
@@ -1108,8 +1122,8 @@ end end; // AffecteVecteurs
 procedure TFcoordonneesPhys.PageBioMecaChange(Sender: TObject);
 var m : TindiceMonde;
 begin
-     exclude(transfert.trace[courbeCourante],trCouples);
-     exclude(transfert.trace[courbeCourante],trSpirometrie);
+ //    exclude(transfert.trace[courbeCourante],trCouples);
+ //    exclude(transfert.trace[courbeCourante],trSpirometrie);
      if (PageBioMeca.activePage<>OptiqueTS) then begin
          exclude(transfert.trace[courbeCourante],trIntensite);
      end;
@@ -1192,14 +1206,16 @@ procedure TFcoordonneesPhys.ZoomAutoBtnClick(Sender: TObject);
 begin
      EchelleManuelleLabel.visible := false;
      ZoomAutoBtn.visible := false;
-     Transfert.useDefault := false;
+     Transfert.useDefaut := false;
+     Transfert.useDefautX := false;
      Transfert.autoTick := true;
+     Transfert.useZoom := false;
 end;
 
 procedure TFcoordonneesPhys.LigneComboChange(Sender: TObject);
 begin
  if pagesGB.visible and (reperePageRG.itemIndex=0)
-     then stylePages[PageActive] := TpenStyle(LigneCombo.itemIndex)
+     then stylePages[PageActive mod MaxPagesGr] := TpenStyle(LigneCombo.itemIndex)
      else Transfert.style[CourbeCourante] := TpenStyle(LigneCombo.itemIndex);
 end;
 
@@ -1282,9 +1298,9 @@ begin
        then CommentaireEdit.text := IntToStr(PageActive)+'/'+IntToStr(NbrePages)
        else CommentaireEdit.text := pages[pageActive].commentaireP;
     case ReperePageRG.itemIndex of
-         0 : LigneCombo.itemIndex := ord(stylePages[PageActive]);
-         1 : PointCombo.itemIndex := ord(motifPages[PageActive]);
-         2 : CouleurCombo.selected := couleurPages[PageActive];
+         0 : LigneCombo.itemIndex := ord(stylePages[PageActive mod MaxPagesGr]);
+         1 : PointCombo.itemIndex := ord(motifPages[PageActive mod MaxPagesGr]);
+         2 : CouleurCombo.selected := couleurPages[PageActive mod MaxPagesGr];
     end;
 end;
 

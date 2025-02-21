@@ -14,7 +14,6 @@ type
     BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
     procedure BitBtn1Click(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
   private
   public
   end;
@@ -24,6 +23,8 @@ var
 
 implementation
 
+uses regmain;
+
 {$R *.dfm}
 
 procedure TEphemerForm.BitBtn1Click(Sender: TObject);
@@ -31,11 +32,6 @@ const  FileName3 = 'https://ssp.imcce.fr/forms/ephemeris';
 begin
   if ShellExecute(Handle, 'open', PChar(FileName3), nil, nil, SW_SHOW) <= 32
      then ShowMessage('Impossible d''accéder au Bureau des Longitudes')
-end;
-
-procedure TEphemerForm.FormCreate(Sender: TObject);
-begin
- ResizeButtonImagesforHighDPI(self);
 end;
 
 end.

@@ -111,31 +111,33 @@
         <PF_UWPPackageDisplayName>Regressi</PF_UWPPackageDisplayName>
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_DcuOutput>\\Mac\Home\Documents\Embarcadero\Regressiffmpeg\Win32\Release\</DCC_DcuOutput>
-        <DCC_UnitSearchPath>\\Mac\Home\Documents\Embarcadero\Studio\Projets\tpapro_5.00\source;\\Mac\Home\Documents\Embarcadero\Studio\Projets\FitsJMM;\\Mac\Home\Documents\Embarcadero\Studio\Projets\Parser10;\\Mac\Home\Documents\Embarcadero\Studio\Projets\WlanAPI;\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun;\\Mac\Home\Documents\Embarcadero\Studio\Projets\ffmpegVcl;\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun\Python\Core;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>\\Mac\Home\Documents\Embarcadero\Studio\Projets\tpapro_5.00\source;\\Mac\Home\Documents\Embarcadero\Studio\Projets\FitsJMM;\\Mac\Home\Documents\Embarcadero\Studio\Projets\WlanAPI;\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun;\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun\Python\Core;\\Mac\Home\Documents\Embarcadero\Studio\Projets\ffmpegplayer750\source\Packages;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=Evariste;FileDescription=Traitements de données, fitting curve;FileVersion=4.8.8.0;InternalName=Regressi;LegalCopyright=Evariste;LegalTrademarks=Evariste;OriginalFilename=Regressi;ProductName=Regressi;ProductVersion=4.8;Comments=Traitement de données, fitting curve, dérivation;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Evariste;FileDescription=Traitements de données, fitting curve;FileVersion=4.25.3.0;InternalName=Regressi;LegalCopyright=Evariste;LegalTrademarks=Evariste;OriginalFilename=Regressi;ProductName=Regressi;ProductVersion=4.8;Comments=Traitement de données, fitting curve, dérivation;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <UWP_DelphiLogo44>Regressi44x44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>Logo150x150.png</UWP_DelphiLogo150>
         <DCC_MaxStackSize>4194304</DCC_MaxStackSize>
         <DCC_MinStackSize>262144</DCC_MinStackSize>
-        <VerInfo_MinorVer>8</VerInfo_MinorVer>
+        <VerInfo_MinorVer>25</VerInfo_MinorVer>
         <DCC_ExeOutput>\\Mac\Home\Documents\Embarcadero\Regressiffmpeg\</DCC_ExeOutput>
         <Icon_MainIcon>Regressi_Icon3.ico</Icon_MainIcon>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-        <VerInfo_Release>8</VerInfo_Release>
+        <VerInfo_Release>3</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-        <DCC_UnitSearchPath>\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun;\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun\Python\Core;\\Mac\Home\Documents\Embarcadero\Studio\Projets\FitsJMM;\\Mac\Home\Documents\Embarcadero\Studio\Projets\Parser10;\\Mac\Home\Documents\Embarcadero\Studio\Projets\WlanAPI;\\Mac\Home\Documents\Embarcadero\Studio\Projets\ffmpegVcl;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun;\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun\Python\Core;\\Mac\Home\Documents\Embarcadero\Studio\Projets\FitsJMM;\\Mac\Home\Documents\Embarcadero\Studio\Projets\Parser10;\\Mac\Home\Documents\Embarcadero\Studio\Projets\WlanAPI;\\Mac\Home\Documents\Embarcadero\Studio\Projets\ffmpegVcl-64;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=4.8.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DCC_DcuOutput>\\Mac\Home\Documents\Embarcadero\Regressiffmpeg\Win64\</DCC_DcuOutput>
         <Icon_MainIcon>Regressi_Icon.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>Logo44x44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>Logo150x150.png</UWP_DelphiLogo150>
         <DCC_ExeOutput>\\Mac\Home\Documents\Embarcadero\Regressiffmpeg\Win64\</DCC_ExeOutput>
+        <VerInfo_MajorVer>4</VerInfo_MajorVer>
+        <VerInfo_MinorVer>8</VerInfo_MinorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
@@ -146,17 +148,17 @@
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <DCC_Optimize>true</DCC_Optimize>
-        <DCC_UnitSearchPath>\\Mac\Home\Documents\Embarcadero\Studio\Projets\Parser10;\\Mac\Home\Documents\Embarcadero\Studio\Projets\FitsJMM;\\Mac\Home\Documents\Embarcadero\Studio\Projets\tpapro_5.00\source;\\Mac\Home\Documents\Embarcadero\Studio\Projets\WlanAPI;\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun;\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun\Python\Core;\\Mac\Home\Documents\Embarcadero\Studio\Projets\ffmpegVcl;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>\\Mac\Home\Documents\Embarcadero\Studio\Projets\Parser10;\\Mac\Home\Documents\Embarcadero\Studio\Projets\FitsJMM;\\Mac\Home\Documents\Embarcadero\Studio\Projets\tpapro_5.00\source;\\Mac\Home\Documents\Embarcadero\Studio\Projets\WlanAPI;\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun;\\Mac\Home\Documents\Embarcadero\Studio\Projets\regressiCommun\Python\Core;\\Mac\Home\Documents\Embarcadero\Studio\Projets\ffmpegplayer750\source\Packages;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=Evariste;FileDescription=Traitement de données fit;FileVersion=4.8.9.0;InternalName=Regressi;LegalCopyright=Evariste;LegalTrademarks=Evariste;OriginalFilename=regressi.exe;ProductName=Regressi;ProductVersion=4.5;Comments=Traitement de données, fitting curve;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Evariste;FileDescription=Traitement de données fit;FileVersion=4.8.14.0;InternalName=Regressi;LegalCopyright=Evariste;LegalTrademarks=Evariste;OriginalFilename=regressi.exe;ProductName=Regressi;ProductVersion=4.5;Comments=Traitement de données, fitting curve;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <VerInfo_MinorVer>8</VerInfo_MinorVer>
-        <VerInfo_Release>9</VerInfo_Release>
+        <VerInfo_Release>14</VerInfo_Release>
         <UWP_DelphiLogo44>Logo44x44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>Logo150x150.png</UWP_DelphiLogo150>
         <Debugger_HostApplication>\\Mac\Home\Documents\Embarcadero\Studio\Projets\Regressiffmpeg\RegressiFFMPEG.exe</Debugger_HostApplication>
         <DCC_ExeOutput>\\Mac\Home\Documents\Embarcadero\Regressiffmpeg\</DCC_ExeOutput>
         <Icon_MainIcon>Regressi_Icon3.ico</Icon_MainIcon>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
@@ -278,12 +280,6 @@
         </DCCReference>
         <DCCReference Include="origineu.pas">
             <Form>OrigineDlg</Form>
-        </DCCReference>
-        <DCCReference Include="cornish.pas">
-            <Form>Fcornish</Form>
-        </DCCReference>
-        <DCCReference Include="cornopt.pas">
-            <Form>CornishOptDlg</Form>
         </DCCReference>
         <DCCReference Include="choixmodele.pas">
             <Form>ChoixModeleDlg</Form>
@@ -419,14 +415,6 @@
             <Form>ArduinoForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="arduino\arduinoWifi.pas">
-            <Form>ArduinoWifiForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="arduino\ArduinoWifiCfg.pas">
-            <Form>ArduinoWifiDlg</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="arduino\arduinoWifiDirect.pas">
             <Form>ArduinoWifiDirectForm</Form>
             <FormType>dfm</FormType>
@@ -448,9 +436,16 @@
             <Form>unitGrapheDlg</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="contour.pas"/>
-        <DCCReference Include="TestContour.pas">
-            <Form>ConvergenceModeleForm</Form>
+        <DCCReference Include="arduino\arduinoNew.pas">
+            <Form>ArduinoNewForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="arduino\ArduinoCfgNew.pas">
+            <Form>ArduinoNewDlg</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Images\InterfCapture.pas">
+            <Form>InterfCaptureForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Base">
@@ -507,17 +502,14 @@
                     <Excluded_Packages Name="$(BDSBIN)\dclbindcompdbx280.bpl">DbExpress, Composants Expression LiveBindings</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcldsnapxml280.bpl">Composants Fournisseur de transformation XML Embarcadero</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclmcn280.bpl">Composants de connexion DataSnap Embarcadero</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclsoapmidas280.bpl">Composants SOAP Midas Embarcadero</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclsoapserver280.bpl">Composants Serveur SOAP Embarcadero</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclado280.bpl">Composants ADO DB Embarcadero</Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\bpl\dclDelphi4PythonExperts280.bpl">Delphi4Python - Export forms for Python</Excluded_Packages>
                     <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\TMSFMXPackPkgDEDXE14.bpl">TMS FMX UI Pack Design Time</Excluded_Packages>
                     <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\bpl\dclP4DEnvironment280.bpl">P4D AI&amp;ML - Python environments</Excluded_Packages>
                     <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\bpl\dclP4DPyPackage280.bpl">P4D AI&amp;ML extension for Python packages</Excluded_Packages>
                     <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\bpl\dclPythonVcl280.bpl">Python4Delphi - Design-Time Engine Package for VCL</Excluded_Packages>
                     <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\bpl\dclPythonFmx280.bpl">Python4Delphi - Design-time Engine Package for FMX</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Composants Microsoft Office 2000 Sample Automation Server Wrapper</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Composants Microsoft Office XP Sample Automation Server Wrapper</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclsoapmidas280.bpl">Composants SOAP Midas Embarcadero</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclsoapserver280.bpl">Composants Serveur SOAP Embarcadero</Excluded_Packages>
                 </Excluded_Packages>
                 <Language>
                     <Language Name="ProjectLang">$0000040C</Language>
@@ -653,6 +645,12 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="Regressi44x44.png" Configuration="Release" Class="UWP_DelphiLogo44"/>
+                <DeployFile LocalName="Win64\Regressi.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>Regressi.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">
                         <Operation>1</Operation>
@@ -1469,7 +1467,6 @@
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSSimARM64" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Linux64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX64" Name="$(PROJECTNAME).app"/>

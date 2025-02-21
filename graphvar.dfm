@@ -5,8 +5,8 @@ object FgrapheVariab: TFgrapheVariab
   HelpContext = 25
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   Caption = 'Graphe'
-  ClientHeight = 1481
-  ClientWidth = 2561
+  ClientHeight = 1392
+  ClientWidth = 2383
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -34,7 +34,6 @@ object FgrapheVariab: TFgrapheVariab
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
-  OnKeyPress = FormKeyPress
   OnPaint = FormPaint
   OnResize = FormResize
   OnShortCut = FormShortCut
@@ -43,8 +42,8 @@ object FgrapheVariab: TFgrapheVariab
   object PanelModele: TPanel
     Left = 0
     Top = 0
-    Width = 450
-    Height = 1481
+    Width = 460
+    Height = 1392
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -52,11 +51,10 @@ object FgrapheVariab: TFgrapheVariab
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
-    OnResize = PanelModeleResize
     object PanelAjuste: TPanel
       Left = 0
-      Top = 287
-      Width = 450
+      Top = 275
+      Width = 460
       Height = 650
       HelpContext = 603
       Margins.Left = 6
@@ -72,7 +70,7 @@ object FgrapheVariab: TFgrapheVariab
       object ParamScrollBox: TScrollBox
         Left = 0
         Top = 88
-        Width = 446
+        Width = 456
         Height = 558
         Margins.Left = 6
         Margins.Top = 6
@@ -85,7 +83,7 @@ object FgrapheVariab: TFgrapheVariab
           Tag = 10
           Left = 0
           Top = 486
-          Width = 446
+          Width = 456
           Height = 54
           Margins.Left = 6
           Margins.Top = 6
@@ -93,7 +91,7 @@ object FgrapheVariab: TFgrapheVariab
           Margins.Bottom = 6
           Align = alTop
           Alignment = taLeftJustify
-          BiDiMode = bdLeftToRight
+          BiDiMode = bdRightToLeft
           Caption = 'abcdef'
           ParentBiDiMode = False
           TabOrder = 0
@@ -258,7 +256,7 @@ object FgrapheVariab: TFgrapheVariab
           Tag = 9
           Left = 0
           Top = 432
-          Width = 446
+          Width = 456
           Height = 54
           Margins.Left = 6
           Margins.Top = 6
@@ -439,7 +437,7 @@ object FgrapheVariab: TFgrapheVariab
           Tag = 8
           Left = 0
           Top = 378
-          Width = 446
+          Width = 456
           Height = 54
           Margins.Left = 6
           Margins.Top = 6
@@ -620,7 +618,7 @@ object FgrapheVariab: TFgrapheVariab
           Tag = 7
           Left = 0
           Top = 324
-          Width = 446
+          Width = 456
           Height = 54
           Margins.Left = 6
           Margins.Top = 6
@@ -801,7 +799,7 @@ object FgrapheVariab: TFgrapheVariab
           Tag = 6
           Left = 0
           Top = 270
-          Width = 446
+          Width = 456
           Height = 54
           Margins.Left = 6
           Margins.Top = 6
@@ -988,7 +986,7 @@ object FgrapheVariab: TFgrapheVariab
           Tag = 5
           Left = 0
           Top = 216
-          Width = 446
+          Width = 456
           Height = 54
           Margins.Left = 6
           Margins.Top = 6
@@ -1175,7 +1173,7 @@ object FgrapheVariab: TFgrapheVariab
           Tag = 4
           Left = 0
           Top = 162
-          Width = 446
+          Width = 456
           Height = 54
           Margins.Left = 6
           Margins.Top = 6
@@ -1356,7 +1354,7 @@ object FgrapheVariab: TFgrapheVariab
           Tag = 3
           Left = 0
           Top = 108
-          Width = 446
+          Width = 456
           Height = 54
           Margins.Left = 6
           Margins.Top = 6
@@ -1543,7 +1541,7 @@ object FgrapheVariab: TFgrapheVariab
           Tag = 2
           Left = 0
           Top = 54
-          Width = 446
+          Width = 456
           Height = 54
           Margins.Left = 6
           Margins.Top = 6
@@ -1724,7 +1722,7 @@ object FgrapheVariab: TFgrapheVariab
           Tag = 1
           Left = 0
           Top = 0
-          Width = 446
+          Width = 456
           Height = 54
           Margins.Left = 6
           Margins.Top = 6
@@ -1905,7 +1903,7 @@ object FgrapheVariab: TFgrapheVariab
       object Panel1: TPanel
         Left = 0
         Top = 0
-        Width = 446
+        Width = 456
         Height = 88
         Margins.Left = 6
         Margins.Top = 6
@@ -1925,19 +1923,9 @@ object FgrapheVariab: TFgrapheVariab
           Margins.Right = 6
           Margins.Bottom = 6
           Caption = 'Ajuster'
-          Glyph.Data = {
-            66010000424D6601000000000000760000002800000014000000140000000100
-            040000000000F000000000000000000000001000000000000000000000000000
-            80000080000000808000800000008000800080800000C0C0C000808080000000
-            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-            3333333300003888888888888888888300003833389933383333833300003833
-            383393383333833300003899CC3339933333333300003888CC33333933330333
-            0000383339333333993303330000383333933333339303330000383333393333
-            3309030300003888333393333300000300003833333339333330009900003833
-            333CC3993330003300003833333CC3339CC3033300003888333333333CC30333
-            0000383333333333339333330000383333333333333933330000383333333333
-            3333993300003888333333333333CC9300003833333333333333CC3900003333
-            33333333333333330000}
+          ImageIndex = 59
+          ImageName = 'AJUSTE'
+          Images = ImageList1
           OnClick = AjusteBtnClick
         end
         object MajBtn: TSpeedButton
@@ -1952,19 +1940,9 @@ object FgrapheVariab: TFgrapheVariab
           Margins.Top = 6
           Margins.Right = 6
           Margins.Bottom = 6
-          Glyph.Data = {
-            66010000424D6601000000000000760000002800000014000000140000000100
-            040000000000F000000000000000000000001000000000000000000000000000
-            80000080000000808000800000008000800080800000C0C0C000808080000000
-            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-            3333333300003333333333333333333300003333333333333333333300003333
-            3333333333333333000033333339033333333333000033333399903333333333
-            0000333333999033333333330000333339999903333333330000333399999903
-            3333333300003338990399903333333300003389033339903333333300003333
-            3333399903333333000033333333339903333333000033333333333990333333
-            0000333333333333890333330000333333333333389033330000333333333333
-            3339933300003333333333333333333300003333333333333333333300003333
-            33333333333333330000}
+          ImageIndex = 11
+          ImageName = 'Item12'
+          Images = ImageList1
           OnClick = MajBtnClick
         end
         object TrigoLabel: TLabel
@@ -2003,8 +1981,8 @@ object FgrapheVariab: TFgrapheVariab
     end
     object MemoModeleGB: TGroupBox
       Left = 0
-      Top = 71
-      Width = 450
+      Top = 59
+      Width = 460
       Height = 216
       Hint = '|Tapez ici l'#39'expression du mod'#232'le. Ex. y(x)=a*x+b'
       HelpType = htKeyword
@@ -2020,7 +1998,7 @@ object FgrapheVariab: TFgrapheVariab
       object memoModele: TRichEdit
         Left = 2
         Top = 38
-        Width = 446
+        Width = 456
         Height = 176
         Hint = '|Tapez ici l'#39'expression du mod'#232'le. Ex. y(x)=a*x+b'
         Margins.Left = 6
@@ -2030,7 +2008,7 @@ object FgrapheVariab: TFgrapheVariab
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
-        Font.Height = -27
+        Font.Height = -26
         Font.Name = 'Segoe UI'
         Font.Style = []
         Lines.Strings = (
@@ -2047,9 +2025,9 @@ object FgrapheVariab: TFgrapheVariab
     end
     object ResultatGB: TGroupBox
       Left = 0
-      Top = 937
-      Width = 450
-      Height = 544
+      Top = 925
+      Width = 460
+      Height = 467
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -2061,17 +2039,18 @@ object FgrapheVariab: TFgrapheVariab
       object memoResultat: TRichEdit
         Left = 2
         Top = 38
-        Width = 446
-        Height = 504
+        Width = 456
+        Height = 427
+        Cursor = crArrow
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
         Align = alClient
-        Color = clSilver
+        Color = clCream
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
-        Font.Height = -27
+        Font.Height = -26
         Font.Name = 'Segoe UI'
         Font.Style = []
         Lines.Strings = (
@@ -2090,14 +2069,14 @@ object FgrapheVariab: TFgrapheVariab
     object ModeleToolBar: TToolBar
       Left = 0
       Top = 0
-      Width = 450
-      Height = 71
+      Width = 460
+      Height = 59
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
       AutoSize = True
-      ButtonHeight = 69
+      ButtonHeight = 57
       ButtonWidth = 102
       Flat = False
       Font.Charset = DEFAULT_CHARSET
@@ -2145,8 +2124,24 @@ object FgrapheVariab: TFgrapheVariab
         PopupMenu = ModeleMenu
         OnClick = CurseurBtnClick
       end
-      object BornesBtn: TToolButton
+      object InitEquaDiffBtn: TToolButton
         Left = 204
+        Top = 0
+        Hint = 
+          'Valeurs exp.|Initialise les valeurs initiales aux valeurs exp'#233'ri' +
+          'mentales'
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
+        AutoSize = True
+        Caption = 'Equa. diff.'
+        ImageIndex = 9
+        ImageName = 'Item10'
+        OnClick = InitEquaDiffBtnClick
+      end
+      object BornesBtn: TToolButton
+        Left = 310
         Top = 0
         Hint = 'D'#233'finition des bornes'
         HelpKeyword = 'Bornes'
@@ -2162,29 +2157,14 @@ object FgrapheVariab: TFgrapheVariab
         PopupMenu = BornesMenu
         OnClick = CurseurBtnClick
       end
-      object InitEquaDiffBtn: TToolButton
-        Left = 306
-        Top = 0
-        Hint = 
-          'Valeurs exp.|Initialise les valeurs initiales aux valeurs exp'#233'ri' +
-          'mentales'
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Caption = 'Equa. diff.'
-        ImageIndex = 9
-        ImageName = 'Item10'
-        OnClick = InitEquaDiffBtnClick
-      end
       object TrigoBtn: TToolButton
-        Left = 408
+        Left = 412
         Top = 0
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
-        Caption = 'Angle'
+        Caption = 'Angles'
         ImageIndex = 46
         ImageName = 'Item47'
         OnClick = TrigoBtnClick
@@ -2192,10 +2172,10 @@ object FgrapheVariab: TFgrapheVariab
     end
   end
   object PanelCentral: TPanel
-    Left = 476
+    Left = 486
     Top = 0
-    Width = 1821
-    Height = 1481
+    Width = 1633
+    Height = 1392
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -2206,10 +2186,10 @@ object FgrapheVariab: TFgrapheVariab
     TabOrder = 1
     object PanelBis: TPanel
       Tag = 2
-      Left = 1067
-      Top = 123
+      Left = 879
+      Top = 103
       Width = 754
-      Height = 1314
+      Height = 1245
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -2227,7 +2207,7 @@ object FgrapheVariab: TFgrapheVariab
         Left = 1
         Top = 1
         Width = 752
-        Height = 1313
+        Height = 1244
         Hint = '|Utiliser le clic droit pour ouvrir le menu local'
         Margins.Left = 6
         Margins.Top = 6
@@ -2249,9 +2229,9 @@ object FgrapheVariab: TFgrapheVariab
     object PanelPrinc: TPanel
       Tag = 1
       Left = 0
-      Top = 123
-      Width = 1067
-      Height = 1314
+      Top = 103
+      Width = 879
+      Height = 1245
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -2265,8 +2245,8 @@ object FgrapheVariab: TFgrapheVariab
       object PaintBox3: TPaintBox
         Tag = 3
         Left = 1
-        Top = 1169
-        Width = 1065
+        Top = 1100
+        Width = 877
         Height = 144
         Margins.Left = 6
         Margins.Top = 6
@@ -2285,8 +2265,8 @@ object FgrapheVariab: TFgrapheVariab
       end
       object Bevel: TBevel
         Left = 1
-        Top = 1131
-        Width = 1065
+        Top = 1096
+        Width = 877
         Height = 4
         Margins.Left = 6
         Margins.Top = 6
@@ -2301,8 +2281,8 @@ object FgrapheVariab: TFgrapheVariab
         Tag = 1
         Left = 1
         Top = 1
-        Width = 1065
-        Height = 1066
+        Width = 877
+        Height = 997
         Hint = '|Utiliser le clic droit pour ouvrir le menu local'
         Margins.Left = 6
         Margins.Top = 6
@@ -2468,8 +2448,8 @@ object FgrapheVariab: TFgrapheVariab
       end
       object VideoTrackBar: TTrackBar
         Left = 1
-        Top = 1067
-        Width = 1065
+        Top = 998
+        Width = 877
         Height = 64
         Margins.Left = 6
         Margins.Top = 6
@@ -2488,21 +2468,6 @@ object FgrapheVariab: TFgrapheVariab
         Visible = False
         OnChange = VideoTrackBarChange
       end
-      object ResidusStudentCB: TCheckBox
-        Left = 1
-        Top = 1135
-        Width = 1065
-        Height = 34
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Align = alBottom
-        Caption = 'R'#233'sidus normalis'#233's'
-        TabOrder = 1
-        Visible = False
-        OnClick = ResidusStudentCBClick
-      end
       object AbscisseCB: TComboBox
         Left = 400
         Top = 900
@@ -2512,16 +2477,31 @@ object FgrapheVariab: TFgrapheVariab
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
-        TabOrder = 2
+        TabOrder = 1
         OnChange = AbscisseCBClick
         Items.Strings = (
           '')
       end
+      object ResidusNormalisesCB: TCheckBox
+        Left = 1
+        Top = 1062
+        Width = 877
+        Height = 34
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
+        Align = alBottom
+        Caption = 'R'#233'sidus normalis'#233's'
+        TabOrder = 2
+        Visible = False
+        OnClick = ResidusNormalisesCBClick
+      end
     end
     object HeaderXY: TStatusBar
       Left = 0
-      Top = 1437
-      Width = 1821
+      Top = 1348
+      Width = 1633
       Height = 44
       Margins.Left = 6
       Margins.Top = 6
@@ -2550,20 +2530,24 @@ object FgrapheVariab: TFgrapheVariab
     object ToolBarGraphe: TToolBar
       Left = 0
       Top = 0
-      Width = 1821
-      Height = 77
+      Width = 1633
+      Height = 57
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
       AutoSize = True
-      ButtonHeight = 75
-      ButtonWidth = 125
-      Flat = False
+      ButtonHeight = 57
+      ButtonWidth = 103
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -21
+      Font.Name = 'Segoe UI'
+      Font.Style = []
       GradientEndColor = clSkyBlue
       HotTrackColor = clAqua
       Images = ImageList1
-      GradientDrawingOptions = [gdoHotTrack]
+      ParentFont = False
       ShowCaptions = True
       TabOrder = 3
       Wrapable = False
@@ -2583,7 +2567,7 @@ object FgrapheVariab: TFgrapheVariab
         OnClick = CurseurBtnClick
       end
       object ModeleBtn: TToolButton
-        Left = 125
+        Left = 103
         Top = 0
         Hint = 'Affiche la panneau de mod'#233'lisation -  F9'
         Margins.Left = 6
@@ -2596,7 +2580,7 @@ object FgrapheVariab: TFgrapheVariab
         OnClick = ModeleBtnClick
       end
       object CoordonneesBtn: TToolButton
-        Left = 250
+        Left = 206
         Top = 0
         Hint = 'Coordonn'#233'es (Alt+C)'
         HelpKeyword = 'Coordonn'#233'es'
@@ -2611,7 +2595,7 @@ object FgrapheVariab: TFgrapheVariab
         OnClick = CoordonneesItemClick
       end
       object IncertBtn: TToolButton
-        Left = 375
+        Left = 309
         Top = 0
         Margins.Left = 6
         Margins.Top = 6
@@ -2624,7 +2608,7 @@ object FgrapheVariab: TFgrapheVariab
         OnClick = IncertBtnClick
       end
       object Separe1: TToolButton
-        Left = 500
+        Left = 412
         Top = 0
         Width = 12
         Margins.Left = 6
@@ -2637,7 +2621,7 @@ object FgrapheVariab: TFgrapheVariab
         Style = tbsSeparator
       end
       object ZoomAutoBtn: TToolButton
-        Left = 512
+        Left = 424
         Top = 0
         Hint = 'Echelle automatique ; auto calibrage'
         Margins.Left = 6
@@ -2650,7 +2634,7 @@ object FgrapheVariab: TFgrapheVariab
         OnClick = ZoomAutoItemClick
       end
       object ZoomAvBtn: TToolButton
-        Left = 637
+        Left = 527
         Top = 0
         Hint = 'D'#233'finir la zone par cliquer glisser'
         Margins.Left = 6
@@ -2663,7 +2647,7 @@ object FgrapheVariab: TFgrapheVariab
         OnClick = ZoomAvantItemClick
       end
       object ZoomArBtn: TToolButton
-        Left = 762
+        Left = 630
         Top = 0
         Hint = 'Zoom arri'#232're'
         Margins.Left = 6
@@ -2676,7 +2660,7 @@ object FgrapheVariab: TFgrapheVariab
         OnClick = ZoomArriereItemClick
       end
       object ZoomManuelBtn: TToolButton
-        Left = 887
+        Left = 733
         Top = 0
         Hint = 'Echelle manuelle'
         Margins.Left = 6
@@ -2689,7 +2673,7 @@ object FgrapheVariab: TFgrapheVariab
         OnClick = ZoomManuelItemClick
       end
       object Separe2: TToolButton
-        Left = 1012
+        Left = 836
         Top = 0
         Width = 12
         Margins.Left = 6
@@ -2702,7 +2686,7 @@ object FgrapheVariab: TFgrapheVariab
         Style = tbsSeparator
       end
       object NGraphesBtn: TToolButton
-        Left = 1024
+        Left = 848
         Top = 0
         Hint = 'Nombre de graphes'
         Margins.Left = 6
@@ -2717,7 +2701,7 @@ object FgrapheVariab: TFgrapheVariab
         OnClick = CurseurBtnClick
       end
       object AnimBtn: TToolButton
-        Left = 1149
+        Left = 951
         Top = 0
         Hint = 'Animation'
         HelpType = htKeyword
@@ -2734,7 +2718,7 @@ object FgrapheVariab: TFgrapheVariab
         OnClick = CurseurBtnClick
       end
       object VecteursBtn: TToolButton
-        Left = 1274
+        Left = 1054
         Top = 0
         Hint = 'Vecteurs|Trac'#233' des vecteurs'
         HelpContext = 815
@@ -2749,7 +2733,7 @@ object FgrapheVariab: TFgrapheVariab
         OnClick = CurseurBtnClick
       end
       object CopierBtn: TToolButton
-        Left = 1399
+        Left = 1157
         Top = 0
         Hint = 'Copier graphe|Copier le graphe dans le presse-papiers'
         Margins.Left = 6
@@ -2764,7 +2748,7 @@ object FgrapheVariab: TFgrapheVariab
         OnClick = CopierItemClick
       end
       object CornishBtn: TToolButton
-        Left = 1524
+        Left = 1260
         Top = 0
         Hint = 'Cornish-Bowden|M'#233'thode de Cornish-Bowden'
         Margins.Left = 6
@@ -2774,10 +2758,10 @@ object FgrapheVariab: TFgrapheVariab
         Caption = 'C.B.'
         ImageIndex = 35
         ImageName = 'Item36'
-        OnClick = CornishItemClick
+        Visible = False
       end
       object RandomBtn: TToolButton
-        Left = 1649
+        Left = 1363
         Top = 0
         Hint = '|Effectue une nouveau tirage des grandeurs al'#233'atoires (F4)'
         Margins.Left = 6
@@ -2792,8 +2776,8 @@ object FgrapheVariab: TFgrapheVariab
     end
     object ToolBarGrandeurs: TToolBar
       Left = 0
-      Top = 77
-      Width = 1821
+      Top = 57
+      Width = 1633
       Height = 46
       Cursor = crHandPoint
       Hint = 'Cliquer pour d'#233'finir les ordonn'#233'es'
@@ -3025,26 +3009,12 @@ object FgrapheVariab: TFgrapheVariab
         Visible = False
       end
     end
-    object StatGrid: TStringGrid
-      Left = 432
-      Top = 1110
-      Width = 854
-      Height = 240
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      DefaultColWidth = 160
-      DefaultRowHeight = 48
-      TabOrder = 5
-      Visible = False
-    end
   end
   object PanelAnimation: TPanel
-    Left = 2297
+    Left = 2119
     Top = 0
     Width = 264
-    Height = 1481
+    Height = 1392
     HelpType = htKeyword
     HelpKeyword = 'Animation'
     Margins.Left = 6
@@ -3239,24 +3209,14 @@ object FgrapheVariab: TFgrapheVariab
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Glyph.Data = {
-        66010000424D6601000000000000760000002800000014000000140000000100
-        040000000000F000000000000000000000001000000000000000000000000000
-        80000080000000808000800000008000800080800000C0C0C000808080000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-        3333333300003333333333333333333300003333333BBBBB3333333300003333
-        3BBB191BBB33333300003333BBBB999BBBB333330000333BBBBB191BBBBB3333
-        000033BBBBBBBBBBBBBBB333000033BBBBBBB9BBBBBBB33300003BBBBBBBB91B
-        BBBBBB3300003BBBBBBBB99BBBBBBB3300003BBBBBBBBB99BBBBBB3300003BBB
-        BB11BB199BBBBB3300003BBBBB99BB199BBBBB33000033BBBB991B199BBBB333
-        000033BBBBB99999BBBBB3330000333BBBBB999BBBBB333300003333BBBBBBBB
-        BBB33333000033333BBBBBBBBB33333300003333333BBBBB3333333300003333
-        33333333333333330000}
+      ImageIndex = 60
+      ImageName = 'HELP'
+      Images = ImageList1
       OnClick = HelpAnimBtnClick
     end
     object GroupBox6: TGroupBox
       Left = 1
-      Top = 1385
+      Top = 1296
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3277,7 +3237,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 17
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 1384
+      ExplicitTop = 1295
       object TrackBar6: TTrackBar
         Left = 2
         Top = 38
@@ -3298,7 +3258,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox4: TGroupBox
       Tag = 2
       Left = 1
-      Top = 1193
+      Top = 1104
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3313,7 +3273,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 15
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 1192
+      ExplicitTop = 1103
       object TrackBar4: TTrackBar
         Tag = 4
         Left = 2
@@ -3334,7 +3294,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox5: TGroupBox
       Tag = 4
       Left = 1
-      Top = 1001
+      Top = 912
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3349,7 +3309,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 13
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 1000
+      ExplicitTop = 911
       object TrackBar2: TTrackBar
         Tag = 3
         Left = 2
@@ -3370,7 +3330,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox2: TGroupBox
       Tag = 5
       Left = 1
-      Top = 905
+      Top = 816
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3385,7 +3345,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 12
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 904
+      ExplicitTop = 815
       object TrackBar1: TTrackBar
         Left = 2
         Top = 38
@@ -3405,7 +3365,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox1: TGroupBox
       Tag = 3
       Left = 1
-      Top = 1097
+      Top = 1008
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3420,7 +3380,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 14
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 1096
+      ExplicitTop = 1007
       object TrackBar3: TTrackBar
         Tag = 1
         Left = 2
@@ -3441,7 +3401,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox3: TGroupBox
       Tag = 1
       Left = 1
-      Top = 1289
+      Top = 1200
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3456,7 +3416,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 16
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 1288
+      ExplicitTop = 1199
       object TrackBar5: TTrackBar
         Tag = 2
         Left = 2
@@ -3554,7 +3514,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox7: TGroupBox
       Tag = 6
       Left = 1
-      Top = 809
+      Top = 720
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3569,7 +3529,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 11
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 808
+      ExplicitTop = 719
       object TrackBar7: TTrackBar
         Tag = 6
         Left = 2
@@ -3590,7 +3550,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox8: TGroupBox
       Tag = 7
       Left = 1
-      Top = 713
+      Top = 624
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3605,7 +3565,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 10
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 712
+      ExplicitTop = 623
       object TrackBar8: TTrackBar
         Tag = 7
         Left = 2
@@ -3626,7 +3586,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox9: TGroupBox
       Tag = 8
       Left = 1
-      Top = 617
+      Top = 528
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3641,7 +3601,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 9
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 616
+      ExplicitTop = 527
       object TrackBar9: TTrackBar
         Tag = 8
         Left = 2
@@ -3662,7 +3622,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox10: TGroupBox
       Tag = 12
       Left = 1
-      Top = 233
+      Top = 144
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3677,7 +3637,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 5
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 232
+      ExplicitTop = 143
       object TrackBar10: TTrackBar
         Tag = 8
         Left = 2
@@ -3698,7 +3658,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox11: TGroupBox
       Tag = 11
       Left = 1
-      Top = 329
+      Top = 240
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3713,7 +3673,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 6
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 328
+      ExplicitTop = 239
       object TrackBar11: TTrackBar
         Tag = 8
         Left = 2
@@ -3734,7 +3694,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox12: TGroupBox
       Tag = 10
       Left = 1
-      Top = 425
+      Top = 336
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3755,7 +3715,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 7
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 424
+      ExplicitTop = 335
       object TrackBar12: TTrackBar
         Tag = 8
         Left = 2
@@ -3776,7 +3736,7 @@ object FgrapheVariab: TFgrapheVariab
     object GroupBox13: TGroupBox
       Tag = 9
       Left = 1
-      Top = 521
+      Top = 432
       Width = 262
       Height = 96
       Cursor = crHandPoint
@@ -3791,7 +3751,7 @@ object FgrapheVariab: TFgrapheVariab
       TabOrder = 8
       OnClick = GroupBoxAnimClick
       OnDblClick = GroupBoxAnimDblClick
-      ExplicitTop = 520
+      ExplicitTop = 431
       object TrackBar13: TTrackBar
         Tag = 8
         Left = 2
@@ -3811,10 +3771,10 @@ object FgrapheVariab: TFgrapheVariab
     end
   end
   object SplitterModele: TGripSplitter
-    Left = 450
+    Left = 460
     Top = 0
     Width = 26
-    Height = 1481
+    Height = 1392
     Hint = 'F9'
     Margins.Left = 6
     Margins.Top = 6
@@ -3823,8 +3783,8 @@ object FgrapheVariab: TFgrapheVariab
     caption = 'Mod'#233'l    isation'
     Associate = PanelModele
     Size = 26
-    MinSplitSize = 200
-    MaxSplitSize = 500
+    MinSplitSize = 350
+    MaxSplitSize = 800
     Snapped = False
     Transparent = False
     Beveled = False
@@ -3840,12 +3800,12 @@ object FgrapheVariab: TFgrapheVariab
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
-    BorderStyle = bsNone
     ColCount = 2
     DefaultColWidth = 140
     DefaultRowHeight = 48
     DragKind = dkDock
     DragMode = dmAutomatic
+    FixedCols = 0
     RowCount = 6
     FixedRows = 0
     ParentColor = True
@@ -3866,8 +3826,8 @@ object FgrapheVariab: TFgrapheVariab
   end
   object MenuAxes: TPopupMenu
     OnPopup = MenuAxesPopup
-    Left = 2120
-    Top = 832
+    Left = 1240
+    Top = 864
     object identifierPagesItemA: TMenuItem
       Action = IdentAction
       AutoCheck = True
@@ -3893,12 +3853,6 @@ object FgrapheVariab: TFgrapheVariab
     object ViderXYItem: TMenuItem
       Caption = 'Vider tableau'
       OnClick = ViderXYItemClick
-    end
-    object CornishItem: TMenuItem
-      Caption = 'Cornish-Bowden'
-      HelpContext = 308
-      ImageIndex = 35
-      OnClick = CornishItemClick
     end
     object AffIncertBis: TMenuItem
       AutoCheck = True
@@ -3997,15 +3951,6 @@ object FgrapheVariab: TFgrapheVariab
       Caption = 'Monte-Carlo'
       OnClick = MonteCarloItemClick
     end
-    object ExitMonteCarloItem: TMenuItem
-      Caption = 'Fin Monte-Carlo'
-      OnClick = ExitMonteCarloItemClick
-    end
-    object ContourMenu: TMenuItem
-      Caption = 'Convergence'
-      Visible = False
-      OnClick = Convergence
-    end
   end
   object BornesMenu: TPopupMenu
     AutoHotkeys = maManual
@@ -4049,17 +3994,15 @@ object FgrapheVariab: TFgrapheVariab
     end
   end
   object SaveDialog: TSaveDialog
-    DefaultExt = 'EPS'
-    Filter = 
-      'Metafichier Windows|*.emf|JPEG|*.jpg|PNG|*.png|Bitmap|*.bmp|Post' +
-      'script|*.eps'
+    DefaultExt = 'png'
+    Filter = 'JPEG|*.jpg|PNG|*.png|Bitmap|*.bmp'
     Options = [ofHideReadOnly, ofPathMustExist, ofEnableSizing]
     Left = 1230
     Top = 312
   end
   object MenuDessin: TPopupMenu
-    Left = 1838
-    Top = 168
+    Left = 1406
+    Top = 1160
     object DessinSupprimerItem: TMenuItem
       Caption = '&Supprimer'
       OnClick = DessinDeleteItemClick
@@ -4082,9 +4025,10 @@ object FgrapheVariab: TFgrapheVariab
     Top = 213
   end
   object CurseurMenu: TPopupMenu
+    Tag = 18
     OnPopup = CurseurMenuPopup
-    Left = 1856
-    Top = 867
+    Left = 1600
+    Top = 851
     object SelectItem: TMenuItem
       Caption = 'Standard'
       ImageIndex = 27
@@ -4126,6 +4070,12 @@ object FgrapheVariab: TFgrapheVariab
       RadioItem = True
       OnClick = ChoixCurseurClick
     end
+    object CurReticuleDataNewItem: TMenuItem
+      Tag = 18
+      Caption = 'R'#233'ticule &lissage'
+      RadioItem = True
+      OnClick = ChoixCurseurClick
+    end
     object curDataItem: TMenuItem
       Tag = 5
       Caption = 'R'#233'ticule &donn'#233'es'
@@ -4140,22 +4090,20 @@ object FgrapheVariab: TFgrapheVariab
       Tag = 13
       Caption = 'Reticule &mod'#232'le'
       ImageIndex = 41
+      RadioItem = True
+      Visible = False
       OnClick = ChoixCurseurClick
     end
     object CurModeleItem: TMenuItem
       Tag = 8
       Caption = '&Valeur mod'#233'lis'#233'e'
       ImageIndex = 29
-      RadioItem = True
-      OnClick = ChoixCurseurClick
+      OnClick = TableauXYItemClick
     end
     object addModeleItem: TMenuItem
       Caption = 'Afficher le mod'#232'le'
       ImageIndex = 45
       OnClick = addModeleItemClick
-    end
-    object N3: TMenuItem
-      Caption = '-'
     end
     object CurTangenteItem: TMenuItem
       Tag = 6
@@ -4174,8 +4122,8 @@ object FgrapheVariab: TFgrapheVariab
   end
   object AnimationMenu: TPopupMenu
     OnPopup = AnimationMenuPopup
-    Left = 1825
-    Top = 307
+    Left = 1409
+    Top = 1011
     object AnimationNone: TMenuItem
       Caption = 'Pas d'#39'animation'
       Checked = True
@@ -4195,13 +4143,13 @@ object FgrapheVariab: TFgrapheVariab
   end
   object MenuIndicateur: TPopupMenu
     OnPopup = MenuIndicateurPopup
-    Left = 1811
-    Top = 660
+    Left = 1219
+    Top = 1140
   end
   object NgraphesMenu: TPopupMenu
     OnPopup = PopupMenuModelePopup
-    Left = 2000
-    Top = 154
+    Left = 1744
+    Top = 1018
     object UngrapheItem: TMenuItem
       Caption = '&1 graphe'
       Checked = True
@@ -4244,8 +4192,8 @@ object FgrapheVariab: TFgrapheVariab
   end
   object VecteursMenu: TPopupMenu
     OnPopup = VecteursMenuPopup
-    Left = 2032
-    Top = 496
+    Left = 1584
+    Top = 992
     object VitesseItem: TMenuItem
       Tag = 1
       Caption = 'Vitesse'
@@ -4300,16 +4248,20 @@ object FgrapheVariab: TFgrapheVariab
   end
   object MenuReticule: TPopupMenu
     OnPopup = MenuReticulePopup
-    Left = 2064
-    Top = 320
+    Left = 1216
+    Top = 1008
     object tableauXYItemBis: TMenuItem
-      Caption = 'Tableau tangentes'
+      Caption = 'Tableau valeurs'
       HelpContext = 809
       ImageIndex = 4
       OnClick = TableauXYItemClick
     end
+    object ViderTangenteItem: TMenuItem
+      Caption = 'R'#224'Z tangentes'
+      OnClick = ViderTangenteItemClick
+    end
     object ViderXYItemBis: TMenuItem
-      Caption = 'Vider tableau'
+      Caption = 'R'#224'Z rep'#232'res'
       OnClick = ViderXYItemClick
     end
     object SavePosItemBis: TMenuItem
@@ -4317,7 +4269,7 @@ object FgrapheVariab: TFgrapheVariab
       OnClick = SavePosItemClick
     end
     object FinReticuleItem: TMenuItem
-      Caption = 'Fin r'#233'ticule'
+      Caption = 'Fin r'#233'ticule (ESC)'
       OnClick = FinReticuleItemClick
     end
     object ProprieteCourbeBis: TMenuItem
@@ -4337,8 +4289,8 @@ object FgrapheVariab: TFgrapheVariab
     Top = 376
   end
   object CopyMenu: TPopupMenu
-    Left = 2104
-    Top = 656
+    Left = 1576
+    Top = 1152
     object metafile2: TMenuItem
       AutoCheck = True
       Caption = 'metafile'
@@ -4389,8 +4341,8 @@ object FgrapheVariab: TFgrapheVariab
     end
   end
   object ModeleMenu: TPopupMenu
-    Left = 1816
-    Top = 481
+    Left = 1416
+    Top = 849
     object LineaireItem: TMenuItem
       Caption = 'Lin'#233'aire'
       ImageIndex = 3
@@ -5224,6 +5176,124 @@ object FgrapheVariab: TFgrapheVariab
               7D9612AD22341886CFD595BD33D85F400274BE87ED466A04440000000049454E
               44AE426082}
           end>
+      end
+      item
+        Name = 'AJUSTE'
+        SourceImages = <
+          item
+            Image.Data = {
+              424D760600000000000036000000280000001400000014000000010020000000
+              00000000000000000000000000000000000000000000FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF0080808000808080008080800080808000808080008080
+              8000808080008080800080808000808080008080800080808000808080008080
+              800080808000808080008080800080808000FFFFFF00FFFFFF0080808000FFFF
+              FF00FFFFFF00FFFFFF00808080000000FF000000FF00FFFFFF00FFFFFF00FFFF
+              FF0080808000FFFFFF00FFFFFF00FFFFFF00FFFFFF0080808000FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF0080808000FFFFFF00FFFFFF00FFFFFF0080808000FFFF
+              FF00FFFFFF000000FF00FFFFFF00FFFFFF0080808000FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF0080808000FFFFFF00FFFFFF00FFFFFF00FFFFFF00808080000000
+              FF000000FF00FF000000FF000000FFFFFF00FFFFFF00FFFFFF000000FF000000
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00808080008080800080808000FF000000FF000000FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF0000000000FFFFFF00FFFFFF00FFFFFF00FFFFFF0080808000FFFF
+              FF00FFFFFF00FFFFFF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF000000FF000000FF00FFFFFF00FFFFFF0000000000FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF0080808000FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+              FF00FFFFFF0000000000FFFFFF00FFFFFF00FFFFFF00FFFFFF0080808000FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00000000000000FF0000000000FFFFFF000000
+              0000FFFFFF00FFFFFF00808080008080800080808000FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+              000000000000000000000000000000000000FFFFFF00FFFFFF0080808000FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000000000000000000000000000
+              FF000000FF00FFFFFF0080808000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FF000000FF000000FFFFFF000000FF000000FF00FFFFFF00FFFFFF00FFFF
+              FF00000000000000000000000000FFFFFF00FFFFFF00FFFFFF0080808000FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF000000FF000000FFFFFF00FFFF
+              FF00FFFFFF000000FF00FF000000FF000000FFFFFF0000000000FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00808080008080800080808000FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF000000FF00
+              0000FFFFFF0000000000FFFFFF00FFFFFF00FFFFFF00FFFFFF0080808000FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF0080808000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0080808000FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF000000FF00FFFF
+              FF00FFFFFF00FFFFFF00808080008080800080808000FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FF000000FF0000000000FF00FFFFFF00FFFFFF0080808000FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF000000FF000000FFFF
+              FF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00}
+          end>
+      end
+      item
+        Name = 'HELP'
+        SourceImages = <
+          item
+            Image.Data = {
+              424D760600000000000036000000280000001400000014000000010020000000
+              00000000000000000000000000000000000000000000FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FF
+              FF0000FFFF00000080000000FF000000800000FFFF0000FFFF0000FFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF000000FF000000FF000000
+              FF0000FFFF0000FFFF0000FFFF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF00000080000000FF000000800000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF000000FF0000FFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF000000FF000000
+              800000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF00FFFF
+              FF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF000000FF000000FF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF000000
+              FF000000FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF00FFFF
+              FF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF000000
+              80000000800000FFFF0000FFFF00000080000000FF000000FF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF000000FF000000FF0000FFFF0000FFFF000000
+              80000000FF000000FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF000000
+              FF000000FF000000800000FFFF00000080000000FF000000FF0000FFFF0000FF
+              FF0000FFFF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF000000FF000000FF000000FF000000
+              FF000000FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF000000FF000000FF000000FF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00}
+          end>
       end>
     Left = 1569
     Top = 545
@@ -5524,10 +5594,20 @@ object FgrapheVariab: TFgrapheVariab
         CollectionIndex = 58
         CollectionName = 'Item59'
         Name = 'Item59'
+      end
+      item
+        CollectionIndex = 59
+        CollectionName = 'AJUSTE'
+        Name = 'AJUSTE'
+      end
+      item
+        CollectionIndex = 60
+        CollectionName = 'HELP'
+        Name = 'HELP'
       end>
     ImageCollection = ImageCollection1
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 1385
     Top = 633
   end

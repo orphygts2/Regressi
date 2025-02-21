@@ -1,20 +1,22 @@
-unit uniteker;
+ï»¿unit uniteker;
 
 interface
 
 uses Math, SysUtils, constreg, regutil, maths;
 
 type
-   TuniteDeBase = (_metre,_kilogramme,_seconde,_ampere,_kelvin,_mole,_candela);
-
    EUniteError = class(Exception);
-   TuniteSansDim = (tuVide, tuDegre, tuRadian, tuDecibel, tuTour, tuPourCent);
-   TunitePart = (_jour,_heure,_minute,_tour,_degre,_ua);
+
+   TuniteDeBase = (_metre,_kilogramme,_seconde,_ampere,_kelvin,_mole,_candela);
+   TuniteSansDim = (tuVide, tuDegre, tuRadian, tuDecibel, tuTour, tuPourCent, tuppm);
+   TunitePart = (_jour,_heure,_minute,_tour,_degre,_ua,_an);
 
    Tunite = class
    private
       FnomUnite: string;
+      FUniteLatex : string;
       procedure SetNomUnite(const nu: string);
+      function getUniteLatex : string;
    protected
    public
       Dimension:     array[TuniteDeBase] of shortInt;
@@ -26,7 +28,7 @@ type
       CoeffAff:      double;
       Correct:       boolean;
       Adaptable:     boolean;
-      UniteDonnee:   boolean; // donnée par l'utilisateur
+      UniteDonnee:   boolean; // donnÃ©e par l'utilisateur
       UnitePart:     boolean; // ua jour ...
       UniteImposee:  boolean; // Prefixe impose ou non SI ex: heure, bar
       FormatU:       TnombreFormat;
@@ -37,8 +39,9 @@ type
       UniteGrapheImposee:  boolean;
       UniteGraphe :  string;
       property nomUnite: string Read FnomUnite Write setNomUnite;
+      property UniteLatex : string Read getUniteLatex;
       constructor Create;
-      procedure setUniteComplet(const nu,nc: string;
+      procedure setUniteComplet(const nu,nc,nl: string;
          p: shortint; d1, d2, d3, d4, d5, d6, d7: shortint);
       procedure Init;
       procedure RecopieUnite(U: Tunite);
@@ -52,17 +55,18 @@ type
       procedure PuissUnite(op: char; puiss: shortint);
       procedure VerifUniteEgale(u1, u2: Tunite);
       function UniteEgale(U: Tunite): boolean;
-      function UniteAxe(exposant: double): string;
+      function UniteAxe(exposant: double;Arrondi : double): string;
       procedure UniteDerivee(ux, uy: Tunite; gx, gy: Tgraduation);
       procedure setErreurUnite;
       procedure setRadianDegre;
-      function formatNomEtUnite(const Anombre: double): string;
+      function formatNomEtUnite(const Anombre: double;ecart : boolean = false): string;
       function formatNomPrecisionUnite(const Anombre,U95: double): string;
       function formatValeurEtUnite(const Anombre: double): string;
       function formatNombre(const Anombre: double): string;
       function formatIncert(const Anombre: double): string;
       procedure VerifTaux(grandeurY, grandeurX: Tunite);
-// si unite=uniteY/uniteX forcer l'unité à uniteY/uniteX
+// si unite=uniteY/uniteX forcer l'unitÃ© Ã  uniteY/uniteX
+      procedure VerifUniteDonnee(grandeurY: Tunite);
       function FormatNomPente(x: double): string;
       function FormatNomPenteUnite(x: double): string;
       function FormatValeurPente(x: double): string;
@@ -73,44 +77,111 @@ type
       function PbUnite : boolean;
    end;
 
-const
-   NbreUniteToleree = 15;
-   IndexRadian      = 2;
-   IndexDegre       = 6;
-
 var
-   UniteToleree: array[1..NbreUniteToleree] of Tunite;
-   UniteNulle:   Tunite;
-   UniteSIglb:   boolean = False;
+   UniteNulle,UniteDegre,UniteRadian,uniteCelsius,
+       uniteKelvin,uniteConductMolaire,uniteWatt,uniteOhm : Tunite;
+   UniteSIglb:  boolean = False;
+   isUniteLatex: boolean = False;
 
 function UnitesEgales(u1, u2: Tunite): boolean;
 
 implementation
 
+
 const
     SymbolePart: array[TunitePart] of string =
-      ('j','h','min','tr','°','ua');
-  //  NomUnitePart: array[TunitePart] of string = ('jour','heure','minute','tour','degré','ua');
+      ('j','h','min','tr','Â°','ua','an');
     NomBase: array[TuniteDeBase] of string =
       ('m', 'kg', 's', 'A', 'K', 'mol', 'cd');
     SymboleSansDim: array[TuniteSansDim] of string =
-      ('', '°', 'rad', 'dB', 'tr', '%');
+      ('', 'Â°', 'rad', 'dB', 'tr', '%', 'ppm');
     caracDebutUnite: TSysCharSet =
       ['b', 'c', 'd', 'g', 'h', 'l', 'm', 'r', 's', 't',
-       'A', 'C', 'F', 'H', 'J', 'K', 'L', 'N', 'P', 'S', 'T', 'V', 'W', '°'];
-    NbreUniteConnue  = 35;
+       'A', 'C', 'F', 'H', 'J', 'K', 'L', 'N', 'P', 'S', 'T', 'V', 'W', 'Â°',symboleAngstrom];
+    NbreUniteConnue  = 37;
     Digits : array[0..$F] of Char = '0123456789ABCDEF';
-    IndexCelsius     = 3;
-    indexKelvin      = 4;
+    NbreUniteToleree = 17;
 
 var
     UniteConnue:  array[1..NbreUniteConnue] of Tunite;
+    UniteToleree: array[1..NbreUniteToleree] of Tunite;
+
+function ExposantToLatex(tamponU : string) : string;
+var
+      numero : integer;
+      i: integer;
+      caracCourant : char;
+      exposantEnCours : boolean;
+begin
+      result := '';
+      exposantEnCours := false;
+      for i := 1 to length(tamponU) do begin
+          caracCourant := tamponU[i];
+          numero := pos(caracCourant,chiffreExpStr);
+          if numero>0 then begin
+             if not exposantEnCours then result := result+'^{';
+             result := result+IntToStr(numero-1);
+             exposantEnCours := true;
+          end
+          else case caracCourant of
+               plusExp  : begin
+                  result := result+'^{';
+                  exposantEnCours := true;
+               end;
+               moinsExp :  begin
+                  result := result+'^{-';
+                  exposantEnCours := true;
+               end;
+               else begin
+                  if exposantEnCours then result := result+'}';
+                  exposantEnCours := false;
+                  result := result+caracCourant;
+               end;
+          end;
+      end;
+      if exposantEnCours then result := result+'}';
+end; // exposantToLatex
+
+function Tunite.getUniteLatex : string;
+begin
+    if FuniteLatex=''
+       then result := ExposantToLatex(FnomUnite)
+       else result := FuniteLatex
+end;
+
+Function PuissToStr(puiss : integer) : string;
+var tampon : string;
+    i : integer;
+    numero : integer;
+begin
+  if puiss=0
+     then result := ''
+     else begin
+        tampon := IntToStr(puiss);
+        if isUniteLatex
+        then if length(tampon)=1
+            then result := '^'+tampon
+            else result := '^{'+tampon+ '}'
+        else begin
+          result := '';
+          for i := 1 to length(tampon) do
+             case tampon[i] of
+               '0'..'9' : begin
+                  numero := strToInt(tampon[i]);
+                  result := result+chiffreExp[numero];
+               end;
+               '+' : result := result+PlusExp;
+               '-' : result := result+MoinsExp;
+             end;
+        end;
+      end;
+end;
 
 procedure Tunite.assignAngle;
 begin
    if angleEnDegre
-      then Assign(uniteToleree[indexDegre])
-      else Assign(uniteToleree[indexRadian]);
+      then Assign(uniteDegre)
+      else Assign(uniteRadian);
 end;
 
 function Tunite.isAngle : boolean;
@@ -150,7 +221,7 @@ begin
    puissance := puissance + U0.puissance;
    for i := _Metre to _Candela do
       dimension[i] := dimension[i] + U0.dimension[i];
-   if U0.sansDim <> tuVide then
+   if U0.sansDim in [tuDegre, tuRadian, tuDecibel, tuTour] then
       if sansDim = tuVide
          then sansDim := U0.sansDim
          else sansDim := tuVide;
@@ -179,7 +250,7 @@ begin
 end; // MoinsUnite
 
 procedure Tunite.AdUnite(op: char; Ug, Ud: Tunite);
-// TODO : Prise en compte des unités tolérées
+// TODO : Prise en compte des unitÃ©s tolÃ©rÃ©es
 var
    i: TuniteDeBase;
    j: TunitePart;
@@ -195,9 +266,9 @@ begin
             dimension[i] := Ug.dimension[i] + Ud.dimension[i];
          for j := low(TunitePart) to high(TunitePart) do
             dimensionPart[j] := Ug.dimensionPart[j] + Ud.dimensionPart[j];
-         if (Ug.sansDim <> tuVide) and (Ud.sansDim = tuVide) then
+         if (Ug.sansDim in [tuDegre, tuRadian, tuDecibel, tuTour]) and (Ud.sansDim = tuVide) then
             sansDim := Ug.sansDim;
-         if (Ud.sansDim <> tuVide) and (Ug.sansDim = tuVide) then
+         if (Ud.sansDim in [tuDegre, tuRadian, tuDecibel, tuTour]) and (Ug.sansDim = tuVide) then
             sansDim := Ud.sansDim;
       end;
       '-': begin
@@ -206,12 +277,19 @@ begin
             dimension[i] := Ug.dimension[i] - Ud.dimension[i];
          for j := low(TunitePart) to high(TunitePart) do
             dimensionPart[j] := Ug.dimensionPart[j] - Ud.dimensionPart[j];
-         if Ud.sansDim = tuVide then
+         if (Ud.sansDim = tuVide) and (Ug.sansDim in [tuDegre, tuRadian, tuDecibel, tuTour]) then
             sansDim := Ug.sansDim;
       end;
    end;
    Adaptable := Ud.Adaptable or Ug.Adaptable;
    UniteImposee := False;
+   if  UniteSIglb then case (puissance mod 3) of
+      0  : ;
+      1  : dec(puissance);
+      2  : inc(puissance);
+      -1 : inc(puissance);
+      -2 : dec(puissance);
+   end;
    coeffSI := dix(puissance);
 end; // AdUnite
 
@@ -287,7 +365,7 @@ begin
 end; // MulUnite
 
 procedure Tunite.SetNomUnite(const nu: string);
-// Pour les unités dont le nomUnite est imposé par l'utilisateur
+// Pour les unitÃ©s dont le nomUnite est imposÃ© par l'utilisateur
 var
    Ucourant: Tunite;
    Inverse:  boolean;
@@ -309,7 +387,7 @@ var
             'f': Ucourant.puissance  := -15;
             'p': Ucourant.puissance  := -12;
             'n': Ucourant.puissance  := -9;
-            'µ': Ucourant.puissance := -6;
+            'Âµ': Ucourant.puissance := -6;
             mu: Ucourant.puissance := -6;
             'm': Ucourant.puissance  := -3;
             'c': Ucourant.puissance  := -2;
@@ -457,7 +535,7 @@ var
 begin // SetNomUnite
    try // Erreur Unite
       if nu='d:m:s'
-         then FnomUnite := '°'
+         then FnomUnite := 'Â°'
          else FnomUnite := nu;
       UniteImposee := False;
       coeffSI := 1;
@@ -520,7 +598,7 @@ begin // SetNomUnite
          PlusUnite(Ucourant);
          if (index < LongUnite) and
             charInSet(FnomUnite[index],['.', '*',' ']) then
-            Inc(index); // séparateur type multiplicateur
+            Inc(index); // sÃ©parateur type multiplicateur
       end;
       finally
         Ucourant.Free;
@@ -551,20 +629,27 @@ end;// SetNomUnite
 
 function AjoutePuissDix(const nom: string; puiss: shortInt): string;
 var
-   dest: string;
+   dest,expo : string;
 begin
    if puiss = 0
-   then ajoutePuissDix := nom
+   then result := nom
    else begin
-      dest := '10' + puissToStr(puiss) + ' ';
-      if length(dest) + Length(nom) > LongNom
-         then ajoutePuissDix := dest + 'S.I.'
-         else ajoutePuissDix := dest + nom;
+      if puiss = 1
+         then dest := '10 '
+         else if isUniteLatex
+            then begin
+               expo := intToStr(puiss);
+               if length(expo)=1
+                  then dest := '10^' + expo + '\cdot '
+                  else dest := '10^{' + expo + '}\cdot '
+            end
+            else dest := '10' + puissToStr(puiss) + ' ';
+      result := dest + nom;
    end;
 end;
 
 function Tunite.NomAff(puissValeur: shortInt): string;
-// unité dont on connait le développement en puissance
+// unitÃ© dont on connait le dÃ©veloppement en puissance
 
    function PrefixeConnu(p: shortInt): boolean;
    begin
@@ -576,8 +661,12 @@ function Tunite.NomAff(puissValeur: shortInt): string;
    var prefixe: char;
    begin
       if (nom = '') then begin
-         ajoutePrefixe := AjoutePuissDix(nom, P);
+         result := AjoutePuissDix(nom, P);
          exit;
+      end;
+      if (length(nom) > 2) and (nom[1]='1') and (nom[2]='/') then begin // 1/zz
+          result := AjoutePuissDix(copy(nom,2,length(nom)-1), P);
+          exit;
       end;
       if (length(nom) > 1) and
          (charInSet(nom[1],caracPrefixe) or
@@ -589,7 +678,7 @@ function Tunite.NomAff(puissValeur: shortInt): string;
             'f': P  := P - 15;
             'p': P  := P - 12;
             'n': P  := P - 9;
-            'µ': P := P - 6;
+            'Âµ': P := P - 6;
             mu: P := P - 6;
             'm': P  := P - 3;
             'c': P  := P - 2;
@@ -609,12 +698,16 @@ function Tunite.NomAff(puissValeur: shortInt): string;
          -15: prefixe := 'f';
          -12: prefixe := 'p';
          -9: prefixe  := 'n';
-         -6: prefixe  := 'µ';
+         -6: prefixe  := 'Âµ';
          -3: prefixe  := 'm';
          -2: prefixe  := 'c';
          -1: prefixe  := 'd';
          0: begin
-            ajoutePrefixe := nom;
+            result := nom;
+            exit;
+         end;
+         1: begin
+            result := '10 '+nom;
             exit;
          end;
          +2: prefixe  := 'h';
@@ -625,11 +718,84 @@ function Tunite.NomAff(puissValeur: shortInt): string;
          +15: prefixe := 'P';
          +18: prefixe := 'E';
          else begin
-            ajoutePrefixe := AjoutePuissDix(nom, P);
+            result := AjoutePuissDix(nom, P);
             exit;
          end;
       end;
-      ajoutePrefixe := prefixe + nom;
+      result := prefixe + nom;
+   end;
+
+   function AjoutePrefixeLatex(Nom: string; P: shortInt): string;
+   var prefixe: string;
+   begin
+      if (nom = '') then begin
+         result := AjoutePuissDix(nom, P);
+         exit;
+      end;
+      if (length(nom) > 2) and (nom[1]='1') and (nom[2]='/') then begin // 1/zz
+          result := AjoutePuissDix(copy(nom,2,length(nom)-1), P);
+          exit;
+      end;
+      if (length(nom) > 1) and
+         (charInSet(nom[1],caracPrefixe) or
+           (nom[1]=mu)) and
+         (charInSet(nom[2],caracDebutUnite) or
+         (nom[2]=OmegaMaj)) then begin
+         case FnomUnite[1] of
+            'z': P  := P - 21;
+            'a': P  := P - 18;
+            'f': P  := P - 15;
+            'p': P  := P - 12;
+            'n': P  := P - 9;
+            'Âµ': P := P - 6;
+            mu: P := P - 6;
+            'm': P  := P - 3;
+            'c': P  := P - 2;
+            'd': P  := P - 1;
+            'h': P  := P + 2;
+            'k': P  := P + 3;
+            'M': P  := P + 6;
+            'G': P  := P + 9;
+            'T': P  := P + 12;
+            'P': P  := P + 15;
+            'E': P  := P + 18;
+            'Z': P  := P + 21;
+         end;
+         nom := copy(nom, 2, length(nom));
+      end;
+      case P of
+         -21: prefixe := '\zepto ';
+         -18: prefixe := '\atto ';
+         -15: prefixe := '\femto ';
+         -12: prefixe := '\pico ';
+         -9: prefixe  := '\nano ';
+         -6: prefixe  := '\micro ';
+         -3: prefixe  := '\milli ';
+         -2: prefixe  := '\centi ';
+         -1: prefixe  := '\deci ';
+         0: begin
+            result := nom;
+            exit;
+         end;
+         1: begin
+            result := '10 '+nom;
+            exit;
+         end;
+         +2: prefixe  := '\hecto ';
+         +3: prefixe  := '\kilo ';
+         +6: prefixe  := '\mega ';
+         +9: prefixe  := '\giga ';
+         +12: prefixe := '\tera ';
+         +15: prefixe := '\penta ';
+         +18: prefixe := '\exa ';
+         +21: prefixe := '\zetta ';
+         +24: prefixe := '\yotta ';
+         else begin
+            result := AjoutePuissDix(nom, P);
+            exit;
+         end;
+      end;
+      result := prefixe + nom;
    end;
 
 procedure CasParticulier;
@@ -661,7 +827,7 @@ var i: TuniteDeBase;
     NomPositif: string;
     dim : integer;
     UniteBase : set of TuniteDeBase;
-begin
+begin //CasParticulier
    FNomUnite := '';
    NomPositif := '';
    NomNegatif := '';
@@ -684,7 +850,7 @@ begin
       exit;
    end;
    if (dimensionPart[_ua]=0) then include(UniteBase,_metre);
-   dim := dimensionPart[_heure]+dimensionPart[_jour]+dimensionPart[_minute];
+   dim := dimensionPart[_heure]+dimensionPart[_jour]+dimensionPart[_minute]+dimensionPart[_an];
    if (dim<>0) and
       (dimension[_seconde]<>dim) then begin
       setErreurUnite;
@@ -731,12 +897,14 @@ begin // NomAff
    end;
 //   (UniteDonnee or (FnomUnite=''))
    if UniteDonnee and (puissValeur = 0) then begin
-      result := FnomUnite;
+      if isUniteLatex
+         then result := uniteLatex
+         else result := FnomUnite;
       exit;
    end;
    if UniteImposee then begin
       if (length(nomUnite)>1) then PremierCarac := FnomUnite[1] else premierCarac := #0;
-      if CharInSet(premierCarac,['M','k','G','µ','n','p']) and (puissValeur<>0)
+      if CharInSet(premierCarac,['M','k','G','Âµ','n','p']) and (puissValeur<>0)
       then begin
            case premierCarac of
                 'k' : inc(puissValeur,3);
@@ -747,8 +915,8 @@ begin // NomAff
                 //'E' :inc(puissValeur,18); // on oublie ...
                 //'Z' :inc(puissValeur,21); // on oublie ...
                 //'Y' :inc(puissValeur,24); // on oublie ...
-                //'m' : dec(puissValeur,3); // pb avec mètre
-                'µ' : dec(puissValeur,6);
+                //'m' : dec(puissValeur,3); // pb avec mÃ¨tre
+                'Âµ' : dec(puissValeur,6);
                 'n' : dec(puissValeur,9);
                 'p' : dec(puissValeur,12);
                 //'f' : dec(puissValeur,15); // on oublie ...
@@ -833,8 +1001,10 @@ begin // NomAff
       end;
       if OKconnue and (sansDim = tuVide) then begin
          if isCelsius and (puissValeur=UU.puissance)
-            then Result := uniteToleree[indexCelsius].nomUnite
-            else Result := AjoutePrefixe(UU.FnomUnite, puissValeur - UU.puissance);
+            then Result := uniteCelsius.nomUnite
+            else if isUniteLatex and prefixeConnu(puissValeur- UU.puissance)
+                 then result := AjoutePrefixeLatex(FnomUnite, puissValeur- UU.puissance)
+                 else Result := AjoutePrefixe(UU.FnomUnite, puissValeur - UU.puissance);
          exit;
       end;
    end;
@@ -849,8 +1019,8 @@ begin // NomAff
             OKconnue := dimension[i] = UU.dimension[i];
          if not OKconnue then break;
       end;
-      if OKconnue and isCelsius and (UU=uniteConnue[indexKelvin])
-         then UU := UniteToleree[indexCelsius];
+      if OKconnue and isCelsius and (UU=uniteKelvin)
+         then UU := UniteCelsius;
       if OKconnue and (sansDim = tuVide) and (UU.FnomUnite <> 'Hz') then begin
          Result := AjoutePrefixe(UU.FnomUnite, puissValeur - UU.puissance);
          puissSeconde := dimension[_seconde] - UU.dimension[_seconde];
@@ -870,6 +1040,9 @@ begin // NomAff
    end;
    if UniteDonnee then begin
       result := AjoutePuissDix(FnomUnite, puissValeur - puissance);
+      if isUniteLatex then if prefixeConnu(puissValeur - puissance)
+         then result := AjoutePrefixeLatex(FnomUnite, PuissValeur-puissance)
+         else result := ExposantToLatex(result);
       exit;
    end;
    NomPositif := symboleSansDim[sansDim];
@@ -892,16 +1065,36 @@ begin // NomAff
       NomPositif := NomPositif + '.';
    FnomUnite := NomPositif + NomNegatif;
    result := AjoutePuissDix(FnomUnite, puissValeur);
+   if isUniteLatex then if prefixeConnu(puissValeur)
+      then result := AjoutePrefixeLatex(FnomUnite, puissValeur)
+      else result := ExposantToLatex(result);
 end; // NomAff
 
-function Tunite.UniteAxe(exposant: double): string;
+function Tunite.UniteAxe(exposant: double;Arrondi : double): string;
 begin
-   if formatU in [fLongueDuree, fDateTime, fDate, fTime]
-      then Result := ''
+   if formatU=fLongueDuree
+      then begin
+         Result := '';
+         if Arrondi = UnJour then Result := 'jour';
+         if Arrondi = UneHeure then Result := 'heure';
+         if Arrondi = UneMinute then Result := 'min';
+         if Arrondi = UneSeconde then Result := 's';
+      end
+      else if formatU in [ fDateTime, fDate, fTime]
+      then begin
+         Result := '';
+         if Arrondi = UneHeureWin then Result := 'heure';
+         if Arrondi = UneMinuteWin then Result := 'min';
+         if Arrondi = UneSecondeWin then Result := 's';
+         if Arrondi = UnJourWin then Result := 'jour';
+      end
       else Result := nomAff(round(log10(exposant)));
-   if Result <> '' then if uniteParenthese or (pos('/',result)>0)
-      then Result := '(' + Result + ')'
-      else Result := '/' + Result;
+      if Result <> '' then begin
+         if isUniteLatex then Result := '\si{'+result+'}';
+         if uniteParenthese or (pos('/',result)>0)
+            then Result := '(' + Result + ')'
+            else Result := '/' + Result;
+      end;
 end;
 
 constructor Tunite.Create;
@@ -915,131 +1108,154 @@ end;
 procedure InitUnite;
 begin
    UniteConnue[1] := Tunite.Create;
-   UniteConnue[1].setUniteComplet('m','meter', 0, 1, 0, 0, 0, 0, 0, 0);
+   UniteConnue[1].setUniteComplet('m','meter','\meter', 0, 1, 0, 0, 0, 0, 0, 0);
    UniteConnue[2] := Tunite.Create;
-   UniteConnue[2].setUniteComplet('A','ampere', 0, 0, 0, 0, 1, 0, 0, 0);
+   UniteConnue[2].setUniteComplet('A','ampere','\ampere',0, 0, 0, 0, 1, 0, 0, 0);
    UniteConnue[3] := Tunite.Create;
-   UniteConnue[3].setUniteComplet('g','gramme', -3, 0, 1, 0, 0, 0, 0, 0);
+   UniteConnue[3].setUniteComplet('g','gramme','\gram', -3, 0, 1, 0, 0, 0, 0, 0);
    UniteConnue[4] := Tunite.Create;
-   UniteConnue[4].setUniteComplet('K','kelvin', 0, 0, 0, 0, 0, 1, 0, 0);
+   UniteConnue[4].setUniteComplet('K','kelvin','\kelvin', 0, 0, 0, 0, 0, 1, 0, 0);
+   uniteKelvin := UniteConnue[4];
    UniteConnue[5] := Tunite.Create;
-   UniteConnue[5].setUniteComplet('mol','mole', 0, 0, 0, 0, 0, 0, 1, 0);
+   UniteConnue[5].setUniteComplet('mol','mole','\mol', 0, 0, 0, 0, 0, 0, 1, 0);
    UniteConnue[6] := Tunite.Create;
-   UniteConnue[6].setUniteComplet('cd','candela', 0, 0, 0, 0, 0, 0, 0, 1);
+   UniteConnue[6].setUniteComplet('cd','candela','\candela', 0, 0, 0, 0, 0, 0, 0, 1);
    UniteConnue[7] := Tunite.Create;
-   UniteConnue[7].setUniteComplet('H','henry', 0, 2, 1, -2, -2, 0, 0, 0);
+   UniteConnue[7].setUniteComplet('H','henry','\henry', 0, 2, 1, -2, -2, 0, 0, 0);
    UniteConnue[8] := Tunite.Create;
-   UniteConnue[8].setUniteComplet('mol/L','', +3, -3, 0, 0, 0, 0, 1, 0);
-   UniteConnue[8].uniteImposee := true; // à cause de litre
+   UniteConnue[8].setUniteComplet('mol/L','','\mol\per\liter', +3, -3, 0, 0, 0, 0, 1, 0); // concentration
+   UniteConnue[8].uniteImposee := true; // Ã  cause de litre
    UniteConnue[9] := Tunite.Create;
-   UniteConnue[9].setUniteComplet('F','farad', 0, -2, -1, 4, 2, 0, 0, 0);
+   UniteConnue[9].setUniteComplet('F','farad','\farad', 0, -2, -1, 4, 2, 0, 0, 0);
    UniteConnue[10] := Tunite.Create;
-   UniteConnue[10].setUniteComplet('N','newton', 0, 1, 1, -2, 0, 0, 0, 0);
+   UniteConnue[10].setUniteComplet('N','newton','\newton', 0, 1, 1, -2, 0, 0, 0, 0);
    UniteConnue[11] := Tunite.Create;
-   UniteConnue[11].setUniteComplet(omegaMaj,'ohm', 0, 2, 1, -3, -2, 0, 0, 0);
+   UniteConnue[11].setUniteComplet(omegaMaj,'ohm','\ohm', 0, 2, 1, -3, -2, 0, 0, 0);
+   uniteOhm := UniteConnue[11];
    UniteConnue[12] := Tunite.Create;
-   UniteConnue[12].setUniteComplet('S','siemens', 0, -2, -1, 3, 2, 0, 0, 0);
+   UniteConnue[12].setUniteComplet('S','siemens','\siemens', 0, -2, -1, 3, 2, 0, 0, 0);
    UniteConnue[13] := Tunite.Create;
-   UniteConnue[13].setUniteComplet('T','tesla', 0, 0, 1, -2, -1, 0, 0, 0);
+   UniteConnue[13].setUniteComplet('T','tesla','\tesla', 0, 0, 1, -2, -1, 0, 0, 0);
    UniteConnue[14] := Tunite.Create;
-   UniteConnue[14].setUniteComplet('V','volt', 0, 2, 1, -3, -1, 0, 0, 0);
+   UniteConnue[14].setUniteComplet('V','volt','\volt', 0, 2, 1, -3, -1, 0, 0, 0);
    UniteConnue[15] := Tunite.Create;
-   UniteConnue[15].setUniteComplet('Hz','hertz', 0, 0, 0, -1, 0, 0, 0, 0);
+   UniteConnue[15].setUniteComplet('Hz','hertz','\hertz', 0, 0, 0, -1, 0, 0, 0, 0);
    UniteConnue[16] := Tunite.Create;
-   UniteConnue[16].setUniteComplet('s','second', 0, 0, 0, 1, 0, 0, 0, 0);
+   UniteConnue[16].setUniteComplet('s','second','\second', 0, 0, 0, 1, 0, 0, 0, 0);
    UniteConnue[17] := Tunite.Create;
-   UniteConnue[17].setUniteComplet('Pa','pascal', 0, -1, 1, -2, 0, 0, 0, 0);
+   UniteConnue[17].setUniteComplet('Pa','pascal','\pascal', 0, -1, 1, -2, 0, 0, 0, 0);
    UniteConnue[18] := Tunite.Create;
-   UniteConnue[18].setUniteComplet('J','joule', 0, 2, 1, -2, 0, 0, 0, 0);
+   UniteConnue[18].setUniteComplet('J','joule','\joule', 0, 2, 1, -2, 0, 0, 0, 0);
    UniteConnue[19] := Tunite.Create;
-   UniteConnue[19].setUniteComplet('W','watt', 0, 2, 1, -3, 0, 0, 0, 0);
+   UniteConnue[19].setUniteComplet('W','watt','\watt', 0, 2, 1, -3, 0, 0, 0, 0);
+   uniteWatt := UniteConnue[19];
    UniteConnue[20] := Tunite.Create;
-   UniteConnue[20].setUniteComplet('C','coulomb', 0, 0, 0, 1, 1, 0, 0, 0);
+   UniteConnue[20].setUniteComplet('C','coulomb','\coulomb', 0, 0, 0, 1, 1, 0, 0, 0);
    UniteConnue[21] := Tunite.Create;
-   UniteConnue[21].setUniteComplet('Wb','weber', 0, 2, 1, -2, -1, 0, 0, 0);
+   UniteConnue[21].setUniteComplet('Wb','weber','\weber', 0, 2, 1, -2, -1, 0, 0, 0);
    UniteConnue[22] := Tunite.Create;
-   UniteConnue[22].setUniteComplet('lm','lumen', 0, 0, -2, 0, 0, 0, 0, 1);
+   UniteConnue[22].setUniteComplet('lm','lumen','\lumen', 0, 0, -2, 0, 0, 0, 0, 1);
    UniteConnue[23] := Tunite.Create;
-   UniteConnue[23].setUniteComplet('N/m','', 0, 0, 1, -2, 0, 0, 0, 0);
+   UniteConnue[23].setUniteComplet('N/m','','\newton\per\meter', 0, 0, 1, -2, 0, 0, 0, 0); // ressort
    UniteConnue[24] := Tunite.Create;
-   UniteConnue[24].setUniteComplet('J/K','', 0, 2, 1, -2, 0, -1, 0, 0);
+   UniteConnue[24].setUniteComplet('J/K','','\joule\per\kelvin', 0, 2, 1, -2, 0, -1, 0, 0); // capacitÃ© thermique
    UniteConnue[25] := Tunite.Create;
-   UniteConnue[25].setUniteComplet('J/kg.K','', 0, 2, 0, -2, 0, -1, 0, 0);
+   UniteConnue[25].setUniteComplet('J.kg-1.K-1','','\joule\per\kilo\gram\per\kelvin', 0, 2, 0, -2, 0, -1, 0, 0); // capacitÃ© thermique massique
    UniteConnue[26] := Tunite.Create;
-   UniteConnue[26].setUniteComplet('V/m','', 0, 1, 1, -3, -1, 0, 0, 0);  // S/cm ??
+   UniteConnue[26].setUniteComplet('V/m','','\volt}\per\meter', 0, 1, 1, -3, -1, 0, 0, 0); // champ Ã©lectrique
    UniteConnue[27] := Tunite.Create;
-   UniteConnue[27].setUniteComplet('S/m','', 0, -3, -1, 3, 2, 0, 0, 0);
+   UniteConnue[27].setUniteComplet('S/m','','\siemens\per\meter', 0, -3, -1, 3, 2, 0, 0, 0); // 'conductivitÃ© Ã©lectrique'
    UniteConnue[28] := Tunite.Create;
-   UniteConnue[28].setUniteComplet('W/m.K)','', 0, 1, 1, -3, 0, -1, 0, 0);
+   UniteConnue[28].setUniteComplet('W.m-1.K-1)','','\watt\per\meter\per\kelvin', 0, 1, 1, -3, 0, -1, 0, 0);   // conductivitÃ© thermique
    UniteConnue[29] := Tunite.Create;
-   UniteConnue[29].setUniteComplet('C.m','', 0, 1, 0, 0, 0, 0, 0, 0);
+   UniteConnue[29].setUniteComplet('C.m','','\coulomb\meter', 0, 1, 0, 0, 0, 0, 0, 0); // moment dipolaire
    UniteConnue[30] := Tunite.Create;
-   UniteConnue[30].setUniteComplet(OmegaMaj + 'm','', 0, 3, 1, -3, -2, 0, 0, 0);
+   UniteConnue[30].setUniteComplet(OmegaMaj + 'm','','\omh\meter', 0, 3, 1, -3, -2, 0, 0, 0); // rÃ©sistivitÃ©
    UniteConnue[31] := Tunite.Create;
-   UniteConnue[31].setUniteComplet('N.m','', 0, 1, 0, 1, 1, 0, 0, 0);
+   UniteConnue[31].setUniteComplet('N.m','','\newton\meter', 0, 1, 0, 1, 1, 0, 0, 0); // moment
    UniteConnue[32] := Tunite.Create;
-   UniteConnue[32].setUniteComplet('A/m','', 0, -1, 0, 0, 1, 0, 0, 0);
+   UniteConnue[32].setUniteComplet('A/m','','\ampere\per\meter', 0, -1, 0, 0, 1, 0, 0, 0);
    UniteConnue[33] := Tunite.Create; // sans dimension
-   UniteConnue[33].setUniteComplet('1','', 0, 0, 0, 0, 0, 0, 0, 0);
+   UniteConnue[33].setUniteComplet('1','','\m', 0, 0, 0, 0, 0, 0, 0, 0);
    UniteConnue[34] := Tunite.Create;
-   UniteConnue[34].setUniteComplet('Bq','becquerel', 0, 0, -1, 0, 0, 0, 0, 0);
-   UniteConnue[35] := Tunite.Create; // poiseuille = Pa.s
-   UniteConnue[35].setUniteComplet('Pl','poiseuille', 0, -1, 1, -1, 0, 0, 0, 0);
+   UniteConnue[34].setUniteComplet('Bq','becquerel','\becquerel', 0, 0, -1, 0, 0, 0, 0, 0);
+   UniteConnue[35] := Tunite.Create;
+   UniteConnue[35].setUniteComplet('Pl','poiseuille','', 0, -1, 1, -1, 0, 0, 0, 0); // poiseuille = Pa.s
+   UniteConnue[36] := Tunite.Create;
+   UniteConnue[36].setUniteComplet('S.m2.mol-1','','\siemens\meter\squared\per\mol', 0, 0, -1, 3, 2, 0, -1, 0); // conductivitÃ© molaire
+  // (_metre,_kilogramme,_seconde,_ampere,_kelvin,_mole,_candela);
+  // S=kg-1 m-2 s3 A2  ;   1 mS m2 molâˆ’1 = 10 mS/cm L/mol
+  // S/cm/mol L=kg-1 s3 A2 mol-1 m0
+   UniteConductMolaire := UniteConnue[36];
+   UniteConnue[37] := Tunite.Create;
+   UniteConnue[37].setUniteComplet('lux','lux','\lux', 0, 0, -2, 0, 0, 0, 0, 1);
 
    UniteToleree[1] := Tunite.Create;
-   UniteToleree[1].setUniteComplet('L','litre', -3, 3, 0, 0, 0, 0, 0, 0);
+   UniteToleree[1].setUniteComplet('L','litre','\liter', -3, 3, 0, 0, 0, 0, 0, 0);
    UniteToleree[1].uniteImposee := true;
    UniteToleree[2] := Tunite.Create;
-   UniteToleree[2].setUniteComplet('rad','radian', 0, 0, 0, 0, 0, 0, 0, 0);
+   UniteToleree[2].setUniteComplet('rad','radian','\radian', 0, 0, 0, 0, 0, 0, 0, 0);
    UniteToleree[2].sansDim := tuRadian;
+   UniteRadian := UniteToleree[2];
    UniteToleree[3] := Tunite.Create;
-   UniteToleree[3].setUniteComplet('°C','celsius', 0, 0, 0, 0, 0, 1, 0, 0);
+   UniteToleree[3].setUniteComplet('Â°C','celsius','\celsius', 0, 0, 0, 0, 0, 1, 0, 0);
    UniteToleree[3].isCelsius := true;
+   uniteCelsius := UniteToleree[3];
    UniteToleree[4] := Tunite.Create;
-   UniteToleree[4].setUniteComplet('bar','bar', 5, -1, 1, -2, 0, 0, 0, 0);
+   UniteToleree[4].setUniteComplet('bar','bar','\bar', 5, -1, 1, -2, 0, 0, 0, 0);
    UniteToleree[5] := Tunite.Create;
    UniteToleree[5].uniteImposee := true;
-   UniteToleree[5].setUniteComplet('dB','decibel', 0, 0, 0, 0, 0, 0, 0, 0);
+   UniteToleree[5].setUniteComplet('dB','decibel','\decibel', 0, 0, 0, 0, 0, 0, 0, 0);
    UniteToleree[5].sansDim := tuDecibel;
    UniteToleree[6] := Tunite.Create;
-   UniteToleree[6].setUniteComplet('°','degré', 0, 0, 0, 0, 0, 0, 0, 0);
+   UniteToleree[6].setUniteComplet('Â°','degrÃ©','\degree', 0, 0, 0, 0, 0, 0, 0, 0);
+   UniteDegre := UniteToleree[6];
    UniteToleree[6].sansDim := tuDegre;
    UniteToleree[7] := Tunite.Create;
-   UniteToleree[7].setUniteComplet('h','heure', 0, 0, 0, 1, 0, 0, 0, 0);
+   UniteToleree[7].setUniteComplet('h','heure','\hour', 0, 0, 0, 1, 0, 0, 0, 0);
    UniteToleree[7].dimensionPart[_heure] := 1;
    UniteToleree[7].uniteImposee := true;
    UniteToleree[7].unitePart := true;
    UniteToleree[8] := Tunite.Create;
-   UniteToleree[8].setUniteComplet('t','tonne', 3, 0, 1, 0, 0, 0, 0, 0);
+   UniteToleree[8].setUniteComplet('t','tonne','\tonne', 3, 0, 1, 0, 0, 0, 0, 0);
    UniteToleree[8].uniteImposee := true;
    UniteToleree[9] := Tunite.Create;
-   UniteToleree[9].setUniteComplet('tr','tour', 0, 0, 0, 0, 0, 0, 0, 0);
+   UniteToleree[9].setUniteComplet('tr','tour','', 0, 0, 0, 0, 0, 0, 0, 0);
    UniteToleree[9].dimensionPart[_tour] := 1;
    UniteToleree[9].sansDim := tuTour;
    UniteToleree[10] := Tunite.Create;
-   UniteToleree[10].setUniteComplet('%','', -2, 0, 0, 0, 0, 0, 0, 0);
+   UniteToleree[10].setUniteComplet('%','','\m', -2, 0, 0, 0, 0, 0, 0, 0);
    UniteToleree[10].sansDim := tuPourCent;
+   UniteToleree[10].uniteImposee := true;
    UniteToleree[11] := Tunite.Create;
-   UniteToleree[11].setUniteComplet(deltaMin,'dioptrie', 0,-1, 0, 0, 0, 0, 0, 0);
+   UniteToleree[11].setUniteComplet(deltaMin,'dioptrie','\per\meter', 0,-1, 0, 0, 0, 0, 0, 0);
    UniteToleree[12] := Tunite.Create;
-   UniteToleree[12].setUniteComplet('ua','', 0,1, 0, 0, 0, 0, 0, 0);
+   UniteToleree[12].setUniteComplet('ua','','\astronomicalunit', 0,1, 0, 0, 0, 0, 0, 0); // unitÃ© astronomique
    UniteToleree[12].dimensionPart[_ua] := 1;
    UniteToleree[12].unitePart := true;
    UniteToleree[13] := Tunite.Create;
-   UniteToleree[13].setUniteComplet('j','jour', 0, 0, 0, 1, 0, 0, 0, 0);
+   UniteToleree[13].setUniteComplet('j','jour','\day', 0, 0, 0, 1, 0, 0, 0, 0);
    UniteToleree[13].dimensionPart[_jour] := 1;
    UniteToleree[13].unitePart := true;
    UniteToleree[14] := Tunite.Create;
-   UniteToleree[14].setUniteComplet('min','minute', 0, 0, 0, 1, 0, 0, 0, 0);
+   UniteToleree[14].setUniteComplet('min','minute','\minute', 0, 0, 0, 1, 0, 0, 0, 0);
    UniteToleree[14].dimensionPart[_minute] := 1;
    UniteToleree[14].unitePart := true;
    UniteToleree[15] := Tunite.Create;
-   UniteToleree[15].setUniteComplet(symboleAngstrom,'angström', -10, 1, 0, 0, 0, 0, 0, 0);
+   UniteToleree[15].setUniteComplet(symboleAngstrom,'angstrÃ¶m','\angstrom', -10, 1, 0, 0, 0, 0, 0, 0);
    UniteToleree[15].unitePart := true;
    UniteToleree[15].uniteImposee := true;
+   UniteToleree[16] := Tunite.Create;
+   UniteToleree[16].setUniteComplet('ppm','','', -6, 0, 0, 0, 0, 0, 0, 0); // partie par million
+   UniteToleree[16].sansDim := tuppm;
+   UniteToleree[16].uniteImposee := true;
+   UniteToleree[17] := Tunite.Create;
+   UniteToleree[17].setUniteComplet('an','','\year', 0, 0, 0, 1, 0, 0, 0, 0);
+   UniteToleree[17].dimensionPart[_an] := 1;
+   UniteToleree[17].unitePart := true;
 
    UniteNulle := Tunite.Create;
-   UniteNulle.setUniteComplet('',' ', 0, 0, 0, 0, 0, 0, 0, 0);
+   UniteNulle.setUniteComplet('',' ', '',0, 0, 0, 0, 0, 0, 0, 0);
 end;
 
 procedure LibereUnite;
@@ -1053,10 +1269,20 @@ begin
    UniteNulle.Free;
 end;
 
-procedure Tunite.SetUniteComplet(const nu,nc: string; p: shortInt;
+procedure Tunite.SetUniteComplet(const nu,nc,nl: string; p: shortInt;
    d1, d2, d3, d4, d5, d6, d7: shortInt);
+var i,numero : integer;
 begin
    FnomUnite := nu;
+   FuniteLatex := nl;
+   for i := 1 to length(FNomunite) do begin
+       if FNomunite[i] = '-' then FnomUnite[i] := moinsExp;
+       if FNomunite[i] = '+' then FnomUnite[i] := plusExp;
+       if charInSet(FnomUnite[i],chiffre) then begin
+          numero := strToInt(FnomUnite[i]);
+          FnomUnite[i] := chiffreExp[numero];
+       end;
+   end;
    FnomComplet := nc;
    puissance := p;
    Dimension[_metre] := d1;
@@ -1067,8 +1293,6 @@ begin
    Dimension[_mole] := d6;
    Dimension[_candela] := d7;
    UniteDonnee := True;
-   UnitePart := false;
-   isCelsius := false;
    coeffSI := dix(puissance);
 end;
 
@@ -1088,8 +1312,8 @@ begin
       if not adaptable then U2.RecopieUnite(U1);
       exit;
    end;
-   if (U1.puissance <> U2.puissance) and
-       not UniteSIGlb then setErreurUnite;
+   if (U1.puissance <> U2.puissance) and not UniteSIGlb then
+      setErreurUnite;
    for i := _Metre to _Candela do
       if (U1.dimension[i] <> U2.dimension[i]) then
          setErreurUnite;
@@ -1125,6 +1349,7 @@ begin
    FormatU := fDefaut;
    PrecisionU := Precision;
    nom := '';
+   UnitePart := false;
    isCelsius := false;
 end;
 
@@ -1134,6 +1359,7 @@ var
    j: TunitePart;
 begin
    FnomUnite := U.FnomUnite;
+   FUniteLatex := U.FUniteLatex;
    puissance := U.puissance;
    sansDim := U.sansDim;
    coeffSI := U.coeffSI;
@@ -1172,7 +1398,6 @@ end;
 procedure Tunite.UniteDerivee(ux, uy: Tunite; gx, gy: Tgraduation);
 var j : integer;
     xSimple,ySimple : boolean;
-   // ySansDim : boolean;
     nomy : string;
 begin
    nom := '';
@@ -1191,6 +1416,7 @@ begin
             uy.InverseUnite;
             nom := 'd(1/';
          end;
+         gBits : ;
       end;
       if gy <> gLin then
          nom := nom + uy.nom + ')';
@@ -1209,26 +1435,39 @@ begin
             ux.InverseUnite;
             nom := nom + 'd(1/';
          end;
+         gBits : ;
       end;
       if gx <> gLin then
          nom := nom + ux.nom + ')';
-      if (gx = gLog) and (gy = gdB) then
-         setNomUnite(stdBDecade)
+      if (gx = gLog) and (gy = gdB)
+      then setNomUnite(stdBDecade)
       else begin
          AdUnite('-', uy, ux);
-         if (gx=gLin) and (gy=glin) and (ux.puissance=0) then begin
-             xSimple := false;ySimple := false;
-             for j := 1 to NbreUniteConnue do begin
-                 if ux.uniteEgale(UniteConnue[j]) then xSimple := true;
-                 if uy.uniteEgale(UniteConnue[j]) and
+         if (gx=gLin) and (gy=glin) then
+            if (ux.puissance=0) then begin
+              xSimple := false;ySimple := false;
+              for j := 1 to NbreUniteConnue do begin
+                  if ux.uniteEgale(UniteConnue[j]) then xSimple := true;
+                  if uy.uniteEgale(UniteConnue[j]) and
                     (pos('/',UniteConnue[j].nomUnite)=0) then ySimple := true;
-             end;
-             if xSimple and ySimple then begin
-                if uy.nomUnite='' then nomy := '1' else nomy := uy.nomUnite;
-                if ux.nomUnite='' then nomUnite := nomy else nomUnite := nomy+'/'+ux.nomUnite;
-                uniteImposee := true;
-             end;
-         end;
+              end;
+              for j := 1 to NbreUniteToleree do begin
+                  if ux.nomUnite=UniteToleree[j].nomUnite then xSimple := true;
+                  if uy.nomUnite=UniteToleree[j].nomUnite then ySimple := true;
+              end;
+              if xSimple and ySimple then begin
+                 if uy.nomUnite=''
+                    then nomy := '1'
+                    else nomy := uy.nomUnite;
+                 if (ux.nomUnite='') or (ux.nomUnite='1')
+                    then nomUnite := nomy
+                    else nomUnite := nomy+'/'+ux.nomUnite;
+                 uniteImposee := true;
+              end;
+            end
+            else begin
+                 verifTaux(uy,ux);
+            end;
       end;
    except
       RecopieUnite(UniteNulle);
@@ -1248,12 +1487,21 @@ function Tunite.FormatNomPenteUnite(x: double): string;
 var
    Lpuissance: integer;
    absx: double;
+   tampon, tamponU : string;
 begin
     try
     absx := abs(x);
     Lpuissance := 3 * floor(log10(absx) / 3);
-    Result := nom + '=' + FormatGeneral(
-         x * dix(-LPuissance), precisionMin) + ' ' + NomAff(LPuissance);
+    tampon := FormatGeneral(x * dix(-LPuissance), precisionMin);
+    tamponU := NomAff(Lpuissance);
+    if isUniteLatex
+       then begin
+          Result := nom + '=' + '\SI{'+tampon+'}{'+tamponU+'}';
+          Result := '$'+translateNomMath(result)+'$'
+       end
+       else begin
+          Result := nom + '=' + tampon + ' ' + tamponU;
+       end;
     except
         result := '';
     end;
@@ -1335,7 +1583,7 @@ Function MyFormat(const ANombre : double;Format : TnombreFormat;Precision : inte
   end;
 
 Function FormatLongueDuree : string;
-// durée en seconde exprimée sous forme d hh:mm:ss
+// durÃ©e en seconde exprimÃ©e sous forme d hh:mm:ss
 var t : longInt;
     sec,min,hour,day : integer;
     zz : string;
@@ -1369,7 +1617,7 @@ var degre,minute,seconde : integer;
 begin
     degre := round(int(Anombre));
     valeur := abs(Anombre-degre);
-    result := intToStr(degre)+'°';
+    result := intToStr(degre)+'Â°';
     if valeur>0 then begin
         minute := trunc(60*valeur);
         valeur := valeur-minute/60;
@@ -1437,7 +1685,7 @@ begin // Function MyFormat
         else case format of
             fDefaut   : result := FormatReg(ANombre);
             fExponent : result := FormatExposant;
-            fFixed    : begin // precision = nombre de décimales
+            fFixed    : begin // precision = nombre de dÃ©cimales
                result := FloatToStrF(Anombre,ffFixed,longNombre,Precision);
                posV := pos(FormatSettings.decimalSeparator,result);
                if posV=0 then if precision=0 then
@@ -1474,8 +1722,7 @@ begin
    if isNan(Anombre) then exit;
    case formatU of
       fBinary, fHexa,
-      fLongueDuree, fDateTime, fDate, fTime,
-      fDegreMinute : begin
+      fLongueDuree, fDateTime, fDate, fTime, fDegreMinute : begin
          Result := MyFormat(ANombre, formatU, PrecisionU);
          exit;
       end;
@@ -1484,8 +1731,8 @@ begin
          exit;
       end;
    end;
-   if FnomUnite = '°C' then begin
-      Result := FloatToStrF(ANombre, ffFixed, longNombre, PrecisionU) + ' °C';
+   if FnomUnite = 'Â°C' then begin
+      Result := FloatToStrF(ANombre, ffFixed, longNombre, PrecisionU) + ' Â°C';
       exit;
    end;
    AbsNombre := abs(Anombre);
@@ -1496,9 +1743,13 @@ begin
       posE := pos('E', tampon);
       if posE > 0 then begin
          puiss  := StrToInt(copy(tampon, succ(posE), length(tampon) - posE));
-         tampon := copy(tampon, 1, pred(posE)) + pointMedian+'10' + puissToStr(puiss);
+         if isUniteLatex
+            then tampon := copy(tampon, 1, pred(posE)) + 'E' + intToStr(puiss)
+            else tampon := copy(tampon, 1, pred(posE)) + pointMedian+'10' + puissToStr(puiss);
       end;
-      Result := tampon+tamponU;
+      if isUniteLatex
+         then Result := '\SI{'+tampon+'}{'+tamponU+'}'
+         else Result := tampon+tamponU;
       exit;
    end;
    negatif := Anombre < 0;
@@ -1528,13 +1779,27 @@ begin
                tampon := tampon+'0';
    end;
    tamponU := nomAff(puissanceUnite[unite]);
-   if tamponU<>'' then tamponU := ' '+tamponU;
-   Result := tampon+tamponU;
+   if isUniteLatex
+      then begin
+           Result := '\SI{'+tampon+'}{'+tamponU+'}';
+      end
+      else begin
+         if tamponU<>'' then if tamponU[1]='1'
+            then tamponU := pointMedian+tamponU
+            else tamponU := ' '+tamponU;
+         Result := tampon+tamponU;
+      end;
 end;
 
-function Tunite.FormatNomEtUnite(const Anombre: double): string;
+function Tunite.FormatNomEtUnite(const Anombre: double;ecart : boolean = false): string;
 begin
    Result := nom + '=' + formatValeurEtUnite(ANombre);
+   if isUniteLatex then begin
+       Result := translateNomMath(result);
+       if ecart then result := '\delta '+ result;
+       Result := '$'+result+'$';
+   end
+   else if ecart then result := deltaMin + result
 end;
 
 function Tunite.formatNombre(const Anombre: double): string;
@@ -1546,9 +1811,14 @@ Function Tunite.FormatIncert(const Anombre : double) : string;
 var longueur,i,posE : integer;
     puiss : string;
 begin
-     if Anombre<1e-4
-       then result := FloatToStrF(Anombre,ffExponent,3,2)
-       else result := FloatToStrF(Anombre,ffFixed,2,18);
+     if Anombre<1e-15
+       then begin
+            result := '0';
+            exit;
+       end
+       else if Anombre<1e-4
+          then result := FloatToStrF(Anombre,ffExponent,3,2)
+          else result := FloatToStrF(Anombre,ffFixed,2,18);
      posE := pos('E',result);
      longueur := length(result);
      if posE>0 then begin
@@ -1572,7 +1842,7 @@ end;
 
 procedure Tunite.setRadianDegre;
 const
-   Code: array [boolean] of string = ('rad', '°');
+   Code: array [boolean] of string = ('rad', 'Â°');
 var
    posAngle: integer;
 begin
@@ -1604,35 +1874,42 @@ end;
 procedure Tunite.VerifTaux(grandeurY, grandeurX: Tunite);
 var
    i, iX: TuniteDeBase; // unite = grandeurY/grandeurX ?
-   taux,simple: boolean; // simple = même unité haut et bas
+   taux,simple: boolean; // simple = mÃªme unitÃ© haut et bas
+   puissX : integer;
+   sx,sy : string;
 begin
    if not (grandeurY.correct) or
       not (grandeurX.correct) or
       not (correct) or
       grandeurY.UniteEgale(grandeurX) then
       exit;
-   if uniteEgale(UniteConnue[19]) then exit; // W et non J/s
-   Taux := False;
+   if uniteEgale(UniteWatt) then exit; // W et non J/s
+   if uniteEgale(UniteOhm) then exit; // Ohm et non V/A
+   puissX := grandeurX.dimension[_ampere];
+   if puissX<>0 then exit;   // pas de Y/A
+   puissX := grandeurX.dimension[_metre];
    iX := _Candela; // pour le compilateur
-// X unité fondamentale kg m s donc taux Y/s Y/m Y/kg
-   for i := _Metre to _Candela do
+   taux := (puissX > 0) and (puissX <4); // Y/m Y/m2 Y/L ...
+   if taux then iX := _metre;
+   // X unitÃ© fondamentale : kg s K ... donc taux Y/s Y/kg  Y/K ...
+  // (_metre,_kilogramme,_seconde,_ampere,_kelvin,_mole,_candela);
+   for i := succ(_Metre) to _mole do
       if grandeurX.dimension[i] = 1
         then if taux
-          then exit // combinaison deux unités fondamentales
-          else begin
-             iX := i;
-             taux := True;
-          end
-          else if grandeurX.dimension[i] <> 0 then exit;
-   taux := taux and (iX<=_seconde);
-   taux := taux and (pos('/',grandeurY.nomUnite)=0);
-   taux := taux and (pos('.',grandeurY.nomUnite)=0);
-   taux := taux and (grandeurY.puissance=0);
+           then exit // combinaison deux unitÃ©s fondamentales
+           else begin
+              iX := i;
+              taux := True;
+              puissX := 1;
+           end
+        else if grandeurX.dimension[i] <> 0 then exit;
+   taux := taux and (pos('/',grandeurY.nomUnite)=0); // Pour Ã©viter le double /
+ //  if uniteSIGlb and not(grandeurY.unitedonnee) then taux := taux and (grandeurY.puissance=0);
    if not taux then exit;
-   simple := true;
+   simple := true; // s/s ; m/m ; kg/kg
    for i := _Metre to _Candela do
       if i = iX then begin
-         if (grandeurY.dimension[i] - 1) <> dimension[i] then
+         if (grandeurY.dimension[i] - puissX) <> dimension[i] then
             taux := False;
       end
       else begin
@@ -1640,10 +1917,35 @@ begin
             taux := False;
          if (grandeurY.dimension[i] <> 0) then simple := false;
       end;
-   if simple then exit;     // s/s ; m/m ; kg/kg
-   if taux then if not uniteSIGlb and grandeurX.UniteDonnee and grandeurY.unitedonnee
-      then nomUnite := grandeurY.nomUnite + '/' + grandeurX.nomUnite
-      else nomUnite := grandeurY.nomAff(-puissance) + '/' + NomBase[iX]
+   if not simple and taux then begin
+      if uniteSIGlb
+      then begin
+        sX := NomBase[iX];
+        sY := grandeurY.nomAff(-puissance);
+      end
+      else begin
+        if grandeurX.UniteDonnee
+           then sX := grandeurX.nomUnite
+           else SX := NomBase[iX];
+        if grandeurY.unitedonnee
+           then sY := grandeurY.nomUnite
+           else SY := grandeurY.nomAff(-puissance);
+      end;
+      nomUnite := sY + '/' + sX;
+   end;
+end;
+
+procedure Tunite.VerifUniteDonnee(grandeurY: Tunite);
+var i: TuniteDeBase; // unite = grandeurY ?
+begin
+   if not(grandeurY.correct) or
+      not(correct) or
+      UniteSIGlb or
+      not(grandeurY.unitedonnee) then
+      exit;
+   for i := _Metre to _Candela do
+       if grandeurY.dimension[i]<>dimension[i] then exit;
+   nomUnite := grandeurY.nomUnite
 end;
 
 procedure Tunite.imposeNomUnite(const nu : string);
@@ -1653,7 +1955,8 @@ end;
 
 function Tunite.nomIncertitude : string;
 begin
-     result := 'u('+nom+')'; // Incertitude type u, élargie U
+     result := 'u('+nom+')'; // Incertitude type u, Ã©largie U
+     if isUniteLatex then result := '$'+translateNomMath(result)+'$'
 end;
 
 function Tunite.formatNomPrecisionUnite(const Anombre,U95: double): string;
@@ -1689,18 +1992,34 @@ begin
    if precOK
       then begin
          tamponPrec := FloatToStrF(U95*CoeffValeur,ffFixed,Decimales+3,Decimales);
-         tampon := tampon+' ±'+tamponPrec;
+         if isUniteLatex
+            then tampon := tampon+'+-'+tamponPrec
+            else tampon := tampon+' Â±'+tamponPrec;
       end
       else tampon := tampon+' ??';
-   tampon := '('+tampon+')';
-   if correct
-      then tampon := tampon+NomAff(expValeurIng)
+   if isUniteLatex
+      then begin
+        tampon := '\SI{'+tampon+'}{';
+        if correct
+           then tampon := tampon+NomAff(expValeurIng)+'}'
+           else begin
+              if expValeurIng<>0 then
+                 tampon:=tampon+'10^{'+intToStr(expValeurIng);
+              tampon:=tampon+'S.I.}';
+           end;
+        result := '$'+translateNomMath(nom+'='+tampon)+'$'
+      end
       else begin
-          if expValeurIng<>0 then
-             tampon:=tampon+'10'+puissToStr(expValeurIng);
-          tampon:=tampon+' S.I.';
+         tampon := '('+tampon+')';
+         if correct
+         then tampon := tampon+NomAff(expValeurIng)
+         else begin
+             if expValeurIng<>0 then
+                tampon:=tampon+'\cdot 10'+puissToStr(expValeurIng);
+             tampon:=tampon+' S.I.';
+         end;
+         result := nom+'='+tampon
       end;
-  result := nom+'='+tampon
 end; // NomPrecisionUnite
 
 function Tunite.PbUnite : boolean;

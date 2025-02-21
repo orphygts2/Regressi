@@ -5,28 +5,21 @@ interface
 uses
   Windows, SysUtils, Messages,  Classes,  Graphics, Controls,  Forms,
   Dialogs, StdCtrls,  ExtCtrls,  Buttons,  Math, ComCtrls, Vcl.ExtDlgs,
-  ImgList, ToolWin, Menus, Spin, gifImg, system.IOUtils,
-  constreg, jpeg,  pngImage, inifiles,
-  grapheU, regutil, uniteKer,
+  ImgList, ToolWin, Menus, Spin, system.IOUtils,
+  Vcl.Imaging.jpeg, Vcl.Imaging.pngImage, inifiles,
   system.Types, System.ImageList,
-  Vframes, Vcl.Mask, Vcl.VirtualImageList, Vcl.BaseImageCollection,
-  Vcl.ImageCollection;
+  Vcl.Mask, Vcl.VirtualImageList, Vcl.BaseImageCollection,
+  Vcl.ImageCollection,
+  grapheU, regutil, uniteKer, constreg;
 
 type
   TstyleDragOptique = (bsNone,bsOrigine,bsDirection,bsEchelle1,bsEchelle2,bsAngle1,bsAngle2,bsAngle3);
   Taxe = (aX,aY,apX,apY);
   TcalculLuminance = (cSomme,cMaxi,cMinMax);
   TMesure = (mIntensite,mAngle,mDistance);
-  TPropertyControl  = RECORD
-                        GB : TGroupBox;
-                        TB : TTrackBar;
-                        positionInit : integer;
-                        auto : boolean;
-                      END;
   TOptiqueForm = class(TForm)
     StatusBar: TStatusBar;
     ToolBar: TToolBar;
-    ConnectBtn: TToolButton;
     RegressiBtn: TToolButton;
     OpenFileBtn: TToolButton;
     AcquireBtn: TToolButton;
@@ -48,17 +41,6 @@ type
     gammaGB: TGroupBox;
     GammaBtn: TSpinButton;
     EditBidon: TEdit;
-    BrightnessGB: TGroupBox;
-    tbrBrightness: TTrackBar;
-    btnBrightness: TButton;
-    ContrastGB: TGroupBox;
-    tbrContrast: TTrackBar;
-    btnContrast: TButton;
-    GainGB: TGroupBox;
-    tbrGain: TTrackBar;
-    btnGain: TButton;
-    ConfigVideoBtn: TToolButton;
-    VideoDevices: TComboBox;
     GammaEdit: TEdit;
     Image: TImage;
     OrigineEdit: TLabeledEdit;
@@ -78,23 +60,14 @@ type
     ExitBtn: TToolButton;
     ValeurMesureGB: TGroupBox;
     AngleLabelbis: TLabel;
-    SaturationGB: TGroupBox;
-    tbrSaturation: TTrackBar;
-    btnSaturation: TButton;
-    GammaVideoGB: TGroupBox;
-    tbrGamma: TTrackBar;
-    btnGamma: TButton;
     SaveBtn: TToolButton;
     SaveDialog: TSaveDialog;
     OpenPictureDialog: TOpenPictureDialog;
-    ToolButton1: TToolButton;
-    ToolButton2: TToolButton;
-    CameraBtn: TToolButton;
-    ToolButton3: TToolButton;
     EchelleRG: TComboBox;
     Label2: TLabel;
     ImageCollection1: TImageCollection;
     VirtualImageList1: TVirtualImageList;
+    PythonBtn: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure RegressiBtnClick(Sender: TObject);
     procedure ImageMouseDown(Sender: TObject; Button: TMouseButton;
@@ -124,8 +97,6 @@ type
     procedure ImagePanelExit(Sender: TObject);
     procedure GammaBtnDownClick(Sender: TObject);
     procedure GammaBtnUpClick(Sender: TObject);
-    procedure cboVideoSizesChange(Sender: TObject);
-    procedure VideoDevicesChange(Sender: TObject);
     procedure OrigineZeroBtnClick(Sender: TObject);
     procedure MesureRGClick(Sender: TObject);
     procedure IntensitePBMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -139,26 +110,18 @@ type
     procedure GreenBtnClick(Sender: TObject);
     procedure LumBtnClick(Sender: TObject);
     procedure BlueBtnClick(Sender: TObject);
-    procedure OnNewVideoFrame(Sender : TObject; Width, Height: integer; DataPtr: pointer);
-    procedure ConnectBtnClick(Sender: TObject);
     procedure AcquireBtnClick(Sender: TObject);
-    procedure ConfigVideoBtnClick(Sender: TObject);
-    procedure btnBrightnessClick(Sender: TObject);
-    procedure tbrContrastChange(Sender: TObject);
-    procedure btnContrastClick(Sender: TObject);
     procedure SaveBtnClick(Sender: TObject);
-    procedure CameraBtnClick(Sender: TObject);
+    procedure PythonBtnClick(Sender: TObject);
   private
     Finitializing : boolean;
-    VideoImage : TVideoImage;
-    PropCtrl     : ARRAY[TVideoProperty] OF TPropertyControl;
     bitmapOriginal : Tbitmap;
     zoomAffichage,zoomVideo : double;
     PointRepere : array[TStyleDragOptique] of TPoint;
     BorneSelect,BorneSelectUp : TstyleDragOptique;
     axeI,axeE : Taxe;
     Pente,invCosa : double;
-    LargeurI,HauteurI : integer; // sur l'image
+    LargeurI,HauteurI : integer; // I = sur l'image
     LigneCourante : integer;
     graphe : Tgraphe;
     largeurTrait : integer;
@@ -189,9 +152,10 @@ type
     procedure TraceDistance;
     procedure TraceFleche(P1,P2 : Tpoint);
     procedure SetRGB;
-    procedure chercheWebcam;
   public
     procedure OuvreFichier(nom : string);
+    procedure SauveFichier(nom : string);
+    procedure MajCapture;
   protected
   end;
 
@@ -200,7 +164,7 @@ var
 
 implementation
 
-uses regMain, regDDE, compile, graphvar;
+uses regMain, regDDE, compile, graphvar, interfCapture;
 
 const
     Titre = 'Optique';
@@ -240,94 +204,13 @@ const
 
 procedure TOptiqueForm.SaveBtnClick(Sender: TObject);
 begin
+  SaveDialog.defaultExt := '.png';
+  SaveDialog.Filter := 'Portable Network Graphics|*.png|bitmap|*.bmp|Fichier image JPEG|*.jpg';
   if SaveDialog.execute then
-     image.Picture.SaveToFile(SaveDialog.fileName);
-end;
-
-procedure ConvertitGifBmp(var nomFichier: string);
-var
-  GIF		 : TGIFImage;
-  Bitmap : TBitmap;
-begin
-    GIF := TGIFImage.Create;
-    try
-      GIF.OnProgress := Nil;
-      // Load the GIF that will be converted
-      nomFichier := ChangeFileExt(nomFichier,'.gif');
-      GIF.LoadFromFile(nomFichier);
-      Bitmap := TBitmap.Create;
-      try
-        // Convert the GIF to a BMP
-        Bitmap.Assign(GIF);
-        // Save the BMP
-        nomFichier := ChangeFileExt(nomFichier,'.bmp');
-        Bitmap.SaveToFile(nomFichier);
-      finally
-        Bitmap.Free;
-      end;
-    finally
-      GIF.Free;
-    end;
+     sauveFichier(SaveDialog.fileName);
 end;
 
 procedure TOptiqueForm.FormCreate(Sender: TObject);
-
-procedure SetProperty;
-(*
-  TVideoProperty = (VP_Brightness,
-                    VP_Contrast,
-                    VP_Hue,
-                    VP_Saturation,
-                    VP_Sharpness,
-                    VP_Gamma,
-                    VP_ColorEnable,
-                    VP_WhiteBalance,
-                    VP_BacklightCompensation,
-                    VP_Gain);
- *)
-begin
-   with PropCtrl[VP_gain] do begin
-      GB := gainGB;
-      TB := tbrGain;
-   end;
-   with PropCtrl[VP_BacklightCompensation] do begin
-      GB := nil;
-      TB := nil;
-   end;
-   with PropCtrl[VP_whiteBalance] do begin
-      GB := nil;
-      TB := nil;
-   end;
-   with PropCtrl[VP_ColorEnable] do begin
-      GB := nil;
-      TB := nil;
-   end;
-   with PropCtrl[VP_gamma] do begin
-      GB := gammaVideoGB;
-      TB := tbrGamma;
-   end;
-   with PropCtrl[VP_sharpness] do begin
-      GB := nil;
-      TB := nil;
-   end;
-   with PropCtrl[VP_saturation] do begin
-      GB := saturationGB;
-      TB := tbrSaturation;
-   end;
-   with PropCtrl[VP_hue] do begin
-      GB := nil;
-      TB := nil;
-   end;
-   with PropCtrl[VP_Contrast] do begin
-      GB := contrastGB;
-      TB := tbrContrast;
-   end;
-   with PropCtrl[VP_Brightness] do begin
-      GB := brightnessGB;
-      TB := tbrBrightness;
-   end;
-end;
-
 var Fichier : TIniFile;
     j : integer;
 begin
@@ -367,22 +250,9 @@ begin
     couleurTrait := couleurCB.Selected;
     Fichier.free;
     setRGB;
-    VideoImage := TVideoImage.Create;
-// Tell fVideoImage what routine to call whan a new video-frame has arrived.
-    VideoImage.OnNewVideoFrame := OnNewVideoFrame;
     bitmapOriginal := Tbitmap.create;
-    setProperty;
-    ResizeButtonImagesforHighDPI(self);
-end;
-
-procedure TOptiqueForm.OnNewVideoFrame(Sender : TObject; Width, Height: integer; DataPtr: pointer);
-begin
-  // Retreive latest video image
-  VideoImage.GetBitmap(BitmapOriginal);
-  largeurI := width;
-  hauteurI := height;
-  regleZoomVideo;
-  Image.Picture.Assign(BitmapOriginal);
+    VirtualImageList1.height := VirtualImageListSize;
+    VirtualImageList1.width := VirtualImageListSize;
 end;
 
 procedure TOptiqueForm.RegressiBtnClick(Sender: TObject);
@@ -867,48 +737,10 @@ begin // CalculIntensite
      Screen.cursor := crDefault;
 end; // CalculIntensite
 
-procedure TOptiqueForm.CameraBtnClick(Sender: TObject);
-begin
-  ChercheWebcam;
-end;
-
-procedure TOptiqueForm.VideoDevicesChange(Sender: TObject);
-begin
-   connectBtnClick(sender);
-end;
-
-procedure TOptiqueForm.cboVideoSizesChange(Sender: TObject);
-var connected : boolean;
-begin
-   try
-   connected := connectBtn.down;
-   if connected then connectBtn.Down := false;
-   if connected then connectBtn.Down := true;
-   except
-   end;
-end;
-
 procedure TOptiqueForm.AcquireBtnClick(Sender: TObject);
 begin
-  VideoImage.VideoStop;
-  ConnectBtn.Enabled := true;
-  AcquireBtn.Enabled  := false;
-  configVideoBtn.Enabled := false;
-  GainGB.Visible := false;
-  BrightnessGB.Visible := false;
-  ContrastGB.Visible := false;
-  GammaVideoGB.Visible := false;
-  SaturationGB.Visible := false;
-  lissageGB.Visible := true;
-  echelleGB.Visible := true;
-  axeI := aX;
-  axeE := aX;
-  nomFichier := TPath.combine(tempDirReg,'interf.bmp');
-  image.Picture.SaveToFile(nomFichier);
-  largeurI := image.picture.width;
-  hauteurI := image.picture.height;
-  saveBtn.Enabled := true;
-  majBitmap;
+  if interfCaptureForm=nil then application.CreateForm(TinterfCaptureForm, interfCaptureForm);
+  interfCaptureForm.show;
 end;
 
 Procedure TOptiqueForm.AffecteBorne(x,y : integer;horizVert : boolean);
@@ -1043,19 +875,6 @@ begin
      setRGB;
 end;
 
-procedure TOptiqueForm.btnBrightnessClick(Sender: TObject);
-begin
-    VideoImage.SetVideoPropertySettings(VP_Brightness, tbrBrightness.position, true);
-end;
-
-procedure TOptiqueForm.btnContrastClick(Sender: TObject);
-var VP : TvideoProperty;
-begin
-  VP := TvideoProperty((sender as TControl).tag);
-  with PropCtrl[VP] do
-       VideoImage.SetVideoPropertySettings(VP, PositionInit, true);
-end;
-
 procedure TOptiqueForm.ImageMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
@@ -1141,6 +960,7 @@ begin
          Position[i] := i;
      end;
      RegressiBtn.enabled := nomFichier<>'';
+     PythonBtn.enabled := nomFichier<>'';
      CouleursGB.Enabled := RegressiBtn.enabled;
      GammaGB.Enabled := RegressiBtn.enabled;
      if NomFichier<>'' then begin
@@ -1185,25 +1005,20 @@ var extension : String;
 begin
        axeI := aX;
        axeE := aX;
-       Screen.Cursor := crHourGlass;
        extension := AnsiUpperCase(extractFileExt(Nom));
        if (extension='.GIF') then begin
           ConvertitGifBmp(nom);
-          extension := '.BMP';
-       end;
-       if (extension='.FIT') or (extension='.FITS') then begin
-          //ConvertitFITSBmp(nom);
           extension := '.BMP';
        end;
        if (extension='.JPG') or (extension='.JPEG') then begin
            Ajpeg := TjpegImage.create;
            Ajpeg.LoadFromFile(Nom);
            with bitmapOriginal do begin
-                pixelFormat := pf24bit;
                 height := Ajpeg.Height;
                 width := Ajpeg.Width;
                 assign(Ajpeg);
-                nom := changeFileExt(nom,'.BMP');
+                pixelFormat := pf24bit;
+                nom := ChangeFileExt(nom,'.BMP');
                 saveToFile(nom);
            end;
            Ajpeg.free;
@@ -1213,11 +1028,11 @@ begin
            Apng := TpngImage.create;
            Apng.LoadFromFile(Nom);
            with bitmapOriginal do begin
-                pixelFormat := pf24bit;
                 height := Apng.Height;
                 width := Apng.Width;
                 assign(Apng);
-                nom := changeFileExt(nom,'.BMP');
+                pixelFormat := pf24bit;
+                nom := ChangeFileExt(nom,'.BMP');
                 saveToFile(nom);
            end;
            Apng.free;
@@ -1225,6 +1040,7 @@ begin
        end;
        if (extension='.BMP') then begin
            image.Picture.LoadFromFile(Nom);
+           image.Picture.bitmap.pixelFormat := pf24bit;
            largeurI := image.picture.width;
            hauteurI := image.picture.height;
        end;
@@ -1232,6 +1048,74 @@ begin
        saveBtn.Enabled := false;
        MajBitMap;
 end; // OuvreFichier
+
+procedure TOptiqueForm.SauveFichier(nom : string);
+var extension : String;
+    Ajpeg : TjpegImage;
+    Apng : TpngImage;
+begin
+       extension := AnsiUpperCase(extractFileExt(Nom));
+       if (extension='.GIF') then begin
+       end;
+       if (extension='.JPG') or (extension='.JPEG') then begin
+           Ajpeg := TjpegImage.create;
+           Ajpeg.Assign(image.Picture.bitmap);
+           Ajpeg.saveToFile(nom);
+           Ajpeg.free;
+       end;
+       if (extension='.PNG') then begin
+           Apng := TpngImage.create;
+           Apng.Assign(image.picture.bitmap);
+           Apng.saveToFile(nom);
+           Apng.free;
+       end;
+       if (extension='.BMP') then
+           image.Picture.SaveToFile(nom);
+end; // SauveFichier
+
+procedure TOptiqueForm.PythonBtnClick(Sender: TObject);
+var FichierPy : textFile;
+
+procedure ecritObjet;
+var i : integer;
+begin
+       write(fichierPy,'xList=[');
+       for i := debut to fin-1 do begin
+           write(fichierPy,FloatToStrPoint(position[i])+',');
+           if ((i mod 11)=10) then  writeln(fichierPy);
+       end;
+       writeln(fichierPy,FloatToStrPoint(position[fin])+']');
+       writeln(fichierPy,'x=np.array(xList)');
+       writeln(fichierPy);
+       write(fichierPy,'IList=[');
+       for i := debut to fin-1 do begin
+             write(fichierPy,FloatToStrPoint(intensite[i])+',');
+             if ((i mod 11)=10) then  writeln(fichierPy);
+       end;
+       writeln(fichierPy,FloatToStrPoint(intensite[fin])+']');
+       writeln(fichierPy,'I=np.array(IList)');
+end;
+
+begin
+with saveDialog do begin
+     defaultExt := '.py';
+     SaveDialog.Filter := '';
+if Execute then begin
+     FileMode := fmOpenWrite;
+     AssignFile(fichierPy,FileName,CP_UTF8);
+     Rewrite(fichierPy);
+     writeln(fichierPy,'#!/usr/bin/env python3');
+     writeln(fichierPy,'# -*- coding: utf-8 -*-');
+     writeln(fichierPy,'import numpy as np');
+     writeln(fichierPy);
+     writeln(fichierPy);
+     ecritObjet;
+     closeFile(fichierPy);
+     FileMode := fmOpenReadWrite;
+end;
+end;
+end;
+
 
 procedure TOptiqueForm.FormDestroy(Sender: TObject);
 begin
@@ -1351,31 +1235,7 @@ begin
   inherited;
   xRef := IntensitePB.width div 2;
   xCourant := xRef;
-  IF not fActivated then chercheWebcam;
   fActivated := true;
-end;
-
-procedure TOptiqueForm.ChercheWebcam;
-var DeviceList : TStringList;
-begin
-  // Get list of available cameras
-  DeviceList := TStringList.Create;
-  VideoImage.GetListOfDevices(DeviceList);
-  ConfigVideoBtn.Enabled := false;
-  AcquireBtn.Enabled := false;
-
-  IF DeviceList.Count < 1 then begin
-      // no camera has been found
-      ConnectBtn.Enabled := false;
-      VideoDevices.Visible := false;
-    end
-    else begin
-      // at least one camera has been found.
-      VideoDevices.items.Assign(DeviceList);
-      VideoDevices.ItemIndex := 0;
-      VideoDevices.Visible := true;
-      ConnectBtn.Enabled := true;
-    end;
 end;
 
 procedure TOptiqueForm.RegleZoom(initRepere : boolean);
@@ -1547,60 +1407,10 @@ begin
     CalculIntensite;
 end;
 
-procedure TOptiqueForm.tbrContrastChange(Sender: TObject);
-var VP : TvideoProperty;
-begin
-  if Finitializing  then exit;
-  VP := TvideoProperty((sender as TControl).tag);
-  with PropCtrl[VP] do
-       VideoImage.SetVideoPropertySettings(VP, TB.Position, auto);
-end;
-
 procedure TOptiqueForm.FormResize(Sender: TObject);
 begin
   inherited;
   if NomFichier<>'' then regleZoom(false);
-end;
-
-procedure TOptiqueForm.ConfigVideoBtnClick(Sender: TObject);
-begin
-   VideoImage.ShowProperty_Stream;
-end;
-
-procedure TOptiqueForm.ConnectBtnClick(Sender: TObject);
-var VP : TvideoProperty;
-    minVal,maxVal,stepSize,actual,valDefault : integer;
-    autoMode : boolean;
-begin
-  Screen.Cursor := crHourGlass;
-  Application.ProcessMessages;
-  ConnectBtn.enabled := false;
-  acquireBtn.Enabled := true;
-  configVideoBtn.Enabled := true;
-
-  VideoImage.VideoStart(VideoDevices.Items[VideoDevices.itemIndex]);
-
-  ConfigVideoBtn.Enabled := true;
-  Finitializing := true;
-  FOR VP := Low(TVideoProperty) TO High(TVideoProperty) DO if propCtrl[VP].GB<>nil then begin
-      IF Succeeded(VideoImage.GetVideoPropertySettings(VP,
-         MinVal, MaxVal, StepSize, ValDefault, Actual, AutoMode)) then begin
-          WITH PropCtrl[VP] DO BEGIN
-              GB.visible  := true;
-              TB.Min      := MinVal;
-              TB.Max      := MaxVal;
-              TB.Frequency:= StepSize;
-              TB.Position := Actual;
-              positionInit := actual;
-              auto := automode;
-            end;
-        end
-        else PropCtrl[VP].GB.visible := false;
-    END;
-  Finitializing := false;
-  lissageGB.Visible := false;
-  echelleGB.Visible := false;
-  Screen.Cursor := crDefault;
 end;
 
 procedure TOptiqueForm.CouleurCBChange(Sender: TObject);
@@ -1624,6 +1434,21 @@ begin
   if gamma<1 then gamma := 1;
   gammaEdit.text := FloatToStr(gamma);
   calculIntensite;
+end;
+
+procedure TOptiqueForm.MajCapture;
+begin
+  largeurI := image.picture.width;
+  hauteurI := image.picture.height;
+  regleZoomVideo;
+  nomFichier := TPath.combine(tempDirReg,'interf.bmp');
+  image.Picture.SaveToFile(nomFichier);
+  saveBtn.Enabled := true;
+  lissageGB.Visible := true;
+  echelleGB.Visible := true;
+  axeI := aX;
+  axeE := aX;
+  majBitmap;
 end;
 
 procedure TOptiqueForm.GammaBtnUpClick(Sender: TObject);

@@ -3,7 +3,7 @@ unit choixtang;
 interface
 
 uses Windows, Classes, Graphics, Forms, Controls, Buttons,
-  StdCtrls, Spin, sysUtils,
+  StdCtrls, Spin, sysUtils, regmain,
   regutil, maths, compile, graphker, ExtCtrls, ComCtrls;
 
 type
@@ -36,7 +36,6 @@ type
     procedure TangenteCBChange(Sender: TObject);
     procedure NbreSpinButtonDownClick(Sender: TObject);
     procedure NbreSpinButtonUpClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
   private
   public
   end;
@@ -68,11 +67,6 @@ begin
   TangenteColor.selected := pColorTangente;
   TraitCB.itemIndex := ord(PstyleTangente);
   TangenteCBChange(sender);
-end;
-
-procedure TChoixTangenteDlg.FormCreate(Sender: TObject);
-begin
-   //ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TChoixTangenteDlg.NbreSpinButtonDownClick(Sender: TObject);

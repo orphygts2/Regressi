@@ -7,8 +7,8 @@ object fgraphe3D: Tfgraphe3D
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Caption = 'Graphe des param'#232'tres'
-  ClientHeight = 1160
-  ClientWidth = 2180
+  ClientHeight = 1158
+  ClientWidth = 2152
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -53,8 +53,8 @@ object fgraphe3D: Tfgraphe3D
   object PanelCourbe: TPanel
     Left = 0
     Top = 0
-    Width = 2180
-    Height = 1160
+    Width = 2152
+    Height = 1158
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -63,13 +63,13 @@ object fgraphe3D: Tfgraphe3D
     BevelOuter = bvNone
     Color = clWindow
     TabOrder = 0
-    ExplicitWidth = 2166
-    ExplicitHeight = 1159
+    ExplicitWidth = 2138
+    ExplicitHeight = 1157
     object PaintBox: TPaintBox
       Left = 0
       Top = 46
-      Width = 2180
-      Height = 1114
+      Width = 2152
+      Height = 1112
       Hint = '|Utiliser le clic droit pour ouvrir le menu local'
       Margins.Left = 6
       Margins.Top = 6
@@ -82,12 +82,13 @@ object fgraphe3D: Tfgraphe3D
       OnMouseMove = FormMouseMove
       OnPaint = PaintBoxPaint
       ExplicitTop = 96
+      ExplicitWidth = 2180
       ExplicitHeight = 1064
     end
     object ToolBarGr: TToolBar
       Left = 0
       Top = 0
-      Width = 2180
+      Width = 2152
       Height = 46
       Margins.Left = 6
       Margins.Top = 6
@@ -96,7 +97,7 @@ object fgraphe3D: Tfgraphe3D
       AutoSize = True
       BorderWidth = 1
       ButtonHeight = 42
-      ButtonWidth = 147
+      ButtonWidth = 135
       Color = clGradientInactiveCaption
       GradientEndColor = clSkyBlue
       HotTrackColor = clAqua
@@ -107,7 +108,7 @@ object fgraphe3D: Tfgraphe3D
       ShowCaptions = True
       TabOrder = 0
       Wrapable = False
-      ExplicitWidth = 2166
+      ExplicitWidth = 2138
       object CurseurBtn: TToolButton
         Left = 0
         Top = 0
@@ -121,7 +122,7 @@ object fgraphe3D: Tfgraphe3D
         ImageName = 'Item21'
       end
       object CordonneesBtn: TToolButton
-        Left = 147
+        Left = 135
         Top = 0
         Hint = 'Coordonn'#233'es (Alt+C)'
         Margins.Left = 6
@@ -134,7 +135,7 @@ object fgraphe3D: Tfgraphe3D
         OnClick = CoordonneesItemClick
       end
       object ImprimeBtn: TToolButton
-        Left = 294
+        Left = 270
         Top = 0
         Hint = 'Imprimer (Alt+I)|Imprimer le graphe'
         Margins.Left = 6
@@ -147,7 +148,7 @@ object fgraphe3D: Tfgraphe3D
         OnClick = ImprimeGrItemClick
       end
       object CopierBtn: TToolButton
-        Left = 441
+        Left = 405
         Top = 0
         Hint = 'Copier graphe|Copier le graphe dans le presse-papiers'
         Margins.Left = 6
@@ -195,10 +196,8 @@ object fgraphe3D: Tfgraphe3D
     end
   end
   object SaveDialog: TSaveDialog
-    DefaultExt = 'EPS'
-    Filter = 
-      'Metafichier Windows|*.emf|JPEG|*.jpg|PNG|*.png|Bitmap|*.bmp|Post' +
-      'script|*.eps'
+    DefaultExt = 'png'
+    Filter = 'JPEG|*.jpg|PNG|*.png|Bitmap|*.bmp'
     Options = [ofHideReadOnly, ofPathMustExist, ofEnableSizing]
     Left = 462
     Top = 248
@@ -699,8 +698,8 @@ object fgraphe3D: Tfgraphe3D
         Name = 'Item26'
       end>
     ImageCollection = ImageCollection1
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 296
     Top = 680
   end

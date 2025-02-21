@@ -7,7 +7,7 @@ object PageCalcDlg: TPageCalcDlg
   BorderStyle = bsDialog
   Caption = 'Cr'#233'ation d'#39'une page calcul'#233'e'
   ClientHeight = 560
-  ClientWidth = 644
+  ClientWidth = 622
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
@@ -95,7 +95,7 @@ object PageCalcDlg: TPageCalcDlg
   object GroupBox: TGroupBox
     Left = 0
     Top = 396
-    Width = 644
+    Width = 622
     Height = 164
     Margins.Left = 6
     Margins.Top = 6
@@ -132,7 +132,7 @@ object PageCalcDlg: TPageCalcDlg
   object VariabExpGB: TGroupBox
     Left = 0
     Top = 316
-    Width = 644
+    Width = 622
     Height = 80
     Margins.Left = 6
     Margins.Top = 6

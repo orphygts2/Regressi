@@ -4,8 +4,8 @@ object FValeurs: TFValeurs
   HelpContext = 24
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   Caption = 'Grandeurs'
-  ClientHeight = 1245
-  ClientWidth = 1680
+  ClientHeight = 1193
+  ClientWidth = 1312
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -49,24 +49,27 @@ object FValeurs: TFValeurs
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   OnShortCut = FormShortCut
+  OnShow = FormShow
   PixelsPerInch = 192
   TextHeight = 36
   object Feuillets: TPageControl
     Left = 0
     Top = 0
-    Width = 1680
-    Height = 1245
+    Width = 1312
+    Height = 1193
     HelpContext = 500
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
-    ActivePage = MathSheet
+    ActivePage = VariabSheet
     Align = alClient
     Images = VirtualImageList1
     TabOrder = 0
     OnChange = FeuilletsChange
     OnChanging = FeuilletsChanging
+    ExplicitWidth = 1298
+    ExplicitHeight = 1192
     object ParamSheet: TTabSheet
       HelpContext = 701
       Margins.Left = 6
@@ -78,9 +81,9 @@ object FValeurs: TFValeurs
       ImageName = 'Item18'
       object GridParam: TStringGrid
         Left = 0
-        Top = 75
-        Width = 1678
-        Height = 917
+        Top = 63
+        Width = 1296
+        Height = 876
         HelpType = htKeyword
         HelpKeyword = 'Constantes'
         HelpContext = 701
@@ -110,8 +113,8 @@ object FValeurs: TFValeurs
       end
       object GridParamGlb: TStringGrid
         Left = 0
-        Top = 992
-        Width = 1678
+        Top = 939
+        Width = 1296
         Height = 190
         HelpContext = 701
         Margins.Left = 6
@@ -141,15 +144,15 @@ object FValeurs: TFValeurs
       object ToolBarParam: TToolBar
         Left = 0
         Top = 0
-        Width = 1678
-        Height = 75
+        Width = 1296
+        Height = 63
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
         Anchors = [akTop]
         AutoSize = True
-        ButtonHeight = 75
+        ButtonHeight = 63
         ButtonWidth = 143
         GradientEndColor = clSkyBlue
         HotTrackColor = clAqua
@@ -209,7 +212,7 @@ object FValeurs: TFValeurs
           Margins.Bottom = 6
           Caption = 'Incertitudes'
           ImageIndex = 23
-          ImageName = 'Item24'
+          ImageName = 'IncertImage'
           Style = tbsCheck
           OnClick = DeltaBtnClick
         end
@@ -252,8 +255,8 @@ object FValeurs: TFValeurs
       ImageName = 'Item18'
       object UniteSILabelVariab: TLabel
         Left = 0
-        Top = 1146
-        Width = 1027
+        Top = 1093
+        Width = 1296
         Height = 36
         Margins.Left = 6
         Margins.Top = 6
@@ -270,12 +273,14 @@ object FValeurs: TFValeurs
         Font.Style = []
         ParentFont = False
         Visible = False
+        ExplicitTop = 1095
+        ExplicitWidth = 1027
       end
       object gridVariab: TStringGrid
         Left = 0
-        Top = 150
-        Width = 1678
-        Height = 996
+        Top = 151
+        Width = 1296
+        Height = 942
         HelpType = htKeyword
         HelpKeyword = 'Valeurs'
         HelpContext = 704
@@ -301,20 +306,20 @@ object FValeurs: TFValeurs
         OnMouseMove = gridVariabMouseMove
         OnMouseUp = gridVariabMouseUp
         OnSelectCell = gridVariabSelectCell
-        ExplicitWidth = 1664
-        ExplicitHeight = 995
+        ExplicitWidth = 1282
+        ExplicitHeight = 941
       end
       object ToolBarVariab: TToolBar
         Left = 0
         Top = 0
-        Width = 1678
-        Height = 150
+        Width = 1296
+        Height = 151
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
         AutoSize = True
-        ButtonHeight = 75
+        ButtonHeight = 63
         ButtonWidth = 156
         GradientEndColor = clSkyBlue
         HotTrackColor = clAqua
@@ -322,6 +327,7 @@ object FValeurs: TFValeurs
         GradientDrawingOptions = [gdoHotTrack]
         ShowCaptions = True
         TabOrder = 1
+        ExplicitWidth = 1282
         object TriBtn: TToolButton
           Left = 0
           Top = 0
@@ -372,26 +378,12 @@ object FValeurs: TFValeurs
           Margins.Bottom = 6
           Caption = 'Sup. ligne'
           ImageIndex = 9
-          ImageName = 'Item10'
+          ImageName = 'DelLineImage'
           Visible = False
           OnClick = DelSelectItemClick
         end
-        object DeltaBtn: TToolButton
-          Left = 624
-          Top = 0
-          Hint = 'Pr'#233'cision|Affiche, si enfonc'#233', la pr'#233'cision des variables'
-          Margins.Left = 6
-          Margins.Top = 6
-          Margins.Right = 6
-          Margins.Bottom = 6
-          Caption = 'Incertitudes'
-          ImageIndex = 23
-          ImageName = 'Item24'
-          Style = tbsCheck
-          OnClick = DeltaBtnClick
-        end
         object AddPageBtn: TToolButton
-          Left = 780
+          Left = 624
           Top = 0
           Margins.Left = 6
           Margins.Top = 6
@@ -402,9 +394,34 @@ object FValeurs: TFValeurs
           ImageName = 'Item11'
           OnClick = AddPageBtnClick
         end
-        object PrintVarBtn: TToolButton
-          Left = 936
+        object SepareBtn: TToolButton
+          Left = 0
           Top = 0
+          Width = 25
+          ParentCustomHint = False
+          Enabled = False
+          ParentShowHint = False
+          Wrap = True
+          ShowHint = False
+          Style = tbsSeparator
+        end
+        object DeltaBtn: TToolButton
+          Left = 0
+          Top = 88
+          Hint = 'Incertitudes|Affiche, si enfonc'#233', l'#39'incertitude des variables'
+          Margins.Left = 6
+          Margins.Top = 6
+          Margins.Right = 6
+          Margins.Bottom = 6
+          Caption = 'Incertitudes'
+          ImageIndex = 23
+          ImageName = 'IncertImage'
+          Style = tbsCheck
+          OnClick = DeltaBtnClick
+        end
+        object PrintVarBtn: TToolButton
+          Left = 156
+          Top = 88
           Hint = 'Imprimer  (Alt+I)|Imprimer le tableau'
           Margins.Left = 6
           Margins.Top = 6
@@ -413,12 +430,11 @@ object FValeurs: TFValeurs
           Caption = 'Imprimer'
           ImageIndex = 3
           ImageName = 'Item4'
-          Wrap = True
           OnClick = ImprimeBtnClick
         end
         object CopyGridBtn: TToolButton
-          Left = 0
-          Top = 75
+          Left = 312
+          Top = 88
           Hint = 'Copier tableau|Copier le tableau dans le presse-papiers'
           Margins.Left = 6
           Margins.Top = 6
@@ -430,8 +446,8 @@ object FValeurs: TFValeurs
           OnClick = CopyGridBtnClick
         end
         object PhaseBtn: TToolButton
-          Left = 156
-          Top = 75
+          Left = 468
+          Top = 88
           Hint = 'Phase|Rend continue unevariable par un modulo 360'#176
           Margins.Left = 6
           Margins.Top = 6
@@ -443,8 +459,8 @@ object FValeurs: TFValeurs
           OnClick = PhaseItemClick
         end
         object RazBtn: TToolButton
-          Left = 312
-          Top = 75
+          Left = 624
+          Top = 88
           Hint = '|Supprime toutes les donn'#233'es de la page courante'
           Margins.Left = 6
           Margins.Top = 6
@@ -456,20 +472,20 @@ object FValeurs: TFValeurs
           OnClick = RazBtnClick
         end
         object TrigoBtnBis: TToolButton
-          Left = 468
-          Top = 75
+          Left = 780
+          Top = 88
           Margins.Left = 6
           Margins.Top = 6
           Margins.Right = 6
           Margins.Bottom = 6
-          Caption = 'Angle'
+          Caption = 'Angles'
           ImageIndex = 11
           ImageName = 'Item12'
           OnClick = TrigoBtnClick
         end
         object RandomBtnBis: TToolButton
-          Left = 624
-          Top = 75
+          Left = 936
+          Top = 88
           Hint = 'Hasard|Effectue une nouveau tirage des grandeurs al'#233'atoires (F4)'
           Margins.Left = 6
           Margins.Top = 6
@@ -481,13 +497,14 @@ object FValeurs: TFValeurs
           OnClick = RandomBtnClick
         end
         object UniteSIBtnBis: TToolButton
-          Left = 780
-          Top = 75
+          Left = 1092
+          Top = 88
+          Hint = 'Prise en compte des pr'#233'fixes d'#39'unit'#233
           Margins.Left = 6
           Margins.Top = 6
           Margins.Right = 6
           Margins.Bottom = 6
-          Caption = 'Pr'#233'fixe'
+          Caption = 'Pr'#233'fixe SI'
           ImageIndex = 16
           ImageName = 'Item17'
           OnClick = UniteSIBtnClick
@@ -507,8 +524,8 @@ object FValeurs: TFValeurs
       ImageName = 'Item19'
       object SimulationBox: TGroupBox
         Left = 0
-        Top = 75
-        Width = 1664
+        Top = 63
+        Width = 1296
         Height = 140
         HelpContext = 207
         Margins.Left = 6
@@ -588,7 +605,7 @@ object FValeurs: TFValeurs
           Caption = 'Nbre'
         end
         object FreqEchLabel: TLabel
-          Left = 648
+          Left = 660
           Top = 84
           Width = 91
           Height = 36
@@ -653,7 +670,7 @@ object FValeurs: TFValeurs
           OnKeyPress = EditMinMaxKeyPress
         end
         object NmesEdit: TEdit
-          Left = 480
+          Left = 490
           Top = 28
           Width = 100
           Height = 44
@@ -670,7 +687,7 @@ object FValeurs: TFValeurs
           OnKeyPress = EditMinMaxKeyPress
         end
         object NmesSpin: TSpinButton
-          Left = 580
+          Left = 590
           Top = 24
           Width = 34
           Height = 50
@@ -759,9 +776,9 @@ object FValeurs: TFValeurs
           OnUpClick = NmesSpinUpClick
         end
         object LogBox: TCheckBox
-          Left = 628
+          Left = 650
           Top = 32
-          Width = 382
+          Width = 350
           Height = 34
           Hint = '|pour coordonn'#233'e logarithmique !'
           Margins.Left = 6
@@ -773,7 +790,7 @@ object FValeurs: TFValeurs
           OnClick = SimulationChange
         end
         object DeltaEdit: TEdit
-          Left = 480
+          Left = 490
           Top = 80
           Width = 158
           Height = 44
@@ -787,7 +804,7 @@ object FValeurs: TFValeurs
           OnKeyPress = EditMinMaxKeyPress
         end
         object PagesIndependantesCB: TCheckBox
-          Left = 1020
+          Left = 1000
           Top = 32
           Width = 360
           Height = 34
@@ -802,8 +819,8 @@ object FValeurs: TFValeurs
       end
       object StatusBar: TStatusBar
         Left = 0
-        Top = 1143
-        Width = 1664
+        Top = 1091
+        Width = 1296
         Height = 38
         Margins.Left = 6
         Margins.Top = 6
@@ -816,14 +833,14 @@ object FValeurs: TFValeurs
       end
       object GrandeursPC: TPageControl
         Left = 0
-        Top = 215
+        Top = 203
         Width = 240
-        Height = 928
+        Height = 888
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
-        ActivePage = TabSheet5
+        ActivePage = TabSheet2
         Align = alLeft
         MultiLine = True
         TabOrder = 2
@@ -839,7 +856,7 @@ object FValeurs: TFValeurs
             Left = 0
             Top = 0
             Width = 224
-            Height = 588
+            Height = 548
             Hint = '|clic pour ins'#233'rer'
             Margins.Left = 6
             Margins.Top = 6
@@ -864,7 +881,7 @@ object FValeurs: TFValeurs
             Left = 0
             Top = 0
             Width = 224
-            Height = 589
+            Height = 548
             Hint = '|clic pour ins'#233'rer'
             Margins.Left = 6
             Margins.Top = 6
@@ -1126,7 +1143,7 @@ object FValeurs: TFValeurs
             Left = 0
             Top = 0
             Width = 224
-            Height = 589
+            Height = 548
             Hint = '|clic pour ins'#233'rer'
             Margins.Left = 6
             Margins.Top = 6
@@ -1385,7 +1402,7 @@ object FValeurs: TFValeurs
             Left = 0
             Top = 0
             Width = 224
-            Height = 589
+            Height = 548
             Hint = '|clic pour ins'#233'rer'
             Margins.Left = 6
             Margins.Top = 6
@@ -1696,7 +1713,7 @@ object FValeurs: TFValeurs
             Left = 0
             Top = 0
             Width = 224
-            Height = 589
+            Height = 548
             Hint = '|clic pour ins'#233'rer'
             Margins.Left = 6
             Margins.Top = 6
@@ -1710,7 +1727,6 @@ object FValeurs: TFValeurs
             ShowCaptions = True
             TabOrder = 0
             Wrapable = False
-            ExplicitHeight = 588
             object ToolButton15: TToolButton
               Tag = 1
               Left = 0
@@ -1918,7 +1934,7 @@ object FValeurs: TFValeurs
             Left = 0
             Top = 0
             Width = 224
-            Height = 589
+            Height = 548
             Hint = '|clic pour ins'#233'rer'
             Margins.Left = 6
             Margins.Top = 6
@@ -2084,6 +2100,7 @@ object FValeurs: TFValeurs
               Caption = 'PieceWise'
               ImageIndex = 3
               OnClick = FonctionBtnClick
+              OnMouseMove = FonctionBtnMouseMove
             end
             object ToolButton76: TToolButton
               Tag = 2
@@ -2098,6 +2115,8 @@ object FValeurs: TFValeurs
               Margins.Bottom = 6
               Caption = 'Diff2'
               ImageIndex = 4
+              OnClick = FonctionBtnClick
+              OnMouseMove = GridParamMouseMove
             end
           end
         end
@@ -2112,7 +2131,7 @@ object FValeurs: TFValeurs
             Left = 0
             Top = 96
             Width = 224
-            Height = 492
+            Height = 452
             Hint = '|clic pour ins'#233'rer'
             Margins.Left = 6
             Margins.Top = 6
@@ -2607,14 +2626,14 @@ object FValeurs: TFValeurs
       object ToolBarExpr: TToolBar
         Left = 0
         Top = 0
-        Width = 1664
-        Height = 75
+        Width = 1296
+        Height = 63
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
         AutoSize = True
-        ButtonHeight = 75
+        ButtonHeight = 63
         ButtonWidth = 133
         GradientEndColor = clSkyBlue
         HotTrackColor = clAqua
@@ -2721,9 +2740,9 @@ object FValeurs: TFValeurs
       end
       object Memo: TRichEdit
         Left = 240
-        Top = 215
-        Width = 1054
-        Height = 928
+        Top = 203
+        Width = 686
+        Height = 888
         Hint = 
           '|Tapez ici les expressions des grandeurs '#224' calculer. Ex. y=2*x+3' +
           ' cr'#233'e y'
@@ -2750,10 +2769,10 @@ object FValeurs: TFValeurs
         OnKeyPress = MemoKeyPress
       end
       object ConstGlbEdit: TRichEdit
-        Left = 1294
-        Top = 215
+        Left = 926
+        Top = 203
         Width = 370
-        Height = 928
+        Height = 888
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -2783,16 +2802,18 @@ object FValeurs: TFValeurs
       object WebBrowser1: TWebBrowser
         Left = 0
         Top = 0
-        Width = 1678
-        Height = 1074
+        Width = 1296
+        Height = 1021
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
         Align = alClient
         TabOrder = 0
+        ExplicitWidth = 1324
+        ExplicitHeight = 1023
         ControlData = {
-          4C000000B7560000803700000000000000000000000000000000000000000000
+          4C000000F9420000C33400000000000000000000000000000000000000000000
           000000004C000000000000000000000001000000E0D057007335CF11AE690800
           2B2E12620C000000000000004C0000000114020000000000C000000000000046
           8000000000000000000000000000000000000000000000000000000000000000
@@ -2800,8 +2821,8 @@ object FValeurs: TFValeurs
       end
       object Panel2: TPanel
         Left = 0
-        Top = 1074
-        Width = 1678
+        Top = 1021
+        Width = 1296
         Height = 108
         Margins.Left = 6
         Margins.Top = 6
@@ -2851,7 +2872,7 @@ object FValeurs: TFValeurs
       object PythonSplitter: TSplitter
         Left = 0
         Top = 578
-        Width = 1664
+        Width = 1296
         Height = 6
         Cursor = crVSplit
         Margins.Left = 6
@@ -2868,8 +2889,9 @@ object FValeurs: TFValeurs
       object MemoResultat: TMemo
         Left = 0
         Top = 584
-        Width = 1664
-        Height = 527
+        Width = 1296
+        Height = 475
+        Cursor = crDrag
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -2879,7 +2901,7 @@ object FValeurs: TFValeurs
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
         Font.Height = -32
-        Font.Name = 'Courier New'
+        Font.Name = 'Consolas'
         Font.Pitch = fpFixed
         Font.Style = []
         Lines.Strings = (
@@ -2890,8 +2912,8 @@ object FValeurs: TFValeurs
       end
       object Panel3: TPanel
         Left = 0
-        Top = 1111
-        Width = 1664
+        Top = 1059
+        Width = 1296
         Height = 70
         Margins.Left = 6
         Margins.Top = 6
@@ -2911,9 +2933,9 @@ object FValeurs: TFValeurs
           Caption = 'Select Python version :'
         end
         object CalcPythonBtn: TButton
-          Left = 660
+          Left = 700
           Top = 8
-          Width = 300
+          Width = 250
           Height = 50
           Margins.Left = 6
           Margins.Top = 6
@@ -2924,7 +2946,7 @@ object FValeurs: TFValeurs
           OnClick = CalcPythonBtnClick
         end
         object cbPyVersions: TComboBox
-          Left = 300
+          Left = 350
           Top = 8
           Width = 322
           Height = 44
@@ -2937,7 +2959,7 @@ object FValeurs: TFValeurs
           OnSelect = cbPyVersionsSelect
         end
         object AidePythonBtn: TButton
-          Left = 1200
+          Left = 1220
           Top = 8
           Width = 150
           Height = 50
@@ -2963,7 +2985,7 @@ object FValeurs: TFValeurs
           OnClick = PythonDllBtnClick
         end
         object effaceConsoleBtn: TButton
-          Left = 980
+          Left = 1000
           Top = 8
           Width = 200
           Height = 50
@@ -2979,7 +3001,7 @@ object FValeurs: TFValeurs
       object PanelSource: TPanel
         Left = 0
         Top = 0
-        Width = 1664
+        Width = 1296
         Height = 578
         Margins.Left = 6
         Margins.Top = 6
@@ -3004,7 +3026,7 @@ object FValeurs: TFValeurs
         object MemoSource: TRichEdit
           Left = 293
           Top = 1
-          Width = 1370
+          Width = 1002
           Height = 576
           Margins.Left = 6
           Margins.Top = 6
@@ -3014,7 +3036,7 @@ object FValeurs: TFValeurs
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
           Font.Height = -27
-          Font.Name = 'Courier New'
+          Font.Name = 'Consolas'
           Font.Style = []
           Lines.Strings = (
             
@@ -3030,6 +3052,7 @@ object FValeurs: TFValeurs
           ParentFont = False
           ScrollBars = ssVertical
           TabOrder = 1
+          WordWrap = False
         end
         object NumeroLigneMemo: TRichEdit
           Left = 243
@@ -3044,7 +3067,7 @@ object FValeurs: TFValeurs
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
           Font.Height = -27
-          Font.Name = 'Courier New'
+          Font.Name = 'Consolas'
           Font.Style = []
           Lines.Strings = (
             '12'
@@ -3057,8 +3080,8 @@ object FValeurs: TFValeurs
     end
   end
   object PopupMenuExpr: TPopupMenu
-    Left = 397
-    Top = 482
+    Left = 349
+    Top = 290
     object CompileItem: TMenuItem
       Caption = 'Mise '#224' jour'
       ShortCut = 113
@@ -3094,52 +3117,72 @@ object FValeurs: TFValeurs
     Enabled = False
     Interval = 440
     OnTimer = MajTimerTimer
-    Left = 684
-    Top = 510
+    Left = 332
+    Top = 590
   end
   object PopupMenuGrid: TPopupMenu
-    Left = 541
-    Top = 500
+    Images = VirtualImageList1
+    OnPopup = PopupMenuGridPopup
+    Left = 333
+    Top = 420
+    object TrierItem: TMenuItem
+      Caption = '&Trier'
+      ImageIndex = 8
+      ImageName = 'Item9'
+      OnClick = TriBtnClick
+    end
     object CreerGrandeurGrid: TMenuItem
       Caption = '&Cr'#233'er grandeur'
       ImageIndex = 1
+      ImageName = 'Item2'
       Visible = False
       OnClick = AddBtnClick
     end
     object DelGrandeurItem: TMenuItem
       Caption = '&Supprimer grandeur'
       ImageIndex = 2
+      ImageName = 'Item3'
       OnClick = DeleteBtnClick
-    end
-    object TrierItem: TMenuItem
-      Caption = '&Trier'
-      ImageIndex = 8
-      OnClick = TriBtnClick
     end
     object DelSelectItem: TMenuItem
       Caption = 'Supprimer &lignes'
       ImageIndex = 9
+      ImageName = 'DelLineImage'
       OnClick = DelSelectItemClick
+    end
+    object DeltaItem: TMenuItem
+      Caption = 'Afficher incertitudes'
+      ImageIndex = 23
+      ImageName = 'IncertImage'
+      OnClick = DeltaItemClick
+    end
+    object PrintGridItem: TMenuItem
+      Caption = 'Imprimer tableau'
+      OnClick = PrintGridItemClick
     end
     object CopierTableauItem: TMenuItem
       Caption = 'Copier tableau'
       Hint = 'Copier l'#39'ensemble du tableau'
       ImageIndex = 12
+      ImageName = 'Item13'
       OnClick = CopierTableauItemClick
     end
     object PhaseItem: TMenuItem
       Caption = 'Phase continue'
       Hint = 'Rendre un angle continu par des modulo 360'#176
       ImageIndex = 13
+      ImageName = 'Item14'
       OnClick = PhaseItemClick
     end
     object TrigoItem: TMenuItem
-      Caption = 'Angle'
+      Caption = 'Angles'
       OnClick = TrigoBtnClick
     end
     object RandomItemBis: TMenuItem
       Caption = 'Recalculer'
       Hint = 'Hasard|Effectue une nouveau tirage des grandeurs al'#233'atoires (F4)'
+      ImageIndex = 15
+      ImageName = 'Item16'
       ShortCut = 115
       OnClick = RandomBtnClick
     end
@@ -3565,9 +3608,68 @@ object FValeurs: TFValeurs
               5DE0E9E722D0964E2979B480E061F7711A78BF0C6A86B492B7BD434A86340F1B
               E5F9639C039244071E496CF4ED06F45F120000000049454E44AE426082}
           end>
+      end
+      item
+        Name = 'warning'
+        SourceImages = <
+          item
+            Image.Data = {
+              424D760600000000000036000000280000001400000014000000010020000000
+              00000000000000000000000000000000000000000000FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF000000FF000000FF000000FF000000FF000000FF000000
+              FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF000000
+              FF000000FF000000FF000000FF000000FF00FFFFFF00FFFFFF000000FF000000
+              FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF000000
+              FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF000000
+              FF00FFFFFF00FFFFFF00FFFFFF000000FF000000FF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF000000FF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+              FF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00000000000000
+              0000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF000000FF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF000000FF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF000000000000000000FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF000000FF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF000000FF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF000000FF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF000000FF00FFFF
+              FF00FFFFFF00FFFFFF000000000000000000FFFFFF00FFFFFF00FFFFFF000000
+              FF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF000000FF000000FF00FFFFFF00FFFFFF00FFFFFF00000000000000
+              0000FFFFFF00FFFFFF00FFFFFF000000FF000000FF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF000000
+              FF00FFFFFF00FFFFFF000000000000000000FFFFFF00FFFFFF000000FF000000
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF000000FF000000FF00FFFFFF00FFFFFF00000000000000
+              0000FFFFFF00FFFFFF000000FF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF000000
+              FF00FFFFFF00FFFFFF000000000000000000FFFFFF00FFFFFF000000FF000000
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF000000FF000000FF00FFFFFF00000000000000
+              0000FFFFFF000000FF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+              FF000000FF00FFFFFF000000000000000000FFFFFF000000FF000000FF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF000000FF00FFFFFF00FFFF
+              FF000000FF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF000000FF000000FF00FFFFFF00FFFFFF000000FF000000FF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF000000FF000000
+              FF000000FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF000000FF000000FF000000FF000000FF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000FF000000
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00}
+          end>
       end>
-    Left = 928
-    Top = 680
+    Left = 560
+    Top = 600
   end
   object VirtualImageList1: TVirtualImageList
     Images = <
@@ -3619,7 +3721,7 @@ object FValeurs: TFValeurs
       item
         CollectionIndex = 9
         CollectionName = 'Item10'
-        Name = 'Item10'
+        Name = 'DelLineImage'
       end
       item
         CollectionIndex = 10
@@ -3689,7 +3791,7 @@ object FValeurs: TFValeurs
       item
         CollectionIndex = 23
         CollectionName = 'Item24'
-        Name = 'Item24'
+        Name = 'IncertImage'
       end
       item
         CollectionIndex = 24
@@ -3715,32 +3817,44 @@ object FValeurs: TFValeurs
         CollectionIndex = 28
         CollectionName = 'Item29'
         Name = 'Item29'
+      end
+      item
+        CollectionIndex = 29
+        CollectionName = 'warning'
+        Name = 'warning'
       end>
     ImageCollection = ImageCollection1
-    Width = 32
-    Height = 32
-    Left = 920
-    Top = 848
+    Width = 20
+    Height = 20
+    Left = 568
+    Top = 752
   end
   object PythonModule1: TPythonModule
     Engine = PythonEngine1
     ModuleName = 'Regressi'
     Errors = <>
-    Left = 1492
+    Left = 1268
     Top = 660
   end
   object PythonEngine1: TPythonEngine
     AutoLoad = False
     FatalAbort = False
     IO = PythonInputOutput1
-    Left = 1468
+    Left = 1260
     Top = 492
   end
   object PythonInputOutput1: TPythonInputOutput
     OnSendUniData = PythonInputOutput1SendUniData
     UnicodeIO = True
     RawOutput = False
-    Left = 1476
+    Left = 1284
     Top = 324
+  end
+  object PythonTimer: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = PythonTimerTimer
+    Left = 1252
+    Top = 812
   end
 end

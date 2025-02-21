@@ -5,8 +5,8 @@ object FGrapheFFT: TFGrapheFFT
   HelpContext = 23
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   Caption = 'Fourier'
-  ClientHeight = 1976
-  ClientWidth = 2480
+  ClientHeight = 1968
+  ClientWidth = 2368
   Color = clWindow
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -41,10 +41,10 @@ object FGrapheFFT: TFGrapheFFT
   PixelsPerInch = 192
   TextHeight = 36
   object SplitterGrid: TSplitter
-    Left = 2010
-    Top = 129
+    Left = 1898
+    Top = 117
     Width = 6
-    Height = 1741
+    Height = 1745
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -55,14 +55,15 @@ object FGrapheFFT: TFGrapheFFT
     MinSize = 1
     ParentColor = False
     OnCanResize = SplitterGridCanResize
+    ExplicitLeft = 2010
     ExplicitTop = 150
     ExplicitHeight = 1720
   end
   object PanelCourbe: TPanel
     Left = 0
-    Top = 129
-    Width = 2010
-    Height = 1741
+    Top = 117
+    Width = 1898
+    Height = 1745
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -72,12 +73,12 @@ object FGrapheFFT: TFGrapheFFT
     Color = clWindow
     ParentBackground = False
     TabOrder = 2
-    ExplicitWidth = 1996
-    ExplicitHeight = 1740
+    ExplicitWidth = 1912
+    ExplicitHeight = 1746
     object PaintBoxTemps: TPaintBox
       Left = 0
       Top = 0
-      Width = 2010
+      Width = 1926
       Height = 100
       Margins.Left = 6
       Margins.Top = 6
@@ -90,12 +91,13 @@ object FGrapheFFT: TFGrapheFFT
       OnMouseMove = TempsMouseMove
       OnMouseUp = TempsMouseUp
       OnPaint = TempsPaint
+      ExplicitWidth = 2010
     end
     object PaintBoxFrequence: TPaintBox
       Left = 0
       Top = 106
-      Width = 2010
-      Height = 1635
+      Width = 1926
+      Height = 1641
       Hint = '|Utiliser le clic droit pour ouvrir le menu local'
       Margins.Left = 6
       Margins.Top = 6
@@ -109,12 +111,13 @@ object FGrapheFFT: TFGrapheFFT
       OnMouseMove = FrequenceMouseMove
       OnMouseUp = FrequenceMouseUp
       OnPaint = FrequencePaint
+      ExplicitWidth = 2010
       ExplicitHeight = 1614
     end
     object SplitterTemps: TSplitter
       Left = 0
       Top = 100
-      Width = 2010
+      Width = 1926
       Height = 6
       Cursor = crVSplit
       Margins.Left = 6
@@ -124,6 +127,7 @@ object FGrapheFFT: TFGrapheFFT
       Align = alTop
       Color = clHotLight
       ParentColor = False
+      ExplicitWidth = 2010
     end
     object LabelX: TLabel
       Tag = 1
@@ -170,8 +174,8 @@ object FGrapheFFT: TFGrapheFFT
       Visible = False
     end
     object CurseurGrid: TStringGrid
-      Left = 1680
-      Top = 112
+      Left = 1472
+      Top = 118
       Width = 332
       Height = 240
       Margins.Left = 6
@@ -219,14 +223,14 @@ object FGrapheFFT: TFGrapheFFT
   object FFTToolBar: TToolBar
     Left = 0
     Top = 0
-    Width = 2480
-    Height = 87
+    Width = 2368
+    Height = 75
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     AutoSize = True
-    ButtonHeight = 83
+    ButtonHeight = 71
     ButtonWidth = 131
     Color = clGradientInactiveCaption
     EdgeBorders = [ebTop, ebBottom]
@@ -239,7 +243,7 @@ object FGrapheFFT: TFGrapheFFT
     TabOrder = 1
     Transparent = False
     Wrapable = False
-    ExplicitWidth = 2466
+    ExplicitWidth = 2382
     object SelectBtn: TToolButton
       Left = 0
       Top = 0
@@ -411,7 +415,7 @@ object FGrapheFFT: TFGrapheFFT
       Left = 1603
       Top = 0
       Width = 40
-      Height = 83
+      Height = 71
       Hint = 'R'#233'glage du nombre de pics affich'#233's'
       Margins.Left = 6
       Margins.Top = 6
@@ -450,7 +454,7 @@ object FGrapheFFT: TFGrapheFFT
       Left = 1659
       Top = 0
       Width = 40
-      Height = 83
+      Height = 71
       Hint = 'd'#233'but FFT|d'#233'but de la fen'#234'tre de calcul de la FFT'
       Margins.Left = 6
       Margins.Top = 6
@@ -479,7 +483,7 @@ object FGrapheFFT: TFGrapheFFT
       Left = 1699
       Top = 0
       Width = 200
-      Height = 83
+      Height = 71
       Hint = 'P'#233'riode FFT|p'#233'riode de calcul de la FFT'
       Margins.Left = 6
       Margins.Top = 6
@@ -500,7 +504,7 @@ object FGrapheFFT: TFGrapheFFT
       Left = 1899
       Top = 0
       Width = 40
-      Height = 83
+      Height = 71
       Hint = 'fin FFT|fin de la fen'#234'tre de calcul de la FFT'
       Margins.Left = 6
       Margins.Top = 6
@@ -527,10 +531,10 @@ object FGrapheFFT: TFGrapheFFT
     end
   end
   object ValeursGrid: TStringGrid
-    Left = 2016
-    Top = 129
+    Left = 1904
+    Top = 117
     Width = 200
-    Height = 1741
+    Height = 1745
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -546,8 +550,8 @@ object FGrapheFFT: TFGrapheFFT
     TabOrder = 0
     OnDblClick = ValeursGridDblClick
     OnMouseDown = ValeursGridMouseDown
-    ExplicitLeft = 2002
-    ExplicitHeight = 1740
+    ExplicitLeft = 1918
+    ExplicitHeight = 1746
     ColWidths = (
       80
       80
@@ -561,8 +565,8 @@ object FGrapheFFT: TFGrapheFFT
   end
   object ValeurCouranteH: TStatusBar
     Left = 0
-    Top = 1938
-    Width = 2480
+    Top = 1930
+    Width = 2368
     Height = 38
     Margins.Left = 6
     Margins.Top = 6
@@ -583,13 +587,13 @@ object FGrapheFFT: TFGrapheFFT
       end>
     ParentFont = True
     UseSystemFont = False
-    ExplicitTop = 1937
-    ExplicitWidth = 2466
+    ExplicitTop = 1931
+    ExplicitWidth = 2382
   end
   object ToolBarGrandeurs: TToolBar
     Left = 0
-    Top = 87
-    Width = 2480
+    Top = 75
+    Width = 2368
     Height = 42
     Hint = 'Glisser d'#233'placer pour d'#233'finir les coordonn'#233'es'
     Margins.Left = 6
@@ -608,7 +612,7 @@ object FGrapheFFT: TFGrapheFFT
     ShowCaptions = True
     TabOrder = 4
     Wrapable = False
-    ExplicitWidth = 2466
+    ExplicitWidth = 2382
     object ToolButton6: TToolButton
       Tag = 7
       Left = 0
@@ -790,8 +794,8 @@ object FGrapheFFT: TFGrapheFFT
   end
   object OptionsSonagramme: TPanel
     Left = 0
-    Top = 1870
-    Width = 2480
+    Top = 1862
+    Width = 2368
     Height = 68
     Margins.Left = 6
     Margins.Top = 6
@@ -808,8 +812,8 @@ object FGrapheFFT: TFGrapheFFT
     ParentFont = False
     TabOrder = 5
     Visible = False
-    ExplicitTop = 1869
-    ExplicitWidth = 2466
+    ExplicitTop = 1863
+    ExplicitWidth = 2382
     object DecadeLabel: TLabel
       Left = 248
       Top = 8
@@ -971,10 +975,10 @@ object FGrapheFFT: TFGrapheFFT
     end
   end
   object PanelAnimation: TPanel
-    Left = 2216
-    Top = 129
+    Left = 2104
+    Top = 117
     Width = 264
-    Height = 1741
+    Height = 1745
     HelpType = htKeyword
     HelpKeyword = 'Animation'
     Margins.Left = 6
@@ -984,8 +988,8 @@ object FGrapheFFT: TFGrapheFFT
     Align = alRight
     TabOrder = 6
     Visible = False
-    ExplicitLeft = 2202
-    ExplicitHeight = 1740
+    ExplicitLeft = 2118
+    ExplicitHeight = 1746
     object GroupBox6: TGroupBox
       Left = 1
       Top = 1047
@@ -1401,19 +1405,9 @@ object FGrapheFFT: TFGrapheFFT
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
-        Glyph.Data = {
-          66010000424D6601000000000000760000002800000014000000140000000100
-          040000000000F000000000000000000000001000000000000000000000000000
-          80000080000000808000800000008000800080800000C0C0C000808080000000
-          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-          3333333300003333333333333333333300003333333BBBBB3333333300003333
-          3BBB191BBB33333300003333BBBB999BBBB333330000333BBBBB191BBBBB3333
-          000033BBBBBBBBBBBBBBB333000033BBBBBBB9BBBBBBB33300003BBBBBBBB91B
-          BBBBBB3300003BBBBBBBB99BBBBBBB3300003BBBBBBBBB99BBBBBB3300003BBB
-          BB11BB199BBBBB3300003BBBBB99BB199BBBBB33000033BBBB991B199BBBB333
-          000033BBBBB99999BBBBB3330000333BBBBB999BBBBB333300003333BBBBBBBB
-          BBB33333000033333BBBBBBBBB33333300003333333BBBBB3333333300003333
-          33333333333333330000}
+        ImageIndex = 35
+        ImageName = 'HELP'
+        Images = VirtualImageList1
         OnClick = HelpAnimBtnClick
       end
       object OptionsAnimBtn: TSpeedButton
@@ -1426,19 +1420,9 @@ object FGrapheFFT: TFGrapheFFT
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
-        Glyph.Data = {
-          66010000424D6601000000000000760000002800000014000000140000000100
-          040000000000F000000000000000000000001000000000000000000000000000
-          80000080000000808000800000008000800080800000C0C0C000808080000000
-          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-          3333333300003333333333333333333300003555550FF0559195053300003580
-          00FF0555919035330000380FFFF0555591933533000030F00FF0555591933833
-          0000300550F05555919358330000308550F0555999995833000035580F085501
-          1111553300003550008550333055553300003555555503335055553300003550
-          0550333550555533000035050503335550555533000030500033355550555833
-          0000300000035555808558330000355000005555808555330000355300008555
-          8085553300003553350000055555553300003333333333333333333300003333
-          33333333333333330000}
+        ImageIndex = 34
+        ImageName = 'tools'
+        Images = VirtualImageList1
         OnClick = OptionsAnimBtnClick
       end
       object RetourBtn: TSpeedButton
@@ -1563,8 +1547,8 @@ object FGrapheFFT: TFGrapheFFT
   object PopupMenuFFT: TPopupMenu
     Alignment = paCenter
     OnPopup = PopupMenuFFTPopup
-    Left = 687
-    Top = 851
+    Left = 751
+    Top = 1171
     object ZoomManuel: TMenuItem
       AutoCheck = True
       Caption = 'Echelle &manuelle'
@@ -1610,11 +1594,19 @@ object FGrapheFFT: TFGrapheFFT
       Caption = 'Affichage des "harmoniques"'
       OnClick = harmoniqueAffItemClick
     end
+    object SaveHarmItem: TMenuItem
+      Caption = 'Enregistrer les raies'
+      OnClick = SaveHarmItemClick
+    end
+    object EnregistrerSpectreItem: TMenuItem
+      Caption = 'Enregistrer le spectre'
+      OnClick = EnregistrerSpectreItemClick
+    end
   end
   object PopupMenuGrid: TPopupMenu
     OnPopup = PopupMenuGridPopup
-    Left = 77
-    Top = 790
+    Left = 573
+    Top = 1158
     object CopyGridBtn: TMenuItem
       Caption = 'Copier tableau'
       ImageIndex = 13
@@ -1653,8 +1645,8 @@ object FGrapheFFT: TFGrapheFFT
   end
   object FenetrageMenu: TPopupMenu
     OnPopup = FenetrageMenuPopup
-    Left = 518
-    Top = 806
+    Left = 934
+    Top = 1174
     object HammingBtn: TMenuItem
       Tag = 1
       AutoCheck = True
@@ -1668,7 +1660,6 @@ object FGrapheFFT: TFGrapheFFT
     object RectBtn: TMenuItem
       AutoCheck = True
       Caption = 'Naturelle'
-      Checked = True
       GroupIndex = 1
       Hint = 'Fen'#234'tre naturelle rectangulaire'
       ImageIndex = 8
@@ -1687,23 +1678,28 @@ object FGrapheFFT: TFGrapheFFT
     end
     object BlackmanBtn: TMenuItem
       Tag = 3
+      AutoCheck = True
       Caption = 'Blackman'
       GroupIndex = 1
       ImageIndex = 30
+      RadioItem = True
       OnClick = FenetreBtnClick
     end
     object NaturelleCorrBtn: TMenuItem
       Tag = 4
+      AutoCheck = True
       Caption = 'Naturelle corrig'#233'e'
+      Checked = True
       GroupIndex = 1
       Hint = 'Corrige les fuites s'#39'il y a un nombre suffisant de p'#233'riodes '
       ImageIndex = 31
+      RadioItem = True
       OnClick = FenetreBtnClick
     end
   end
   object MenuDessin: TPopupMenu
-    Left = 446
-    Top = 600
+    Left = 1118
+    Top = 1176
     object DessinSupprimerItem: TMenuItem
       Caption = '&Supprimer'
       OnClick = DessinSupprimerItemClick
@@ -1714,8 +1710,8 @@ object FGrapheFFT: TFGrapheFFT
     end
   end
   object SourisMenu: TPopupMenu
-    Left = 174
-    Top = 1046
+    Left = 206
+    Top = 1158
     object StandardItem: TMenuItem
       Caption = 'Standard'
       GroupIndex = 1
@@ -1761,10 +1757,8 @@ object FGrapheFFT: TFGrapheFFT
     end
   end
   object SaveDialog: TSaveDialog
-    DefaultExt = 'EMF'
-    Filter = 
-      'Fichier WMF|*.EMF|JPEG|*.jpg|PNG|*.png|Bitmap|*.bmp|PostScript|*' +
-      '.eps'
+    DefaultExt = 'png'
+    Filter = 'JPEG|*.jpg|PNG|*.png|Bitmap|*.bmp'
     Left = 328
     Top = 792
   end
@@ -2253,9 +2247,127 @@ object FGrapheFFT: TFGrapheFFT
               E0F8EBADA0C3CB6106355F5F25DA03A72ED89D380046109DEDFBD4739A000000
               0049454E44AE426082}
           end>
+      end
+      item
+        Name = 'tools'
+        SourceImages = <
+          item
+            Image.Data = {
+              424D760600000000000036000000280000001400000014000000010020000000
+              00000000000000000000000000000000000000000000FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00800080008000
+              800080008000800080008000800000000000FFFFFF00FFFFFF00000000008000
+              8000800080000000FF00000080000000FF00800080000000000080008000FFFF
+              FF00FFFFFF00FFFFFF008000800080808000000000000000000000000000FFFF
+              FF00FFFFFF00000000008000800080008000800080000000FF00000080000000
+              FF00000000000080800080008000FFFFFF00FFFFFF00FFFFFF00808080000000
+              0000FFFFFF00FFFFFF00FFFFFF00FFFFFF000000000080008000800080008000
+              8000800080000000FF00000080000000FF00008080000080800080008000FFFF
+              FF00FFFFFF00FFFFFF0000000000FFFFFF000000000000000000FFFFFF00FFFF
+              FF0000000000800080008000800080008000800080000000FF00000080000000
+              FF00008080000080800080808000FFFFFF00FFFFFF00FFFFFF00000000000000
+              0000800080008000800000000000FFFFFF000000000080008000800080008000
+              8000800080000000FF00000080000000FF00008080008000800080808000FFFF
+              FF00FFFFFF00FFFFFF000000000080808000800080008000800000000000FFFF
+              FF00000000008000800080008000800080000000FF000000FF000000FF000000
+              FF000000FF008000800080808000FFFFFF00FFFFFF00FFFFFF00800080008000
+              80008080800000000000FFFFFF00000000008080800080008000800080000000
+              000000008000000080000000800000008000000080008000800080008000FFFF
+              FF00FFFFFF00FFFFFF0080008000800080000000000000000000000000008080
+              8000800080008000800000000000FFFFFF00FFFFFF00FFFFFF00000000008000
+              8000800080008000800080008000FFFFFF00FFFFFF00FFFFFF00800080008000
+              8000800080008000800080008000800080008000800000000000FFFFFF00FFFF
+              FF00FFFFFF00800080000000000080008000800080008000800080008000FFFF
+              FF00FFFFFF00FFFFFF0080008000800080000000000000000000800080008000
+              800000000000FFFFFF00FFFFFF00FFFFFF008000800080008000000000008000
+              8000800080008000800080008000FFFFFF00FFFFFF00FFFFFF00800080000000
+              000080008000000000008000800000000000FFFFFF00FFFFFF00FFFFFF008000
+              800080008000800080000000000080008000800080008000800080008000FFFF
+              FF00FFFFFF00FFFFFF000000000080008000000000000000000000000000FFFF
+              FF00FFFFFF00FFFFFF0080008000800080008000800080008000000000008000
+              8000800080008000800080808000FFFFFF00FFFFFF00FFFFFF00000000000000
+              000000000000000000000000000000000000FFFFFF0080008000800080008000
+              800080008000808080000000000080808000800080008000800080808000FFFF
+              FF00FFFFFF00FFFFFF0080008000800080000000000000000000000000000000
+              0000000000008000800080008000800080008000800080808000000000008080
+              8000800080008000800080008000FFFFFF00FFFFFF00FFFFFF00800080008000
+              8000FFFFFF000000000000000000000000000000000080808000800080008000
+              800080008000808080000000000080808000800080008000800080008000FFFF
+              FF00FFFFFF00FFFFFF008000800080008000FFFFFF00FFFFFF00800080000000
+              0000000000000000000000000000000000008000800080008000800080008000
+              8000800080008000800080008000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00}
+          end>
+      end
+      item
+        Name = 'HELP'
+        SourceImages = <
+          item
+            Image.Data = {
+              424D760600000000000036000000280000001400000014000000010020000000
+              00000000000000000000000000000000000000000000FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FF
+              FF0000FFFF00000080000000FF000000800000FFFF0000FFFF0000FFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF000000FF000000FF000000
+              FF0000FFFF0000FFFF0000FFFF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF00000080000000FF000000800000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF000000FF0000FFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF000000FF000000
+              800000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF00FFFF
+              FF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF000000FF000000FF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF000000
+              FF000000FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF00FFFF
+              FF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF000000
+              80000000800000FFFF0000FFFF00000080000000FF000000FF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF000000FF000000FF0000FFFF0000FFFF000000
+              80000000FF000000FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF000000
+              FF000000FF000000800000FFFF00000080000000FF000000FF0000FFFF0000FF
+              FF0000FFFF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF000000FF000000FF000000FF000000
+              FF000000FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF000000FF000000FF000000FF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FF
+              FF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000FFFF0000FFFF0000FFFF0000FF
+              FF0000FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00}
+          end>
       end>
-    Left = 1248
-    Top = 1279
+    Left = 784
+    Top = 1423
   end
   object VirtualImageList1: TVirtualImageList
     Images = <
@@ -2428,11 +2540,27 @@ object FGrapheFFT: TFGrapheFFT
         CollectionIndex = 33
         CollectionName = 'Item34'
         Name = 'Item34'
+      end
+      item
+        CollectionIndex = 34
+        CollectionName = 'tools'
+        Name = 'tools'
+      end
+      item
+        CollectionIndex = 35
+        CollectionName = 'HELP'
+        Name = 'HELP'
       end>
     ImageCollection = ImageCollection1
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 616
     Top = 1415
+  end
+  object SaveDialogCSV: TSaveDialog
+    DefaultExt = 'csv'
+    Title = 'Sauvegarde raies CSV'
+    Left = 592
+    Top = 480
   end
 end

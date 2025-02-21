@@ -191,8 +191,8 @@ End; // function calculeCpx
    Begin with F^ do begin
         case codeFglb of
               pythonVar,pythonConst : ;
-              minimum,maximum,moyenneAll,somme,ecartType,sommeFFT,moyenneFFT : calcUnite(F^.OperandGlb);
-              filtrage,RetardCorr,enveloppe,position,origine,initial,moyenne,efficace,efficaceAll,
+              minimum,maximum,moyenneAll,somme,moyenne,ecartType,sommeFFT,moyenneFFT : calcUnite(F^.OperandGlb);
+              filtrage,RetardCorr,enveloppe,position,origine,initial,efficace,efficaceAll,
               harmonique,lissageGlissant,lissageCentre,PhaseContinue : calcGrandeur(varX);
               surface : AdUnite('+',varX,varY);
               //pente,derivee : AdUnite('-',varY,varX);
@@ -272,8 +272,8 @@ end end; // calcFonctionGlb
               '&' : begin
                    VerifUniteEgale(u_g,u_d);
                    if correct then if angleEnDegre
-                      then ReCopieUnite(UniteToleree[indexDegre])
-                      else ReCopieUnite(UniteToleree[indexRadian]);
+                      then ReCopieUnite(UniteDegre)
+                      else ReCopieUnite(UniteRadian);
               end;
               '^' : if OperD^.typeElement=nombre
                  then begin
@@ -627,7 +627,6 @@ end;
 Destructor Tmodele.Destroy;
 begin
    residuStat.free;
-   residu := nil;
    inherited destroy;
    libere(fchi2);
 end;
@@ -1357,6 +1356,7 @@ begin with F^ do begin  // CherchePosVal
 end end; // CherchePosVal
 
 var s2,s : double;
+    nbre : integer;
 begin with F^ do begin
    if nmesCourant<2 then exit;
    debut := 0;
@@ -1364,11 +1364,13 @@ begin with F^ do begin
    if (codeFglb in [frequence,phase]) and (operandFin<>nil)
       then seuil := calcule(OperandFin)
       else seuil := Nan;
-   if codeFglb in [efficace,frequence,phase,moyenne] then chercheDebutFin;
+   if codeFglb in [efficace,frequence,phase,moyenne] then
+      chercheDebutFin;
    min := varX.valeur[debut];
    max := min;
    s2 := 0;
    s := 0;
+   nbre := fin-debut+1;
    for i := debut to fin do begin
        z := varX.valeur[i];
        if z<min
@@ -1401,24 +1403,24 @@ begin with F^ do begin
         phase : if varY<>nil
             then cherchePhase
             else valeurGlb := Nan;
-        efficaceAll : valeurGlb := sqrt(s2/nmesCourant);
+        efficaceAll : valeurGlb := sqrt(s2/nbre);
         efficace : begin
-           valeurGlb := sqrt(s2/(fin-debut+1));
+           valeurGlb := sqrt(s2/nbre);
            if uniteSIGlb then valeurGlb := valeurGlb*varX.coeffSI;
         end;
         moyenne : begin
-           valeurGlb := s/(fin-debut+1);
+           valeurGlb := s/nbre;
            if uniteSIGlb then valeurGlb := valeurGlb*varX.coeffSI;
         end;
         surface : begin
-           valeurGlb := calculSurface(varX.valeur,varY.valeur,nmesCourant);
+           valeurGlb := calculSurface(varX.valeur,varY.valeur,nbre);
            if uniteSIGlb then valeurGlb := valeurGlb*varX.coeffSI*varY.coeffSI;
         end;
     end;
 end end; // constNum
 
 Procedure calculMoyenne;
-var i,idebut,ifin : integer;
+var i,idebut,ifin,nbre : integer;
     z,min,max : double;
     s1,s2,valeurLoc : double;
 begin with F^ do begin
@@ -1443,6 +1445,7 @@ begin with F^ do begin
             do dec(iFin);
       verifMinMaxInt(idebut,ifin);
    end;
+   nbre := iFin-iDebut+1;
    for i := idebut to ifin do begin
        affecteVariableE(i);
        z := calculeLoc(operandGlb);
@@ -1454,9 +1457,10 @@ begin with F^ do begin
    case codeFglb of
         maximum : valeurGlb := max;
         minimum : valeurGlb := min;
-        moyenneAll : valeurGlb := s1/nmesCourant;
+        moyenneAll : valeurGlb := s1/nbre;
         somme : valeurGlb := s1;
-        ecartType : valeurGlb := sqrt((s2-sqr(s1)/nmesCourant)/pred(nmesCourant));
+        moyenne : valeurGlb := s1/nbre;
+        ecartType : valeurGlb := sqrt((s2-sqr(s1)/nbre)/pred(nbre));
     end;
     affecteVariableE(0);
 end end; // CalculMoyenne
@@ -1555,6 +1559,7 @@ begin with F^ do begin
    case codeFglb of
         maximum : valeurGlb := max;
         minimum : valeurGlb := min;
+        moyenne : valeurGlb := s1/NbrePages;
         moyenneAll : valeurGlb := s1/NbrePages;
         somme : valeurGlb := s1;
         ecartType : valeurGlb := sqrt((s2-sqr(s1)/NbrePages)/pred(NbrePages));
@@ -1708,7 +1713,7 @@ var freqLoc,rapportCyclique,t : double;
 begin with F^ do begin // calculFonctionGlb
     indiceCourant := round(grandeurs[cIndice].valeurCourante);
     if indiceCourant=0 then Case CodeFglb of
-         maximum,minimum,moyenneAll,somme,ecartType : if typeGlb=variable
+         maximum,minimum,moyenneAll,somme,moyenne,ecartType : if typeGlb=variable
                then calculMoyenne
                else calculMoyenneParam;
          moyenneFFT,sommeFFT : if typeGlb=variable
@@ -1721,7 +1726,7 @@ begin with F^ do begin // calculFonctionGlb
                then valeurGlb := Nan
                else valeurGlb := varX.valeur[j];
          end;
-         position,frequence,surface,phase,moyenne,efficace,efficaceAll : if varX.genreG=variable
+         position,frequence,surface,phase,efficace,efficaceAll : if varX.genreG=variable
                 then constNum
                 else constNumParam;
          pente,origine : calculPenteOrigine;
@@ -1985,6 +1990,55 @@ begin
      end;
 end;
 
+function calculeIncertGlb(f,fIncert : Pelement) : double;
+
+Function calculMoyenne : double;
+var i,idebut,ifin,nbre : integer;
+    s2,valeurLoc : double;
+begin
+   result := Nan;
+   if nmesCourant<2 then exit;
+   s2 := 0;
+   idebut := 0;
+   if f^.OperandDebut<>nil then begin
+      valeurLoc := calculeLoc(f^.operandDebut);
+      while (idebut<(nmesCourant-2)) and
+            (grandeurs[0].valeur[idebut]<valeurLoc)
+            do inc(idebut);
+   end;
+   ifin := pred(nmesCourant);
+   if f^.OperandFin<>nil then begin
+      valeurLoc := calculeLoc(f^.operandFin);
+      while (iFin>0) and
+            (grandeurs[0].valeur[iFin]>valeurLoc)
+            do dec(iFin);
+      verifMinMaxInt(idebut,ifin);
+   end;
+   nbre := iFin-iDebut+1;
+   for i := idebut to ifin do begin
+       affecteVariableE(i);
+       valeurLoc := calculeLoc(fIncert);
+       s2 := s2+sqr(valeurLoc);
+   end;
+   case f^.codeFGlb of
+        moyenneAll,moyenne : result := sqrt(s2)/nbre;
+        somme : result := sqrt(s2);
+    end;
+    affecteVariableE(0);
+end; // CalculMoyenne
+
+begin
+   if (f=nil) or not(f^.codeFGlb in [moyenneAll,moyenne,somme])
+     then result := Nan
+     else begin
+        try
+        result := calculMoyenne;
+        except
+        result := Nan
+        end;
+     end;
+end;
+
 // dérivée formelle
 
 Procedure deriveeForm(F : Tfonction;xx : tgrandeur;var Fprime : Pelement;
@@ -2030,7 +2084,8 @@ Function derive(F : Pelement ) : Pelement;
                               genFonction(sinus,copie(operand)));
               tangente : tampon := genOperateurSimpl('+',
                   pointeurUn,
-                  genFonction(tangente,copie(operand))); // tan(x)'=1+tan(x)^2
+                  genFonction(carre,
+                     genFonction(tangente,copie(operand)))); // tan(x)'=1+tan(x)^2
               arcTangente : tampon := genFonction(inverse,
                   genOperateurSimpl('+',
                      pointeurUn,
@@ -2259,7 +2314,7 @@ if El<>nil then with El^ do begin
                          else genref := ConstanteGlb;
             end;
             integraleDefinie : genref := Constante;
-            moyenneAll,maximum,minimum,ecarttype,somme,sommeFFT,moyenneFFT : begin
+            moyenne,moyenneAll,maximum,minimum,ecarttype,somme,sommeFFT,moyenneFFT : begin
                  genreFonctionLoc(OperandGlb,g1);
                  typeGlb := g1;
                  case g1 of
@@ -2575,6 +2630,54 @@ begin
     change(calcul)
 end; // ChangementVariable
 
+Function Tgrandeur.ValeurNum(isLatex : boolean) : String;
+var puissValeur : shortInt;
+    CoeffValeur,valeurDix : double;
+    Precision,Decimales : byte;
+    tampon : String;
+    PrecOk : boolean;
+    valeurLoc,precLoc : double;
+begin
+      valeurLoc := valeurCourante;
+      precLoc := incertCourante;
+      Precision := 0;
+      precOK := not isNan(precLoc) and
+                ( abs(valeurLoc)>precLoc ) and
+                ( abs(valeurLoc)<1e9*precLoc );
+      if precOK then begin
+           try
+           Precision := floor(log10(abs(valeurLoc))-floor(log10(precLoc))); // +1
+           except
+           precOK := false;
+           end;
+      end; // precOK
+      if precOK
+         then begin
+            if Precision<=2
+               then Precision := 3
+               else if Precision>PrecisionMax
+                  then Precision := PrecisionMax;
+         end
+         else Precision := PrecisionMax div 2;
+   PuissValeur := 3*floor(log10(abs(valeurLoc))/3);
+   CoeffValeur := dix(-puissValeur);
+   Decimales := Precision-1;
+   valeurDix := valeurLoc*CoeffValeur;
+   if valeurDix>=10 then dec(Decimales);
+   if valeurDix>=100 then dec(Decimales);
+   if isLatex then begin
+      tampon := FloatToStrFixedLatex(valeurDix,Precision,Decimales);
+      if puissValeur<>0 then
+         tampon := tampon+'*10^('+intToStr(puissValeur)+')';
+   end
+   else begin
+      tampon := FloatToStrF(valeurDix,ffFixed,Precision,Decimales);
+      if puissValeur<>0 then
+         tampon := tampon+pointMedian+'10'+powerToStr(puissValeur);
+   end;
+   result := tampon;
+end; // ValeurNum
+
 Function TModele.expressionNumerique : string;
 
 Function TranslateExp(F : Pelement) : string;
@@ -2639,8 +2742,8 @@ Begin // ExpressionNumerique
                      end
                      else result := X+'^{'+Y+'}';
                  else result := '';
-             end;{case codeOp}
-             if (CodeOp='*') and
+            end;// case codeOp
+            if (CodeOp='*') and
                (Operd.typeElement=grandeur) and
                (Operd.pvar.genreG=paramNormal) then begin
                    i := indexNom(operd.Pvar.nom);
@@ -2649,26 +2752,20 @@ Begin // ExpressionNumerique
             end;
        end;// operateur
        Fonction: Begin
-           X := translateExp(Operand);
+           X := '('+translateExp(Operand)+')';
            case codeF of
                 oppose : result := '-'+X;
                 inverse : result := '1/'+X;
                 carre : result := X+chiffreExp[2];
-                else result := LowerCase(nomFonction[codeF])+'('+X+')';
+                else result := LowerCase(nomFonction[codeF])+X;
            end;
        End; // Fonction
        FonctionGlb : result := calculFonctionGlb(F);
-       grandeur : if Pvar.genreG=paramNormal then begin
-              i := indexNom(Pvar.nom);
-              i := indexToParam(paramNormal,i);
-              result := pages[pageCourante].paramNum(i);
-           end
+       grandeur : if Pvar.genreG=paramNormal
+           then result := Pvar.valeurNum(false)
            else result := Pvar.nom;
-       incert : if Pvar.genreG=paramNormal then begin
-              i := indexNom(Pvar.nom);
-              i := indexToParam(paramNormal,i);
-              result := pages[pageCourante].paramNum(i);
-           end
+       incert : if Pvar.genreG=paramNormal
+           then result := ''
            else result := 'u('+Pvar.nom+')';
        Nombre: if F=pointeurPi then result := piMin else result := floatToStrPoint(valeur);
        RacineMoinsUn : result := 'j';
@@ -2680,6 +2777,69 @@ begin
    // +'('+grandeurs[indexX].nom+')
     result := grandeurs[indexY].nom+'='+translateExp(calcul)
 End; //  ExpressionNumerique
+
+Function TModele.expressionLatex(exposantX : string) : string;
+
+Function TranslateExp(F : Pelement) : string;
+Var X,Y : string;
+    parX,parY : boolean; // parenthèse X Y
+    i : TcodeGrandeur;
+Begin // ExpressionLatex
+  result := '';
+  With F^ do Case TypeElement of
+       Operateur: Begin
+            X := translateExp(OperG);
+            if X='' then exit;
+            parX := (Operg.TypeElement=Operateur) and
+                    charInSet(OperG.CodeOp,['+','-']) and
+                    charInSet(CodeOp,['*','^']);
+            if parX then X := '('+X+')';
+            Y := translateExp(OperD);
+            if Y='' then exit;
+            parY := ((OperD.TypeElement=Operateur) and
+                    charInSet(OperD.CodeOp,['+','-']) and
+                    (CodeOp='*')) or (CodeOp='^') or (Y[1]='-');
+            if parY then Y := '('+Y+')';
+            if charInSet(CodeOp,['+','-','*','/',^'])
+               then result := X+CodeOp+Y;
+            if (CodeOp='*') and
+               (Operd.typeElement=grandeur) and
+               (Operd.pvar.genreG=paramNormal) then begin
+                   i := indexNom(operd.Pvar.nom);
+                   i := indexToParam(paramNormal,i);
+                   if ParamInverse[i] then result := X+'/'+Y;
+            end;
+       end;// operateur
+       Fonction: Begin
+           X := '('+translateExp(Operand)+')';
+           case codeF of
+                oppose : result := '-'+X;
+                inverse : result := '1/'+X;
+                carre : result := X+'^2';
+                else begin
+                   result := nomFonctionLatex[codeF];
+                   if result<>'' then
+                      if not(AngleEnDegre) and (codeF in [cosinus,sinus,tangente])
+                        then result := result+'(deg'+X+')'
+                        else result := result+X;
+                end;
+           end;
+       End; // Fonction
+       FonctionGlb : ;
+       grandeur : if Pvar.genreG=paramNormal
+           then result := Pvar.valeurNum(true)
+           else if Pvar=grandeurs[indexX]
+              then result := 'x'+exposantX;  // *10^(exposantX)
+       incert : ;
+       Nombre: if F=pointeurPi then result := 'pi' else result := floatToStrLatex(valeur);
+       RacineMoinsUn : result := 'j';
+       else result := '';
+  End;// case typeElement
+end;
+
+begin
+    result := translateExp(calcul) // + /10^(exposantY)  fait dans la procedure appelante
+End; //  ExpressionLatex
 
 procedure TGrandeur.CalculIncertitudeExp(var avaleur : double);
 

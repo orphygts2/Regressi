@@ -2,185 +2,25 @@ unit Latex;
 
 interface
 
-uses sysutils, classes, Clipbrd, grids, regutil, compile, windows, constreg;
+uses sysutils, classes, Clipbrd, grids, regutil, compile, windows, constreg, vcl.graphics;
 
 procedure AjouteGrandeur(index : integer);
-procedure AjouteModele(amodele : Tmodele);
-procedure DebutDoc(const titre,auteur,date : string);
+procedure AjouteModele(amodele : Tmodele;avecCouleur : boolean);
+procedure DebutDoc(const titre : string);
 procedure FinDoc;
-
-function TranslateNomTexte(const anom : string) : string;
 
 Procedure AjouteLigne(aligne : string);
 Procedure AjouteLigneItem(aligne : string);
 Procedure AjouteGrid(agrid : TstringGrid);
 Procedure AjouteParagraphe(titre : string);
 Procedure AjouteLigneLatex(const aligne : string);
+Procedure SautLigne;
 
 Procedure SaveFile(const nomFichier : string);
 
 implementation
 
 var latexStr : TstringList;
-    avecExposant : boolean;
-
-Function UnicodeToLatexMath(carac : char) : string;
-var j : integer;
-begin
-     avecExposant := false;
-     case carac of
-                      alpha : result := '\alpha ';
-                      beta : result := '\beta ';
-                      gammaMin: result := '\gamma ' ;
-                      gammaMaj: result := '\Gamma ';
-                      deltaMin: result := '\delta ';
-                      deltaMaj: result := '\Delta ';
-                      epsilon: result := '\epsilon ';
-                      zeta: result := '\zeta ';
-                      eta: result := '\eta ';
-                      kappa: result := '\kappa ';
-                      lambdaMin: result := '\lambda ';
-                      lambdaMaj: result := '\Lambda ';
-                      mu: result := '\mu ';
-                      nu: result := '\nu ';
-                      xi: result := '\xi ';
-                      xiMaj: result := '\Xi ';
-                      pimin: result := '\pi ';
-                      piMaj: result := '\Pi ';
-                      rho: result := '\rho ';
-                      sigmaMin: result := '\sigma ';
-                      sigmaMaj: result := '\Sigma ';
-                      tau: result := '\tau ';
-                      theta: result := '\theta ';
-                      thetaMaj: result := '\Theta ';
-                      phiMin: result := '\phi ';
-                      phiMaj: result := '\Phi ';
-                      chi: result := '\chi ';
-                      psi: result := '\psi ';
-                      psiMaj: result := '\Psi ';
-                      omegaMin: result := '\omega ';
-                      omegaMaj: result := '\Omega ';
-                      '§' : result := '\S';
-                      '&' : result := '\&';
-                      '#' : result := '\#';
-                      '°' : result := '\degres';
-                      '±' : result := '\pm';
-                      '%' : result := '\%';
-                      pourMille : result := '\textperthousand';
-                      MoinsExp : result := '-';
-                      PlusExp : result := '+';
-                      InfEgal : result := '\leq';
-                      SupEgal : result := '\geq';
-                      else begin
-                         result := carac;
-                         for j := 0 to 9 do
-                            if carac=ChiffreExp[j] then begin
-                               result := intToStr(j);
-                               break;
-                            end;
-                      end;
-     end;
-end;
-
-Function UnicodeToLatexTexte(carac : char) : string;
-var j : integer;
-begin
-     avecExposant := false;
-     case carac of
-                      alpha : result := '$\alpha$';
-                      beta : result := '$\beta$';
-                      gammaMin: result := '$\gamma$' ;
-                      gammaMaj: result := '$\Gamma$';
-                      deltaMin: result := '$\delta$';
-                      deltaMaj: result := '$\Delta$';
-                      epsilon: result := '$\epsilon$';
-                      zeta: result := '$\zeta$';
-                      eta: result := '$\eta$';
-                      kappa: result := '$\kappa$';
-                      lambdaMin: result := '$\lambda$';
-                      lambdaMaj: result := '$\Lambda$';
-                      mu: result := '$\mu$';
-                      nu: result := '$\nu$';
-                      xi: result := '$\xi$';
-                      xiMaj: result := '$\Xi$';
-                      pimin: result := '$\pi$';
-                      piMaj: result := '$\Pi$';
-                      rho: result := '$\rho$';
-                      sigmaMin: result := '$\sigma$';
-                      sigmaMaj: result := '$\Sigma$';
-                      tau: result := '$\tau$';
-                      theta: result := '$\theta$';
-                      thetaMaj: result := '$\Theta$';
-                      phiMin: result := '$\phi$';
-                      phiMaj: result := '$\Phi$';
-                      chi: result := '$\chi$';
-                      psi: result := '$\psi$';
-                      psiMaj: result := '$\Psi$';
-                      omegaMin: result := '$\omega$';
-                      omegaMaj: result := '$\Omega$';
-                      '%' : result := '\%';
-                      pourmille : result := '\textperthousand';
-                      '§' : result := '\S';
-                      '&' : result := '\&';
-                      '#' : result := '\#';
-                      '°' : result := '\degres';
-                      MoinsExp : begin
-                         avecExposant := true;
-                         result := '-';
-                      end;
-                      PlusExp : begin
-                         avecExposant := true;
-                         result := '+';
-                      end;
-                      InfEgal : result := '$\leq$';
-                      SupEgal : result := '$\geq$';
-                      '±' : result := '$\pm$';
-                      else begin
-                         result := carac;
-                         for j := 0 to 9 do
-                            if carac=ChiffreExp[j] then begin
-                               avecExposant := true;
-                               result := intToStr(j);
-                               break;
-                            end;
-                      end;
-     end;
-end;
-
-function TranslateNomMath(const anom : string) : string;
-var i : integer;
-begin
-    result := '';
-    for i := 1 to length(anom) do
-        result := result+unicodeToLatexMath(anom[i]);
-end;
-
-function TranslateNomTexte(const anom : string) : string;
-var i : integer;
-    tr : string;
-    exposantEnCours : boolean;
-begin
-    result := '';
-    exposantEnCours := false;
-    for i := 1 to length(anom) do begin
-        tr := unicodeToLatexTexte(anom[i]);
-        if exposantEnCours
-           then if avecExposant
-              then
-              else begin
-                 exposantEnCours := false;
-                 result := result+'}$';
-              end
-           else if avecExposant
-              then begin
-               result := result+'$^{';
-               exposantEnCours := true;
-              end;
-        result := result+tr;
-    end;
-    if exposantEnCours then
-        result := result+'}$';
-end;
 
 Function TranslateExpression(F:Pelement) : string;
 // renvoie le code Tex d'un arbre pointé par F
@@ -254,6 +94,7 @@ end end; // calculFonctionGlb
 
 Var X,Y : string;
     parX,parY : boolean; // parenthèse X Y
+    indexP : integer;
 Begin // TranslateExpression
   result := '';
   if F=nil then exit;
@@ -271,30 +112,43 @@ Begin // TranslateExpression
             if parY then Y := '('+Y+')';
             Case CodeOp of
                  '+','<','-','>','=' : result := X+CodeOp+Y;
-                 '*' : result := X+'\cdot '+Y; // ou times ?
+                 '*' : if (Operd.typeElement=grandeur) and
+                          (Operd.pvar.genreG=paramNormal) then begin
+                         indexP := indexNom(operd.Pvar.nom);
+                         indexP := indexToParam(paramNormal,indexP);
+                         if ParamInverse[indexP]
+                             then result := '\frac{'+X+'}{'+Y+'}'
+                             else result := X+'\cdot '+Y;
+                    end
+                    else result := X+'\cdot '+Y; // ou times ?
                  '/' : result := '\frac{'+X+'}{'+Y+'}';
                  '@' : result := X+'+'+Y;
                  '#' : result := X+'-'+Y;
                  '^' : result := X+'^{'+Y+'}';
                  '&' : result := '\arg('+X+'+\jmath'+Y+')';
-             end;{case codeOp}
+            end;{case codeOp}
        end;{operateur}
        Fonction: Begin
              X := translateExpression(Operand);
-              case codef of
+             parX := (codeF in [lognep,logdec,sinus,cosinus,tangente,argument,exponentielle,sinuscardinal,reelle,imaginaire,arctangente,carre,sinuscardinal]);
+             parY := pos('\frac',X)=1;
+             if parX then if parY
+                then X := '\left('+X+'\right)'
+                else X := '('+X+')';
+             case codef of
                 racine : result := '\sqrt{'+X+'}';
                 oppose: result := '-'+X;
                 absolue: result := '\| '+X+' \|';
                 inverse: result := '\frac{1}{'+X+'}';
-                carre : result := X+'^{2}';
-                lognep: result := '\ln ('+X+')';
-                logdec: result := '\log ('+X+')';
-                sinus: result := '\sin ('+X+')';
-                cosinus: result := '\cos ('+X+')';
-                tangente: result := '\tan ('+X+')';
+                carre : result := X+'^2';
+                lognep: result := '\ln '+X;
+                logdec: result := '\log '+X;
+                sinus: result := '\sin '+X;
+                cosinus: result := '\cos '+X;
+                tangente: result := '\tan '+X;
                 arcSinus: result := '\arcsin ('+X+')';
                 arcCosinus: result := '\arccos ('+X+')';
-                arcTangente: result := '\arctan ('+X+')';
+                arcTangente: result := '\arctan '+X;
                 cosHyper: result := '\cosh ('+X+')';
                 sinHyper: result := '\sinh ('+X+')';
                 tanHyper: result := '\tanh ('+X+')';
@@ -304,17 +158,17 @@ Begin // TranslateExpression
                 NotFunction,FonctInconnue: result := '?';
                 CodeGamma: result := '\Gamma ('+X+')';
                 CodeFact: result := X+'!';
-                reelle: result := '\Re ('+X+')';
-                imaginaire: result := '\Im ('+X+')';
-                argument: result := '\arg ('+X+')';
+                reelle: result := '\Re '+X;
+                imaginaire: result := '\Im '+X;
+                argument: result := '\arg '+X;
                 echelon: result := '\Upsilon ('+X+')';
                 entierSup: result := '\lceil {'+X+'} \rceil';
                 entier,entierInf: result := '\lfloor {'+X+'} \rfloor';
-                exponentielle: result := '\exp('+X+')';
-                sinusCardinal: result := '\rm {sinc}('+X+')' ;
-                errorFunction: result := '\rm {erf}('+X+')' ;
-             else result := LowerCase(nomFonction[codeF])+'('+X+')';
-           end;// case codeF
+                exponentielle: result := '\exp '+X;
+                sinusCardinal: result := '\rm{sinc} '+X;
+                errorFunction: result := '\rm{erf}('+X+')' ;
+                else result := LowerCase(nomFonction[codeF])+'('+X+')';
+             end;// case codeF
        End;{Fonction}
        FonctionGlb : result := calculFonctionGlb(F);
        IfThenElse : result := calcIf(F);
@@ -364,26 +218,32 @@ begin with grandeurs[index] do begin
      end;
 end end;
 
-procedure DebutDoc(const titre,auteur,date : string);
+procedure DebutDoc(const titre : string);
+var date : string;
 begin
+     Date := DateToStr(Now);
      latexStr.clear;
      latexStr.add('%!TEX encoding = UTF-8 Unicode');
      latexStr.add('\documentclass[french]{article}');
      latexStr.add('\usepackage[utf8]{inputenc}');
      latexStr.add('\usepackage[T1]{fontenc}');
-//     latexStr.add('\usepackage{lmodern}');
+     latexStr.add('%\usepackage{fourier}');
+     latexStr.add('%\usepackage[a4paper,height=25cm,width=16cm]{geometry}');
+     latexStr.add('\usepackage{enumitem}');
+     latexStr.add('\usepackage{siunitx}');
+     latexStr.add('%\sisetup{exponent-product=\cdot,output-decimal-marker={,},separate-uncertainty}');
      latexStr.add('\usepackage[french]{babel}');
      latexStr.add('\usepackage{tikz}');
      latexStr.add('\usepackage{mathtools}');
      latexStr.add('\usepackage{amsmath}');
      latexStr.add('\usepackage{pgfplots}');
      latexStr.add('\usetikzlibrary{plotmarks}');
-     latexStr.add('\title{'+titre+'}');
-     latexStr.add('\author{'+auteur+'}');
-     if date<>'' then latexStr.add('\date{'+date+'}');
-     latexStr.add('\pgfplotsset{compat=1.15}%ligne que je ne comprends pas trop');
+     latexStr.add('%\title{'+titre+'}');
+     latexStr.add('%\author{'+UserName+'}');
+     latexStr.add('%\date{'+date+'}');
+     latexStr.add('\pgfplotsset{compat=1.11}');
      latexStr.add('\begin{document}');
-     latexStr.add('\maketitle');
+     latexStr.add('%\maketitle');
 end;
 
 procedure FinDoc;
@@ -393,22 +253,43 @@ end;
 
 Procedure AjouteLigne(aligne : string);
 begin
-     if aligne<>'' then begin
-        aligne := translateNomTexte(aligne);
-        latexStr.add(aligne);
-     end;
+     aligne := translateNomTexte(aligne);
+     latexStr.add(aligne);
 end;
 
-Procedure AjouteLigneItem(aligne : string);
+Procedure SautLigne;
 begin
-     if aligne<>'' then begin
-        aligne := translateNomTexte(aligne);
-        aligne := '\item '+aligne;
-        latexStr.add(aligne);
-     end;
+     latexStr.add('');
+end;
+
+Procedure AjouteLigneItem(aLigne : string);
+begin
+     if pos('$',aLigne)<>1 then aLigne := translateNomTexte(aligne);
+     aligne := '\item '+aligne;
+     latexStr.add(aligne);
 end;
 
 Procedure AjouteGrid(agrid : TstringGrid);
+var col,row : integer;
+    ligne : string;
+begin
+    latexStr.add('');
+    ligne := '\begin{tabular}{';
+    for col := 0 to pred(agrid.colCount) do
+        ligne := ligne+'|c';
+    ligne := ligne+'|}';
+    latexStr.add(ligne);
+    for row := 0 to pred(agrid.rowCount) do begin
+        ligne := agrid.cells[0,row];
+        for col := 1 to pred(agrid.colCount) do
+            ligne := ligne + ' & ' + agrid.cells[col,row];
+        ligne := ligne+'\\';
+        latexStr.add(ligne);
+    end;
+    latexStr.add('\end{tabular}');
+end; // AjouteGrid
+
+Procedure AjouteGridNomUnite(agrid : TstringGrid);
 
 Function LigneDeChiffresGrid(row : integer) : boolean;
 var j,col : integer;
@@ -425,7 +306,7 @@ begin
                    result := false;
                    exit;
                end;
-   end;            
+   end;
 end;
 
 var col,row : integer;
@@ -437,57 +318,41 @@ begin
         ligne := ligne+'|c';
     ligne := ligne+'|}';
     latexStr.add(ligne);
-    for row := 0 to pred(agrid.rowCount) do
-        if ligneDeChiffresGrid(row)
-           then begin
+    ligne := translateNomTexte(agrid.cells[0,0]);
+    for col := 1 to pred(agrid.colCount) do
+          ligne := ligne + ' & ' + translateNomTexte(agrid.cells[col,0]);
+    ligne := ligne+'\\';
+    latexStr.add(ligne);
+    ligne := '';
+    for col := 1 to pred(agrid.colCount) do
+         if agrid.cells[col,1]=''
+            then ligne := ligne + ' & '
+            else ligne := ligne + ' & \si{' + agrid.cells[col,1]+'}';
+    ligne := ligne+'\\';
+    latexStr.add(ligne);
+    for row := 2 to pred(agrid.rowCount) do begin
               ligne := agrid.cells[0,row];
               for col := 1 to pred(agrid.colCount) do
                   ligne := ligne + ' & ' + agrid.cells[col,row];
               ligne := ligne+'\\';
               latexStr.add(ligne);
-           end
-           else begin
-              ligne := translateNomTexte(agrid.cells[0,row]);
-              for col := 1 to pred(agrid.colCount) do
-                  ligne := ligne + ' & ' + translateNomTexte(agrid.cells[col,row]);
-              ligne := ligne+'\\';
-              latexStr.add(ligne);
-           end;
+    end;
     latexStr.add('\end{tabular}');
-end;
+end; // AjouteGridNomUnite
 
-Procedure AjouteModele(amodele : Tmodele);
-begin
-     with amodele do
-          latexStr.add('\[ '+translateNomMath(addrY.nom)+'='+translateExpression(calcul)+' \]')
-end;
 
-(*
-Procedure SaveFile1(nomFichier : string);
-var fichierOrig,fichierDest : file of byte;
-   i: Integer;
-   z: byte;
-   tampon : string;
+Procedure AjouteModele(amodele : Tmodele;avecCouleur : boolean);
+var texte : string;
 begin
-     Tampon := MesDocsDir+'tampon.tex';
-     latexStr.saveToFile(tampon,TEncoding.UTF8);
-     FileMode := fmOpenWrite;
-     AssignFile(fichierDest,NomFichier);
-     Rewrite(fichierDest);
-     FileMode := fmOpenRead;
-     AssignFile(fichierOrig,tampon);
-     Reset(fichierOrig);
-     for i := 0 to 2 do read(fichierOrig,z);
-     // les trois premiers octets ?!
-     repeat
-         read(fichierOrig,z);
-         write(fichierDest,z);
-     until eof(fichierOrig);
-     closeFile(fichierDest);
-     closeFile(fichierOrig);
-     FileMode := fmOpenReadWrite;
+     with amodele do begin
+          texte := '\[ ';
+          if avecCouleur then texte := texte+'{\color{'+couleurLatex(couleur)+'}';
+          texte := texte + translateNomMath(addrY.nom)+'='+translateExpression(calcul);
+          if avecCouleur then texte := texte+'}';
+          texte := texte+' \]';
+          latexStr.add(texte)
+     end;
 end;
-*)
 
 Procedure SaveFile(const nomFichier : string);
 var fichierDest : TextFile;
@@ -502,14 +367,6 @@ begin
      FileMode := fmOpenReadWrite;
 end;
 
-(*
-Procedure AjouteSection(titre : string);
-begin
-  titre := translateNomTexte(titre);
-  latexStr.add('\section{'+titre+'}');
-end;
-*)
-
 Procedure AjouteParagraphe(titre : string);
 begin
   titre := translateNomTexte(titre);
@@ -522,9 +379,6 @@ begin
 end;
 
 initialization
-{$IFDEF Debug}
-   ecritDebug('initialization latex');
-{$ENDIF}
      latexStr := TstringList.create
 
 finalization

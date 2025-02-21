@@ -24,7 +24,7 @@ type
       FpourCent : boolean;
       procedure setNbre(Anbre : integer);
       public
-      Min,Max,Moyenne,Mediane,Sigma,t95,t99,ecartMoyen : double;
+      Min,Max,Moyenne,Mediane,Sigma,t95,t99,ecartMoyen,SigmaMoyenne : double;
       ClasseStat : TclasseStat;
       Donnees,Effectif : Tvecteur;
       Cible,EcartDist,DebutDist,maxDist : double;
@@ -50,10 +50,10 @@ type
       FNbreParam : integer;
       public
       Min,Max : double;
-      Residus,X,Incertitudes,ResidusStudent,ResidusNormalises : Tvecteur;
+      Residus,X,Incertitudes,ResidusNormalises : Tvecteur;
       StatOK : boolean;
       avecIncert : boolean;
-      t95 : double;
+      sigma,t95 : double;
       property Nbre : integer read Fnbre;
       constructor Create;
       destructor Destroy; override;
@@ -117,7 +117,6 @@ constructor TcalculStatistiqueResidu.Create;
 begin
    inherited create;
    setLength(Residus,MaxVecteurStat+1);
-   setLength(ResidusStudent,MaxVecteurStat+1);
    setLength(ResidusNormalises,MaxVecteurStat+1);
    setLength(incertitudes,MaxVecteurStat+1);
    setLength(X,MaxVecteurStat+1);
@@ -147,6 +146,7 @@ begin
        if Donnees[i]>Min then Max := Donnees[i];
    end;
    sigma := sqrt((sigma-sqr(moyenne)/FNbre)/pred(FNbre));
+   sigmaMoyenne := sigma/sqrt(Fnbre);
    moyenne := moyenne/FNbre;
    t99 := Sigma*Student99(FNbre-1)/sqrt(FNbre);
    t95 := Sigma*Student95(FNbre-1)/sqrt(FNbre);
@@ -196,6 +196,7 @@ begin
          else inc(i);
    until n>=iMilieu;
    sigma := sqrt((sigma-sqr(moyenne)/FNbreTotal)/pred(FNbreTotal));
+   sigmaMoyenne := sigma/sqrt(FNbreTotal);
    moyenne := moyenne/FNbreTotal;
    t99 := Sigma*Student99(FNbreTotal-1)/sqrt(FNbreTotal);
    t95 := Sigma*Student95(FNbreTotal-1)/sqrt(FNbreTotal);
@@ -222,6 +223,7 @@ begin
       FNbreTotal := 100;
    end;
    sigma := sqrt(sigma-sqr(moyenne));
+   sigmaMoyenne := sigma/sqrt(Fnbre);
    t99 := 3*Sigma;
    t95 := 2*Sigma;
    mediane := moyenne;
@@ -467,29 +469,31 @@ procedure TcalculStatistiqueResidu.Calcul;
 
 Procedure CalculStat;
 var i : integer;
-    MCE,Sxx,sigma,hii,tii : double;
+    MCE,S2x,S2R,hii,tii,Sx,sR : double;
     xMoyen : double;
 begin
    min := Residus[0];
    max := Residus[pred(FNbre)];
    if FNbre<2 then exit;
-   Sigma := 0;
-   Sxx := 0;
-   xMoyen := 0;
+   S2R := 0;
+   S2x := 0;
+   Sx := 0;
+   sR := 0;
    for i := 0 to pred(FNbre) do begin
-       sigma := sigma+sqr(Residus[i]);
-       Sxx := Sxx+sqr(X[i]);
-       xmoyen := xmoyen+X[i];
+       s2R := s2R+sqr(Residus[i]);
+       sR := sR+Residus[i];
+       S2x := S2x+sqr(X[i]);
+       Sx := Sx+X[i];
        if Residus[i]<Min then Min := Residus[i];
        if Residus[i]>Min then Max := Residus[i];
    end;
-   xmoyen := xmoyen/FNbre;
-   Sxx := Sxx-Fnbre*sqr(xmoyen);
-   MCE := sigma/(Fnbre-2);
+   xmoyen := Sx/FNbre;
+   S2x := S2x-Fnbre*sqr(xmoyen);
+   MCE := s2R/(Fnbre-2);
+   sigma := sqrt((s2R-sqr(sR)/FNbre)/pred(FNbre));
    for i := 0 to pred(FNbre) do begin
-       hii := 1/Fnbre+sqr(X[i]-xmoyen)/Sxx;
+       hii := 1/Fnbre+sqr(X[i]-xmoyen)/S2x;
        tii := Residus[i]/sqrt(MCE*(1-hii));
-       ResidusStudent[i] := Residus[i]*sqrt((FNbre-1-FNbreParam)/(FNbre-2-sqr(tii)));
        if avecIncert then ResidusNormalises[i] := Residus[i]/Incertitudes[i];
    end;
    t95 := student95(Fnbre-1-FNbreParam);
@@ -504,7 +508,7 @@ begin
      except
         statOK := false;
      end;
-end; // Calcul
+end; // CalculResidu
 
 destructor TcalculStatistique.Destroy;
 begin
@@ -520,7 +524,6 @@ end;
 destructor TcalculStatistiqueResidu.Destroy;
 begin
      finalize(residus);
-     finalize(residusStudent);
      finalize(residusNormalises);
      finalize(incertitudes);
      finalize(X);

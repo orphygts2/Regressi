@@ -2,9 +2,9 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
   Left = 0
   Top = 0
   HelpContext = 80
-  Caption = 'Acquisition par Arduino pour Regressi'
-  ClientHeight = 948
-  ClientWidth = 2054
+  Caption = 'Acquisition par Arduino (Wifi) pour Regressi'
+  ClientHeight = 940
+  ClientWidth = 1942
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,13 +15,15 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShortCut = FormShortCut
+  OnShow = FormShow
   PixelsPerInch = 192
   TextHeight = 38
   object PaintBox: TPaintBox
     Left = 0
-    Top = 396
-    Width = 2054
-    Height = 460
+    Top = 176
+    Width = 1942
+    Height = 672
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -29,12 +31,13 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
     Align = alClient
     OnPaint = PaintBoxPaint
     ExplicitTop = 408
+    ExplicitWidth = 2054
     ExplicitHeight = 458
   end
   object Splitter: TSplitter
     Left = 0
-    Top = 364
-    Width = 2054
+    Top = 144
+    Width = 1942
     Height = 12
     Cursor = crVSplit
     Margins.Left = 6
@@ -46,36 +49,12 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
     Color = clHighlight
     ParentColor = False
     ExplicitTop = 376
+    ExplicitWidth = 2054
   end
-  object grid: TStringGrid
-    Left = 0
-    Top = 144
-    Width = 2054
-    Height = 220
-    Margins.Left = 6
-    Margins.Top = 6
-    Margins.Right = 6
-    Margins.Bottom = 6
-    Align = alTop
-    ColCount = 8
-    DefaultColWidth = 200
-    DefaultRowHeight = 48
-    FixedCols = 2
-    RowCount = 4
-    FixedRows = 0
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goRowSizing, goColSizing, goEditing, goAlwaysShowEditor]
-    TabOrder = 0
-    OnGetEditText = gridGetEditText
-    RowHeights = (
-      48
-      48
-      48
-      48)
-  end
-  object GroupBox1: TGroupBox
+  object sendGB: TGroupBox
     Left = 0
     Top = 44
-    Width = 2054
+    Width = 1942
     Height = 100
     Margins.Left = 6
     Margins.Top = 6
@@ -89,36 +68,37 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont = False
-    TabOrder = 1
-    object Button1: TButton
-      Left = 302
-      Top = 38
-      Width = 150
+    TabOrder = 0
+    object Button2: TButton
+      Tag = 1
+      Left = 444
+      Top = 44
+      Width = 180
       Height = 50
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'Envoyer'
       TabOrder = 0
-      OnClick = Button1Click
+      OnClick = Button2Click
     end
-    object CommandeEdit: TEdit
-      Left = 48
-      Top = 40
-      Width = 242
-      Height = 44
+    object Button3: TButton
+      Tag = 2
+      Left = 636
+      Top = 44
+      Width = 180
+      Height = 50
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
       TabOrder = 1
-      OnExit = CommandeEditExit
+      OnClick = Button2Click
     end
-    object Button2: TButton
-      Tag = 1
-      Left = 636
-      Top = 38
+    object Button4: TButton
+      Tag = 3
+      Left = 828
+      Top = 44
       Width = 180
       Height = 50
       Margins.Left = 6
@@ -128,37 +108,11 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
       TabOrder = 2
       OnClick = Button2Click
     end
-    object Button3: TButton
-      Tag = 2
-      Left = 828
-      Top = 38
-      Width = 180
-      Height = 50
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      TabOrder = 3
-      OnClick = Button2Click
-    end
-    object Button4: TButton
-      Tag = 3
-      Left = 1020
-      Top = 38
-      Width = 180
-      Height = 50
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      TabOrder = 4
-      OnClick = Button2Click
-    end
   end
   object ToolBar: TToolBar
     Left = 0
     Top = 0
-    Width = 2054
+    Width = 1942
     Height = 44
     Margins.Left = 6
     Margins.Top = 6
@@ -166,7 +120,7 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
     Margins.Bottom = 6
     AutoSize = True
     ButtonHeight = 42
-    ButtonWidth = 177
+    ButtonWidth = 188
     DrawingStyle = dsGradient
     EdgeBorders = [ebBottom]
     Font.Charset = DEFAULT_CHARSET
@@ -180,23 +134,23 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
     List = True
     ParentFont = False
     ShowCaptions = True
-    TabOrder = 2
+    TabOrder = 1
     Wrapable = False
     object ToolsBtn: TToolButton
       Left = 0
       Top = 0
-      Hint = 'Options de la voie s'#233'rie'
+      Hint = 'Options Wifi, mode d'#39'acquisition ...'
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'Options'
+      Caption = 'Configuration'
       ImageIndex = 0
       ImageName = 'Item1'
       OnClick = ToolsBtnClick
     end
     object StartBtn: TToolButton
-      Left = 177
+      Left = 188
       Top = 0
       Hint = 'Lancer l'#39'acquisition'
       Margins.Left = 6
@@ -210,7 +164,7 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
       OnClick = StartBtnClick
     end
     object StopBtn: TToolButton
-      Left = 354
+      Left = 376
       Top = 0
       Hint = 'Arr'#234't de l'#39'acquisition'
       Margins.Left = 6
@@ -223,7 +177,7 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
       OnClick = StopBtnClick
     end
     object RegressiBtn: TToolButton
-      Left = 531
+      Left = 564
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -235,7 +189,7 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
       OnClick = RegressiBtnClick
     end
     object RazBtn: TToolButton
-      Left = 708
+      Left = 752
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -246,8 +200,8 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
       ImageName = 'Item7'
       OnClick = RazBtnClick
     end
-    object UdpConnectBtn: TToolButton
-      Left = 885
+    object ConnectBtn: TToolButton
+      Left = 940
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -256,10 +210,10 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
       Caption = 'Connexion'
       ImageIndex = 7
       ImageName = 'Item8'
-      OnClick = UdpConnectBtnClick
+      OnClick = ConnectBtnClick
     end
     object HelpBtn: TToolButton
-      Left = 1062
+      Left = 1128
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -270,18 +224,26 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
       ImageName = 'Item6'
       OnClick = HelpBtnClick
     end
+    object ExitBtn: TToolButton
+      Left = 1316
+      Top = 0
+      Caption = 'Quitter'
+      ImageIndex = 4
+      ImageName = 'Item5'
+      OnClick = ExitBtnClick
+    end
   end
   object PanelVoies: TPanel
     Left = 0
-    Top = 856
-    Width = 2054
+    Top = 848
+    Width = 1942
     Height = 92
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alBottom
-    TabOrder = 3
+    TabOrder = 2
     object GroupBox2: TGroupBox
       Tag = 6
       Left = 1
@@ -300,7 +262,6 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
       ParentBackground = False
       ParentColor = False
       TabOrder = 0
-      ExplicitHeight = 80
       object Label2: TLabel
         Tag = 6
         Left = 2
@@ -339,7 +300,6 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
       ParentBackground = False
       ParentColor = False
       TabOrder = 1
-      ExplicitHeight = 80
       object Label1: TLabel
         Tag = 6
         Left = 2
@@ -378,7 +338,6 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
       ParentBackground = False
       ParentColor = False
       TabOrder = 2
-      ExplicitHeight = 80
       object Label3: TLabel
         Tag = 1
         Left = 2
@@ -417,7 +376,6 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
       ParentBackground = False
       ParentColor = False
       TabOrder = 3
-      ExplicitHeight = 80
       object Label4: TLabel
         Tag = 6
         Left = 2
@@ -456,7 +414,6 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
       ParentBackground = False
       ParentColor = False
       TabOrder = 4
-      ExplicitHeight = 80
       object Label5: TLabel
         Tag = 6
         Left = 2
@@ -477,111 +434,26 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
         ParentFont = False
       end
     end
-    object GroupBox7: TGroupBox
-      Tag = 5
-      Left = 1501
-      Top = 1
-      Width = 300
-      Height = 90
-      Cursor = crHandPoint
-      HelpType = htKeyword
-      HelpKeyword = 'Voie_Ana'
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alLeft
-      Color = clBtnFace
-      ParentBackground = False
-      ParentColor = False
-      TabOrder = 5
-      ExplicitHeight = 80
-      object Label6: TLabel
-        Tag = 6
-        Left = 2
-        Top = 40
-        Width = 96
-        Height = 51
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Align = alClient
-        Caption = 'voieE'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWhite
-        Font.Height = -38
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentFont = False
-      end
-    end
-    object GroupBox8: TGroupBox
-      Left = 1801
-      Top = 1
-      Width = 300
-      Height = 90
-      Cursor = crHandPoint
-      HelpType = htKeyword
-      HelpKeyword = 'Voie_Ana'
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alLeft
-      Color = clBtnFace
-      ParentBackground = False
-      ParentColor = False
-      TabOrder = 6
-      Visible = False
-      ExplicitHeight = 80
-      object Label7: TLabel
-        Tag = 6
-        Left = 2
-        Top = 40
-        Width = 15
-        Height = 51
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Align = alClient
-        Caption = 't'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWhite
-        Font.Height = -38
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentFont = False
-      end
-    end
   end
   object WebBrowser1: TWebBrowser
     Left = 0
-    Top = 376
-    Width = 2054
+    Top = 156
+    Width = 1942
     Height = 20
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alTop
-    TabOrder = 4
+    TabOrder = 3
     OnDocumentComplete = WebBrowser1DocumentComplete
-    ExplicitTop = 388
+    ExplicitWidth = 2012
     ControlData = {
-      4C000000256A0000090100000000000000000000000000000000000000000000
+      4C00000014650000090100000000000000000000000000000000000000000000
       000000004C000000000000000000000001000000E0D057007335CF11AE690800
       2B2E126208000000000000004C0000000114020000000000C000000000000046
       8000000000000000000000000000000000000000000000000000000000000000
       00000000000000000100000000000000000000000000000000000000}
-  end
-  object TimerSauve: TTimer
-    Enabled = False
-    Interval = 60000
-    OnTimer = TimerSauveTimer
-    Left = 168
-    Top = 464
   end
   object TimerAcq: TTimer
     Enabled = False
@@ -766,8 +638,8 @@ object ArduinoWifiDirectForm: TArduinoWifiDirectForm
         Name = 'Item9'
       end>
     ImageCollection = ImageCollection1
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 380
     Top = 448
   end

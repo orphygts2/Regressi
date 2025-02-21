@@ -5,7 +5,7 @@ object SaveHarmoniqueDlg: TSaveHarmoniqueDlg
   ActiveControl = OKBtn
   BorderStyle = bsDialog
   Caption = 'Sauvegarde de la fr'#233'quence courante'
-  ClientHeight = 190
+  ClientHeight = 206
   ClientWidth = 1042
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,7 +20,7 @@ object SaveHarmoniqueDlg: TSaveHarmoniqueDlg
   PixelsPerInch = 192
   TextHeight = 36
   object OKBtn: TBitBtn
-    Left = 808
+    Left = 812
     Top = 16
     Width = 200
     Height = 54
@@ -38,7 +38,7 @@ object SaveHarmoniqueDlg: TSaveHarmoniqueDlg
     IsControl = True
   end
   object CancelBtn: TBitBtn
-    Left = 808
+    Left = 812
     Top = 128
     Width = 200
     Height = 54
@@ -58,7 +58,7 @@ object SaveHarmoniqueDlg: TSaveHarmoniqueDlg
     Left = 0
     Top = 0
     Width = 802
-    Height = 190
+    Height = 206
     Hint = '|Cocher les param'#232'tres '#224' sauvegarder'
     Margins.Left = 6
     Margins.Top = 6

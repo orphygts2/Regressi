@@ -1,7 +1,6 @@
 // http://docwiki.embarcadero.com/RADStudio/XE8/en/Compiler_Versions
 // http://docwiki.embarcadero.com/RADStudio/Seattle/en/Compiler_Versions
 // http://docwiki.embarcadero.com/RADStudio/Berlin/en/Compiler_Versions
-// http://docwiki.embarcadero.com/RADStudio/Tokyo/en/Compiler_Versions
 
 {$DEFINE DELPHI_XX}
 
@@ -173,7 +172,7 @@
   {$UNDEF DELPHI_XX}
 {$ENDIF}
 
-// Delphi Tokyo (Win32/Win64/OSX/iOS32/iOS64/Android/Linux64)
+// Delphi Tokyo (Win32/Win64/OSX/iOS32/iOS64/Android)
 {$IFDEF VER320}
   {$DEFINE DELPHI25}
   {$DEFINE DELPHI_XE12}
@@ -235,7 +234,6 @@
 {$IFDEF DELPHI3_UP}  {$DEFINE DELPHI2_UP}  {$ENDIF}
 {$IFDEF DELPHI2_UP}  {$DEFINE DELPHI1_UP}  {$ENDIF}
 
-{$IFDEF DELPHI25_UP} {$DEFINE DELPHI_XE12_UP} {$DEFINE DELPHI_TOKYO_UP} {$ENDIF}
 {$IFDEF DELPHI24_UP} {$DEFINE DELPHI_XE11_UP} {$DEFINE DELPHI_BERLIN_UP} {$ENDIF}
 {$IFDEF DELPHI23_UP} {$DEFINE DELPHI_XE10_UP} {$DEFINE DELPHI_SEATTLE_UP} {$ENDIF}
 {$IFDEF DELPHI22_UP} {$DEFINE DELPHI_XE8_UP} {$ENDIF}

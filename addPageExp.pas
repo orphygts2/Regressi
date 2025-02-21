@@ -15,7 +15,6 @@ type
     OKbtn: TBitBtn;
     AddBtn: TBitBtn;
     escBtn: TBitBtn;
-    procedure FormCreate(Sender: TObject);
   private
   public
   end;
@@ -25,11 +24,8 @@ var
 
 implementation
 
-{$R *.dfm}
+uses regmain;
 
-procedure TAddPageExpDlg.FormCreate(Sender: TObject);
-begin
-    ResizeButtonImagesforHighDPI(self);
-end;
+{$R *.dfm}
 
 end.

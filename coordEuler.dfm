@@ -7,8 +7,8 @@ object FcoordonneesEuler: TFcoordonneesEuler
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Coordonn'#233'es du graphe'
-  ClientHeight = 382
-  ClientWidth = 856
+  ClientHeight = 380
+  ClientWidth = 886
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,18 +22,18 @@ object FcoordonneesEuler: TFcoordonneesEuler
   PixelsPerInch = 192
   TextHeight = 38
   object Panel1: TPanel
-    Left = 640
+    Left = 670
     Top = 0
     Width = 216
-    Height = 382
+    Height = 380
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     Align = alRight
     TabOrder = 3
-    ExplicitLeft = 626
-    ExplicitHeight = 381
+    ExplicitLeft = 598
+    ExplicitHeight = 379
     object OKBtn: TBitBtn
       Left = 12
       Top = 12
@@ -71,7 +71,7 @@ object FcoordonneesEuler: TFcoordonneesEuler
   object GroupBoxOptions: TGroupBox
     Left = 8
     Top = 228
-    Width = 624
+    Width = 650
     Height = 136
     Margins.Left = 6
     Margins.Top = 6
@@ -192,7 +192,7 @@ object FcoordonneesEuler: TFcoordonneesEuler
   object OrdonneeGB: TGroupBox
     Left = 332
     Top = 8
-    Width = 300
+    Width = 326
     Height = 108
     Margins.Left = 6
     Margins.Top = 6
@@ -244,7 +244,7 @@ object FcoordonneesEuler: TFcoordonneesEuler
   object OptionsGB: TGroupBox
     Left = 8
     Top = 120
-    Width = 624
+    Width = 650
     Height = 108
     Margins.Left = 6
     Margins.Top = 6
@@ -333,7 +333,6 @@ object FcoordonneesEuler: TFcoordonneesEuler
           SelectedImageIndex = 6
         end>
       Style = csExDropDownList
-      ItemHeight = 41
       TabOrder = 1
       Images = VirtualImageList1
       DropDownCount = 12
@@ -544,8 +543,8 @@ object FcoordonneesEuler: TFcoordonneesEuler
         Name = 'Item12'
       end>
     ImageCollection = ImageCollection1
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 664
     Top = 120
   end

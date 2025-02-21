@@ -4,9 +4,9 @@ interface
 
 const
   // Format: HELP_help-id = help-context
-  //HELP_Calculs = 70; 				 // Topic: "Calculs"
+  HELP_Calculs = 70; 				 // Topic: "Calculs"
   HELP_Fonctionsdegestiondesdates = 35; 				 // Topic: "Fonctions de gestion des dates"
-  //HELP_Complexes = 8; 				 // Topic: "Complexes"
+  HELP_Complexes = 8; 				 // Topic: "Complexes"
   HELP_Deriveeetintegrale = 12; 				 // Topic: "Dérivée et intégrale"
   HELP_Fonctionsparticulieres = 36; 				 // Topic: "Fonctions particulières"
   HELP_Fonctions = 34; 				 // Topic: "Fonctions"
@@ -29,7 +29,7 @@ const
   HELP_EcartmodelisationExperience = 17; 				 // Topic: "Ecart modélisation expérience"
   HELP_ModelisationGraphique = 42; 				 // Topic: "Modélisation graphique"
   HELP_Timeout = 65; 				 // Topic: "Time-out"
-  //HELP_Tableau = 69; 				 // Topic: "Tableau"
+  HELP_Tableau = 69; 				 // Topic: "Tableau"
   HELP_Parametrevolatil = 68; 				 // Topic: "Paramètre "volatil""
   HELP_Algorithme = 81; 				 // Topic: "Algorithme"
   HELP_Origine1 = 82; 				 // Topic: "Origine"

@@ -4,8 +4,8 @@ object FgrapheEuler: TFgrapheEuler
   Cursor = crCross
   HelpContext = 22
   Caption = 'Ajustement de donn'#233'es exp'#233'rimentales par la m'#233'thode d'#39'Euler'
-  ClientHeight = 1222
-  ClientWidth = 1646
+  ClientHeight = 1216
+  ClientWidth = 1562
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -40,7 +40,7 @@ object FgrapheEuler: TFgrapheEuler
     Left = 450
     Top = 0
     Width = 10
-    Height = 1222
+    Height = 1216
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -50,12 +50,13 @@ object FgrapheEuler: TFgrapheEuler
     MinSize = 200
     ParentColor = False
     OnCanResize = SplitterModeleCanResize
+    ExplicitHeight = 1222
   end
   object PanelModele: TPanel
     Left = 0
     Top = 0
     Width = 450
-    Height = 1222
+    Height = 1216
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -63,7 +64,7 @@ object FgrapheEuler: TFgrapheEuler
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitHeight = 1221
+    ExplicitHeight = 1217
     object PanelAjuste: TPanel
       Left = 0
       Top = 690
@@ -1373,7 +1374,7 @@ object FgrapheEuler: TFgrapheEuler
       Left = 0
       Top = 886
       Width = 450
-      Height = 336
+      Height = 330
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -1381,12 +1382,12 @@ object FgrapheEuler: TFgrapheEuler
       Align = alClient
       Caption = 'R'#233'sultats de la mod'#233'lisation'
       TabOrder = 2
-      ExplicitHeight = 335
+      ExplicitHeight = 331
       object memoResultat: TRichEdit
         Left = 2
         Top = 38
         Width = 446
-        Height = 296
+        Height = 292
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -1402,15 +1403,14 @@ object FgrapheEuler: TFgrapheEuler
         ScrollBars = ssBoth
         TabOrder = 0
         WordWrap = False
-        ExplicitHeight = 295
       end
     end
   end
   object PanelCentral: TPanel
     Left = 460
     Top = 0
-    Width = 1186
-    Height = 1222
+    Width = 1102
+    Height = 1216
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -1419,14 +1419,14 @@ object FgrapheEuler: TFgrapheEuler
     BevelOuter = bvNone
     Color = clWindow
     TabOrder = 1
-    ExplicitWidth = 1172
-    ExplicitHeight = 1221
+    ExplicitWidth = 1116
+    ExplicitHeight = 1217
     object PanelPrinc: TPanel
       Tag = 1
       Left = 0
       Top = 56
-      Width = 1186
-      Height = 1122
+      Width = 1130
+      Height = 1118
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -1437,14 +1437,14 @@ object FgrapheEuler: TFgrapheEuler
       OnMouseDown = FormMouseDown
       OnMouseMove = FormMouseMove
       OnMouseUp = FormMouseUp
-      ExplicitWidth = 1172
-      ExplicitHeight = 1121
+      ExplicitWidth = 1116
+      ExplicitHeight = 1117
       object PaintBoxPrinc: TPaintBox
         Tag = 1
         Left = 1
         Top = 1
-        Width = 1184
-        Height = 1116
+        Width = 1128
+        Height = 1112
         Hint = '|Utiliser le clic droit pour ouvrir le menu local'
         Margins.Left = 6
         Margins.Top = 6
@@ -1462,8 +1462,8 @@ object FgrapheEuler: TFgrapheEuler
       end
       object Bevel: TBevel
         Left = 1
-        Top = 1117
-        Width = 1184
+        Top = 1113
+        Width = 1128
         Height = 4
         Margins.Left = 6
         Margins.Top = 6
@@ -1477,8 +1477,8 @@ object FgrapheEuler: TFgrapheEuler
     end
     object HeaderXY: TStatusBar
       Left = 0
-      Top = 1178
-      Width = 1186
+      Top = 1174
+      Width = 1130
       Height = 44
       Margins.Left = 6
       Margins.Top = 6
@@ -1488,13 +1488,13 @@ object FgrapheEuler: TFgrapheEuler
       ParentFont = True
       UseSystemFont = False
       Visible = False
-      ExplicitTop = 1177
-      ExplicitWidth = 1172
+      ExplicitTop = 1173
+      ExplicitWidth = 1116
     end
     object ToolBar: TToolBar
       Left = 0
       Top = 0
-      Width = 1186
+      Width = 1130
       Height = 56
       Margins.Left = 6
       Margins.Top = 6
@@ -1513,7 +1513,7 @@ object FgrapheEuler: TFgrapheEuler
       ShowCaptions = True
       TabOrder = 1
       Wrapable = False
-      ExplicitWidth = 1172
+      ExplicitWidth = 1116
       object CoordonneesBtn: TToolButton
         Left = 0
         Top = 0
@@ -1644,9 +1644,8 @@ object FgrapheEuler: TFgrapheEuler
     Top = 74
   end
   object SaveDialog: TSaveDialog
-    Filter = 
-      'Bitmap |*.bmp|Postscript|*.eps|format HPGL|*.plt|format JPEG|*.j' +
-      'pg|M'#233'tafichier Windows|*.emf'
+    DefaultExt = 'png'
+    Filter = 'Bitmap |*.bmp|format JPEG|*.jpg|format PNG |*.png'
     Options = [ofHideReadOnly, ofPathMustExist, ofEnableSizing]
     Left = 398
     Top = 136

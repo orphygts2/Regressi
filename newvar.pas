@@ -83,6 +83,7 @@ type
     procedure ParametreDeriveeClick(Sender: TObject);
     procedure OrdreDeriveeSEChange(Sender: TObject);
     procedure NomEditKeyPress(Sender: TObject; var Key: Char);
+    procedure UniteEditKeyPress(Sender: TObject; var Key: Char);
   private
   public
     LigneInit,LigneCompile,LigneSignif : string;
@@ -249,21 +250,21 @@ begin
 end;
 
 Procedure calculeConstante;
-var pageC : integer;
+var p : TCodePage;
 begin
       grandeurs[index].fonct.genreC := g_fonction;
-      for pageC := succ(NbrePages) to NbrePagesSE.value do begin
+      for p := succ(NbrePages) to NbrePagesSE.value do begin
           ajoutePageForce;
-          with pages[pageC] do begin
+          with pages[p] do begin
                nmes := pages[1].nmes;
                valeurVar[0] := pages[1].valeurVar[0];
           end;
       end;
-      for pageC := 1 to NbrePages do begin
-          grandeurs[cPage].valeurCourante := pageC;
-          pages[pageC].numero := pageC;          
+      for p := 1 to NbrePages do begin
+          grandeurs[cPage].valeurCourante := p;
+          pages[p].numero := p;
           try
-          pages[pageC].ValeurConst[index] := calcule(grandeurs[index].Fonct.calcul);
+          pages[p].ValeurConst[index] := calcule(grandeurs[index].Fonct.calcul);
           except
           end;
       end;
@@ -392,12 +393,8 @@ end;
 
 procedure TNewVarDlg.NomEditKeyPress(Sender: TObject; var Key: Char);
 begin
-     case key of
-        crCR,crTab : ;
-        crEsc : ;
-        crSupprArr : ;
-        else if not isCaracGrandeur(key) then key := #0;
-     end;
+     if not charInSet(key,charNavigationDG)
+        and not isCaracGrandeur(key) then key := #0;
 end;
 
 procedure TNewVarDlg.FormActivate(Sender: TObject);
@@ -465,7 +462,13 @@ procedure TNewVarDlg.ParametreDeriveeClick(Sender: TObject);
 begin
   inherited;
   OptionsDeriveeGB.visible := ParametreDerivee.checked;
-  LissageRG.visible := ParametreDerivee.checked  
+  LissageRG.visible := ParametreDerivee.checked
+end;
+
+procedure TNewVarDlg.UniteEditKeyPress(Sender: TObject; var Key: Char);
+begin
+     if not charInSet(key,charNavigationDG)
+        and not isCaracUnite(key) then key := #0;
 end;
 
 procedure TNewVarDlg.OrdreDeriveeSEChange(Sender: TObject);

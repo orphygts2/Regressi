@@ -10,23 +10,14 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Samples.Spin,
   Vcl.htmlHelpViewer,
   OOmisc, adport, lnswin32, awuser, constreg,
-  registry, parser10, inifiles, math, aidekey,
+  parser10, inifiles, math, aidekey,
   regutil, arduinoGraphe, arduinoOscilloCfg, compile, maths, uniteker,
   IdBaseComponent, IdComponent, IdUDPBase, IdUDPClient, Vcl.VirtualImageList,
   Vcl.BaseImageCollection, Vcl.ImageCollection;
 
 type
   tResolution = (r8bits,r10bits,r12bits,r14bits); // Due Zero 12 bits
-  TReadingThread = class(TThread)
-  private
-    FClient: TIdUDPClient;
-  protected
-    procedure Execute; override;
-  public
-    constructor Create(AClient: TIdUDPClient); reintroduce;
-  end;
   TArduinoOscilloForm = class(TForm)
-    grid: TStringGrid;
     ToolBar: TToolBar;
     ToolsBtn: TToolButton;
     StartBtn: TToolButton;
@@ -42,13 +33,13 @@ type
     StopBtn: TToolButton;
     UneVoieRB: TRadioButton;
     DeuxVoiesRB: TRadioButton;
-    ToolButton1: TToolButton;
+    separeBtn: TToolButton;
     VoieSerie: TApdComPort;
     ProgressBar: TProgressBar;
-    UdpClient: TIdUDPClient;
     HelpBtn: TToolButton;
     ImageCollection1: TImageCollection;
     VirtualImageList1: TVirtualImageList;
+    ExitBtn: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormActivate(Sender: TObject);
@@ -64,10 +55,9 @@ type
     procedure UneVoieRBClick(Sender: TObject);
     procedure VoieSerieTriggerAvail(CP: TObject; Count: Word);
     procedure VoieSerieTriggerData(CP: TObject; TriggerHandle: Word);
-    procedure gridDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect;
-      State: TGridDrawState);
     procedure TriggerTBChange(Sender: TObject);
     procedure HelpBtnClick(Sender: TObject);
+    procedure ExitBtnClick(Sender: TObject);
   private
     chaineLue : ansiString;
     liste : TstringList;
@@ -82,20 +72,12 @@ type
     NbrePointsArduino : integer;
     NbreVoies : integer;
     resolution : Tresolution;
-    withUdp : boolean;
     attenteAck : boolean;  // attente accusé de réception Udp
-    thread : TReadingThread;
-    {$IFDEF Debug}
-    fichierDebug : textFile;
-    procedure initDebug;
-    {$ENDIF}
-    procedure ecritDebug(const z: string);
     function valeurPeriode : integer;
     procedure relance;
     procedure Stop;
     procedure envoieSerie(const z: string);
     procedure openVoieSerie;
-    procedure UdpTriggerData(const achaine : string);
   public
   end;
 
@@ -137,16 +119,9 @@ begin
     startBtn.Enabled := false;
     stopBtn.Enabled := false;
     for m := mondeY to mondeYmax do
-        graphe.monde[m].maxiStr := MaxResol[resolution].toString;
+        graphe.monde[m].maxi := MaxResol[resolution];
     TriggerTB.Max := MaxResol[resolution];
-    if (crTrigger=0) and not(withUdp) then crTrigger := voieSerie.AddDataTrigger(crCR,true);
-    if withUdp and not UdpClient.Connected then begin
-       openVoieSerie;
-       if not UdpClient.Connected  then begin
-          showMessage('Impossible de se connecter à : '+UdpClient.host);
-          exit;
-       end;
-    end;
+    if (crTrigger=0) then crTrigger := voieSerie.AddDataTrigger(crCR,true);
     if not FechOK then begin
        envoieSerie('T'+intToStr(ValeurPeriode));
        FechOK := true;
@@ -192,9 +167,6 @@ begin
      ArduinoOscilloDlg.sincCB.checked := graphe.avecSinc;
      ArduinoOscilloDlg.ordreSincSE.value := graphe.ordreSinc;
      ArduinoOscilloDlg.ResolutionRG.itemIndex := ord(resolution);
-     ArduinoOscilloDlg.HostEdit.Text := UdpClient.host;
-     ArduinoOscilloDlg.PortEdit.Text := UdpClient.port.toString;
-     ArduinoOscilloDlg.UdpCB.checked := withUdp;
      for j := 0 to pred(ArduinoOscilloDlg.NbreRG.items.count) do
          if nbrePointsArduino.toString=ArduinoOscilloDlg.nbreRG.items[j] then
             ArduinoOscilloDlg.nbreRG.ItemIndex := j;
@@ -207,27 +179,32 @@ begin
            if j=voieSerie.comNumber then
               ArduinoOscilloDlg.Comports.ItemIndex := ArduinoOscilloDlg.Comports.items.count-1;
         end;
-     if ArduinoOscilloDlg.comports.Items.count=0 then // Pas de voie série => Wifi
-        ArduinoOscilloDlg.UdpCB.checked := true;
      if (ArduinoOscilloDlg.Comports.ItemIndex<0) then
         ArduinoOscilloDlg.Comports.itemIndex := 0;
      for j := 0 to indexVitesseMax do begin
          ArduinoOscilloDlg.baudRG.items[j] := intToStr(vitesseBaud[j]);
          if voieSerie.Baud=vitesseBaud[j] then ArduinoOscilloDlg.BaudRG.ItemIndex := j;
      end;
+     for j := 1 to mondeYmax do begin
+         ArduinoOscilloDlg.grid.Cells[0,j] := graphe.monde[j].nom;
+         ArduinoOscilloDlg.grid.Cells[1,j] := graphe.monde[j].unite;
+         ArduinoOscilloDlg.grid.Cells[2,j] := graphe.monde[j].conversion;
+     end;
      if ArduinoOscilloDlg.ShowModal=mrOK then begin
-        UdpClient.host := ArduinoOscilloDlg.HostEdit.Text;
-        UdpClient.port := StrToInt(ArduinoOscilloDlg.PortEdit.Text);
-        withUdp := ArduinoOscilloDlg.UdpCB.checked;
         resolution := Tresolution(ArduinoOscilloDlg.ResolutionRG.itemIndex);
         graphe.avecSinc := ArduinoOscilloDlg.sincCB.checked;
         graphe.ordreSinc := ArduinoOscilloDlg.ordreSincSE.value;
         nbrePointsArduino := strToInt(ArduinoOscilloDlg.nbreRG.items[ArduinoOscilloDlg.nbreRG.ItemIndex]);
         duree := ValeurPeriode*NbrePointsArduino;
-        dureeLabel.Caption := ' Durée : '+uniteTemps.formatValeurEtUnite(duree/1e6);
-        graphe.monde[mondeX].maxiStr := FloatToStrF(duree,ffFixed,6,1);
+        dureeLabel.Caption := ' Durée '+uniteTemps.formatValeurEtUnite(duree/1e6);
+        graphe.monde[mondeX].maxi := duree;
         voieSerie.baud := StrToInt(ArduinoOscilloDlg.baudRG.items[ArduinoOscilloDlg.BaudRG.ItemIndex]);
         voieSerie.comNumber := NumeroCom[ArduinoOscilloDlg.Comports.ItemIndex];
+        for j := 1 to mondeYmax do with graphe.monde[j] do begin
+             nom := ArduinoOscilloDlg.grid.Cells[0,j];
+             unite := ArduinoOscilloDlg.grid.Cells[1,j];
+             conversion := ArduinoOscilloDlg.grid.Cells[2,j];
+        end;
      end;
      openVoieSerie;
 end; // toolsBtnClick
@@ -237,7 +214,7 @@ var duree : double;
 begin
     duree := valeurPeriode*NbrePointsArduino;
     dureeLabel.Caption := ' Durée : '+uniteTemps.formatValeurEtUnite(duree/1e6);
-    graphe.monde[mondeX].maxiStr := FloatToStrF(duree,ffFixed,6,1);
+    graphe.monde[mondeX].maxi := duree;
     FechOK := false;
     if lectureEnCours then relance;
 end;
@@ -249,26 +226,10 @@ end;
 
 procedure TArduinoOscilloForm.FormClose(Sender: TObject; var Action: TCloseAction);
 var Rini : TMemInifile;
-    j,col : integer;
-    baudOK : boolean;
 begin
      Rini := TMemIniFile.create(NomFichierIni);
-     Rini.WriteBool(stArduino,'Udp',withUdp);
-     if withUdp
-     then begin
-       Rini.WriteString(stArduino,'UdpHost',UdpClient.host);
-       Rini.WriteInteger(stArduino,'UdpPort',UdpClient.port);
-     end
-     else begin
-       Rini.WriteInteger(stArduino,'Com',voieSerie.comNumber);
-       Rini.WriteInteger(stArduino,'Baud',voieSerie.baud);
-     end;
-     j := 0;
-     repeat
-         baudOK := voieSerie.Baud=vitesseBaud[j];
-         inc(j)
-     until baudOK or (j>indexVitesseMax);
-     if not baudOK then VoieSerie.Baud := 9600;
+     Rini.WriteInteger(stArduino,'Com',voieSerie.comNumber);
+     Rini.WriteInteger(stArduino,'Baud',voieSerie.baud);
      Rini.WriteInteger(stArduino,'NbreOscillo',NbrePointsArduino);
      Rini.WriteInteger(stArduino,'Seuil',triggerTB.position);
      Rini.WriteInteger(stArduino,'Synchro',synchroCB.itemIndex);
@@ -279,42 +240,24 @@ begin
          then Rini.WriteInteger(stArduino,'NbreVoies',2)
          else Rini.WriteInteger(stArduino,'NbreVoies',1);
      Rini.WriteInteger(stArduino,'OrdreSinc',graphe.ordreSinc);
-     for j := 1 to 2 do begin
-         col := j+1;
-         if grid.cells[col,0]<>'' then
-            Rini.writeString(stArduino,stNom+intToStr(j),grid.cells[col,0]);
-         if grid.cells[col,1]<>'' then
-            Rini.writeString(stArduino,stUnite+intToStr(j),grid.cells[col,1]);
-         if grid.cells[col,2]<>'' then
-            Rini.writeString(stArduino,'Convert'+intToStr(j),grid.cells[col,2]);
-     end;
      Rini.writeInteger(stArduino,'Fech',FechList.ItemIndex);
      Rini.updateFile;
      Rini.Free;
+     graphe.ecritIni;
      if crTrigger>0 then begin
         voieSerie.RemoveTrigger(crTrigger);
         crTrigger := 0;
      end;
      VoieSerie.Open := false;
-     if Assigned(Thread) then begin
-        Thread.Terminate;
-        Thread.WaitFor;
-        FreeAndNil(Thread);
-     end;
-     if UdpClient.Connected then UdpClient.Disconnect;
 end;
 
 procedure TArduinoOscilloForm.FormCreate(Sender: TObject);
-const nomDefaut : array[1..2] of string  = ('X','Y');
-      uniteDefaut : array[1..2] of string  = ('V','V');
-      convertDefaut : array[1..2] of string  = ('V*5.0/1024','V*5.0/1024');
-var j,col : integer;
+var j : integer;
     Rini : TMemIniFile;
     duree : double;
 begin
 // VoieSerie
      {$IFDEF Debug}
-     initDebug;
      voieSerie.Tracing := tlOn;
      voieSerie.Logging := tlOn;
      {$ELSE}
@@ -335,9 +278,6 @@ begin
 
 // Inifile
      Rini := TMemIniFile.create(NomFichierIni);
-     withUdp := Rini.readBool(stArduino,'Udp',false);
-     UdpClient.host := Rini.readString(stArduino,'UdpHost','192.168.1.4');
-     UdpClient.port := Rini.readInteger(stArduino,'UdpPort',2390);
      graphe.avecSinc := Rini.ReadBool(stArduino,'Sinc',false);
      graphe.ordreSinc := Rini.ReadInteger(stArduino,'OrdreSinc',2);
      VoieSerie.ComNumber := Rini.ReadInteger(stArduino,'Com',3);
@@ -364,28 +304,17 @@ begin
      end;
      if not IsPortAvailable(VoieSerie.ComNumber) then ; // showMessage('Pas de voie série => Wifi');
      FechList.ItemIndex := Rini.readInteger(stArduino,'Fech',5);
-     for j := 1 to 2 do begin
-         col := j+1;
-         grid.Cells[col,0] := Rini.readString(stArduino,stNom+intToStr(j),nomDefaut[j]);
-         grid.Cells[col,1] := Rini.readString(stArduino,stUnite+intToStr(j),uniteDefaut[j]);
-         grid.Cells[col,2] := Rini.readString(stArduino,'Convert'+intToStr(j),convertDefaut[j]);
-         graphe.monde[j].maxiStr := '1024';
-         graphe.monde[j].miniStr := '0';
+     for j := 1 to mondeYmax do with graphe.monde[j] do begin
+         maxi := 1024;
+         mini := 0;
      end;
      Rini.Free;
-
-     grid.Cells[0,0] := stNom;
-     grid.Cells[0,1] := stUnite;
-     grid.Cells[0,2] := 'conversion';
-     grid.Cells[1,0] := 't';
-     grid.Cells[1,1] := 's';
-     grid.Cells[1,2] := '';
+     graphe.litIni;
      lectureEnCours := false;
      crTrigger := 0;
-     graphe.canvas := paintBox.canvas;
-     graphe.isOscillo := true;
+     graphe.paintbox := paintBox;
      graphe.nbrePoints := 0;
-     graphe.monde[mondeX].miniStr := '0';
+     graphe.monde[mondeX].mini := 0;
      graphe.monde[mondeX].nom := 't';
      graphe.monde[mondeX].unite := 's';
      if deuxVoiesRB.checked
@@ -393,12 +322,12 @@ begin
           else graphe.mondeMax := mondeY;
      duree := valeurPeriode*NbrePointsArduino;
      dureeLabel.Caption := 'Durée : '+uniteTemps.formatValeurEtUnite(duree/1e6);
-     graphe.monde[mondeX].maxiStr := FloatToStrF(duree,ffFixed,6,1);
+     graphe.monde[mondeX].maxi := duree;
 
      progressBar.Max := NbrePointsArduino;
      progressBar.position := 0;
-//     Grid.DefaultRowHeight := hauteurColonne;
-     ResizeButtonImagesforHighDPI(self);
+     VirtualImageList1.height := VirtualImageListSize;
+     VirtualImageList1.width := VirtualImageListSize;
 end;
 
 procedure TArduinoOscilloForm.FormDestroy(Sender: TObject);
@@ -410,15 +339,6 @@ end;
 procedure TArduinoOscilloForm.FormShow(Sender: TObject);
 begin
     openVoieSerie;
-end;
-
-procedure TArduinoOscilloForm.gridDrawCell(Sender: TObject; ACol, ARow: Integer;
-  Rect: TRect; State: TGridDrawState);
-begin
-    if (ACol>0) and (ARow=0) then begin // nom en couleur
-        grid.Canvas.Font.Color := couleurArduino[ACol-1];
-        grid.Canvas.TextOut(Rect.Left+2,Rect.Top+2,grid.Cells[ACol, ARow]);
-    end;
 end;
 
 procedure TArduinoOscilloForm.HelpBtnClick(Sender: TObject);
@@ -441,20 +361,20 @@ var i,imax : integer;
         i : integer;
     begin
      imax := pred(graphe.nbrePoints);
-     for m := mondeY to graphe.mondeMax do
-         if grid.cells[m+1,2]<>'' then begin
-            Parser.expression := grid.cells[m+1,2];
+     for m := mondeY to graphe.mondeMax do with graphe.monde[m] do
+         if conversion<>'' then begin
+            Parser.expression := conversion;
             for i := 0 to imax do begin // conversion
                 try
-                   Parser.V := graphe.monde[m].valeur[i];
+                   Parser.V := valeur[i];
                    valeurReal[m,i] :=  Parser.Value;
                 except
-                   valeurReal[m,i] := graphe.monde[m].valeur[i];
+                   valeurReal[m,i] := valeur[i];
                 end;
             end;
          end
          else for i := 0 to imax do
-             valeurReal[m,i] := graphe.monde[m].valeur[i];
+             valeurReal[m,i] := valeur[i];
      for i := 0 to imax do // data
           valeurReal[0,i] := graphe.monde[0].valeur[i]/1e6;
     end;
@@ -464,20 +384,20 @@ var i,imax : integer;
         i : integer;
     begin
      imax := pred(graphe.nbreSinc);
-     for m := mondeY to graphe.mondeMax do
-         if grid.cells[m+1,2]<>'' then begin
-            Parser.expression := grid.cells[m+1,2];
+     for m := mondeY to graphe.mondeMax do with graphe.monde[m] do
+         if conversion<>'' then begin
+            Parser.expression := conversion;
             for i := 0 to imax do begin // conversion
                 try
-                   Parser.V := graphe.monde[m].valeurSinc[i];
+                   Parser.V := valeurSinc[i];
                    valeurReal[m,i] :=  Parser.Value;
                 except
-                   valeurReal[m,i] := graphe.monde[m].valeurSinc[i];
+                   valeurReal[m,i] := valeurSinc[i];
                 end;
             end;
          end
          else for i := 0 to imax do
-             valeurReal[m,i] := graphe.monde[m].valeurSinc[i];
+             valeurReal[m,i] := valeurSinc[i];
      for i := 0 to imax do // data
          valeurReal[0,i] := graphe.monde[0].valeurSinc[i]/1e6;
     end;
@@ -490,14 +410,14 @@ begin
      FormDDE.donnees.add(Application.exeName);
      FormDDE.donnees.add('');
      ligne := '';
-     for m := 0 to graphe.mondeMax do begin
-         if grid.Cells[m+1,0]='' then grid.Cells[m+1,0] := 'x'+intToStr(m);
-         Ligne := ligne+grid.Cells[m+1,0]+crTab;
+     for m := 0 to graphe.mondeMax do with graphe.monde[m] do begin
+         if nom='' then nom := 'x'+intToStr(m);
+         Ligne := ligne+nom+crTab;
      end;
      FormDDE.donnees.add(Ligne);  // noms
      ligne := '';
      for m := 0 to graphe.mondeMax do
-         Ligne := ligne+grid.Cells[m+1,1]+crTab;  // unités
+         Ligne := ligne+graphe.monde[m].unite[m]+crTab;  // unités
      FormDDE.donnees.add(ligne);
      if graphe.avecSinc then AffecteSinc else AffecteValeur;
      for i := 0 to imax do begin // data
@@ -584,10 +504,10 @@ begin
       if (NbrePointsCourant=0) and (liste.Count<(NbreVoies+1)) then begin
          graphe.monde[0].valeurNew[0] := 0;
          for i := 1 to NbreVoies do
-             graphe.monde[i].valeurNew[i] := 512;
+             graphe.monde[i].valeurNew[0] := 512;
          for i := 0 to liste.Count-1 do begin
             try
-            graphe.monde[i].valeurNew[i+NbreVoies+1-liste.count] := strToInt(liste[i]);
+            graphe.monde[i].valeurNew[0] := strToInt(liste[i]);
             except
             end;
          end;
@@ -615,17 +535,23 @@ begin
              else graphe.monde[i].valeurNew[nbrePointsCourant] := 512;
           end;
       end;
+      {$IFDEF Debug}
       if nbrePointsCourant=0 then ecritDebug('début '+liste.text);
       if nbrePointsCourant=1 then ecritDebug('premier '+liste.text);
+      {$ENDIF}
       inc(nbrePointsCourant);
       if (ProgressBar.position+32) < nbrePointsCourant then begin
          ProgressBar.position := nbrePointsCourant;
+         {$IFDEF Debug}
          ecritDebug(nbrePointsCourant.toString+' '+liste.text);
+         {$ENDIF}
          ProgressBar.update;
       end;
       if (nbrePointsCourant>=NbrePointsArduino) then begin
             regressiBtn.Enabled := true;
+            {$IFDEF Debug}
             ecritDebug('fin');
+            {$ENDIF}
             ProgressBar.position := nbrePointsArduino;
             ProgressBar.update;
             graphe.nbrePoints := nbrePointsArduino;
@@ -653,7 +579,7 @@ var Timer : EventTimer;
 begin
         cursor := crHourGlass;
         envoieSerie('Stop');
-        if lectureEnCours and not withUdp then begin
+        if lectureEnCours then begin
            lectureEnCours := false;
            newTimer(timer,3); // 165 ms
            ParamToolBar.Enabled := false;
@@ -667,59 +593,29 @@ begin
         end
         else lectureEnCours := false;
         cursor := crDefault;
-        if not withUdp then voieSerie.FlushInBuffer;
+        voieSerie.FlushInBuffer;
         chaineLue := '';
 end;
 
 procedure TArduinoOscilloForm.envoieSerie(const z: string);
 begin
-    if withUdp
-       then UdpClient.Send(z)
-       else voieSerie.outPut := AnsiString(z)+term;
+    voieSerie.outPut := AnsiString(z)+term;
+    {$IFDEF Debug}
     ecritDebug(z);
+    {$ENDIF}
     attenteAck := true;
     sleep(PauseRS232);
 end;
 
-{$IFDEF Debug}
-procedure TArduinoOscilloForm.ecritDebug(const z: string);
+procedure TArduinoOscilloForm.ExitBtnClick(Sender: TObject);
 begin
-   append(fichierDebug);
-   writeln(fichierDebug,z);
-   closeFile(fichierDebug);
+  close
 end;
-
-procedure TArduinoOscilloForm.initDebug;
-begin
-     AssignFile(fichierDebug,extractFilePath(application.ExeName)+'oscillo.txt');
-     Rewrite(fichierDebug);
-     writeln(fichierDebug,'oscillo');
-     closeFile(fichierDebug);
-end;
-{$ELSE}
-procedure TArduinoOscilloForm.ecritDebug(const z: string);
-begin
-end;
-{$ENDIF}
 
 procedure TArduinoOscilloForm.openVoieSerie;
 begin
-  if withUdp
-  then begin
-      startBtn.Enabled := true;
-      stopBtn.Enabled := false;
-      FechOK := false;
-      NVoiesOK := false;
-      synchroOK := false;
-      seuilOK := false;
-      UDPClient.Binding.Port := UDPClient.Port;
-      UdpClient.Active := true;
-      if not UdpClient.Connected then UdpClient.Connect;
-      if not Assigned(Thread) then
-         Thread := TReadingThread.create(UDPClient);
-  end
-  else if not voieSerie.Open and
-       IsPortAvailable(VoieSerie.ComNumber) then begin
+  if not voieSerie.Open and
+     IsPortAvailable(VoieSerie.ComNumber) then begin
            try
            voieSerie.Open := True;
            startBtn.Enabled := true;
@@ -734,43 +630,6 @@ begin
               ShowMessage('Problème voie série');
            end;
      end;
-end;
-
-constructor TReadingThread.Create(AClient: TIdUDPClient);
-begin
-  inherited Create(False);
-  FClient := AClient;
-  FreeOnTerminate:=false;
-end;
-
-procedure TReadingThread.Execute;
-var FData: string;
-begin
-   while not Terminated do begin
-       FData := FClient.ReceiveString();
-       if FData<>'' then
-          Synchronize(procedure
-            begin
-                ArduinoOscilloForm.UdpTriggerData(Fdata)
-            end);
-   end;
-end;
-
-procedure TArduinoOscilloForm.UdpTriggerData(const aChaine : string);
-begin
-    if attenteAck then begin
-       if achaine='OK' then ;
-       if achaine='Busy' then begin
-          lectureEnCours := false;
-          stopBtn.Enabled := false;
-          startBtn.Enabled := true;
-       end;
-       attenteAck := false;
-    end
-    else begin
-        chaineLue := ansiString(aChaine);
-        VoieSerieTriggerData(nil,0);
-    end;
 end;
 
 

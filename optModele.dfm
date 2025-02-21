@@ -3,12 +3,13 @@ object OptionModeleDlg: TOptionModeleDlg
   Top = 210
   HelpContext = 55
   ActiveControl = OKBtn
-  BorderIcons = [biSystemMenu, biHelp]
+  BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'Options de mod'#233'lisation'
-  ClientHeight = 842
-  ClientWidth = 754
+  ClientHeight = 892
+  ClientWidth = 758
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -26
@@ -16,7 +17,6 @@ object OptionModeleDlg: TOptionModeleDlg
   Font.Style = []
   Position = poDesktopCenter
   OnActivate = FormActivate
-  OnCreate = FormCreate
   PixelsPerInch = 192
   TextHeight = 36
   object OKBtn: TBitBtn
@@ -74,12 +74,12 @@ object OptionModeleDlg: TOptionModeleDlg
     Left = 0
     Top = 0
     Width = 530
-    Height = 842
+    Height = 892
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Align = alLeft
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -89,7 +89,7 @@ object OptionModeleDlg: TOptionModeleDlg
     MultiLine = True
     ParentFont = False
     TabOrder = 3
-    ExplicitHeight = 669
+    ExplicitHeight = 891
     object TabSheet2: TTabSheet
       Margins.Left = 6
       Margins.Top = 6
@@ -107,20 +107,21 @@ object OptionModeleDlg: TOptionModeleDlg
         Margins.Right = 6
         Margins.Bottom = 6
         Caption = 'Aide incertitudes '
-        Glyph.Data = {
-          66010000424D6601000000000000760000002800000014000000140000000100
-          040000000000F000000000000000000000001000000000000000000000000000
-          80000080000000808000800000008000800080800000C0C0C000808080000000
-          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-          3333333300003333333333333333333300003333333333333333333300003333
-          3333333333333333000033330033333333003333000033300003333330000333
-          0000330000000000000000330000330F77FFFF7FFF77F0330000330FFF9FFF7F
-          FFFF80330000330FF999FF70000003330000330FFF9FFF07777033330000330F
-          FFFFFF0777033333000033800000000000333333000033333333393999393333
-          0000333333333333933333330000333333333393339333330000333333333333
-          9333333300003333333333333333333300003333333333333333333300003333
-          33333333333333330000}
+        ImageIndex = 10
+        ImageName = 'Item11'
+        Images = FRegressiMain.VirtualImageList1
         OnClick = IncertitudeHelpBtnClick
+      end
+      object Label1: TLabel
+        Left = 6
+        Top = 330
+        Width = 361
+        Height = 36
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
+        Caption = 'Nombre It'#233'rations Monte-Carlo'
       end
       object Chi2CB: TCheckBox
         Left = 0
@@ -215,6 +216,21 @@ object OptionModeleDlg: TOptionModeleDlg
         Caption = 'Mod'#233'lisation manuelle'
         TabOrder = 6
       end
+      object NbreMCSE: TSpinEdit
+        Left = 380
+        Top = 329
+        Width = 120
+        Height = 47
+        Margins.Left = 6
+        Margins.Top = 6
+        Margins.Right = 6
+        Margins.Bottom = 6
+        Increment = 1024
+        MaxValue = 16384
+        MinValue = 1024
+        TabOrder = 7
+        Value = 16384
+      end
     end
     object TabSheet1: TTabSheet
       Margins.Left = 6
@@ -225,7 +241,7 @@ object OptionModeleDlg: TOptionModeleDlg
       ImageIndex = 3
       object GroupBox1: TGroupBox
         Left = 0
-        Top = 618
+        Top = 670
         Width = 514
         Height = 160
         Margins.Left = 6
@@ -235,7 +251,7 @@ object OptionModeleDlg: TOptionModeleDlg
         Align = alBottom
         Caption = 'Coefficient de corr'#233'lation'
         TabOrder = 0
-        ExplicitTop = 446
+        ExplicitTop = 185
         object LabelCorrel: TLabel
           Left = 16
           Top = 90
@@ -249,7 +265,7 @@ object OptionModeleDlg: TOptionModeleDlg
         end
         object AfficheCorrel: TCheckBox
           Left = 16
-          Top = 34
+          Top = 40
           Width = 338
           Height = 34
           Margins.Left = 6
@@ -262,7 +278,7 @@ object OptionModeleDlg: TOptionModeleDlg
         end
         object ChiffreCorrelSE: TSpinEdit
           Left = 256
-          Top = 80
+          Top = 82
           Width = 98
           Height = 56
           Margins.Left = 6
@@ -374,7 +390,7 @@ object OptionModeleDlg: TOptionModeleDlg
       end
       object IncertParamRG: TRadioGroup
         Left = 0
-        Top = 328
+        Top = 400
         Width = 514
         Height = 80
         Margins.Left = 6
@@ -389,7 +405,7 @@ object OptionModeleDlg: TOptionModeleDlg
           #224' 95%'
           'les deux')
         TabOrder = 7
-        ExplicitTop = 366
+        ExplicitTop = -85
       end
       object ModelePourCentCB: TCheckBox
         Left = 8
@@ -425,9 +441,9 @@ object OptionModeleDlg: TOptionModeleDlg
       end
       object ChiffreSignifRG: TRadioGroup
         Left = 0
-        Top = 408
+        Top = 480
         Width = 514
-        Height = 210
+        Height = 190
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -440,9 +456,7 @@ object OptionModeleDlg: TOptionModeleDlg
           'GUM : deux si commence par 1 2 3 '
           'Unique : un chiffre')
         TabOrder = 10
-        ExplicitLeft = 256
-        ExplicitTop = 432
-        ExplicitWidth = 370
+        ExplicitTop = -5
       end
     end
     object TabSheet3: TTabSheet
@@ -557,19 +571,9 @@ object OptionModeleDlg: TOptionModeleDlg
         Margins.Right = 6
         Margins.Bottom = 6
         Caption = 'Autres couleurs'
-        Glyph.Data = {
-          66010000424D6601000000000000760000002800000014000000140000000100
-          040000000000F000000000000000000000001000000000000000000000000000
-          8000008000000080800080000000800080008080000080808000C0C0C0000000
-          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-          3333333333FF33733337333373333333CCCC3377777777777773333300003373
-          3337333373333333000033733337333373333333000033777777777777733333
-          0000337333373333733333331608337333373333733333330AA0337777777777
-          777333333324337333373333733333338AB333333333333333333333FE6533EE
-          E3555344436663330FC933EEE355534443666333ABD933EEE355534443666333
-          0611333333333333333333330C22339993BBB32223DDD333EC77339993BBB322
-          23DDD3335136339993BBB32223DDD33333793333333333333333333300663333
-          33333333333333330011}
+        ImageIndex = 48
+        ImageName = 'OPTGR'
+        Images = FRegressiMain.VirtualImageList1
         OnClick = OptionCouleursBtnClick
       end
       object ColorBox1: TColorBox
@@ -577,7 +581,7 @@ object OptionModeleDlg: TOptionModeleDlg
         Left = 220
         Top = 12
         Width = 240
-        Height = 34
+        Height = 22
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -598,7 +602,7 @@ object OptionModeleDlg: TOptionModeleDlg
         Left = 220
         Top = 60
         Width = 240
-        Height = 34
+        Height = 22
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -613,7 +617,7 @@ object OptionModeleDlg: TOptionModeleDlg
         Left = 220
         Top = 108
         Width = 240
-        Height = 34
+        Height = 22
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -628,7 +632,7 @@ object OptionModeleDlg: TOptionModeleDlg
         Left = 220
         Top = 156
         Width = 240
-        Height = 34
+        Height = 22
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -643,7 +647,7 @@ object OptionModeleDlg: TOptionModeleDlg
         Left = 220
         Top = 372
         Width = 240
-        Height = 34
+        Height = 22
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -658,7 +662,7 @@ object OptionModeleDlg: TOptionModeleDlg
         Left = 220
         Top = 324
         Width = 240
-        Height = 34
+        Height = 22
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -673,7 +677,7 @@ object OptionModeleDlg: TOptionModeleDlg
         Left = 220
         Top = 276
         Width = 240
-        Height = 34
+        Height = 22
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
@@ -688,7 +692,7 @@ object OptionModeleDlg: TOptionModeleDlg
         Left = 220
         Top = 228
         Width = 240
-        Height = 34
+        Height = 22
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6

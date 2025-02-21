@@ -15,6 +15,7 @@ const
    maxPixelCount = 32767;
 
 type
+  Tmethode = (mPreview,mProbe);
   TCorrectionRS = class
       private
           FRSValue : double;

@@ -7,7 +7,8 @@ uses
 
 const
    crCRLF = #13+#10;
-   labelCaptionAngle : array[boolean] of string = ('Angle en radian','Angle en degré');
+   labelCaptionAngle : array[boolean] of string = ('Angles en radian','Angles en degré');
+   hintCaptionAngle : array[boolean] of string = ('Clic : passage en degrée','Clic : passage en radian');
    stOuiNon : array[boolean] of string = ('Non','Oui');
    stDebutUniteSI : array[boolean] of string = ('calcul SANS','calcul AVEC');
    stPageActive : array[boolean] of string = ('|Page inactive','|Page active');
@@ -16,6 +17,7 @@ const
 
 resourcestring
 
+stPbSon = 'Problème périphérique son';
 stTropPrecis='Marche trop bien ?';
 stFinUniteSI=' prise en compte des coefficients d''unité';
 stChiffreSignif='ChiffreSignif';
@@ -292,8 +294,10 @@ stAddModele= '&Ajouter modèle';
 stReplaceModele = '&Remplacer modèle';
 stResiduStudent = 'Résidu studentisé ';
 stResiduNormalise = 'Résidu normalisé ';
-stResidusStudent = 'Résidu studentisés';
-stResidusNormalises = 'Résidu normalisés';
+stResidu = 'Résidu ';
+stResidus = 'Résidus';
+stResidusStudent = 'Résidus studentisés';
+stResidusNormalises = 'Résidus normalisés';
 stLimiteStudent95 = ' (limite de Student à 95% : ';
 stMoyenne = 'Moyenne ';
 stAnimation = 'Animation';
@@ -305,6 +309,7 @@ stMaxi= 'Maxi';
 stValeur= 'Valeur ';
 stMinimum= 'Minimum';
 stMaximum= 'Maximum';
+stConversion= 'Conversion';
 stIntensite = 'Intensité relative';
 stCible= 'Cible ';
 stTaille= 'Taille ';
@@ -322,7 +327,7 @@ hBornes='Bornes PUIS expression|Définir un nouveau modèle par un rectangle (born
 trBornesModele = 'Bornes et nouveau modèle';
 stPente='Pente';
 stPvaleur='Valeur-p(';
-stIntersection = 'Intersection' ;
+stIntersection = 'Intersection ' ;
 stAngle ='Angle';
 stRayon ='Rayon';
 stAbscisse= 'Abscisse';
@@ -330,6 +335,7 @@ stOrdonnee= 'Ordonnée';
 stInexactitude = 'Inexactitude';
 stEquivalence = 'Equivalence';
 stTangente= 'Tangente';
+stMethTangente='MethTangente';
 stBorne = 'Bornes de ';
 stBornes ='Bornes';
 stCourbe ='Courbe ';
@@ -341,6 +347,7 @@ stPage= 'Page';
 stIncertitude = 'Incertitude';
 stIncert= 'Incert. sur ';
 stOptions = 'OPTIONS';
+stDefaut = 'DEFAUT';
 stPhase= 'Phase';
 stPhaseContinue = 'Phase continue';
 stContinu = 'Continu ';
@@ -364,6 +371,7 @@ stRelative='relative';
 stDbDecade = 'dB/décade';
 stColor= 'Color';
 stCouleurPoint= 'PointCl';
+stCodeCouleurPoint= 'PointCodeCl';
 stNbreDec='Nombre de décimales';
 stNbreChiffres ='Nombre de chiffres';
 stNbreBits ='Nombre de bits';
@@ -400,9 +408,13 @@ stCadreGTS = 'Recadrage de données acquises par Orphy GTS';
 stBorneSelect = 'Bornes à la souris|Définir les bornes en traçant un rectangle';
 stBarreReticuleFFT = '|F10: enregistre position courante'+crCRLF+
                      'Barre d''espace: marque le pic proche';
-stBarreReticule1 = 'F10:enregistre la position courante ; ESC=fin'+crCRLF+'Barre d''espace:laisse une trace (cf. clic droit tableau)'+crCRLF+'clic:mesure d''écart';
-stBarreReticule3 = 'F10:enregistre la position courante ; ESC=fin'+crCRLF+'clic:suppression deuxième curseur';
+stBarreReticule1 = 'F10:enregistre la position courante ; ESC=fin'+crCRLF+
+                   'Barre d''espace:laisse une trace (cf. clic droit tableau)'+crCRLF+'clic:mesure d''écart';
+stBarreReticule3 = 'F10:enregistre la position courante ; ESC=fin'+crCRLF+
+                   'clic:suppression deuxième curseur';
 stBarreReticule2 = 'F10:enregistre la position courante ; ESC=fin'+crCRLF+'clic:fixe l''écart';
+hBarreDataNew = 'F10:enregistre la position courante ; ESC=fin'+crCRLF+
+                'Barre d''espace:laisse une trace (cf. clic droit tableau)';
 stExper = ' expérimentale';
 stCalcul = 'Calcul';
 stVariable = 'Variable';
@@ -486,8 +498,10 @@ hTraitTangente='Tangente|Style de trait des tangentes';
    hRepererPoint= '|Cliquer pour enregistrer le point';
    hOrigineClick= 'Origine|Cliquer sur l''origine des axes';
    hCibleAuto = 'Cible|Cliquer sur la cible à suivre';
+   hCibleCouleur = 'Cible|Cliquer sur le point à suivre';
    trCible2Auto = ' Cliquer sur la deuxième cible à suivre ';
    trCibleAuto = ' Cliquer sur la cible à suivre ';
+   trCibleCouleur = ' Cliquer sur la point de couleur à suivre ';
    trOrigineAuto = ' Cliquer sur l''origine à suivre ';
    NoZoom = 'Taille réelle';
    hTransfertRegressi = 'Transférer vers Regressi';
@@ -514,8 +528,9 @@ hTraitTangente='Tangente|Style de trait des tangentes';
    hOrigineMouse = '|Indique l''origine à l''aide de la souris';
    hStopMes = '|Arrêt des mesures';
    hStartMes = '|Commencer les mesures';
+   hStartCouleur = '|Commencer la mesure de couleur du point';
    hStopChrono = '|Arrêt de la Chronophotographie';
-   hChrono = 'Réaliser une chronophotographie|La cible doit être constrastée et les poistions successives distantes de moins d''un dixième de la taille de la video.';
+   hChrono = 'Réaliser une chronophotographie|La cible doit être constrastée et les positions successives distantes de moins d''un dixième de la taille de la video.';
    hOrigine1 = 'Origine du point n°1';
    hOrigineT = 'cliquer sur le point origine des temps';
    hClicPoint = 'cliquer sur le point à enregistrer';

@@ -3,9 +3,9 @@ object CourbesForm: TCourbesForm
   Top = 287
   HelpContext = 47
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
-  Caption = 'Lecture de courbes'
-  ClientHeight = 1680
-  ClientWidth = 2602
+  Caption = 'progr'
+  ClientHeight = 1672
+  ClientWidth = 2490
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
@@ -25,10 +25,10 @@ object CourbesForm: TCourbesForm
   PixelsPerInch = 192
   TextHeight = 36
   object Splitter: TSplitter
-    Left = 2192
-    Top = 134
+    Left = 2080
+    Top = 165
     Width = 10
-    Height = 1474
+    Height = 1469
     Hint = '|D'#233'placer pour changer les dimensions relatives des deux images'
     Margins.Left = 6
     Margins.Top = 6
@@ -41,14 +41,15 @@ object CourbesForm: TCourbesForm
     MinSize = 300
     ParentColor = False
     OnMoved = SplitterMoved
+    ExplicitLeft = 2192
     ExplicitTop = 136
     ExplicitHeight = 1472
   end
   object PaintBox: TPaintBox
     Left = 0
-    Top = 134
-    Width = 2192
-    Height = 1474
+    Top = 165
+    Width = 2080
+    Height = 1469
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -63,12 +64,13 @@ object CourbesForm: TCourbesForm
     OnMouseUp = ImageMouseUp
     OnPaint = ImagePaint
     ExplicitTop = 136
+    ExplicitWidth = 2192
     ExplicitHeight = 1472
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 1642
-    Width = 2602
+    Top = 1634
+    Width = 2490
     Height = 38
     Margins.Left = 6
     Margins.Top = 6
@@ -81,14 +83,14 @@ object CourbesForm: TCourbesForm
       end>
     ParentFont = True
     UseSystemFont = False
-    ExplicitTop = 1641
-    ExplicitWidth = 2588
+    ExplicitTop = 1633
+    ExplicitWidth = 2476
   end
   object GridPanel: TPanel
-    Left = 2202
-    Top = 134
+    Left = 2090
+    Top = 165
     Width = 400
-    Height = 1474
+    Height = 1469
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -96,13 +98,13 @@ object CourbesForm: TCourbesForm
     Align = alRight
     ParentColor = True
     TabOrder = 1
-    ExplicitLeft = 2188
-    ExplicitHeight = 1473
+    ExplicitLeft = 2076
+    ExplicitHeight = 1468
     object Grid: TStringGrid
       Left = 1
       Top = 1
       Width = 398
-      Height = 1472
+      Height = 1467
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -112,13 +114,13 @@ object CourbesForm: TCourbesForm
       ColCount = 3
       DefaultColWidth = 100
       DefaultRowHeight = 48
+      DoubleBuffered = True
       Enabled = False
       FixedCols = 0
-      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing]
+      ParentDoubleBuffered = False
       ScrollBars = ssVertical
       TabOrder = 0
-      OnDrawCell = GridDrawCell
-      ExplicitHeight = 1471
+      ExplicitHeight = 1466
       ColWidths = (
         100
         100
@@ -133,9 +135,9 @@ object CourbesForm: TCourbesForm
   end
   object Panel3: TPanel
     Left = 0
-    Top = 44
-    Width = 2602
-    Height = 90
+    Top = 65
+    Width = 2490
+    Height = 100
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -149,9 +151,9 @@ object CourbesForm: TCourbesForm
     ParentBackground = False
     ParentFont = False
     TabOrder = 2
-    ExplicitWidth = 2588
+    ExplicitWidth = 2476
     object SerieLabel: TLabel
-      Left = 638
+      Left = 610
       Top = 16
       Width = 238
       Height = 45
@@ -163,7 +165,7 @@ object CourbesForm: TCourbesForm
       Visible = False
     end
     object Label1: TLabel
-      Left = 180
+      Left = 200
       Top = 16
       Width = 321
       Height = 45
@@ -174,9 +176,9 @@ object CourbesForm: TCourbesForm
       Caption = '  Nombre de courbes  '
     end
     object ZoomEdit: TEdit
-      Left = 16
+      Left = 8
       Top = 16
-      Width = 177
+      Width = 200
       Height = 53
       Margins.Left = 6
       Margins.Top = 6
@@ -184,9 +186,10 @@ object CourbesForm: TCourbesForm
       Margins.Bottom = 6
       TabOrder = 0
       Text = 'Taille r'#233'elle'
+      Visible = False
     end
     object SerieSE: TSpinEdit
-      Left = 888
+      Left = 860
       Top = 12
       Width = 66
       Height = 56
@@ -220,14 +223,15 @@ object CourbesForm: TCourbesForm
       Text = 'EditBidon'
     end
     object SignifEdit: TLabeledEdit
-      Left = 1200
+      Left = 1120
       Top = 12
-      Width = 568
+      Width = 400
       Height = 53
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
+      AutoSize = False
       EditLabel.Width = 175
       EditLabel.Height = 53
       EditLabel.Margins.Left = 6
@@ -241,7 +245,7 @@ object CourbesForm: TCourbesForm
       OnChange = SignifEditChange
     end
     object NbreSE: TSpinEdit
-      Left = 502
+      Left = 520
       Top = 15
       Width = 82
       Height = 56
@@ -263,10 +267,10 @@ object CourbesForm: TCourbesForm
       OnChange = NbreSEChange
     end
     object GroupBox1: TGroupBox
-      Left = 2301
+      Left = 2189
       Top = 1
       Width = 300
-      Height = 88
+      Height = 98
       Hint = 'Couleur de la courbe courante'
       Margins.Left = 6
       Margins.Top = 6
@@ -274,19 +278,18 @@ object CourbesForm: TCourbesForm
       Margins.Bottom = 6
       Align = alRight
       Caption = 'Couleur de trac'#233
-      TabOrder = 6
-      ExplicitLeft = 2287
+      TabOrder = 5
+      ExplicitLeft = 2175
       object CouleurPointsCB: TColorBox
         Left = 2
         Top = 48
         Width = 296
-        Height = 38
+        Height = 22
         Hint = 'Couleur de la courbe courante'
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
-        Align = alBottom
         Style = [cbStandardColors, cbPrettyNames]
         DropDownCount = 16
         ItemHeight = 32
@@ -295,57 +298,71 @@ object CourbesForm: TCourbesForm
       end
     end
     object GroupBox2: TGroupBox
-      Left = 2001
+      Left = 1889
       Top = 1
       Width = 300
-      Height = 88
+      Height = 98
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
       Align = alRight
       Caption = 'Couleur des axes'
-      TabOrder = 5
-      ExplicitLeft = 1987
+      TabOrder = 6
+      ExplicitLeft = 1875
       object CouleurAxeCB: TColorBox
         Left = 2
         Top = 48
         Width = 296
-        Height = 38
+        Height = 22
         Margins.Left = 6
         Margins.Top = 6
         Margins.Right = 6
         Margins.Bottom = 6
-        Align = alBottom
         Style = [cbStandardColors, cbPrettyNames]
         ItemHeight = 32
         TabOrder = 0
         OnChange = CouleurPointsCBChange
       end
     end
+    object CouleurCibleP: TPanel
+      Left = 1600
+      Top = 8
+      Width = 80
+      Height = 80
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
+      Color = clPurple
+      Ctl3D = False
+      ParentBackground = False
+      ParentCtl3D = False
+      TabOrder = 7
+      StyleElements = []
+    end
   end
   object ToolBar: TToolBar
     Left = 0
     Top = 0
-    Width = 2602
-    Height = 44
+    Width = 2490
+    Height = 65
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     AutoSize = True
-    ButtonHeight = 42
-    ButtonWidth = 140
+    ButtonHeight = 63
+    ButtonWidth = 173
     EdgeBorders = [ebBottom]
     GradientEndColor = clSkyBlue
     HotTrackColor = clAqua
     Images = VirtualImageList1
-    List = True
     ShowCaptions = True
     TabOrder = 3
     Transparent = False
     Wrapable = False
-    ExplicitWidth = 2588
+    ExplicitWidth = 2476
     object FileBtn: TToolButton
       Left = 0
       Top = 0
@@ -355,12 +372,12 @@ object CourbesForm: TCourbesForm
       Margins.Bottom = 6
       AutoSize = True
       Caption = 'Ouvrir'
-      ImageIndex = 11
-      ImageName = 'Item12'
+      ImageIndex = 6
+      ImageName = 'Item7'
       OnClick = OpenFileBtnClick
     end
     object EchelleBtn: TToolButton
-      Left = 118
+      Left = 82
       Top = 0
       Hint = 'Echelle/options|D'#233'finition de l'#39#233'chelle, options'
       Margins.Left = 6
@@ -374,7 +391,7 @@ object CourbesForm: TCourbesForm
       OnClick = EchelleBtnClick
     end
     object MesureBtn: TToolButton
-      Left = 245
+      Left = 173
       Top = 0
       Hint = 'R'#224'Z et d'#233'but des mesures'
       Margins.Left = 6
@@ -388,8 +405,16 @@ object CourbesForm: TCourbesForm
       Style = tbsCheck
       OnClick = MesureBtnClick
     end
+    object AutoBtn: TToolButton
+      Left = 279
+      Top = 0
+      Caption = 'Mesures Auto.'
+      ImageIndex = 11
+      ImageName = 'Item12'
+      OnClick = AutoBtnClick
+    end
     object LoupeBtn: TToolButton
-      Left = 387
+      Left = 452
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -402,10 +427,10 @@ object CourbesForm: TCourbesForm
       Style = tbsCheck
     end
     object zoomUD: TSpinEdit
-      Left = 531
+      Left = 560
       Top = 0
       Width = 68
-      Height = 47
+      Height = 63
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -413,10 +438,10 @@ object CourbesForm: TCourbesForm
       MaxValue = 4
       MinValue = 1
       TabOrder = 0
-      Value = 2
+      Value = 1
     end
     object RazBtn: TToolButton
-      Left = 599
+      Left = 628
       Top = 0
       Hint = 'R'#224'Z|Remise '#224' z'#233'ro'
       Margins.Left = 6
@@ -430,7 +455,7 @@ object CourbesForm: TCourbesForm
       OnClick = RazBtnClick
     end
     object UndoBtn: TToolButton
-      Left = 690
+      Left = 683
       Top = 0
       Hint = 'Annuler dernier point'
       Margins.Left = 6
@@ -444,8 +469,9 @@ object CourbesForm: TCourbesForm
       OnClick = UndoBtnClick
     end
     object SupprBtn: TToolButton
-      Left = 819
+      Left = 776
       Top = 0
+      Hint = 'Supprimer un point en cliquant dessus'
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -457,7 +483,7 @@ object CourbesForm: TCourbesForm
       OnClick = SupprBtnClick
     end
     object RegressiBtn: TToolButton
-      Left = 943
+      Left = 864
       Top = 0
       Hint = 'Regressi|Envoi de donn'#233'es vers Regressi'
       Margins.Left = 6
@@ -470,8 +496,16 @@ object CourbesForm: TCourbesForm
       ImageName = 'Item4'
       OnClick = RegressiBtnClick
     end
-    object ToolButton1: TToolButton
-      Left = 1062
+    object PythonBtn: TToolButton
+      Left = 947
+      Top = 0
+      Caption = 'Export Python'
+      ImageIndex = 7
+      ImageName = 'Item8'
+      OnClick = PythonBtnClick
+    end
+    object AideBtn: TToolButton
+      Left = 1120
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -481,10 +515,10 @@ object CourbesForm: TCourbesForm
       Caption = 'Aide'
       ImageIndex = 18
       ImageName = 'Item19'
-      OnClick = ToolButton1Click
+      OnClick = AideBtnClick
     end
     object ExiBtn: TToolButton
-      Left = 1161
+      Left = 1183
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
@@ -497,23 +531,8 @@ object CourbesForm: TCourbesForm
       OnClick = ExitBtnClick
     end
   end
-  object ProgressBar: TProgressBar
-    Left = 0
-    Top = 1608
-    Width = 2602
-    Height = 34
-    Margins.Left = 6
-    Margins.Top = 6
-    Margins.Right = 6
-    Margins.Bottom = 6
-    Align = alBottom
-    TabOrder = 4
-    Visible = False
-    ExplicitTop = 1607
-    ExplicitWidth = 2588
-  end
   object OpenDialog: TOpenDialog
-    Filter = 'bitmap|*.bmp|Jpeg|*.jpg;*.jpeg|GIF|*.gif|Ping|*.png'
+    Filter = 'Bitmap Jpeg Png Gif|*.bmp;*.jpg;*.jpeg;*.gif;*.png'
     Left = 144
     Top = 506
   end
@@ -906,9 +925,15 @@ object CourbesForm: TCourbesForm
         Name = 'Item20'
       end>
     ImageCollection = ImageCollection1
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 544
     Top = 496
+  end
+  object SaveDialog: TSaveDialog
+    DefaultExt = '.py'
+    Filter = 'Python|.py'
+    Left = 328
+    Top = 344
   end
 end

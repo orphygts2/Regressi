@@ -6,7 +6,7 @@ object SelectColonneDlg: TSelectColonneDlg
   BorderStyle = bsDialog
   Caption = 'Choix des grandeurs export'#233'es'
   ClientHeight = 460
-  ClientWidth = 892
+  ClientWidth = 872
   Color = clBtnFace
   Constraints.MinHeight = 268
   Font.Charset = DEFAULT_CHARSET

@@ -99,7 +99,8 @@ Function derive(F : Pelement) : TlisteDeriveeIncert;
                               genFonction(sinus,copie(operand)));
               tangente : tampon := genOperateurSimpl('+',
                   pointeurUn,
-                  genFonction(tangente,copie(operand)));
+                  genFonction(carre,
+                     genFonction(tangente,copie(operand))));
             // tan(x)'=1+tan(x)^2
               arcTangente : tampon := genFonction(inverse,
                   genOperateurSimpl('+',
@@ -213,26 +214,25 @@ Begin // derive
      case f^.typeElement of
            operateur : result := deriveOperateur(F);
            fonction  : result := deriveFonction(F);
-	         Grandeur : begin
+           fonctionGlb : if f^.codeFGlb in [Moyenne, MoyenneAll, Somme]
+                 then result := derive(F^.operandGlb) // moyenne(f(x)), on dérive f(x)
+                 else result := TlisteDeriveeIncert.Create;
+	         Grandeur, GrandeurIndicee : begin
                  result := TlisteDeriveeIncert.Create;
                  new(derLoc);
                  derLoc.deriveX := pointeurUn;
-                 derLoc.incertX := genIncertGrandeur(f);
-                 result.add(derLoc);
-           end;
-	         GrandeurIndicee : begin
-                 result := TlisteDeriveeIncert.Create;
-                 new(derLoc);
-                 derLoc.deriveX := pointeurUn;
-                 derLoc.incertX := genIncertGrandeurIndicee(f);
+                 if f^.typeElement=GrandeurIndicee
+                    then derLoc.incertX := genIncertGrandeurIndicee(f)
+                    else derLoc.incertX := genIncertGrandeur(f);
                  result.add(derLoc);
            end;
            else result := TlisteDeriveeIncert.Create;
-     end;// case
+     end;// case typeElement
 end;// derive
 
 var Aliste : TlisteDeriveeIncert;
     i : integer;
+//    Lchaine : string;
 begin
    libere(fprime);
    if (f.calcul=nil) then exit;
@@ -245,5 +245,10 @@ begin
                         genOperateurSimpl('*',
                            Aliste[i].incertX,Aliste[i].deriveX)));
    Aliste.free;
-    fprime := genFonctionSimpl(racine,fprime);
+   fprime := genFonctionSimpl(racine,fprime);
+   (*
+   Lchaine := translateExp(fprime);
+   AfficheErreur(LChaine,0);
+   clipboard.astext := Lchaine;
+   *)
 end; // DeriveeIncert

@@ -280,7 +280,7 @@ end;
 
 function pValue_Wald(r,n1,n2 : integer) : double;
 begin
-     if ((n1>10) and (n2>10)) or ((n1+n2)>20)
+    if ((n1>10) and (n2>10)) or ((n1+n2)>20)
         then result := pWald_Gauss(r,n1,n2)
         else result := pWald_exact(r,n1,n2)
 end;

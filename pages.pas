@@ -82,7 +82,7 @@ var i : TcodeIntervalle;
     g : TgenreGrandeur;
 begin
   ParamAjustes := false;
-  MajCornishAfaire := true;
+ // MajCornishAfaire := true;
   Active := true;
   nmes := 0;
   FinFFT := -1;
@@ -91,7 +91,6 @@ begin
   DebutFFT := 0;
   commentaireP := '';
   ModifiedP := false;
-  MajCornishAfaire := true;
   ListeRepere.Clear;
   for g := ParamNormal to ParamDiff2 do
       for j := 1 to maxParametres do
@@ -102,7 +101,7 @@ begin
   end;
   TexteResultatModele.Clear;
   TexteModeleP.Clear;
-end;{Page.Reset}
+end;// Page.Reset
 
 procedure Tpage.resetPointActif;
 var i : integer;
@@ -194,8 +193,8 @@ begin // ParamEtPrec
    if incertType
       then precLoc := incertParam[k]
       else precLoc := incert95Param[k];
- //  expValeurIng := 3*floor(log10(valeurLoc)/3);
-   expValeurIng := floor(log10(valeurLoc));
+   expValeurIng := 3*floor(log10(valeurLoc)/3);
+ //  expValeurIng := floor(log10(valeurLoc));
    CoeffValeur := dix(-expValeurIng);
    Decimales := precisionMaxIncert;
    if k<=NbreParam[ParamNormal] then with Parametres[ParamNormal,k] do begin
@@ -228,25 +227,41 @@ begin // ParamEtPrec
          CoeffValeur := 1;
       end;
    valeurLoc := valeurParam[ParamNormal,k]*CoeffValeur;
+   precLoc := precLoc*CoeffValeur;
    tampon := FloatToStrF(valeurLoc,ffFixed,Decimales+3,Decimales);
    if paramAjustes then if precOK
       then begin
          precOK := abs(precLoc/valeurLoc)>PrecisionMaxParam;
          if precOK
-            then tamponPrec := FloatToStrF(precLoc*CoeffValeur,ffFixed,Decimales+4,Decimales)
+            then tamponPrec := FloatToStrF(precLoc,ffFixed,Decimales+4,Decimales)
             else tamponPrec := ' ?!';
-         tampon := tampon+' ±'+tamponPrec;
+         if isUniteLatex
+            then tampon := tampon+'+-'+tamponPrec
+            else tampon := tampon+' ±'+tamponPrec;
       end
       else tampon := tampon+' ??';
-   tampon := '('+tampon+')';
-   if correct
-      then tampon := tampon+NomAff(expValeurIng)
-      else begin
-          if expValeurIng<>0 then
-             tampon:=tampon+pointMedian+'10'+puissToStr(expValeurIng);
-          tampon:=tampon+' S.I.';
-      end;
-  result := nom+'='+tampon
+   if isUniteLatex then begin
+      tampon := '\SI{'+tampon+'}{';
+      if correct
+         then tampon := tampon+NomAff(expValeurIng)+'}'
+         else begin
+            if expValeurIng<>0 then
+               tampon:=tampon+'cdot 10^{'+intToStr(expValeurIng);
+            tampon:=tampon+'S.I.}';
+         end;
+      result := '$'+translateNomMath(nom+'='+tampon)+'$'
+   end
+   else begin
+      tampon := '('+tampon+')';
+      if correct
+         then tampon := tampon+NomAff(expValeurIng)
+         else begin
+            if expValeurIng<>0 then
+               tampon:=tampon+'10'+powerToStr(expValeurIng);
+            tampon:=tampon+' S.I.';
+         end;
+      result := nom+'='+tampon
+   end;
 end end; // ParamEtPrec
 
 Function ParamEtPrecGlb(k : TcodeGrandeur;incertType : boolean) : String;
@@ -307,12 +322,13 @@ begin // ParamEtPrec
       then tampon := tampon+NomAff(expValeurIng)
       else begin
           if expValeurIng<>0 then
-             tampon:=tampon+'10'+puissToStr(expValeurIng);
+             tampon:=tampon+'10'+powerToStr(expValeurIng);
           tampon:=tampon+' S.I.';
       end;
   result := nom+'='+tampon
 end end; // ParamEtPrecGlb
 
+(*
 Function Tpage.ParamNum(k : TcodeGrandeur) : String;
 var puissValeur : shortInt;
     CoeffValeur,valeurDix : double;
@@ -321,7 +337,7 @@ var puissValeur : shortInt;
     PrecOk : boolean;
     valeurLoc,precLoc : double;
 begin // ParamNum
-   if k<=NbreParam[ParamNormal] then with Parametres[ParamNormal,k] do begin   (*à voir*)
+   if k<=NbreParam[ParamNormal] then with Parametres[ParamNormal,k] do begin
       valeurLoc := valeurParam[ParamNormal,k];
       precLoc := incertParam[k];
       Precision := 0;
@@ -351,11 +367,56 @@ begin // ParamNum
    if valeurDix>=100 then dec(Decimales);
    tampon := FloatToStrF(valeurDix,ffFixed,Precision,Decimales);
    if puissValeur<>0 then
-      tampon := tampon+pointMedian+'10'+puissToStr(puissValeur);
+      tampon := tampon+pointMedian+'10'+powerToStr(puissValeur);
    result := tampon;
    end // param existant
    else result := '';
 end; // ParamNum
+
+Function Tpage.ParamLatex(k : TcodeGrandeur) : String;
+var puissValeur : shortInt;
+    CoeffValeur,valeurDix : double;
+    Precision,Decimales : byte;
+    tampon : String;
+    PrecOk : boolean;
+    valeurLoc,precLoc : double;
+begin // ParamLatex
+   if k<=NbreParam[ParamNormal] then with Parametres[ParamNormal,k] do begin
+      valeurLoc := valeurParam[ParamNormal,k];
+      precLoc := incertParam[k];
+      Precision := 0;
+      precOK := ParamAjustes and
+           ( abs(valeurLoc)>precLoc ) and
+           ( abs(valeurLoc)<1e9*precLoc );
+      if precOK then begin
+           try
+           Precision := floor(log10(abs(valeurLoc))-floor(log10(precLoc))); // +1
+           except
+           precOK := false;
+           end;
+      end; // precOK
+      if precOK
+         then begin
+            if Precision<=2
+               then Precision := 3
+               else if Precision>PrecisionMax
+                  then Precision := PrecisionMax;
+         end
+         else Precision := PrecisionMax div 2;
+   PuissValeur := 3*floor(log10(abs(valeurLoc))/3);
+   CoeffValeur := dix(-puissValeur);
+   Decimales := Precision-1;
+   valeurDix := valeurLoc*CoeffValeur;
+   if valeurDix>=10 then dec(Decimales);
+   if valeurDix>=100 then dec(Decimales);
+   tampon := FloatToStrFixedLatex(valeurDix,Precision,Decimales);
+   if puissValeur<>0 then
+      tampon := tampon+'*10^('+powerToStr(puissValeur)+')';
+   result := tampon;
+   end // param existant
+   else result := '';
+end; // ParamLatex
+*)
 
 Function Tpage.AjouteGrandeurP(index : TcodeGrandeur) : boolean;
 var fy : integer;
@@ -575,7 +636,8 @@ begin
                valeurCourante := valeurCourante*coeffSI;
            end;
        end; // with
-   end;                     { TODO : coeffSI param }
+   end;
+   { TODO : coeffSI param }
    for i := 1 to NbreParam[paramNormal] do begin
        if paramInverse[i] and isModele
           then if uniteSIGlb
@@ -723,8 +785,10 @@ begin
                   setLength(FenetreFourier[i],N);
                end;
            end; // variable
-        FPointActif.size := N;
-        for k := oldNmesMax to pred(N) do FPointActif[k] := true;
+        if N<maxVecteurDefaut then begin
+            FPointActif.size := N;
+            for k := oldNmesMax to pred(N) do FPointActif[k] := true;
+        end;
 end;
 
 begin
@@ -970,16 +1034,18 @@ Begin
    if not(TriAfaire) or FichierTrie then exit;
    modifTri := false;
    isTexte := [];
-   DefinitGrandeurFrequence;
+   DefinitGrandeurFrequence; // reset indexTri
    for fx := 0 to pred(NbreVariab) do begin
        index := indexVariab[fx];
        libereLisseP(index);
        libereFourierP(index);
        if grandeurs[index].fonct.genreC=g_texte then include(isTexte,index);
    end;
-   if grandeurs[indexTri].fonct.genreC=g_experimentale
-      then triValeur
-      else triTexte;
+   case grandeurs[indexTri].fonct.genreC of
+      g_experimentale : triValeur;
+      g_texte : triTexte;
+      g_fonction : triValeur; // ??
+   end;
    TriAfaire := false;
    if modifTri and (numero=pageCourante)
       then Application.MainForm.Perform(WM_Reg_Maj,MajTri,0)
@@ -1247,25 +1313,27 @@ end;
 
 procedure Tpage.setPointActif(index : integer;value : boolean);
 begin
-     FpointActif[index] := value
+     if index<maxVecteurDefaut then FpointActif[index] := value
 end;
 
 function Tpage.getPointActif(index : integer) : boolean;
 begin
-    if (numero>0)
-       then result := FPointActif[index]
-       else if index<NbrePages
+    if (numero=0)
+       then if index<NbrePages
           then result := Pages[index+1].active
           else result := true
-
+       else if nmes<maxVecteurDefaut
+          then result := FPointActif[index]
+          else result := true
 end;
 
 function Tmodele.getPointActif(index: integer): boolean;
-begin with pages[pageCourante] do begin
-    result := FPointActif[index] and
+begin
+    with pages[pageCourante] do
+    result := PointActif[index] and
               not isNan(valeurVar[indexX,index]) and
               not isNan(valeurVar[indexY,index])
-end end;
+end;
 
 Procedure Tpage.SetNomBitmap(const NewNom : string);
 begin

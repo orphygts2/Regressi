@@ -132,9 +132,12 @@ begin
    IndexPointCourant := -1;
    indexStat := 1;
    ImprimeBtn.visible := imBoutonImpr in menuPermis;
-//   DistGrid.DefaultRowHeight := HauteurColonne;
- //  StatGrid.DefaultRowHeight := HauteurColonne;
-   ResizeButtonImagesforHighDPI(self);
+   DistGrid.DefaultRowHeight := HauteurColonne;
+   StatGrid.DefaultRowHeight := HauteurColonne;
+   DistGrid.DefaultColWidth :=  PanelValeurs.Width div 3;
+   StatGrid.DefaultColWidth := PanelValeurs.Width div 2;
+   VirtualImageList1.height := VirtualImageListSize;
+   VirtualImageList1.width := VirtualImageListSize;
 end;
 
 procedure TFstatistique.SetCoordonnee;
@@ -143,6 +146,50 @@ var Ylegende : double;
     deltaYlegende,deltaXlegende : double;
     Npages,indexPage : integer;
     couleurC : TColor;
+    Decimales : integer;
+    expValeurIng : integer;
+    coeffValeurIng : double;
+
+function formatValeur(valeur : double) : string;
+var suffixe : string;
+begin
+ //  result := grandeurs[indexStat].formatValeurEtUnite(valeur);
+   result := FloatToStrF(valeur/coeffValeurIng,ffFixed,Decimales+3,Decimales);
+   if grandeurs[indexStat].correct
+      then begin
+          suffixe := grandeurs[indexStat].NomAff(expValeurIng);
+          if (length(suffixe)>1) and (suffixe[1]='1')
+             then suffixe :=  pointMedian + suffixe
+             else suffixe :=  ' ' + suffixe;
+          result := result + suffixe;
+      end
+      else begin
+          if expValeurIng<>0 then
+             result := result + pointMedian + '10' + powerToStr(expValeurIng);
+          result := result + ' S.I.';
+      end;
+end;
+
+Procedure ChercheDecimales;
+var valeurLoc,precLoc : double;
+    premierChiffre,expPrec,expValeur : integer;
+begin
+   valeurLoc := statCourante.moyenne;
+   precLoc := statCourante.sigma;
+   expValeurIng := 3*floor(log10(valeurLoc)/3);
+   coeffValeurIng := power(10,expValeurIng);
+   try
+       expPrec := floor(log10(precLoc));
+       expValeur := floor(log10(valeurLoc));
+       Decimales := expValeur-expPrec+1;
+       premierChiffre := floor(precLoc*dix(-expPrec));
+       if premierChiffre<3 then inc(decimales); // deux chiffres pour 0,13 ou 0,24
+       if Decimales>precisionMaxIncert then Decimales := PrecisionMaxIncert;
+       decimales := decimales - expValeur + expValeurIng;
+       if decimales<0 then decimales := 0;
+   except
+   end;
+end; // ChercheDecimales
 
 Procedure AjouteLegende(xLegende : double;const t : string;Couleur : Tcolor);
 var Dessin : Tdessin;
@@ -197,7 +244,7 @@ begin with pages[p].stat do begin
      if (min>0) and (x[0]<0) then begin
         Lcourbe.DebutC := ceil(Nth-moyenne/h);
      end;
-     Lcourbe.setStyle(GetCouleurPale(couleurC),psSolid,mCroix,'');
+     Lcourbe.setStyle(GetCouleurPale(couleurC),psSolid,mCroix);
      Lcourbe.Adetruire := true;
      Lcourbe.trace := [trLigne];
 end end; // setCourbeGauss
@@ -272,7 +319,7 @@ begin with pages[p].stat do begin
      end;
      Lcourbe := Graphe.AjouteCourbe(x,y,mondeY,Nbre,
          grandeurs[indexStat],frequenceGr,p);
-     Lcourbe.setStyle(couleurC,psSolid,mCroix,'');
+     Lcourbe.setStyle(couleurC,psSolid,mCroix);
      Lcourbe.Adetruire := true;
      Lcourbe.trace := [trPoint];
 end end;
@@ -300,7 +347,7 @@ begin with pages[p].stat do begin
     end;
     graphe.monde[mondeY].mini := 0;
     graphe.monde[mondeY].maxi := maxDist*1.05;
-    Lcourbe.setStyle(couleurC,psSolid,mCroix,'');
+    Lcourbe.setStyle(couleurC,psSolid,mCroix);
     if classeStat in [csEffectifDonne,csFrequenceDonnee]
        then begin
           Lcourbe.DebutC := 0;
@@ -316,7 +363,7 @@ begin with pages[p].stat do begin
     if StatOptDlg.DistributionCB.checked then begin // distribution
        Lcourbe := Graphe.AjouteCourbe(MoyDist,NbreDist,mondeY,iFin,
            grandeurs[indexStat],frequenceGr,p);
-       Lcourbe.setStyle(couleurC,psSolid,mCroix,'');
+       Lcourbe.setStyle(couleurC,psSolid,mCroix);
        Lcourbe.DebutC := iDebut;
        Lcourbe.FinC := iFin;
        Lcourbe.trace := [trLigne];
@@ -393,58 +440,11 @@ with pages[p].stat do begin
 end end; // SetHistogramme
 
 Procedure AfficheStat;
-var Decimales : integer;
-    expValeurIng : integer;
-    coeffValeurIng : double;
-
-Procedure ChercheDecimales;
-var valeurLoc,precLoc : double;
-    premierChiffre,expPrec,expValeur : integer;
-begin
-   valeurLoc := statCourante.moyenne;
-   precLoc := statCourante.sigma;
-   expValeurIng := 3*floor(log10(valeurLoc)/3);
-   coeffValeurIng := power(10,expValeurIng);
-   try
-       expPrec := floor(log10(precLoc));
-       expValeur := floor(log10(valeurLoc));
-       Decimales := expValeur-expPrec+1;
-       premierChiffre := floor(precLoc*dix(-expPrec));
-       if premierChiffre<3 then inc(decimales); // deux chiffres pour 0,13 ou 0,24
-       if Decimales>precisionMaxIncert then Decimales := PrecisionMaxIncert;
-       decimales := decimales - expValeur + expValeurIng;
-       if decimales<0 then decimales := 0;
-   except
-   end;
-end; // ChercheDecimales
-
-function formatValeur(valeur : double) : string;
-var suffixe : string;
-begin
- //  result := grandeurs[indexStat].formatValeurEtUnite(valeur);
-   result := FloatToStrF(valeur/coeffValeurIng,ffFixed,Decimales+3,Decimales);
-   if grandeurs[indexStat].correct
-      then begin
-          suffixe := grandeurs[indexStat].NomAff(expValeurIng);
-          if (length(suffixe)>1) and (suffixe[1]='1')
-             then suffixe :=  pointMedian + suffixe
-             else suffixe :=  ' ' + suffixe;
-          result := result + suffixe;
-      end
-      else begin
-          if expValeurIng<>0 then
-             result := result + pointMedian + '10' + puissToStr(expValeurIng);
-          result := result + ' S.I.';
-      end;
-end;
-
 begin with StatGrid,statCourante,grandeurs[indexStat] do begin
     if isNan(cible)
        then rowCount := 10
        else rowCount := 14;
     height := succ(rowCount)*DefaultRowHeight;
-    ColWidths[0] := LargeurUnCarac*8;
-    ColWidths[1] := LargeurUnCarac*10;
     if (classeStat in [csEffectifDonne,csFrequenceDonnee])
        then begin
             cells[0,0] := '';cells[1,0] := '';
@@ -452,7 +452,6 @@ begin with StatGrid,statCourante,grandeurs[indexStat] do begin
        else begin
             cells[0,0] := stTaille;cells[1,0] := IntToStr(Ntotal);
        end;
-    chercheDecimales;
     cells[0,1] := stEtendue+'mini';cells[1,1] := formatValeur(min);
     cells[0,2] := stEtendue+stMaxi;cells[1,2] := formatValeur(max);
     if (classeStat in [csEffectifDonne,csFrequenceDonnee])
@@ -465,6 +464,7 @@ begin with StatGrid,statCourante,grandeurs[indexStat] do begin
           cells[1,3] := formatValeurEtUnite(mediane);
        end;
     cells[0,4] := stMoyenne;cells[1,4] := formatValeur(moyenne);
+    (*
     if classeStat=csFrequenceDonnee then begin
        cells[0,5] := '';cells[1,5] := '';
        cells[0,6] := '';cells[1,6] := '';
@@ -473,14 +473,16 @@ begin with StatGrid,statCourante,grandeurs[indexStat] do begin
        cells[0,5] := 'ICm 95% mini';cells[1,5] := formatValeur(moyenne-t95);
        cells[0,6] := 'ICm 95% maxi';cells[1,6] := formatValeur(moyenne+t95);
     end;
-    cells[0,7] := stEcartType;cells[1,7] := formatValeur(sigma);
-    cells[0,8] := 'U(m,95%)';cells[1,8] := formatValeur(t95);
-    cells[0,9] := 'CV';cells[1,9] := chainePrec(sigma/abs(moyenne));
+    *)
+    cells[0,5] := stEcartType+' s';cells[1,5] := formatValeur(sigma);
+    cells[0,6] := sigmamin+'(moy)';cells[1,6] := formatValeur(sigmaMoyenne);
+//  cells[0,8] := 'U(m,95%)';cells[1,8] := formatValeur(t95);
+    cells[0,7] := 'CV';cells[1,7] := chainePrec(sigma/abs(moyenne));
     if not isNan(cible) then begin
-       cells[0,10]  := stCible;cells[1,10] := formatReg(Cible);
-       cells[0,11] := stInexactitude;cells[1,11] := '';
-       cells[0,12] := '   '+StAbsolue;cells[1,12] := formatValeurEtUnite(Moyenne-Cible);
-       cells[0,13] := '   '+StRelative;cells[1,13] := ChainePrec(Abs((Moyenne-Cible)/Cible));
+       cells[0,8]  := stCible;cells[1,8] := formatReg(Cible);
+       cells[0,9] := stInexactitude;cells[1,9] := '';
+       cells[0,10] := '   '+StAbsolue;cells[1,10] := formatValeurEtUnite(Moyenne-Cible);
+       cells[0,11] := '   '+StRelative;cells[1,11] := ChainePrec(Abs((Moyenne-Cible)/Cible));
     end;
 end end;
 
@@ -513,11 +515,10 @@ begin with statCourante do begin
             DistGrid.cells[1,0] := stMaximum;
          end;
      DistGrid.cells[2,0] := stTaille;
-     DistGrid.ColWidths[2] := largeurUnCarac*10;
      for i := iDebut to iFin do begin
         ligne := succ(i-iDebut);
-        DistGrid.cells[0,ligne] := grandeurs[indexStat].formatNombre(BornesDist[pred(i)]);
-        DistGrid.cells[1,ligne] := grandeurs[indexStat].formatNombre(BornesDist[i]);
+        DistGrid.cells[0,ligne] := formatValeur(BornesDist[pred(i)]);
+        DistGrid.cells[1,ligne] := formatValeur(BornesDist[i]);
         DistGrid.cells[2,ligne] := IntToStr(round(NbreDist[i]));
      end;
 end end;
@@ -536,7 +537,7 @@ begin with statCourante do begin
          then DistGrid.cells[0,0] := stValeur+' ('+grandeurs[indexStat].nomUnite+')'
          else DistGrid.cells[0,0] := stValeur;
      DistGrid.cells[1,0] := stTaille;
-     DistGrid.ColWidths[2] := 0;
+     DistGrid.cells[2,0] := '';
      for i := iDebut to iFin do begin
         ligne := succ(i-iDebut);
         DistGrid.cells[0,ligne] := grandeurs[indexStat].formatNombre(
@@ -600,7 +601,7 @@ begin with Pages[pageCourante] do begin
            if not IsEntier(valeurVar[indexEffectif,i],n) then begin
                   result := false;
                   break;
-           end;     // indexEffectif non entier donc pas un effectif
+           end; // indexEffectif non entier donc pas un effectif
            for j := 0 to pred(i) do
                if valeurVar[indexStat,i]=valeurVar[indexStat,j] then begin
                   result := false;
@@ -684,8 +685,7 @@ begin // setCoordonnee
         if precisionS>8 then precisionS := 8;
         grandeurs[indexStat].PrecisionU := PrecisionS;
      end;
-     DistGrid.ColWidths[0] := largeurUnCarac*8;
-     DistGrid.ColWidths[1] := largeurUnCarac*8;
+     chercheDecimales;
      case statCourante.ClasseStat of
         csEffectifDonne : afficheDistEffectif;
         csFrequenceDonnee : afficheDistFrequence;
@@ -799,7 +799,7 @@ begin
           SetMinMaxDefaut(minY,maxY);
           defini := true;
     end;
-end;
+end; // setMinMax
 
 procedure affecteMinMax;
 begin
@@ -829,7 +829,7 @@ begin
           if echelleBtn.down
              then setMinMax
              else affecteMinMax;
-          graphe.UseDefaultX := echelleBtn.down;
+          graphe.UseDefautX := echelleBtn.down;
           if EchelleBtn.down then begin
              if graphe.monde[mondeX].axe<>nil
              then Xlabel.Caption := stAbscisse+' '+graphe.monde[mondeX].axe.nom
@@ -847,7 +847,7 @@ begin
           Brush.style := bsSolid;
       end;
       indexPointCourant := -1;
-end;
+end; // PaintBoxPaint
 
 procedure TFstatistique.FormDestroy(Sender: TObject);
 begin
@@ -887,7 +887,7 @@ begin
        writeln(fichier,width);
        writeln(fichier,height);
    end;    
-end;
+end; // ecritConfig
 
 Procedure TFstatistique.litConfig;
 var i,imax : integer;
@@ -931,7 +931,7 @@ begin
           end
           else for i := 1 to imax do litLigneWin;
    litLigneWin;
-end end;
+end end; // litConfig
 
 Procedure TFStatistique.InitStat;
 var p,iP : integer;
@@ -975,7 +975,7 @@ begin
    end;
    if grandeurs[indexStat].genreG in [constante,paramNormal]
         then statGlb.Calcul;
-end;
+end; // initStat
 
 Procedure TFStatistique.VerifStat(p : TcodePage);
 begin
@@ -1006,7 +1006,7 @@ begin
          else stat.setValeur(ValeurVar[indexStat],Nmes,true);
       end;
    end;
-end;
+end; // verifStat
 
 procedure TFstatistique.PaintBoxStatMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -1135,7 +1135,7 @@ begin with statOptDlg do begin
           initStat;
           PaintBoxStat.invalidate;
        end;
-end end;
+end end; // optionsItemClick
 
 procedure TFstatistique.CopierItemClick(Sender: TObject);
 begin
@@ -1173,7 +1173,7 @@ begin with PaintBoxStat,Canvas do begin
        end;
    end;{case}
    if curseurStat<>crsEfface then GommeBtn.hint := hGommeStat;
-end end;
+end end; // setCurseurStat
 
 procedure TFstatistique.PaintBoxStatMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -1310,7 +1310,7 @@ begin
      AffichePointCourant; // efface
      indexPointCourant := i;
      AffichePointCourant;
-end;
+end; // setPointCourant
 
 procedure TFstatistique.EditBidonKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -1368,7 +1368,7 @@ begin with graphe do begin
           handled := true;
        end;
     end;{case}
-end end;
+end end; // formShortCut
 
 procedure TFstatistique.GommeBtnClick(Sender: TObject);
 begin
@@ -1449,4 +1449,8 @@ begin
 end;
 
 end.
+
+
+// estimated standard deviation = ecart type d'échantillon
+// standard uncertainty of the mean=standard deviation of the mean=standard error of the mean
 

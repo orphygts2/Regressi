@@ -9,37 +9,38 @@ uses Windows, SysUtils, Graphics, Classes, Printers,
   Math, grids, jpeg, pngImage,
   Xml.xmldom, Xml.XMLIntf, Xml.XMLDoc,
   fft, constreg, maths, uniteker, compile,
-  regutil, curmodel, statCalc, indicateurU, latex, couleurLambda, identPagesU, modeleNum;
+  regutil, curmodel, statCalc, indicateurU, latex,
+  couleurLambda, identPagesU, modeleNum;
 
 const
   decalageModeleGlb = 5;
-  NbreDataEquiv = 10;
-  MaxMonde      = 10;
-  MondeVitesse  = 1;
-  MondeAcc      = 2;
-  curseurData1  = 4;
-  curseurData2  = 5;
-  maxCurseur    = 5;
-  rayonArcAngle = 60;
+  NbreDataEquiv  = 10;
+  MaxMonde       = 10;
+  MondeVitesse   = 1;
+  MondeAcc       = 2;
+  curseurData1   = 4;
+  curseurData2   = 5;
+  maxCurseur     = 5;
+  rayonArcAngle  = 60;
 
 type
-  TindexCurseur = 1..maxCurseur;
+  TindexCurseur   = 1..maxCurseur;
   ToptionIndicateur = (oiBandeVirage, oiEchelleTeinte, oiNomIndicateur);
   ToptionsIndicateur = set of ToptionIndicateur;
   TreperePage     = (SPstyle, SPmotif, SPcouleur);
   Tidentification = (identNone, identAnimation, identCoord, identDroite, identRaie);
   TetatModele     = (ModeleConstruit, ModeleLineaire, ModeleDefini,
     SimulationDefinie, AjustementGraphique, UniteParamDefinie, PasDeModele);
-  TsetEtatModele   = set of TetatModele;
+  TsetEtatModele  = set of TetatModele;
   Tcurseur        = (curSelect, curTexte, curLigne, curEfface,
     curReticule, curReticuleData, curEquivalence, curOrigine,
     curModele, curZoomAv, curModeleGr, curBornes, curMove, curReticuleModele,
-    curXMini, curXMaxi,curYMini, curYMaxi);
+    curXMini, curXMaxi,curYMini, curYMaxi,curReticuleDataNew);
   TcurseurFrequence = (curSelectF, curTexteF, curReticuleF,
     curZoomF, curMoveF, curFmaxi, curFmaxiSon, curLigneF);
   TcurseurTemps   = (curNormal, curDebut, curFin, curDeplace);
-  TpanEffect = (panZoom,panBornes,panEfface,panDragBorne,panDeplace);
-  Tresidu = (residuN, residuNormalise, residuStudent);
+  TpanEffect      = (panZoom,panBornes,panEfface,panDragBorne,panDeplace);
+  TcodeCouleur = (tHue,tSigne);
 
 const
   NbreCouleur      = 17;
@@ -48,11 +49,14 @@ const
   mondeDroit       = 2;
   mondeSans        = 3;
   BrushCouleurSelect = clRed;
-  BrushCouleurZoom = clSilver;
+  BrushCouleurZoom   = clSilver;
   CouleurBandeConfiance    = clGreen;
   CouleurBandePrediction   = clLime;
   CouleurAxeX      = clBlack;
-  taillePointEq = 3;
+  taillePointEq    = 3;
+  codeCouleurStr : array[TcodeCouleur] of string =
+       ('expression (valeur 0..1)= teinte du point',
+        'expression (valeur -1..1) = teinte du point');
 
 var
   CouleurGrille:      Tcolor = clMedGray;
@@ -73,8 +77,8 @@ var
   FondReticule:       Tcolor = clInfoBk;
   optionsIndicateur:  ToptionsIndicateur = [oiEchelleTeinte];
   CouleurVitesseImposee: boolean = True;
-  FichierSon : string;
-  FreqEchWave : integer;
+  FichierSon:         string;
+  FreqEchWave:        integer;
 
   CouleurMecanique: array[1..2] of Tcolor = (clBlue, clRed);
 
@@ -82,7 +86,7 @@ var
   string = ('Zoom', 'Modèle graphique', 'Bornes');
   IconCurseur: array[Tcurseur] of integer =
       (27, 2, 1, 0, 3, 30, 4, 27, 29, 16, 5, 7, 0, 41,
-       56,55,58,57); // 0 à définir
+       56,55,58,57,29); // 0 à définir
 
 type
   TmodifGraphe       = (gmEchelle, gmOptions, gmXY, gmValeurs,
@@ -92,7 +96,7 @@ type
   TselectDessin      = (sdNone, sdCadre, sdPoint1, sdPoint2,
                         sdCentre, sdHoriz, sdVert);
   TselectEquivalence = (seNone, sePente1, sePoint1, sePoint2,
-    sePointEq, sePente2, sePenteEq);
+                        sePointEq, sePente2, sePenteEq);
   TtexteLigne        = (tlNone, tlPente, tlEquation, tlEcartY, tlEcartX);
   TsetModifGraphe    = set of TmodifGraphe;
   TcurseurStat       = (crsSelect, crsTexte, crsEfface);
@@ -106,14 +110,15 @@ type
     trResidus, trCouples, trIntensite, trSpirometrie,
     trStat, trVitesse, trAcceleration, trTexte, trSonagramme,
     trIndicateur, trCouleursSpectre);
+// TrCouples trSpirometrie non pris en compte, restent en place à cause du stockage par indice dans les fichiers
   TtraceXML        = (trLigneX, trPointX, trResidusX, trStatX, trIntensiteX,
                       trVitesseX, trAccelerationX, trSonagrammeX, trIndicateurX, trCouleursSpectreX);
 
   TsetTrace        = set of Ttrace;
   TsetTraceXML     = set of TtraceXML;
   Tligne           = (LiDroite, LiModele, LiSpline, LiSinc);
-  TindiceMonde      = mondeX..MaxMonde;
-  TsetOptionCurseur = set of ToptionCurseur;
+  TindiceMonde     = mondeX..MaxMonde;
+  TsetOptionCurseur= set of ToptionCurseur;
 
   TcurseurDonnees = record
 // 1 à 3 réticule ; 4 et 5 curseur données
@@ -128,6 +133,7 @@ type
     nomX, nomY, nomZ: string;
     codeX, codeY, codeZ: integer;
     iMondeC:      TindiceMonde;
+
     regionTitre:  HRgn;
     iCourbe:      integer;
     Trace:        TsetTrace;
@@ -136,6 +142,7 @@ type
     styleT:       TpenStyle;
     Motif:        Tmotif;
     couleurPoint: string;
+    codeCouleur : TcodeCouleur;
   end;
 
   TListeY = array[TindiceOrdonnee] of Tcoordonnee;
@@ -148,7 +155,7 @@ type
     public
     x1, y1, x2, y2: double;
     x1i, y1i, x2i, y2i: integer;
-    nomX,nomY : string;
+    nomX,nomY:    string;
     iMonde:       TindiceMonde;
     LigneMax, LigneMin, longAnim: integer;
     cadre:        Trect;
@@ -158,12 +165,12 @@ type
     Alignement:   integer;
     pen:          Tpen;
     Identification: Tidentification;
-    paramModeleBrut : boolean;
+    paramModeleBrut: boolean;
     isTexte, avecLigneRappel: boolean;
     isOpaque, isTitre: boolean;
     couleurFond:  Tcolor;
     MotifTexte:   TmotifTexte;
-    MotifCourbe: Tmotif;
+    MotifCourbe:  Tmotif;
     TexteLigne:   TtexteLigne;
     Texte:        TStringList;
     NumPage:      integer;
@@ -171,9 +178,8 @@ type
 // false pour les lignes ajoutés par le logiciel type statistique
     sousDessin:   Tdessin;
     proprietaire: Tdessin;
-    repere : Trepere;
-    TexteLoc: TStringList;
-    NumeroPage: TcodePage;
+    repere:       Trepere;
+    NumeroPage:   TcodePage;
 // si identification=identCoord, numCoord indique la grandeur à identifier
 // et numPoint indique le numéro du point sur lequel pointe la flèche
     NumCoord:      integer;
@@ -181,11 +187,11 @@ type
     constructor Create(gr : TgrapheReg);
     function NbreData: integer;
     procedure Draw;
-    procedure DrawLatex;
+    procedure DrawLatex(var latexStr : TstringList);
     procedure AffectePosition(x, y: integer;
       PosDessin: TselectDessin; Shift: TShiftState);
     function LitOption(grapheC: TgrapheReg): boolean;
-    procedure SetPourCent(var i: integer);
+    procedure SetPourCent(var i: integer;TexteLoc : TstringList);
     procedure SetUnPointInt(ax,ay : integer);
     procedure Load;
     procedure Store;
@@ -281,6 +287,7 @@ type
     function FormatMonde(x: double): string;
     destructor Destroy; override;
     procedure SetMinMaxDefaut(min, max: double);
+    procedure GetMinMaxDefaut;
     procedure SetZoom(y0, zoom : integer);
   end;
 
@@ -299,12 +306,14 @@ type
   end;
 
   TCourbe = class
+    valXe,valYe : TvecteurInt; // e pour extrapolé
     valX, valY, incertX, incertY: Tvecteur;
     valXder, valYder, valXder2, valYder2: Tvecteur;
     texteC:      TStringList;
     couleurTexte : Tcolor;
     trace:       TsetTrace;
     DebutC,finC: integer;
+    finE,lenvalXe: integer;
     NumAnim:     integer;
     iMondeC:     TindiceMonde;
     varX, varY:  tGrandeur;
@@ -313,17 +322,18 @@ type
     StyleT:      TpenStyle;
     Motif:       Tmotif;
     IndexModele, IndexBande: shortInt;
-    dimPointC,penWidthC : integer;
     OptionLigne: Tligne;
     Adetruire, DetruireIncert, CourbeExp, PortraitDePhase,
     ModeleParametrique, ModeleParamX1: boolean;
-    Pag:        integer;
+    Page:        integer;
     decalage:    integer;
     PointSelect: set of byte;
     couleurPoint: string;
+    codeCouleur : TcodeCouleur;
     constructor Create(AX, AY: Tvecteur; D, F: integer;
       VX, VY: tgrandeur);
-    procedure setStyle(Acouleur: Tcolor; Astyle: TpenStyle; Amotif: Tmotif;AcouleurPoint : string);
+    procedure setStyle(Acouleur: Tcolor; Astyle: TpenStyle; Amotif: Tmotif);
+    procedure setStylePoint(AcouleurPoint : string;AcodeCouleur : TcodeCouleur);
     destructor Destroy; override;
   end;
 
@@ -372,7 +382,8 @@ type
     BorneFenetre: Trect;
     Marge,MargeBorne,dimBorne : integer;
     CurseurOsc:   array[1..5] of TcurseurDonnees;
-    CurReticuleDataActif, curReticuleModeleActif, withDebutFin: boolean;
+    CurseurActif : Tcurseur;
+    withDebutFin: boolean;
     CurseurDebut:  Tpoint;
     UnitePente:    Tunite;
     grapheOK, verifierOrtho, verifierInv: boolean;
@@ -380,8 +391,9 @@ type
     OptionGraphe:  TsetOptionGraphe;
     OptionModele:  TsetOptionModele;
     StatusSegment: array[0..1] of TStringList;
-    AutoTick, useDefault, useDefaultX, GraduationZeroX, GraduationZeroY,
-    FilDeFer:      boolean;
+    useDefaut, useDefautX: boolean;
+    useZoom: boolean;
+    AutoTick, GraduationZeroX, GraduationZeroY, FilDeFer:      boolean;
     NbreOrdonnee:  integer;
     penWidth:      integer;
     MiniTemps, MaxiTemps: double;
@@ -390,28 +402,26 @@ type
     PixelsPerInchX, PixelsPerInchY: integer;
     avecBorne:     boolean;
     margeHautBas:  integer;
-    axeYBas, axeYpositif: boolean;
     margeCaracY:   integer;
     indicateur:    Tindicateur;
     bitmapReg:     Tbitmap;
     UnAxeX:        boolean;
     miniMod, maxiMod: double;
     indexHisto,numeroHisto,nbreHisto: integer;
-    DessinCourant : Tdessin;
-    posDessinCourant : TselectDessin;
-    indexReticuleModele : integer;
-    grapheParam : boolean;
+    DessinCourant:  Tdessin;
+    posDessinCourant: TselectDessin;
+    indexReticuleModele: integer;
+    grapheParam: boolean;
     cCourant: integer;
-    labelYcurseur: Tlabel;
-    optionCurseur:   TsetOptionCurseur;
-    valeurCurseur:   array[ToptionCurseur] of double;
-    borneVisible : boolean; // sinon points de modélisation
-    TypeResidu : tResidu;
-    identificationPages : boolean;
-    zeroPolaire : double;
-    oldPen : THandle;
+    labelYcurseur:  Tlabel;
+    optionCurseur:  TsetOptionCurseur;
+    valeurCurseur:  array[ToptionCurseur] of double;
+    borneVisible:   boolean; // sinon points de modélisation
+    residuNormalise: boolean;
+    identificationPages: boolean;
+    zeroPolaire:    double;
+    oldPen:         THandle;
     constructor Create;
-    function basCourbe: integer;
     procedure Draw;
     procedure TraceCourbe(index: integer);
     procedure TraceFilDeFer;
@@ -429,7 +439,7 @@ type
     procedure DrawAxis(initialisation: boolean);
     procedure TraceTitreAxe(g: Tgrandeur; m: TindiceMonde;
       indexCourbe: integer);
-    procedure VersMetaFile(const NomFichier : string);
+ //   procedure VersMetaFile(const NomFichier : string);
     procedure VersJpeg(const NomFichier : string);
     procedure VersPng(const NomFichier : string);
     procedure VersBitmap(const NomFichier : string);
@@ -444,7 +454,7 @@ type
     procedure SetDessinCourant(x, y: integer);
     procedure GetEquivalence(x, y: integer;
       var AEquivalence: Tequivalence; var selectEq: TselectEquivalence);
-    procedure TraceDroite(x, y, pente: double; xMin, yMin, xMax, Ymax: double);
+    procedure TraceDroite(x, y, pente: double; xMin, yMin, xMax, Ymax: double;mondePH : TindiceMonde);
     procedure TraceCourbeEquivalence(xvecteur,yvecteur : Tvecteur;N,N0 : integer);
     procedure AjouteEquivalence(i: integer; effaceDouble: boolean);
     procedure RemplitTableauEquivalence;
@@ -459,15 +469,17 @@ type
     procedure InitReticule(x, y: integer);
     procedure SetSegmentInt(x, y: integer);
     procedure SetSegmentReal(i: integer);
-    procedure SetReticuleModele(x, y: integer;selonX,selonY : boolean);
+ //   procedure SetReticuleModele(x, y: integer;selonX,selonY : boolean);
     procedure SetStatusReticuleData(var Agrid: TstringGrid);
     function PointProche(var x, y: integer; indexCourbe: integer;
       limite, Xseul: boolean): integer;
-    function PointProcheModele(var x, y: integer): integer;
-    function PointProcheModeleX(var x, y: integer): integer;
-    function PointProcheModeleY(var x, y: integer): integer;
+    procedure PointProcheNew(ax, ay: integer);
+//    function PointProcheModele(var x, y: integer): integer;
+//    function PointProcheModeleX(var x, y: integer): integer;
+//    function PointProcheModeleY(var x, y: integer): integer;
     function MondeProche(x, y: integer): TindiceMonde;
     function CourbeProche(var x, y: integer): integer;
+    function CourbeProcheLisse(var x, y: integer): integer;
     function CoordProche(var x, y: integer): integer;
     function CourbeModeleProche(var x, y: integer): integer;
     function SupprReticule(x, y: integer): boolean;
@@ -501,6 +513,7 @@ type
     procedure CreateSolidBrush(couleur : Tcolor);
     procedure createHatchBrush(aCode : TBrushStyle;couleur : Tcolor);
     procedure CreatePen(aStyle : TpenStyle;aWidth  : integer;couleur : Tcolor);
+    procedure CreatePenFin(aStyle : TpenStyle;couleur : Tcolor);
     procedure SetTextAlign(aligne : integer);
     procedure MyTextOut(x,y : integer;const S : string);
     procedure MyTextOutFond(x,y : integer;const S : string;couleur : Tcolor);
@@ -525,12 +538,14 @@ type
     Style:      array[TindiceOrdonnee] of TpenStyle;
     Motif:      array[TindiceOrdonnee] of Tmotif;
     couleurPoint: array[TindiceOrdonnee] of string;
+    codeCouleur: array[TindiceOrdonnee] of TcodeCouleur;
     optionGr:   TsetOptionGraphe;
     optionModele:  TsetOptionModele;
     SuperposePage:  boolean;
     ZeroPolaire : double;
     FilDeFer:   boolean;
-    UseDefault, UseDefaultX: boolean;
+    UseDefaut, UseDefautX: boolean;
+    useZoom: boolean;
     PasPoint:   integer;
     AutoTick:   boolean;
     indicateur: Tindicateur;
@@ -552,9 +567,10 @@ var
   hauteurIdent:     integer = 3;
   avecCadreIdent:   boolean = false;
   isOpaqueIdent:    boolean = false;
-  couleurFondIdent:  Tcolor = clWhite;
-  penWidthGrid :    integer = 1;
-  tailleTick :      integer = 1;
+  couleurFondIdent: Tcolor = clWhite;
+  penWidthGrid:     integer = 1;
+  penWidthCourbe:   integer = 1;
+  tailleTick:       integer = 1;
   LongueurTangente : real = 0.33;
   NbreVecteurVitesseMax: integer = 32;
   NbreTexteMax:     integer = 32;
@@ -574,13 +590,12 @@ var
   WMFenCours:        boolean = False;
   ImageEnCours:      boolean = False;
   verifierLog:       boolean = False;
-  penWidthVGA:       integer = 1;
   GraphePageIndependante: boolean = false;
   AffichagePrecision:boolean = false;
   ModeleNumerique:   boolean = false;
   AffCoeffElarg:     boolean = false;
 
-  ConfigGraphe : array[TcodePage] of TtransfertGraphe;
+  ConfigGraphe : array[0..MaxPagesGr] of TtransfertGraphe;
 
 implementation
 
@@ -596,17 +611,16 @@ const
     couleurCurseurs: array[1..5] of tColor = (clRed,clRed,clRed,clBlue,clBlue);
     MotifLatex : array[Tmotif] of string = ('+','x','o','square','diamond',
        '*','square*','star','asterik','pentagon','triangle','','','','','','');
-    StyleLatex : array[TPenStyle] of string = ('','dashed','dotted','dash dot',
-      'dash dot dot', '', '', '', '');
+    StyleLatex : array[TPenStyle] of string = ('',',dashed',',dotted',',dash dot',
+      ',dash dot dot', '', '', '', '');
     intNan = -100;
-    intPlusInf = -200;
-    intMoinsInf = -300;
-    penWidthReticule = 2;
-    MargeCurseur     = 5;
-    MaxVecteurPoly = 2048;
-    NbreGradMin      = 5;
-    NbreGradMax      = 2 * NbreGradMin;
-    NbreGradMaxMan   = 2 * NbreGradMax;
+    intPlusInf     = -200;
+    intMoinsInf    = -300;
+    MargeCurseur   = 5;
+    MaxVecteurPoly = 1024;
+    NbreGradMin    = 5;
+    NbreGradMax    = 2 * NbreGradMin;
+    NbreGradMaxMan = 2 * NbreGradMax;
 
 function TraceToXML(trace : TsetTrace) : TsetTraceXML;
 begin
@@ -679,41 +693,6 @@ begin
     end;
   end;
 end;
-
-function CouleurLatex(color: Tcolor): string;
-begin
-  case color of
-    clBlack: Result := 'black';
-    clMaroon: Result := 'brown';
-    clGreen: Result := 'green';
-    clOlive: Result := 'olive';
-    clNavy: Result := 'blue';
-    clPurple: Result := 'red';
-    clTeal: Result := 'teal';
-    clGray: Result := 'gray';
-    clSilver: Result := 'lightgray';
-    clRed: Result  := 'red';
-    clLime: Result := 'lime';
-    clYellow: Result := 'yellow';
-    clBlue: Result := 'blue';
-    clFuchsia: Result := 'purple';
-    clAqua: Result := 'blue';
-    clWhite: Result := 'white';
-    clMoneyGreen: Result := 'green';
-    clSkyBlue: Result := 'blue';
-    clCream: Result := 'lightgray';
-    clMedGray: Result := 'darkgray';
-//    clCyan: Result := 'cyan';
-//   clMagenta: Result := 'magenta';
-//    clDarkgray: Result := 'darkgray';
-//    clOrange: Result := 'orange';
-//    clPink: Result := 'pink';
-//    clViolet: Result := 'violet';
-    else Result := 'black';
-  end;
-end;
-
-// cyan, magenta, darkgray, orange, pink, violet.
 
 function GetFausseCouleur(Niveau: double): Tcolor; // Niveau entre 0 et 1
 
@@ -888,6 +867,7 @@ begin
   VerifMinMaxReal(Min, Max);
   MinDefaut := Min;
   MaxDefaut := Max;
+  Defini := not((Min=0) and (Max=1));
   case Graduation of
     gLog: begin
       try
@@ -943,6 +923,49 @@ begin
   end;
 end;
 
+procedure Tmonde.GetMinMaxDefaut;
+begin
+  case Graduation of
+    gLog: begin
+      try
+        MinDefaut := power(10,Mini);
+        MaxDefaut := power(10,Maxi);
+      except
+        MaxDefaut := 100;
+        Maxi := 2;
+        MinDefaut := 1;
+        Mini := 0;
+      end;
+    end;
+    gdB: begin
+      try
+        MinDefaut := Power(10,Mini/20);
+        MaxDefaut := Power(10,Maxi/20);
+      except
+        MaxDefaut := 100;
+        Maxi := 40;
+        MinDefaut := 1;
+        Mini := 0;
+      end;
+    end;
+    gInv: begin
+      try
+        MaxDefaut := 1 / Mini;
+        MinDefaut := 1 / Maxi;
+      except
+        MaxDefaut := 10;
+        Mini := 0.1;
+        MinDefaut := 0.1;
+        Maxi := 10;
+      end;
+    end;
+    else begin
+      MaxDefaut := Maxi;
+      MinDefaut := Mini;
+    end;
+  end;
+end;
+
 procedure Tmonde.Raz(isPolaire : boolean);
 begin
   graduationPiActive := False;
@@ -970,12 +993,14 @@ begin
     Maxi := -maxReal;
     Mini := maxReal;
   end;
+  MinDefaut := 0;
+  MaxDefaut := 1;
 end; //  Tmonde.Reset
 
 function Tmonde.affecteEntier(r: double): integer;
 begin
-  if isNan(r) then
-    Result := intNan
+  if isNan(r) or isInfinite(r)
+  then Result := intNan
   else
     try
       Result := round(A * r + B);
@@ -1088,7 +1113,7 @@ begin
    if ImprimanteMono
    then Result := clBlack
    else begin
-      index  := index mod MaxPages;
+      index  := index mod MaxPagesGr;
       Result := couleurPages[index];
       if Result = clWindow then begin
         couleurPages[index] := clActiveCaption;
@@ -1189,41 +1214,6 @@ begin
   canvas := sauveCanvas;
 end;
 
-procedure TGrapheReg.VersMetaFile(const NomFichier : string);
-var metaFileCanvas : TmetaFileCanvas;
-    metaFile : TmetaFile;
-    AFormat : word;
-    AData : THandle;
-    APalette : HPALETTE;
-    hRefDC : HDC;
-    sauveCanvas : Tcanvas;
-begin
-  metaFile := TmetaFile.create;
-  metaFile.enhanced := true;
-  metaFile.Height := YmaxWMF;
-  metaFile.Width := XmaxWMF;
-  hrefDC := application.MainForm.canvas.Handle;
-// exprimée en centième de millimètre, l'unité de mesure propre aux Enhanced Meta File
-  metaFileCanvas := TmetaFileCanvas.Create(metaFile,hRefDC);
-  LimiteFenetre := rect(0, 0, XmaxWMF, YmaxWMF);
-  coeffDecalage := XmaxWMF div 40;
-  WMFenCours := True;
-  sauveCanvas := canvas;
-  canvas := metaFileCanvas;
-  Draw;
-  WMFenCours := False;
-  coeffDecalage := 1;
-  metaFileCanvas.free;
-  if nomFichier<>''
-     then metaFile.SaveToFile(NomFichier)
-     else begin
-        metaFile.SaveToClipboardFormat(AFormat,AData,Apalette);
-        ClipBoard.SetAsHandle(AFormat,AData);
-     end;
-  metaFile.free;
-  canvas := sauveCanvas;
-end;
-
 procedure TGrapheReg.RTversXY(var xr, yr: double; m: TindiceMonde);
 var
   Langle: double;
@@ -1298,25 +1288,6 @@ procedure TGrapheReg.ChercheMonde;
                         monde[m].Trouve(YY, debut, fin);
   end; // findworld
 
-  procedure FindCornish(m: TindiceMonde; XX, YY: Tvecteur;Fin: integer);
-  var
-    Km, Vm: double;
-  begin
-    calcCornishInters(XX, YY, pred(fin), Km, Vm);
-    with monde[mondeX] do begin
-      if Km < mini then
-        mini := Km;
-      if Km > maxi then
-        maxi := Km;
-    end;
-    with monde[m] do begin
-      if Vm < mini then
-        mini := Vm;
-      if Vm > maxi then
-        maxi := Vm;
-    end;
-  end;
-
   procedure chercheProjectionY(m: TindiceMonde);
   var margeLoc : integer;
 
@@ -1357,7 +1328,7 @@ procedure TGrapheReg.ChercheMonde;
       if rapport < 0.998 then
         with monde[m] do begin
           aYnew := -monde[mondeX].a * pixelsPerInchY / pixelsPerInchX;
-          if axeYpositif then aYnew := -aYnew;
+         // if axeYpositif then aYnew := -aYnew;
           b := b + (maxi + mini) / 2 * (a - aYnew);
           // On conserve le milieu
           a := aYnew;
@@ -1383,7 +1354,7 @@ procedure TGrapheReg.ChercheMonde;
       end;
       maxiOrtho := maxi;
       miniOrtho := mini;
-      margeLoc := (CourbeBottom-courbeTop) div 8;
+      margeLoc := (CourbeBottom-CourbeTop) div 32;
       maxiInt := CourbeBottom+margeLoc;
       miniInt := CourbeTop-margeLoc;
       if (OgPolaire in OptionGraphe) or (OgOrthonorme in OptionGraphe) then
@@ -1453,18 +1424,10 @@ procedure TGrapheReg.ChercheMonde;
       with monde[m] do
         if defini and (graduation = gLin) then begin
           z1 := round(b);
-          if axeYpositif then begin
-            if z1 > CourbeTop then
+          if z1 < CourbeTop then
               z1 := CourbeTop;
-            if z1 < CourbeBottom then
+          if z1 > CourbeBottom then
               z1 := CourbeBottom;
-          end
-          else begin
-            if z1 < CourbeTop then
-              z1 := CourbeTop;
-            if z1 > CourbeBottom then
-              z1 := CourbeBottom;
-          end;
           z := z + z1;
           Inc(n);
         end;
@@ -1483,9 +1446,7 @@ procedure TGrapheReg.ChercheMonde;
     for m := mondeY to high(TindiceMonde) do
       with monde[m] do
         if defini and (graduation = gLin) then begin
-          if axeYpositif
-             then ajusteYpos(m, z)
-             else ajusteYNeg(m, z);
+             ajusteYNeg(m, z);
         end;
   end; // ajusteZero
 
@@ -1504,23 +1465,23 @@ procedure TGrapheReg.ChercheMonde;
             indexXder := indexVitesse(varX.nom);
             indexYder := indexVitesse(varY.nom);
             varder[mondeVitesse] := grandeurs[indexXder];
-            if pages[pag].valeurVar[indexXvar] = valX then begin
-              valXder := pages[pag].valeurVar[indexXder];
-              valYder := pages[pag].valeurVar[indexYder];
+            if pages[page].valeurVar[indexXvar] = valX then begin
+              valXder := pages[page].valeurVar[indexXder];
+              valYder := pages[page].valeurVar[indexYder];
             end
             else begin
-              valXder := pages[pag].valeurLisse[indexXder];
-              valYder := pages[pag].valeurLisse[indexYder];
+              valXder := pages[page].valeurLisse[indexXder];
+              valYder := pages[page].valeurLisse[indexYder];
             end;
             if OgPolaire in OptionGraphe then begin
-              setLength(xx, pages[pag].nmes);
-              for j := 0 to pred(pages[pag].nmes) do
-                  xx[j] := valXder[j] * valY[j]; { r d(teta)/dt }
-              mondeVecteur[MondeVitesse].trouve(xx, valYder, pages[pag].nmes);
+              setLength(xx, pages[page].nmes);
+              for j := 0 to pred(pages[page].nmes) do
+                  xx[j] := valXder[j] * valY[j]; { r d(theta)/dt }
+              mondeVecteur[MondeVitesse].trouve(xx, valYder, pages[page].nmes);
               finalize(xx);
             end
             else
-              mondeVecteur[MondeVitesse].trouve(valXder, valYder, pages[pag].nmes);
+              mondeVecteur[MondeVitesse].trouve(valXder, valYder, pages[page].nmes);
             mondeVecteur[MondeVitesse].mondeOrd := iMondeC;
           except
             exclude(trace, trVitesse);
@@ -1532,28 +1493,28 @@ procedure TGrapheReg.ChercheMonde;
             indexXder := indexAcceleration(varX.nom);
             indexYder := indexAcceleration(varY.nom);
             varDer[mondeAcc] := grandeurs[indexXder];
-            if pages[pag].valeurVar[indexXvar] = valX then begin
-              valXder2 := pages[pag].valeurVar[indexXder];
-              valYder2 := pages[pag].valeurVar[indexYder];
+            if pages[page].valeurVar[indexXvar] = valX then begin
+              valXder2 := pages[page].valeurVar[indexXder];
+              valYder2 := pages[page].valeurVar[indexYder];
             end
             else begin
-              valXder2 := pages[pag].valeurLisse[indexXder];
-              valYder2 := pages[pag].valeurLisse[indexYder];
+              valXder2 := pages[page].valeurLisse[indexXder];
+              valYder2 := pages[page].valeurLisse[indexYder];
             end;
             if OgPolaire in OptionGraphe then begin
-              setLength(xx, pages[pag].nmes);
-              setLength(yy, pages[pag].nmes);
-              for j := 0 to pred(pages[pag].nmes) do begin
+              setLength(xx, pages[page].nmes);
+              setLength(yy, pages[page].nmes);
+              for j := 0 to pred(pages[page].nmes) do begin
                 xx[j] := 2 * valXder[j] * valYder[j] + valYder[j] * valXder2[j];
                 // 2.dr/dt.d(teta)/dt+rd2tezta/dt2
                 yy[j] := valYder2[j] - valY[j] * sqr(valXder[j]);
                 // d2r/dt2-r.d(teta)/dt
               end;
-              mondeVecteur[mondeAcc].trouve(xx, yy, pages[pag].nmes);
+              mondeVecteur[mondeAcc].trouve(xx, yy, pages[page].nmes);
               finalize(xx);finalize(yy);
             end
             else
-              mondeVecteur[mondeAcc].trouve(valXder2, valYder2, pages[pag].nmes);
+              mondeVecteur[mondeAcc].trouve(valXder2, valYder2, pages[page].nmes);
             mondeVecteur[mondeAcc].mondeOrd := iMondeC;
           except
             exclude(trace, trAcceleration);
@@ -1603,7 +1564,6 @@ var
   MiniCommun, MaxiCommun: double;
   pixelsX: integer;
   limite, decalage: integer;
-  ecartBottom, ecartTop: integer;
   avecIndicateur: boolean;
   avecCouleursSpectre: boolean;
 begin // ChercheMonde 
@@ -1611,9 +1571,9 @@ begin // ChercheMonde
   for m := low(TindiceMonde) to high(TindiceMonde) do
       monde[m].autoTick := autoTick;
   if not monde[mondeX].Defini then begin
-    if not useDefaultX
+    if not useDefautX
        then monde[mondeX].raz(OgPolaire in OptionGraphe);
-    if not useDefault then
+    if not useDefaut then
       for m := mondeY to high(TIndiceMonde) do
         monde[m].raz(OgPolaire in OptionGraphe);
     avecIndicateur := False;
@@ -1622,12 +1582,10 @@ begin // ChercheMonde
       with courbes[i] do
         if (indexModele = 0) or courbeExp or
           ((OmEchelle in OptionModele) and (indexModele > 0)) then begin
-          if not useDefault then
-            if useDefaultX
+          if not useDefaut then
+            if useDefautX
                then grapheOK := grapheOK and monde[iMondeC].Trouve(valY, debutC, finC)
                else findWorld(iMondeC, valX, valY, DebutC, FinC);
-          if trCouples in trace then
-            FindCornish(iMondeC, valX, valY, FinC);
           monde[iMondeC].Defini := True;
           monde[mondeX].Defini := True;
           avecIndicateur := avecIndicateur or (trIndicateur in trace);
@@ -1725,44 +1683,24 @@ begin // ChercheMonde
     if limite < 2 * hautCarac then
       Dec(limiteCourbe.bottom, 2 * HautCarac);
   end;
-  if axeYpositif then begin
-    ecartBottom := abs(limiteFenetre.bottom - limiteCourbe.bottom);
-    ecartTop := abs(limiteCourbe.top - limiteFenetre.top);
-    limiteCourbe.top := limiteFenetre.top + ecartBottom;
-    limiteCourbe.bottom := limiteFenetre.bottom - ecartTop;
-  end;
   for m := mondeY to high(TIndiceMonde) do
-    with monde[m] do
-      if axeYpositif then begin
-        CourbeTop := LimiteCourbe.bottom;
-        CourbeBottom := LimiteCourbe.top;
-      end
-      else begin
+     with monde[m] do begin
         CourbeTop := LimiteCourbe.top;
         CourbeBottom := LimiteCourbe.bottom;
-      end;
+     end;
   for m := 1 to 2 do
     with mondeVecteur[m], limiteCourbe do
       Dimension := (bottom - top) + (right - left);
   if OgAnalyseurLogique in OptionGraphe then begin
     i := 0;
-    if superposePage then begin
-      margeCourbe := marge;
-      Inc(limiteCourbe.top, hautCarac + Marge);
-    end
-    else margeCourbe := hautCarac + marge;
+    if superposePage
+       then begin
+          margeCourbe := marge;
+          Inc(limiteCourbe.top, hautCarac + Marge);
+       end
+       else margeCourbe := hautCarac + marge;
     hauteurCourbe := (LimiteCourbe.bottom - LimiteCourbe.top) div
       NbreMonde - margeCourbe;
-    if axeYpositif then begin
-      for m := high(TIndiceMonde) downto mondeY do
-        with monde[m] do
-          if defini then begin
-            CourbeBottom := LimiteCourbe.top + i * hauteurCourbe + succ(i) * margeCourbe;
-            CourbeTop := CourbeBottom + hauteurCourbe;
-            Inc(i);
-          end;
-    end
-    else begin
       for m := mondeY to high(TIndiceMonde) do
         with monde[m] do
           if defini then begin
@@ -1770,14 +1708,13 @@ begin // ChercheMonde
             CourbeBottom := CourbeTop + hauteurCourbe;
             Inc(i);
           end;
-    end;
   end;
   grapheOK := grapheOK and monde[mondeX].defini;
   if grapheOK then begin
     chercheProjectionX;
     for m := mondeY to high(TindiceMonde) do
-      if monde[m].defini then
-        chercheProjectionY(m);
+        if monde[m].defini then
+           chercheProjectionY(m);
     if (OgOrthonorme in OptionGraphe) then
       setGraduationZero;
     for m := 1 to 2 do with mondeVecteur[m] do
@@ -1788,7 +1725,6 @@ begin // ChercheMonde
           end
           else begin
             ay := -dimension * EchelleVecteur / maxi;
-            if axeYpositif then ay := -ay;
             ax := ay * monde[mondeX].a / monde[mondeOrd].a;
           end;
           if imprimanteEnCours then begin // echelle multiple du cm
@@ -1805,7 +1741,7 @@ begin // ChercheMonde
               end;
             except
             end;
-          end; { defini }
+          end; // defini
         end;
     if (OgMemeZero in OptionGraphe) and not
       (OgAnalyseurLogique in OptionGraphe) then
@@ -1936,7 +1872,7 @@ var
     PolyLigne: array[1..5] of Tpoint;
     x1, y1: integer;
     x2, y2: integer;
-    i, largeurHisto: integer;
+    i, largeurHisto,taillePixel : integer;
     avecIndicateur: boolean;
     avecCouleursSpectre: boolean;
 
@@ -1975,28 +1911,34 @@ var
           couleurLoc := indicateur.couleurPH(valY[i]);
           CreateSolidBrush(couleurLoc);
           if motif in [mCerclePlein,mCarrePlein]
-             then CreatePen(psSolid, 1, clBlack)
-             else CreatePen(psSolid, penWidth, couleurLoc);
+             then CreatePenFin(psSolid, clBlack)
+             else CreatePen(psSolid, 1, couleurLoc);
         end;
         if avecCouleursSpectre then begin
            couleurLoc := couleurWL(valX[i]);
            CreateSolidBrush(couleurLoc);
-           CreatePen(psSolid, penWidth, couleurLoc);
+           CreatePen(psSolid, 1, couleurLoc);
         end;
         if avecCouleurPoint then begin
            AffecteVariableE(i);
            teinte := calcule(grandeurImmediate.fonct.calcul);
-           couleurLoc := teintetORGB(teinte);
+           case codeCouleur of
+                tHue: couleurLoc := teintetoRGB(teinte);
+                tSigne: couleurLoc := SignetoRGB(teinte);
+           end;
            CreateSolidBrush(couleurLoc);
-           CreatePen(psSolid, penWidth, couleurLoc);
+           CreatePen(psSolid, 1, couleurLoc);
         end;
         if (xi > 0) and (yi >= miniY) and (yi <= maxiY) then
-          if Pixel then
-            canvas.Pixels[xi, yi] := couleurLoc
+          if Pixel then begin
+             if taillePixel=0
+                then canvas.Pixels[xi, yi] := couleurLoc
+                else canvas.ellipse(xi - taillePixel, yi - taillePixel, xi + taillePixel + 1, yi + taillePixel + 1);
+          end
           else begin
-            PointInactif := not pages[pag].PointActif[i];
+            PointInactif := not pages[page].PointActif[i];
             if PointInactif then begin
-               CreatePen(psSolid, 1, clSilver);
+               CreatePenFin(psSolid, clSilver);
                if motif in [mCerclePlein,mCarrePlein] then CreateSolidBrush(clSilver);
             end;
             case MotifLoc of
@@ -2101,10 +2043,10 @@ var
                 end // Incertitude
             end; // case motif
           if PointInactif then begin // Mise en évidente et retour état initial
-            canvas.brush.style := bsClear;
-            canvas.ellipse(xi - 2 * dimPoint, yi - 2 * dimPoint, xi + 2 * dimPoint + 1, yi + 2 * dimPoint + 1);
-            CreatePen(psSolid, penWidth, couleurLoc);
-            if motif in [mCerclePlein,mCarrePlein] then CreateSolidBrush(couleurLoc);
+             canvas.brush.style := bsClear;
+             canvas.ellipse(xi - 2 * dimPoint, yi - 2 * dimPoint, xi + 2 * dimPoint + 1, yi + 2 * dimPoint + 1);
+             CreatePen(psSolid, canvas.pen.Width, couleurLoc);
+             if motif in [mCerclePlein,mCarrePlein] then CreateSolidBrush(couleurLoc);
           end;
           end;
     end end; // traceUnPoint
@@ -2113,6 +2055,8 @@ var
       codeHatch : TbrushStyle;
       avecIncert : boolean;
       sauveMotif : Tmotif;
+      pasLoc,iDebut,iFin : integer;
+      penWidthMax : integer;
   begin with courbes[index] do begin
       sauveMotif := motif;
       avecIndicateur := (trIndicateur in trace) and
@@ -2128,17 +2072,11 @@ var
       end;
       initTeinte;
       if avecCouleursSpectre then begin
-          CreatePen(psClear, 1, clWhite);
+          CreatePenFin(psClear, clWhite);
           motif := mCerclePlein;
       end;
-      if axeYpositif then begin
-        maxiY := monde[iMondeC].courbeTop + margeHautBas;
-        miniY := monde[iMondeC].courbeBottom - margeHautBas;
-      end
-      else begin
-        maxiY := monde[iMondeC].courbeBottom + margeHautBas;
-        miniY := monde[iMondeC].courbeTop - margeHautBas;
-      end;
+      maxiY := monde[iMondeC].maxiInt;
+      miniY := monde[iMondeC].miniInt;
       avecIncert := avecEllipse and
           (varY.incertDefinie or varX.incertDefinie);
       if avecIncert
@@ -2147,12 +2085,28 @@ var
                then motif := mIncert;
          end
          else if (motif = mIncert) then motif := motifInit[(index mod maxOrdonnee)+1];
-      CreatePen(psSolid, penWidth, couleurLoc);// par défaut
+      if (motif in [mCroix,mCroixDiag,mCercle,mCarre,mLosange]) and (finC<32)
+         then CreatePen(psSolid, penWidthCourbe, couleurLoc)
+         else CreatePen(psSolid, 1, couleurLoc);// par défaut
+      if (motif=mSpectre) then begin
+         x1 := windowX(valX[1]);
+         x2 := windowX(valX[2]);
+         penWidthMax := x2-x1;
+         if penWidthMax = 0 then penWidthMax := 1;
+         if penWidthCourbe<=penWidthMax
+            then CreatePen(psSolid, penWidthCourbe, couleurLoc)
+            else CreatePen(psSolid, penWidthMax, couleurLoc);
+      end;
       motifLoc := motif;
       if not avecAnimTemporelle and
          superposePage and (motif <= mCarrePlein) and
-         (pag <> 0) and (SPmotif=reperePage)
-              then motifLoc := motifPages[pag mod MaxPages];
+         (page <> 0) and (SPmotif=reperePage)
+              then motifLoc := motifPages[page mod MaxPagesGr];
+      if pixel and (penwidth>1) then begin
+         CreateSolidBrush(couleurLoc);
+         taillePixel := penWidth div 2;
+      end
+      else taillePixel := 0;
       case MotifLoc of
         mCerclePlein, mCarrePlein: CreateSolidBrush(couleurLoc);
         mHisto: if largeurHisto < 11 then begin
@@ -2182,7 +2136,7 @@ var
             createHatchBrush(codeHatch, couleurLoc);
             canvas.pen.Width := largeur;
           end;
-        mBarreD, mBarreG: CreatePen(psSolid, 3*penWidth, couleurLoc);
+        mBarreD, mBarreG: CreatePen(psSolid, 3, couleurLoc);
         mEchantillon: begin
           if monde[iMondeC].graduation = gLin
              then WindowXY(0, 0, iMondeC, x0, y0)
@@ -2194,15 +2148,41 @@ var
         mSpectre: initSpectre;
         mIncert: pixel := False;
       end;
+      iDebut := debutC;
+      iFin := finC;
       if avecAnimTemporelle
          then begin
            i := NumAnim;
            traceUnPoint;
          end
          else begin
-           for i := DebutC to FinC do
-               if (i mod pasPoint) = 0 then
-                   traceUnPoint;
+            if (grandeurs[indexTri] = varX) or
+               (grandeurs[cFrequence] = varX)
+             then begin
+                pasLoc := (finC-debutC) div (2*limiteFenetre.width);
+                if pasLoc=0 then pasLoc := 1;
+                if pasLoc<pasPoint then pasLoc := pasPoint;
+                // (grandeurs[indexTri] = varX) or (grandeurs[cFrequence] = varX)
+                if (pasPoint=1) and (pasLoc>1) and not (OgPolaire in OptionGraphe) then begin
+                   xi := windowX(valX[iDebut]);
+                   while (xi<0) and (iDebut < finC) do begin
+                       Inc(idebut);
+                       xi := windowX(valX[iDebut]);
+                   end;
+                   xi := windowX(valX[iFin]);
+                   while (xi<0) and (ifin > debutC) do begin
+                      Dec(iFin);
+                      xi := windowX(valX[iFin]);
+                   end;
+                   verifMinMaxInt(iDebut,iFin); // si l'axe des x est ordonné en sens inverse de la grandeur de tri
+                   pasLoc := (iFin-iDebut+1) div (2*limiteFenetre.width);
+                   if pasLoc=0 then pasLoc := 1;
+                end;
+             end
+             else pasLoc := pasPoint; // mode XY
+             for i := iDebut to iFin do
+                if (i mod pasLoc) = 0 then
+                    traceUnPoint;
          end;
          motif := sauveMotif;
     end;
@@ -2253,7 +2233,7 @@ var
              canvas.PolyLine(slice(PolyLigne,k));
              k := 0;
           end;
-        end;{boucle i}
+        end; // for i
         if k > 1 then
           canvas.PolyLine(slice(PolyLigne,k));
     end end; // traceLigneBits
@@ -2287,11 +2267,9 @@ var
     k, kmax, pas: integer;
     couleurT: Tcolor;
   begin
-    if axeYpositif
-       then i0 := monde[mondeY].CourbeTop
-       else i0 := monde[mondeY].CourbeBottom;
+    i0 := monde[mondeY].CourbeBottom;
     kMax := abs(monde[mondeY].CourbeBottom - monde[mondeY].CourbeTop);
-    pas := succ(kMax div 256);
+    pas := succ(kMax div 256 div penwidth);
     kmax := kmax div pas;
     x1 := LimiteFenetre.Left;
     x2 := x1 + largCarac;
@@ -2326,14 +2304,14 @@ var
           mondeXY(i, 0, MondeY, xi, yi);
           couleurT := couleurWL(xi);
           if pas = 1 then begin
-            createPen(psSolid, 1, couleurT);
+            createPenFin(psSolid, couleurT);
             Segment(i, y1, i, y2);
           end
           else begin
             createSolidBrush(couleurT);
             canvas.rectangle(i + pas, y1, i - pas, y2);
           end;
-        end; {for k}
+        end; // for k
         if pas > 1 then begin
         end;
         canvas.brush.style := bsClear;
@@ -2349,9 +2327,7 @@ var
     couleurT: Tcolor;
   begin with courbes[index] do begin
       if oiEchelleTeinte in optionsIndicateur then begin
-        if axeYpositif
-           then i0 := monde[imondeC].CourbeBottom
-           else i0 := monde[imondeC].CourbeTop;
+        i0 := monde[imondeC].CourbeTop;
         kMax := abs(monde[imondeC].CourbeBottom - monde[imondeC].CourbeTop);
         pas := succ(kmax div 256);
         kmax := kmax div pas;
@@ -2368,14 +2344,14 @@ var
           mondeXY(0, i, iMondeC, xi, yi);
           couleurT := indicateur.couleurPH(yi);
           if pas = 1 then begin
-            createPen(psSolid, 1, couleurT);
+            createPenFin(psSolid, couleurT);
             Segment(x1, i, x2, i);
           end
           else begin
             createSolidBrush(couleurT);
             canvas.rectangle(x1, i + pas, x2, i - pas);
           end;
-        end; {for k}
+        end; // for k
         if pas > 1 then begin
         end;
       end;
@@ -2409,15 +2385,8 @@ var
       oldH := canvas.font.height;
       canvas.font.height := h;
       canvas.font.color := couleurTexte;
-
-      if axeYpositif then begin
-          maxiY  := monde[iMondeC].courbeTop;
-          miniY  := monde[iMondeC].courbeBottom;
-      end
-      else begin
-          maxiY  := monde[iMondeC].courbeBottom;
-          miniY  := monde[iMondeC].courbeTop;
-      end;
+      maxiY  := monde[iMondeC].courbeBottom;
+      miniY  := monde[iMondeC].courbeTop;
       miniX := limiteCourbe.left;
       maxiX := limiteCourbe.right;
 
@@ -2434,13 +2403,13 @@ var
              (yi > miniY) and (yi < maxiY) and
              (xi > miniX) and (xi < maxiX) then begin
 // test haut bas : Windows est incapable de gérer une cloture dans un EMF
-            if not pages[pag].PointActif[i] then
+            if not pages[page].PointActif[i] then
                canvas.font.Color := clSilver;
             mYTextOut(xi, yi,texteC[i]);
-            if not pages[pag].PointActif[i] then
+            if not pages[page].PointActif[i] then
                canvas.font.Color := couleurLoc;
           end;
-        end; {i}
+        end; // for i
         canvas.font.height := oldH;
   end end; // traceTexte
 
@@ -2467,7 +2436,7 @@ const
     kmax := LimiteCourbe.right - marge - LimiteCourbe.left;
     pask := 1;
     if kmax >= 1024 then begin
-      pask := succ(kmax div 1024);
+      pask := succ(kmax div 1024 div penwidth);
       if not odd(pask) then
         Inc(pask, 1);
       kmax := kmax div pask;
@@ -2633,21 +2602,15 @@ const
   procedure traceLigne;
   var
     xi, yi, pas, Nvisible :  integer;
-    oldXi, oldYi: integer;
     idebut, ifin: integer;
     sincActif : boolean;
-
-    function xNew(y: integer): integer;
-    begin
-      Result := round(xi + (y - yi) * (oldXi - xi) / (oldYi - yi));
-    end;
 
   type
     Tprecedent = (pOK, pHaut, pBas, pNone);
   var
     i, j: integer;
     Precedent, Courant: Tprecedent;
-    yy, maxiY, miniY: integer;
+    maxiY, miniY: integer;
     PolyLigne: array[1..MaxVecteurPoly] of Tpoint;
 
 procedure AffecteSplineSinc;
@@ -2665,8 +2628,8 @@ begin with courbes[index] do begin
         setLength(valeurY,Nvisible+1);
         i := 0;
         for k := iDebut to iFin do begin
-            valeurX[i] := pages[pag].valeurVar[iX][k];
-            valeurY[i] := pages[pag].valeurVar[iY][k];
+            valeurX[i] := pages[page].valeurVar[iX][k];
+            valeurY[i] := pages[page].valeurVar[iY][k];
             if isNan(valeurX[i]) or isNan(valeurY[i]) then else inc(i);
         end;
         case optionLigne of
@@ -2680,13 +2643,13 @@ begin with courbes[index] do begin
         if (valYder=nil) and (iX=indexTri) then begin
            codeDerivee := indexDerivee(varY,varX,true,true);
            if codeDerivee<>grandeurInconnue then
-              valYder := pages[pag].valeurVar[codeDerivee];
+              valYder := pages[page].valeurVar[codeDerivee];
         end;
         if (valYder<>nil) and (iX=indexTri) then begin
            i := 0;
            for k := succ(DebutC) to pred(FinC) do begin
-              while pages[pag].valeurVar[iX][k]>valx[i] do inc(i);
-              valYder[k] := DeriveePonctuelleSpline(valX,valY,i,pages[pag].valeurVar[iX][k]);
+              while pages[page].valeurVar[iX][k]>valx[i] do inc(i);
+              valYder[k] := DeriveePonctuelleSpline(valX,valY,i,pages[page].valeurVar[iX][k]);
            end;
         end;
         sincActif := true;
@@ -2694,9 +2657,9 @@ end end; // affecteSplineSinc
 
 procedure RestaureSinc; // pour récupérer les points expérimentaux
 begin with courbes[index] do begin
-        CopyVecteur(valX, pages[pag].valeurVar[varX.indexG]);
-        CopyVecteur(valY, pages[pag].valeurVar[varY.indexG]);
-end end; // restaureSinc
+        CopyVecteur(valX, pages[page].valeurVar[varX.indexG]);
+        CopyVecteur(valY, pages[page].valeurVar[varY.indexG]);
+end end;
 
     procedure TracePolyLine;
     var
@@ -2752,9 +2715,55 @@ end end; // restaureSinc
         Dec(j, Lecart);
         for k := idebut to j do
           PolyLigne[k] := PolyLigne[k + Lecart];
-      end;
+      end; // Nettoie
 
-    begin
+      procedure remplitInterpole;
+
+      procedure affecteUnPoint(ax,ay : integer);
+      begin with courbes[index] do begin
+          if valXe=nil then begin
+             setLength(valxE,256);
+             setLength(valyE,256);
+             lenvalxe := length(valXE);
+          end;
+          if lenvalXE<=finE then begin
+             setLength(valxE,finE+256);
+             setLength(valyE,finE+256);
+             lenvalxe := length(valXE);
+          end;
+          valxE[finE] := ax;
+          valyE [finE] := ay;
+          inc(finE);
+      end end;
+
+      var pente : single;
+          i,k : integer;
+          x0,y0 : integer;
+       // pas := screen.Width div 1024 ?
+      begin with courbes[index] do begin
+       for i := 0 to j-1 do begin
+             x0 := PolyLigne[i].x;
+             y0 := PolyLigne[i].y;
+             pente := (PolyLigne[i+1].y-y0)/(PolyLigne[i+1].x-x0);
+             if abs(pente)>1 then begin // selon y
+                pente := 1/pente;
+                if y0<PolyLigne[i+1].y
+                   then for k := y0 to PolyLigne[i+1].y-1 do
+                      affecteUnPoint(round(x0+pente*(k-y0)),k)
+                   else for k := y0 downto PolyLigne[i+1].y-1 do
+                      affecteUnPoint(round(x0+pente*(k-y0)),k)
+             end
+             else begin // selon x
+                 if x0<PolyLigne[i+1].x
+                   then for k := x0 to PolyLigne[i+1].x-1 do
+                      affecteUnPoint(k,round(y0+pente*(k-x0)))
+                   else for k := x0 downto PolyLigne[i+1].x-1 do
+                      affecteUnPoint(k,round(y0+pente*(k-x0)))
+             end;
+         end;
+      end end; // remplitInterpole
+
+    begin // tracePolyLine
       if j<=1 then begin
          j := 0;
          precedent := pNone;
@@ -2767,6 +2776,8 @@ end end; // restaureSinc
            else Inc(i);
       until i > j - 2;
       canvas.PolyLine(slice(PolyLigne,j));
+      if (CurseurActif in [curReticule,curReticuleData,curEquivalence,curReticuleDataNew,curReticuleModele]) and
+         (pas=1) then remplitInterpole;
       j := 0;
       precedent := pNone;
     end;// TracePolyLigne
@@ -2791,19 +2802,14 @@ end end; // restaureSinc
   begin with courbes[index] do begin
       sincActif := false;
       Nvisible := finC-debutC+1;
-      if axeYpositif then begin
-        maxiY := monde[iMondeC].courbeTop + margeHautBas;
-        miniY := monde[iMondeC].courbeBottom - margeHautBas;
-      end
-      else begin
-        maxiY := monde[iMondeC].courbeBottom + margeHautBas;
-        miniY := monde[iMondeC].courbeTop - margeHautBas;
-      end;
+      finE := 0;
+      maxiY := monde[iMondeC].maxiInt;
+      miniY := monde[iMondeC].miniInt;
       Precedent := pNone;
       if (grandeurs[indexTri] = varX) or
          (grandeurs[cFrequence] = varX)
           then begin
-             pas := Nvisible div limiteFenetre.width;
+             pas := Nvisible div (2*limiteFenetre.width);
              if pas=0 then pas := 1;
           end
           else begin
@@ -2826,10 +2832,10 @@ end end; // restaureSinc
           Dec(ifin);
           xi := windowX(valX[ifin]);
         end;
+        verifMinMaxInt(iDebut,iFin); // si l'axe des x est ordonné en sens inverse de la grandeur de tri
         Nvisible := iFin-iDebut+1;
-        pas := Nvisible div limiteFenetre.width;
+        pas := Nvisible div (2*limiteFenetre.width);
         if pas=0 then pas := 1;
-
       end;
       case OptionLigne of
            LiSinc : if grandeurs[indexTri] = varX then affecteSplineSinc;
@@ -2847,9 +2853,9 @@ end end; // restaureSinc
         end
         else begin
         if yi=intMoinsInf
-             then Courant := pBas
+             then Courant := pHaut
              else if yi=intPlusInf
-               then Courant := pHaut
+               then Courant := pBas
                else Courant := pOK;
         case Courant of
             pOK: case Precedent of
@@ -2858,50 +2864,41 @@ end end; // restaureSinc
                   PolyLigne[j] := Point(xi, yi);
                 end;
                 pHaut, pBas: begin
-                  j := 2;
-                  if Precedent = pHaut
-                     then yy := maxiY
-                     else yy := miniY;
-                  PolyLigne[1] := Point(xNew(yy), yy);
-                  PolyLigne[2] := Point(xi, yi);
+                  j := 1;
+                  PolyLigne[1] := Point(xi, yi);
                 end;
             end;
-            pHaut: case Precedent of
-                pOK: begin
-                  Inc(j);
-                  PolyLigne[j] := Point(xNew(maxiY), maxiY);
-                  if j > 1 then TracePolyLine;
-                end;
+            pHaut: begin
+            case Precedent of
+                pOK: TracePolyLine;
                 pHaut: ;
                 pBas: begin
-                  PolyLigne[1] := Point(xNew(miniY), miniY);
-                  PolyLigne[2] := Point(xNew(maxiY), maxiY);
+                  PolyLigne[2] := Point(xi, miniY);
                   canvas.PolyLine(slice(PolyLigne,2));
                   j := 0;
                 end;
                 pNone: ;
             end;
-            pBas: case Precedent of
-                pOK: begin
-                  Inc(j);
-                  PolyLigne[j] := Point(xNew(miniY), miniY);
-                  TracePolyLine;
-                end;
+            PolyLigne[1] := Point(xi, miniY);
+            end;
+            pBas: begin
+            case Precedent of
+                pOK: TracePolyLine;
                 pBas: ;
                 pHaut: begin
-                  PolyLigne[1] := Point(xNew(maxiY), maxiY);
-                  PolyLigne[2] := Point(xNew(miniY), miniY);
+                  PolyLigne[2] := Point(xi, maxiY);
                   canvas.PolyLine(slice(PolyLigne,2));
                   j := 0;
                 end;
                 pNone: ;
             end;
-        end;{case courant}
+            PolyLigne[1] := Point(xi, maxiY);
+            end;
+            pNone :;
+        end;// case courant
         Precedent := Courant;
-        oldYi := Yi;
-        oldXi := Xi;
         Inc(i, pas);
-        if j>1024 then TracePolyLine;
+        if j>=MaxvecteurPoly then TracePolyLine;
         end;
       end; // boucle i
       if j > 1 then TracePolyLine;
@@ -2911,12 +2908,6 @@ end end; // restaureSinc
   procedure traceLigneAvecDecalage;
   var
     xi, yi, pas:  integer;
-    oldXi, oldYi: integer;
-
-    function xNew(y: integer): integer;
-    begin
-      Result := round(xi + (y - yi) * (oldXi - xi) / (oldYi - yi));
-    end;
 
   type
     Tprecedent = (pOK, pHaut, pBas, pNone);
@@ -2924,18 +2915,12 @@ end end; // restaureSinc
     i, j: integer;
     Precedent, Courant: Tprecedent;
     decaleLoc: integer;
-    yy, maxiY, miniY: integer;
+    maxiY, miniY: integer;
     PolyLigne: array[1..MaxVecteurPoly] of Tpoint;
     iDebut, iFin: integer;
   begin with courbes[index] do begin
-      if axeYpositif then begin
-        maxiY := monde[iMondeC].courbeTop + margeHautBas;
-        miniY := monde[iMondeC].courbeBottom - margeHautBas;
-      end
-      else begin
-        maxiY := monde[iMondeC].courbeBottom + margeHautBas;
-        miniY := monde[iMondeC].courbeTop - margeHautBas;
-      end;
+      maxiY := monde[iMondeC].maxiInt;
+      miniY := monde[iMondeC].miniInt;
       Precedent := pNone;
       decaleLoc := decalage * coeffDecalage;
       j := 0;
@@ -2968,9 +2953,9 @@ end end; // restaureSinc
         end
         else begin
           if yi=intMoinsInf
-             then Courant := pBas
+             then Courant := pHaut
              else if yi=intPlusInf
-                then Courant := pHaut
+                then Courant := pBas
                 else Courant := pOK;
           case Courant of
             pOK: case Precedent of
@@ -2979,57 +2964,51 @@ end end; // restaureSinc
                   PolyLigne[j] := Point(xi + decaleLoc, yi - decaleLoc);
                 end;
                 pHaut, pBas: begin
-                  j := 2;
-                  if Precedent = pHaut
-                     then yy := maxiY
-                     else yy := miniY;
-                  PolyLigne[1] := Point(xNew(yy) + decaleLoc, yy - decaleLoc);
-                  PolyLigne[2] := Point(xi + decaleLoc, yi - decaleLoc);
+                  j := 1;
+                  PolyLigne[1] := Point(xi + decaleLoc, yi - decaleLoc);
                 end;
               end;
-            pHaut: case Precedent of
+            pHaut: begin
+            case Precedent of
                 pOK: begin
-                  Inc(j);
-                  PolyLigne[j] := Point(xNew(maxiY) + decaleLoc, maxiY - decaleLoc);
                   canvas.PolyLine(slice(PolyLigne,j));
                   j := 0;
                 end;
                 pHaut: ;
                 pBas: begin
-                  PolyLigne[1] := Point(xNew(miniY) + decaleLoc, miniY - decaleLoc);
-                  PolyLigne[2] := Point(xNew(maxiY) + decaleLoc, maxiY - decaleLoc);
+                  PolyLigne[2] := Point(xi + decaleLoc, miniY - decaleLoc);
                   canvas.PolyLine(slice(PolyLigne,2));
                   j := 0;
                 end;
                 pNone: ;
               end;
-            pBas: case Precedent of
+              PolyLigne[1] := Point(xi + decaleLoc, miniY - decaleLoc);
+            end;
+            pBas: begin
+            case Precedent of
                 pOK: begin
-                  Inc(j);
-                  PolyLigne[j] := Point(xNew(miniY) + decaleLoc, miniY - decaleLoc);
                   canvas.PolyLine(slice(PolyLigne,j));
                   j := 0;
                 end;
                 pBas: ;
                 pHaut: begin
-                  PolyLigne[1] := Point(xNew(maxiY) + decaleLoc, maxiY - decaleLoc);
-                  PolyLigne[2] := Point(xNew(miniY) + decaleLoc, miniY - decaleLoc);
+                  PolyLigne[2] := Point(xi + decaleLoc, maxiY - decaleLoc);
                   canvas.PolyLine(slice(PolyLigne,2));
                   j := 0;
                 end;
                 pNone: ;
               end;
-          end;{case courant}
+              PolyLigne[1] := Point(xi + decaleLoc, maxiY - decaleLoc);
+            end;
+          end;// case courant
           Precedent := Courant;
-          oldYi := Yi;
-          oldXi := Xi;
         end;
         if j>=MaxVecteurPoly then begin
            canvas.polyLine(slice(PolyLigne,j));
            j := 0;
         end;
         Inc(i, pas);
-      end;{boucle i}
+      end;// boucle i
       if j > 1 then
         canvas.polyLine(slice(PolyLigne,j));
     end;
@@ -3047,7 +3026,7 @@ end end; // restaureSinc
       coeff: double;
       deltaX, deltaY: integer;
     begin
-      createPen(psDash, 1, couleurV);
+      createPenFin(psDash, couleurV);
       canvas.MoveTo(xi, yi);
       try
         if abs(dY) > abs(dX)
@@ -3060,7 +3039,7 @@ end end; // restaureSinc
         canvas.LineTo(xi + deltaX, yi + deltaY);
       except { dX=0 ou dY=0 }
       end;
-      createPen(psSolid, penWidth, couleurV);
+      createPen(psSolid, 1, couleurV);
     end;
 
     procedure TraceFleche(dX, dY: double);
@@ -3095,10 +3074,8 @@ end end; // restaureSinc
         S: string;
     begin
           with limiteFenetre do begin
-            xi := m * (right - left) div 3;
-            if axeYpositif
-               then yi := bottom - (5 * HautCarac div 4)
-               else yi := top + (5 * HautCarac div 2);
+             xi := m * (right - left) div 3;
+             yi := top + (5 * HautCarac div 2);
           end;
           if (ogOrthonorme in optionGraphe) or
              (MondeVecteur[m].ax<MondeVecteur[m].ay)
@@ -3111,9 +3088,7 @@ end end; // restaureSinc
              end;
           canvas.font.Color := couleurV;
           S := courbes[index].varDer[m].formatValeurEtUnite(MondeVecteur[m].echelle);
-          if axeYpositif
-             then Inc(yi, 3 * HautCarac div 2)
-             else Dec(yi, 3 * HautCarac div 2);
+          Dec(yi, 3 * HautCarac div 2);
           with limiteFenetre do
             xi := m * (right - left) div 3;
           canvas.Brush.Style := bsClear;
@@ -3165,7 +3140,7 @@ end end; // restaureSinc
         h := (limiteFenetre.Right - LimiteFenetre.Left) div 100;
         if h < 6 then h := 6;
         CreateSolidBrush(couleurV);
-        createPen(psSolid, penWidth, couleurV);
+        createPen(psSolid, 1, couleurV);
         pas := succ((finC - debutC) div NbreVecteurVitesseMax);
         iDebut := debutC;
         iFin := finC;
@@ -3190,10 +3165,10 @@ end end; // restaureSinc
               if (m = mondeAcc) and prolongeVecteur then
                   traceProlongement(dXr, dYr);
               if (m = mondeVitesse) and projeteVecteur then begin
-                  createPen(psSolid, 1, couleurV);
+                  createPenFin(psSolid, couleurV);
                   traceFleche(0, dYr);
                   traceFleche(dXr, 0);
-                  createPen(psSolid, penWidth, couleurV);
+                  createPen(psSolid, 1, couleurV);
               end;
             end;
           end;{for i}
@@ -3204,23 +3179,6 @@ end end; // restaureSinc
       end;
   end end; // traceVecteur
 
-  procedure traceCouples;
-  var
-    i: integer;
-    pente: double;
-  begin with courbes[index] do begin
-      for i := debutC to finC do begin
-        try
-          Pente := -valY[i] / valX[i];
-          TraceDroite(valX[i], 0, pente,
-            Monde[mondeX].mini, Monde[mondeY].mini,
-            Monde[mondeX].maxi, Monde[mondeY].maxi);
-        except
-        end;
-      end;{for i}
-    end; {i}
-  end; // traceCouples
-
   procedure traceResidus;
   var
     i: integer;
@@ -3230,7 +3188,7 @@ end end; // restaureSinc
       WindowXY(0, 0, iMondeC, x0, y0);
       traceDeltaX := avecEllipse and (varX <> nil) and (IncertX <> nil);
       traceDeltaY := avecEllipse and (varY <> nil) and (IncertY <> nil);
-      for i := debutC to finC do if pages[pag].pointActif[i] then begin
+      for i := debutC to finC do if pages[page].pointActif[i] then begin
         WindowRT(valX[i], valY[i], iMondeC, xi, yi);
         if TraceDeltaX
            then dxi := abs(round(CoeffEllipse * IncertX[i] * monde[MondeX].A))
@@ -3305,19 +3263,20 @@ var
   // TGrapheReg.TraceCourbe(index)
 begin with courbes[index] do begin
     if debutC<0 then debutC := 0;
-    if finC<0 then finc := pages[pag].nmes-1;
+    if finC<0 then finc := pages[page].nmes-1;
     if monde[mondeX].Axe = nil then
       monde[mondeX].Axe := varX;
     if monde[iMondeC].Axe = nil then
       monde[iMondeC].Axe := varY;
     if FinC < DebutC then
       exit;
-    if superposePage and (pag <> 0) and (SPcouleur=reperePage)
-       then couleurLoc := GetCouleurPages(pag)
+    if superposePage and (page <> 0) and (SPcouleur=reperePage)
+       then couleurLoc := GetCouleurPages(page)
        else if ImprimanteMono
           then couleurLoc := clBlack
           else couleurLoc := couleur;
-    if trace * [trCouples, trStat] <> [] then
+  //  if trace * [trCouples, trStat] <> [] then exclude(trace, trPoint);
+    if trace * [trStat] <> [] then
       exclude(trace, trPoint);
     if (monde[imondeC].graduation = gBits) and traceBits then
       exit;
@@ -3331,8 +3290,8 @@ begin with courbes[index] do begin
     then
       exclude(trace, trIndicateur);
     if (trIndicateur in trace) then begin
-      if pages[pag].indicateurP <> nil then
-         indicateur := pages[pag].indicateurP;
+      if pages[page].indicateurP <> nil then
+         indicateur := pages[page].indicateurP;
       traceIndicateur; // en premier en fond d'écran
     end;
     if (trCouleursSpectre in trace) and not ImprimanteMono then
@@ -3344,35 +3303,22 @@ begin with courbes[index] do begin
         exit;
     end;
     if (trPoint in trace) then begin
-      createPen(psSolid, penWidth, couleurLoc);  // 1 ou penWidth ?
+      createPen(psSolid, 1, couleurLoc);
       tracePoint(((dimPointVGA = 1) and not avecEllipse) or (motif = mPixel));
     if (trIndicateur in trace) and
         superposePage and
-        (pag <> 0) and
+        (page <> 0) and
         (SPcouleur=reperePage)
-          then couleurLoc := GetCouleurPages(pag);
+          then couleurLoc := GetCouleurPages(page);
     end;
-    if superposePage and (pag <> 0) and (SPstyle=reperePage)
-       then createPen(stylePages[pag mod MaxPages],penWidth, couleurLoc)
-       else if penWidthC=0
-           then createPen(styleT, penWidth, couleurLoc)
-           else createPen(styleT, penWidthC, couleurLoc);
-           (*
-{$IFDEF Debug}
-      if courbeExp then begin
-         include(Trace,trLigne);
-         optionLigne := LiSpline;
-      end;
-{$ENDIF}
-     *)
+    if superposePage and (page <> 0) and (SPstyle=reperePage)
+       then createPen(stylePages[page mod MaxPagesGr], penWidthCourbe, couleurLoc)
+       else createPen(styleT, penWidthCourbe, couleurLoc);
     if trLigne in trace then
       if decalage = 0
          then TraceLigne
          else TraceLigneAvecDecalage;
     if trStat in trace then TraceStat;
-    if not (imCornish in MenuPermis) then
-      exclude(trace, trCouples);
-    if trCouples in trace then traceCouples;
     if trTexte in trace then traceTexte;
     if trResidus in trace then traceResidus;
     if not (imVitesse in MenuPermis) then begin
@@ -3383,12 +3329,12 @@ begin with courbes[index] do begin
     if trAcceleration in trace then traceVecteur(valXder2, valYder2, mondeAcc);
     if courbeExp and borneVisible and
       (imBornes in MenuPermis) and
-      (pag=pageCourante) and
+      (page=pageCourante) and
        not (ImprimanteEnCours or WMFenCours or ImageEnCours) then begin
            WindowRT(valX[debutC], valY[debutC], iMondeC, xi, yi);
            traceBorne(xi, yi, bsDebut, couleurLoc, indexModele);
-            WindowRT(valX[finC], valY[finC], iMondeC, xi, yi);
-            traceBorne(xi, yi, bsFin, couleurLoc, indexModele);
+           WindowRT(valX[finC], valY[finC], iMondeC, xi, yi);
+           traceBorne(xi, yi, bsFin, couleurLoc, indexModele);
     end; // bornes
     if not (OgPolaire in OptionGraphe) and (varY <> nil) then begin
       if avecAxeY and (Monde[iMondeC].TitreAxe.MyIndexOf(varY.nom) < 0) then
@@ -3415,15 +3361,11 @@ var
     xi, yi: integer;
     PolyLigne: array[0..5] of Tpoint;
     maxiY, miniY, c: integer;
-  begin with courbes[premiereCourbe] do
-      if axeYpositif then begin
-        maxiY := monde[iMondeC].courbeTop + margeHautBas;
-        miniY := monde[iMondeC].courbeBottom - margeHautBas;
-      end
-      else begin
-        maxiY := monde[iMondeC].courbeBottom + margeHautBas;
-        miniY := monde[iMondeC].courbeTop - margeHautBas;
-      end;
+  begin
+    with courbes[premiereCourbe] do begin
+        maxiY := monde[iMondeC].maxiInt;
+        miniY := monde[iMondeC].miniInt;
+    end;
     for i := PremierPoint to dernierPoint do
       if ((i mod pasPoint) = 0) then begin
         j := 0;
@@ -3436,16 +3378,15 @@ var
                 PolyLigne[j] := Point(xi, yi);
                 Inc(j);
               end;
-            end; {with courbes}
+            end; //with courbes[c]
         canvas.polyLine(slice(PolyLigne,j));
-      end;{for i}
+      end;// for i
   end;// tracePoints
 
 var
   c: integer;
   FilDeFerInterdit: boolean;
-  // TGrapheReg.TraceFilDeFer(DC)
-begin
+begin  // TGrapheReg.TraceFilDeFer(DC)
   CourbesAtracer := [];
   premiereCourbe := -1;
   couleurLoc := clBlue;
@@ -3476,7 +3417,7 @@ begin
     FilDeFer := False;
     exit;
   end;
-  createPen(psSolid, penWidth, couleurLoc);
+  createPen(psSolid, 1, couleurLoc);
   tracePoints;
 end;// TraceFilDeFer
 
@@ -3612,12 +3553,14 @@ var
   end;
 
 var
-  i, z, signeY, long: integer;
+  i, z, long: integer;
   a, b, dX, dY,coeff : double;
   indexX,indexY : integer;
   OKp : boolean;
   largeur,oldH : integer;
+   TexteLoc:     TStringList;
 begin // Tdessin.Draw
+  TexteLoc := TStringList.Create;
   oldH := Fgraphe.canvas.font.height;
   NumeroPage := pageCourante;
   if (numPage > 0) then
@@ -3640,9 +3583,6 @@ begin // Tdessin.Draw
           pen.color := GetCouleurPages(numPage);
        NumeroPage := numPage;
   end;
-  if Fgraphe.axeYpositif
-     then signeY := -1
-     else signeY := +1;
   selection := Fgraphe.dessinCourant=self;
   if nomX<>'' then begin
      indexX := indexNom(nomX);
@@ -3662,9 +3602,12 @@ begin // Tdessin.Draw
   end;
   if selection and not isTexte
      then if pen.Width<3
-         then largeur := 2*pen.width
-         else largeur := 3*pen.width div 2
-     else largeur := pen.Width;
+         then largeur := 2
+         else largeur := 1
+     else begin
+        largeur := pen.Width div Fgraphe.penwidth;
+        if largeur<1 then largeur := 1;
+     end;
   Fgraphe.createPen(pen.style, largeur, pen.color);
   Fgraphe.canvas.pen.mode := pmCopy;
   if (identification = identCoord) then begin
@@ -3722,7 +3665,7 @@ begin // Tdessin.Draw
     if vertical then Fgraphe.Canvas.font.orientation := 900;
     i := 0;
     while i<texteLoc.Count do begin
-       setPourCent(i);
+       setPourCent(i,TexteLoc);
        inc(i);
     end;
     if souligne then
@@ -3737,7 +3680,7 @@ begin // Tdessin.Draw
     end;
     if centre and not vertical then begin
       Haut := Fgraphe.canvas.TextHeight('A');
-      y2i := y2i - signeY * haut * pred(texteLoc.Count) div 2;
+      y2i := y2i - haut * pred(texteLoc.Count) div 2;
       with Fgraphe.limiteFenetre do
            if y2i < (top+haut) then y2i := top + haut;
     end;
@@ -3780,7 +3723,7 @@ begin // Tdessin.Draw
       if centre then
         if vertical then begin
           deltaY := Larg div 2;
-          y := y2i + signeY * deltaY;
+          y := y2i + deltaY;
           z := y2i - deltaY - marge;
           if cadre.top > z then
             cadre.top := z;
@@ -3790,28 +3733,15 @@ begin // Tdessin.Draw
         end
         else begin
           deltaY := Haut div 2;
-          y := y2i + deltaY * (2 * i - 1) * signeY;
-          if i = 0 then
-            if Fgraphe.axeYpositif
-               then cadre.bottom := y - marge
-               else cadre.top := y - marge;
-          if i = pred(texteLoc.Count) then
-            if Fgraphe.axeYpositif
-               then cadre.top := y - 2 * (deltaY + marge)
-               else cadre.bottom := y + 2 * (deltaY + marge);
+          y := y2i + deltaY * (2 * i - 1);
+          if i = 0 then cadre.top := y - marge;
+          if i = pred(texteLoc.Count) then cadre.bottom := y + 2 * (deltaY + marge);
         end
       else begin
-        deltaY := Haut;
-        y := y2i+deltaY*i;
-        if Fgraphe.axeYpositif
-           then begin
-              z := y+deltaY;
-              if cadre.bottom<z then cadre.bottom := z
-           end
-           else begin
-              z := y-deltaY;
-              if cadre.top>z then cadre.top := z;
-           end;
+         deltaY := Haut;
+         y := y2i+deltaY*i;
+         z := y-deltaY;
+         if cadre.top>z then cadre.top := z;
       end;
  //     if IsOpaque and not(ImprimanteMono) then agraphe.canvas.Rectangle(cadre);
       Fgraphe.canvas.TextOut(x,y,texteLoc[i]);
@@ -3819,7 +3749,7 @@ begin // Tdessin.Draw
     if (avecCadre and not isOpaque and not selection) then
     Fgraphe.canvas.Rectangle(cadre);
     if selection then begin
-       Fgraphe.createPen(psSolid, 1, clRed);
+       Fgraphe.createPenFin(psSolid, clRed);
        Fgraphe.canvas.Rectangle(cadre);
     end;
     if avecLigneRappel then TraceLigneRappel;
@@ -3871,7 +3801,7 @@ begin // Tdessin.Draw
                 gBits: dY := y2 - y1;
                 else dY := 0;
               end;
-            sousDessin.Texte.Add(Fgraphe.monde[mondeY].axe.formatNomEtUnite(dY));
+            sousDessin.Texte.Add(Fgraphe.monde[mondeY].axe.formatNomEtUnite(dY,true));
          end;
          tlEcartX: if x2i <> x1i then begin
             with Fgraphe.monde[mondeX] do
@@ -3882,7 +3812,7 @@ begin // Tdessin.Draw
                 gBits: dX := x2 - x1;
                 else dX := 0;
               end;
-            sousDessin.Texte.Add(Fgraphe.monde[mondeX].axe.formatNomEtUnite(dX));
+            sousDessin.Texte.Add(Fgraphe.monde[mondeX].axe.formatNomEtUnite(dX,true));
          end;
          tlPente: if x2i <> x1i then begin
             Fgraphe.setUnitePente(mondeY);
@@ -3904,17 +3834,17 @@ begin // Tdessin.Draw
               end;
             sousDessin.Texte.Add(Fgraphe.unitePente.formatNomPente(dY / dX));
          end;
-         tlEquation: if abs(x2i - x1i) < 2 then
-            sousDessin.Texte.Add(Fgraphe.monde[mondeX].axe.formatNomEtUnite((x1 + x2) / 2))
-          else if abs(y2i - y1i) < 2 then
-            sousDessin.Texte.Add(Fgraphe.monde[mondeY].axe.formatNomEtUnite((y1 + y2) / 2))
-          else begin
-            a := (y2 - y1) / (x2 - x1);
-            b := y2 - a * x2;
-            sousDessin.Texte.Add(Fgraphe.monde[mondeY].axe.nom + '=' +
-              formatReg(b) + '+' +
-              formatReg(a) + '*' + Fgraphe.monde[mondeX].axe.nom);
-          end;
+         tlEquation: if abs(x2i - x1i) < 2
+            then sousDessin.Texte.Add(Fgraphe.monde[mondeX].axe.formatNomEtUnite((x1 + x2) / 2))
+            else if abs(y2i - y1i) < 2
+               then sousDessin.Texte.Add(Fgraphe.monde[mondeY].axe.formatNomEtUnite((y1 + y2) / 2))
+               else begin
+                  a := (y2 - y1) / (x2 - x1);
+                  b := y2 - a * x2;
+                  sousDessin.Texte.Add(Fgraphe.monde[mondeY].axe.nom + '=' +
+                      formatReg(b) + '+' +
+                      formatReg(a) + '*' + Fgraphe.monde[mondeX].axe.nom);
+               end;
       end; // case TexteLigne
     end;
   end;
@@ -3925,7 +3855,107 @@ begin // Tdessin.Draw
      brush.color := clWindow;
      font.height := oldH;
   end;
+  TexteLoc.Free;
 end; // Tdessin.Draw
+
+procedure Tdessin.DrawLatex(var latexStr : TstringList);
+var exposantX,exposantY : double;
+
+    procedure TraceLigne;
+    var code : string;
+    begin with Fgraphe.limiteCourbe do begin
+    case motifTexte of
+         mtDoubleFleche : code :=  ',<->';
+         mtFleche : code :=  ',->';
+         else code :=  '';
+    end;
+    latexStr.add('\draw['+couleurLatex(pen.color)+styleLatex[pen.style]+code+',thick]'+
+     '(axis cs:'+floatToStrLatex(x1/exposantX)+','+floatToStrLatex(y1/exposantY)+')'+
+     ' -- '+
+     '(axis cs:'+floatToStrLatex(x2/exposantX)+','+floatToStrLatex(y2/exposantY)+');');
+    end end;
+
+var
+  a, b, dX, dY : double;
+  Atexte : string;
+  code : string;
+begin // Tdessin.DrawLatex
+  exposantX := Fgraphe.monde[mondeX].Fexposant;
+  exposantY := FGraphe.monde[mondeY].Fexposant;
+  if isTexte then begin
+  end
+  else begin // ligne
+    traceLigne;
+    Atexte := '';
+    case TexteLigne of
+         tlEcartY: if y2i <> y1i then begin
+            with Fgraphe.monde[mondeY] do
+              case Graduation of
+                gLog: dY := log10(y2 / y1);
+                gInv: dY := 1 / y2 - 1 / y1;
+                gLin: dY := y2 - y1;
+                gdB: dY  := 20 * log10(y2 / y1);
+                gBits: dY := y2 - y1;
+                else dY := 0;
+              end;
+              ATexte := Fgraphe.monde[mondeY].axe.formatNomEtUnite(dY,true);
+         end;
+         tlEcartX: if x2i <> x1i then begin
+            with Fgraphe.monde[mondeX] do
+              case Graduation of
+                gLog: dX := log10(x2 / x1);
+                gInv: dX := 1 / x2 - 1 / x1;
+                gLin: dX := x2 - x1;
+                gBits: dX := x2 - x1;
+                else dX := 0;
+              end;
+            ATexte := Fgraphe.monde[mondeX].axe.formatNomEtUnite(dX,true);
+         end;
+         tlPente: if x2i <> x1i then begin
+            Fgraphe.setUnitePente(mondeY);
+            with Fgraphe.monde[mondeY] do
+              case Graduation of
+                gLog: dY := log10(y2 / y1);
+                gInv: dY := 1 / y2 - 1 / y1;
+                gLin: dY := y2 - y1;
+                gdB: dY  := 20 * log10(y2 / y1);
+                gBits: dY := y2 - y1;
+                else dY := 0;
+              end;
+            with Fgraphe.monde[mondeX] do
+              case Graduation of
+                gLog: dX := log10(x2 / x1);
+                gInv: dX := 1 / x2 - 1 / x1;
+                gLin: dX := x2 - x1;
+                else dX := 1;
+              end;
+            ATexte := Fgraphe.unitePente.formatNomPente(dY / dX);
+         end;
+         tlEquation: if abs(x2i - x1i) < 2
+            then ATexte := Fgraphe.monde[mondeX].axe.formatNomEtUnite((x1 + x2) / 2)
+            else if abs(y2i - y1i) < 2
+               then Atexte := Fgraphe.monde[mondeY].axe.formatNomEtUnite((y1 + y2) / 2)
+               else begin
+                  a := (y2 - y1) / (x2 - x1);
+                  b := y2 - a * x2;
+                  ATexte := Fgraphe.monde[mondeY].axe.nom + '=' +
+                    formatReg(b) + '+' +
+                    formatReg(a) + '*' + Fgraphe.monde[mondeX].axe.nom;
+               end;
+      end; // case TexteLigne
+      if Atexte<>'' then begin
+          a := (x1+x2)/2;
+          b := (y1+y2)/2;
+          if a>(FGraphe.monde[mondeX].mini+FGraphe.monde[mondeX].maxi)/2
+             then code := '[left]'
+             else code := '[right]';
+          latexStr.add('\draw['+couleurLatex(pen.color)+'] (axis cs:'+
+                 floatToStrLatex(a/exposantX)+','+
+                 floatToStrLatex(b/exposantY)+
+                 ') node'+code+' {'+Atexte+'} ;');
+      end;
+    end;
+end; // Tdessin.DrawLatex
 
 procedure TgrapheReg.TraceIdentPages;
 var hauteur : integer;
@@ -3962,7 +3992,7 @@ begin
         else canvas.pen.color := courbes[0].couleur;
       canvas.font.color := canvas.pen.color;
       if reperePage=SPmotif
-        then motif := motifPages[P mod NbreCouleur]
+        then motif := motifPages[P mod MaxPagesGr]
         else motif := courbes[0].motif;
       if (ChoixIdentPagesDlg=nil) then
           Application.CreateForm(TChoixIdentPagesDlg, ChoixIdentPagesDlg);
@@ -4002,7 +4032,7 @@ begin
       case reperePage of
          SPmotif : traceMotif(x+largCarac,y+2*hautCarac div 3,motif);
          SPstyle : begin
-           createPen(stylePages[P mod NbreCouleur],penWidth,canvas.Pen.color);
+           createPen(stylePages[P mod maxPagesGr],1,canvas.Pen.color);
            y := y+hautCarac div 2;
            segment(x,y,x+3*largCarac,y);
            canvas.pen.style := psSolid;
@@ -4019,161 +4049,6 @@ begin
     for p := 1 to NbrePages do
         if Pages[p].active then traceMarque(p);
 end;
-
-procedure Tdessin.DrawLatex;
-
-  procedure TraceMotifTexte;
-
-    procedure TraceVert;
-    begin
-        y1 := Fgraphe.monde[mondeY].mini;
-        y2 := Fgraphe.monde[mondeY].maxi;
-        // segment(x1, y1, x1, y2);
-    end;
-
-    procedure TraceHoriz;
-    begin
-        x1 := Fgraphe.monde[mondeX].mini;
-        x2 := Fgraphe.monde[mondeX].maxi;
-        // segment(x1, y1, x2, y1);
-    end;
-
-    procedure TraceRappel;
-    begin with Fgraphe.limiteCourbe do begin
- (*  p. 188
-    |- (axis cs:'+x1+y1+') node[near start,left] {$\frac{dy}{dx} = -1.58$};
-*)
-        // segment(x1, y1, x1, bottom);
-        // segment(left, y1, x1, y1);
-      end;
-    end;
-
-  begin  // TraceMotifTexte
-  (* p. 183
-  \node[pin=135:{$('+x1+y1+')$}] at (axis cs:'+x1+y1+') {};
-  p. 188
-  \node[coordinate,pin=above:{texte}] at (axis cs:'+x1+y1+') {};
-  *)
-    case motifTexte of
-      mtNone: ;
-      mtFleche: ;
-      mtDoubleFleche: ;
-      mtCroix: begin
-        // segment(x1, y1, x1, y1);
-        // segment(x1, y1, x1, y1);
-      end;
-      mtVert: traceVert;
-      mtHoriz: traceHoriz;
-      mtLigneRappel: traceRappel;
-    end;
-  end; // TraceMotifTexte
-
-  procedure TraceMotifLigne;
-  begin
-    if motifTexte=mtDoubleFleche then begin
-         // traceFleche(x1i,y1i);
-         // traceFleche(x2i,y2i);
-(*   pgfplots p. 250
-         \pgfplotsextra{%
-\pgfpathmoveto{\pgfplotspointaxisxy{'+x1+'}{'+y1+'}}%
-\pgfpathlineto{\pgfplotspointaxisxy{'+x2+'}{'+y2+'}}%
-\pgfusepath{stroke}%}
-*)
-    end;
-  end; // TraceMotifLigne
-
-  procedure TraceLigneRappel;
-  begin
-  (*
-(*  p. 188
-    |- (axis cs:'+x1+y1+') node[near start,left] {$texte$};
-    |- (axis cs:'+x1+y1+') node[near start,right] {$texte$};
-*)
-    with cadre do
-      if bottom < y1i then // bottom
-      else if top > y1i then // top
-      else if left > x1i then // left
-      else if right < x1i then // right
-  end;
-
-var
-  i : integer;
-  indexX : integer;
-  OKp : boolean;
-begin // Tdessin.DrawLatex
-  exit;
-  NumeroPage := pageCourante;
-  if (numPage > 0) then
-  if isTexte then begin
-     if (numPage <= NbrePages) then begin
-       NumeroPage := numPage;
-       if identification=identNone then begin
-          if not pages[NumeroPage].active then exit;
-          pen.color := GetCouleurPages(numeroPage);
-       end;
-     end;
-  end // texte
-  else begin
-       OKp := numPage <= NbrePages;
-       if OKp then if FGraphe.superposePage
-          then OKp := pages[NumPage].active
-          else OKp := NumPage=pageCourante;
-       if not OKp then exit;
-       if FGraphe.superposePage then
-          pen.color := GetCouleurPages(numPage);
-       NumeroPage := numPage;
-  end;
-  if nomX<>'' then begin
-     indexX := indexNom(nomX);
-     if (indexX<>grandeurInconnue) and
-        (grandeurs[indexX].genreG in [Constante,ConstanteGlb,ParamGlb,ParamNormal]) then
-        x1 := grandeurs[indexX].valeurCourante
-     else nomX := '';
-  end;
-  if nomY<>'' then begin
-     indexX := indexNom(nomY);
-     if (indexX<>grandeurInconnue) and
-        (grandeurs[indexX].genreG in [Constante,ConstanteGlb,ParamGlb,ParamNormal]) then
-        y1 := grandeurs[indexX].valeurCourante
-     else nomY := '';
-  end;
-  if isTitre then  ; // title
-  if isTexte then begin
-    TexteLoc.Assign(texte);
-// IsOpaque ; couleurFond;
-// font.Color := pen.color;
-    i := 0;
-    while i<texteLoc.Count do begin
-       setPourCent(i);
-       inc(i);
-    end;
-    if souligne then
-// Font.style := [fsUnderLine];
-    for i := 0 to pred(texteLoc.Count) do begin
-//     centre ; vertical
-// TextOut(x1,y1,texteLoc[i]);
-    end;
-// avecCadre ; isOpaque
-    if avecLigneRappel then TraceLigneRappel;
-    TraceMotifTexte;
-  end  // texte
-  else begin // ligne
-    if nomX<>''
-       then with Fgraphe.LimiteCourbe do begin
-            y1 := Fgraphe.monde[mondeY].maxi;
-            y2 := Fgraphe.monde[mondeY].mini;
-            // segment(x1, y1, x1, y2)
-       end
-       else if nomY<>''
-         then with Fgraphe.LimiteCourbe do begin
-            x1 := Fgraphe.monde[mondeY].maxi;
-            x2 := Fgraphe.monde[mondeY].mini;
-            // segment(x1, y1, x2, y1)
-         end
-         else // segment(x1, y1, x2, y2);
-       traceMotifLigne;
-  end; // ligne
-end; // Tdessin.DrawLatex
 
 procedure TGrapheReg.Draw;
 
@@ -4297,7 +4172,7 @@ procedure TGrapheReg.Draw;
                  else chaine := monde[mondeX].axe.formatNombre(ve / monde[mondeX].Fexposant) + ' ';
               WindowRT(ve, pHe, mondepH, xi, yi);
               xi := xi + marge;
-              yi := basCourbe + margeCaracY;
+              yi := limiteCourbe.bottom + margeCaracY;
             end;
          end;// case ligneRappel
          if chaine<>'' then MyTextOutFond(xi-(canvas.textWidth(chaine) div 2), yi, chaine,FondReticule);
@@ -4335,7 +4210,7 @@ procedure TGrapheReg.Draw;
                if monde[mondeX].axe = nil
                    then chaine := formatReg(ve / monde[mondeX].Fexposant) + ' '
                    else chaine := monde[mondeX].axe.formatNombre(ve / monde[mondeX].Fexposant) + ' ';
-               myTextOutFond(xi + marge, basCourbe + margeCaracY, chaine, FondReticule);
+               myTextOutFond(xi + marge, limiteCourbe.bottom + margeCaracY, chaine, FondReticule);
                SetTextAlign(TA_left + TA_top);
         end;
       end;
@@ -4385,7 +4260,7 @@ procedure TGrapheReg.Draw;
         end;
         for i := 0 to pred(courbes.Count) do
           with courbes[i] do
-            if pag = pageCourante then
+            if page = pageCourante then
               for j := curseurData1 to curseurData2 do
                 if (CurseurOsc[j].grandeurCurseur <> nil) and
                    (CurseurOsc[j].indexCourbe = -1) and
@@ -4439,7 +4314,7 @@ procedure TGrapheReg.Draw;
                                  st,FondReticule);
                end
                else MyTextOutFond(xi - largCarac*length(st) div 2,
-                        BasCourbe + margeCaracY,st,FondReticule);
+                        limiteCourbe.bottom + margeCaracY,st,FondReticule);
             valeurCurseur[coX] := xr;
         end;
     end end; // TraceString
@@ -4457,7 +4332,7 @@ procedure TGrapheReg.Draw;
         dx := 1;
         dy := 1;
         tracePente;
-        createPen(psSolid, penWidth, couleurCurseur);
+        createPen(psSolid, 1, couleurCurseur);
         try
           windowRT((CurseurOsc[curseurData1].xr + CurseurOsc[curseurData2].xr) / 2,
                    (CurseurOsc[curseurData1].yr + CurseurOsc[curseurData2].yr) / 2,
@@ -4597,7 +4472,7 @@ procedure TGrapheReg.Draw;
         indexReticuleModele := -1;
         for i := 0 to pred(courbes.Count) do
             with courbes[i] do
-            if (pag=pageCourante) and (indexModele=1) and not courbeExp then
+            if (page=pageCourante) and (indexModele=1) and not courbeExp then
                 if indexReticuleModele=-1 then begin
                       indexReticuleModele := i;
                       mondeC := iMondeC;
@@ -4629,7 +4504,7 @@ procedure TGrapheReg.Draw;
         valeurCurseur[coY] := Yr;
         st := monde[mondeX].Axe.formatValeurEtUnite(Xr);
         MyTextOutFond(xi - largCarac * length(st) div 2,
-                      BasCourbe + margeCaracY,st,FondReticule);
+                      limiteCourbe.bottom + margeCaracY,st,FondReticule);
         valeurCurseur[coX] := Xr;
     end end; // TraceString
 
@@ -4647,16 +4522,13 @@ var
   SupprDessin,CoordTrouve: boolean;
   nX: string;
   m: TindiceMonde;
-  largeurEcran : integer;
 begin // graphe.draw
-  largeurEcran := screen.Width;
-  if largeurEcran<64 then largeurEcran := 64;
-  axeYpositif := axeYbas;
   margeBorne := 4*Screen.PixelsPerInch div 96;
   dimBorne := 2*margeBorne;
   with limiteFenetre do begin
     if (right - left) < 50 then exit;
-    dimPoint := (bottom - top) * dimPointVGA div 512;
+    dimPoint := screen.width * dimPointVGA div 1280; // HD 1280 ; FullHD = 1920 ; UHD 3840 ; Mac 5120
+     // soit HD 1 ; FullHD 1 ; UHD 3 ; Mac 4
     if dimPoint<1 then dimPoint := 1;
     marge := (bottom-top);
     BorneFenetre.top := top-marge;
@@ -4681,21 +4553,20 @@ begin // graphe.draw
        if (abs(canvas.Font.Size)>18) and not WMFEnCours then
            canvas.Font.Height := 18*canvas.Font.PixelsPerInch div 72;
        if wmfEnCours
-          then penWidth := xMaxWMF*penWidthVGA div 1920
-          else penWidth := largeurEcran*penWidthVGA div 1920;
+          then penWidth := xMaxWMF div 1920
+          else penWidth := screen.width div 1500;  // HD 1280 ; FullHD = 1920 ; UHD 3840 ; Mac 5120
+          // soit HD 1 ; FullHD 1 ; UHD 2 ; Mac 3
        // Font.Size = -Font.Height * 72 / Font.PixelsPerInch
        if penWidth<1 then penWidth := 1;
   end;
-  CreatePen(psDot, penWidth, clBlack);
+  CreatePen(psDot, 1, clBlack);
   canvas.brush.style := bsClear;
   canvas.pen.mode := pmCopy;
   LargCarac := canvas.textWidth('A');
   HautCarac := canvas.textHeight('A');
   Marge := largCarac div 2;
   MargeHautBas := hautCarac div 2;
-  if axeYpositif
-     then margeCaracY := hautCarac + marge
-     else margeCaracY := -hautCarac - marge;
+  margeCaracY := -hautCarac - marge;
   EmpilePage := (OgAnalyseurLogique in optionGraphe) and SuperposePage;
   if (OgOrthonorme in OptionGraphe) and not
     (OgPolaire in OptionGraphe) and (monde[mondeY].axe <> nil) and
@@ -4715,7 +4586,8 @@ begin // graphe.draw
   end;
   if (courbes.Count > 0) and
      not (trIntensite in courbes[0].trace) then
-    drawAxis(graduationZeroX or graduationZeroY);
+       drawAxis(true);
+//   drawAxis(graduationZeroX or graduationZeroY);
   indexHisto := 0;
   if withDebutFin then TraceBorneFFT;
   NbreHisto := 0;
@@ -4762,10 +4634,10 @@ begin // graphe.draw
      then for p := 1 to NbrePages do
         traceEquivalence(p)
      else if pageCourante>0 then traceEquivalence(pageCourante);
-  if curReticuleDataActif then
-      AfficheEtiquetteSegment;
-  if curReticuleModeleActif then
-      AfficheEtiquetteReticule;
+  case curseurActif of
+      curReticuleData : AfficheEtiquetteSegment;
+      curReticuleModele : AfficheEtiquetteReticule;
+  end;
  // if withDebutFin then TraceBorneFFT;
   if FilDeFer then traceFilDeFer;
   canvas.TextFlags := 0; // transparent
@@ -4788,7 +4660,9 @@ begin
   monde[mondeX].defini := False;
   GrapheOK  := False;
   AutoTick  := True;
-  UseDefault := False;
+  UseDefaut := False;
+  useZoom := false;
+  useDefautX := false;
   borneVisible := true;
 end;
 
@@ -4848,6 +4722,7 @@ begin
       RegionTitre := 0;
       trace := [];
       couleurPoint := '';
+      codeCouleur := tSigne;
     end;
   for k := 1 to maxCurseur do with curseurOsc[k] do begin
       grandeurCurseur := nil;
@@ -4867,8 +4742,7 @@ begin
   statusSegment[1] := TStringList.Create;
   for k := 1 to 3 do
       curseurOsc[k].Ic := 10 + 10 * k;
-  curReticuleDataActif := False;
-  curReticuleModeleActif := False;
+  curseurActif := curSelect;
   FilDeFer := False;
   PasPoint := 1;
   PixelsPerInchX := 1;
@@ -4882,14 +4756,17 @@ begin
   borneVisible := true;
 end;
 
-procedure Tcourbe.setStyle(Acouleur: Tcolor; Astyle: TpenStyle; Amotif: Tmotif;AcouleurPoint : string);
+procedure Tcourbe.setStyle(Acouleur: Tcolor; Astyle: TpenStyle; Amotif: Tmotif);
 begin
   couleur := ACouleur;
   styleT := Astyle;
   motif := AMotif;
-  dimPointC := 0;
-  penWidthC := 0;
+end;
+
+procedure Tcourbe.setStylePoint(AcouleurPoint : string;AcodeCouleur : TcodeCouleur);
+begin
   couleurPoint := AcouleurPoint;
+  codeCouleur := AcodeCouleur;
 end;
 
 constructor Tcourbe.Create(AX, AY: Tvecteur; D, F: integer; VX, VY: tgrandeur);
@@ -4921,23 +4798,29 @@ begin
   iMondeC := MondeY;
   ModeleParametrique := False;
   PortraitDePhase := False;
-  finalize(valXder);
-  finalize(valYder);
-  finalize(valXder2);
-  finalize(valYder2);
+  valXder := nil;
+  valYder := nil;
+  valXder2 := nil;
+  valYder2 := nil;
+  valXe := nil;
+  valYe := nil;
+  lenvalxe := 0;
   pointSelect := [];
 end;
 
 destructor Tcourbe.Destroy;
 begin
   if Adetruire then begin
-    finalize(valX);
-    finalize(valY);
-    finalize(valYder);
+     finalize(valX);
+     finalize(valY);
   end;
   if DetruireIncert then begin
     finalize(incertX);
     finalize(incertY);
+  end;
+  if valxe<>nil then begin
+     finalize(valXe);
+     finalize(valYe);
   end;
   texteC.Free;
   inherited Destroy;
@@ -4990,8 +4873,11 @@ begin
      if monde[mondeDroit].defini then affecteZoomY(mondeDroit);
   end;
   result := true;
-  useDefault := true;
-end; // zoom
+  //useDefault := true;
+  useZoom := true;
+  useDefaut := false;
+  useDefautX := false;
+end; // AffecteZoomAvant
 
 procedure TGrapheReg.AffecteZoomArriere;
 
@@ -5016,12 +4902,15 @@ procedure TGrapheReg.AffecteZoomArriere;
 var
   m: TindiceMonde;
 begin
+  useDefaut := false;
+  useDefautX := false;
+  useZoom := true;
   CalcMinMax(limiteCourbe.left,limiteCourbe.right,mondeX);
   if OgAnalyseurLogique in OptionGraphe then exit;
   for m := mondeY to high(TIndiceMonde) do
-    if monde[m].defini then
-      CalcMinMax(limiteCourbe.bottom,limiteCourbe.top, m);
-end;// zoomArriere
+     if monde[m].defini then
+        CalcMinMax(limiteCourbe.bottom,limiteCourbe.top, m);
+end;// AffecteZoomArriere
 
 procedure TGrapheReg.AffecteZoomAvant(rect: Trect; avecY: boolean);
 var
@@ -5051,20 +4940,22 @@ begin
       Mini := MinX;
     if MaxX < Maxi then
       Maxi := MaxX;
+    useDefautX := true;
   end;
-  if avecY then
+  if avecY then begin
     for m := mondeY to high(TindiceMonde) do
       if monde[m].defini then begin
         affecteZoomLoc(m);
         break;
       end;
-end; // zoomAvant
+    useZoom := true;
+  end;
+end; // AffecteZoomAvant
 
 destructor Tdessin.Destroy;
 begin
   Texte.Free;
   Pen.Free;
-  TexteLoc.Free;
   inherited Destroy;
 end;
 
@@ -5100,7 +4991,6 @@ begin
   alignement := TA_left + TA_top;
   sousDessin := nil;
   proprietaire := nil;
-  TexteLoc := TStringList.Create;
   Fgraphe := gr;
 end; // Tessin.create
 
@@ -5126,8 +5016,7 @@ procedure Tdessin.AffectePosition(x, y: integer;
   begin
     with Fgraphe do
       if isTexte and isTitre
-        then
-        with limiteFenetre do begin
+        then with limiteFenetre do begin
           x1 := (x1i - left) / (right - left);
           y1 := (y1i - top) / (top - bottom);
         end
@@ -5137,13 +5026,12 @@ procedure Tdessin.AffectePosition(x, y: integer;
   procedure Affecte2;
   begin
     with Fgraphe do
-      if isTexte and isTitre then
-        with limiteFenetre do begin
-          x2 := (x2i - left) / (right - left);
-          y2 := (y2i - top) / (top - bottom);
-        end
-      else
-        MondeRT(x2i, y2i, iMonde, x2, y2);
+      if isTexte and isTitre
+         then with limiteFenetre do begin
+            x2 := (x2i - left) / (right - left);
+            y2 := (y2i - top) / (top - bottom);
+         end
+         else MondeRT(x2i, y2i, iMonde, x2, y2);
   end;
 
 var dx, dy: integer;
@@ -5174,10 +5062,9 @@ with Fgraphe do begin
       end;
       sdPoint2: begin
         if ssShift in Shift then
-          if abs(x - x1i) > abs(y - y1i) then
-            y := y1i
-          else
-            x := x1i;
+          if abs(x - x1i) > abs(y - y1i)
+             then y := y1i
+             else x := x1i;
         x2i := x;
         y2i := y;
         Affecte2;
@@ -5392,14 +5279,14 @@ procedure Tmonde.SetDelta(grandAxe: boolean);
       FormatDuree := 'dd/mmm';
       deltaAxe := UnMoisWin*ceil(deltaAxe / 6 / UnMoisWin);
       if DeltaAxe>UnAnWin then deltaAxe := UnAnWin*round(deltaAxe/UnAnWin);
-      ArrondiAxe := 1;
+      ArrondiAxe := UnJourWin;
     end
     else if deltaAxe > 60 { 2 mois } then begin
       FormatDuree := 'dd/mmm';
       deltaAxe := ceil(deltaAxe / 6);
       if DeltaAxe>10 then deltaAxe := 10*round(deltaAxe/10);
       if DeltaAxe>UnMoisWin then deltaAxe := UnMoisWin*round(deltaAxe/UnMoisWin);
-      ArrondiAxe := 1;
+      ArrondiAxe := UnJourWin;
     end
     else if deltaAxe > 6 { 6 jours } then begin
       FormatDuree := 'dd"j" hh';
@@ -5478,7 +5365,7 @@ begin // setDelta
   NbreDecimal := 0;
   Expo := 0;
   FExposant := 1;
-  if axe.UniteGrapheImposee then begin
+  if (axe=nil) or axe.UniteGrapheImposee then begin
      setDeltaImpose;
      exit;
   end;
@@ -5500,12 +5387,12 @@ begin // setDelta
   end;
   // Nticks := 1;
   try
-    if (axe <> nil) and (axe.formatU = fLongueDuree) then begin
+    if (axe.formatU = fLongueDuree) then begin
       Nticks := 1;
       setDeltaLongueDuree;
       exit;
     end;
-    if (axe <> nil) and (axe.formatU in [fDateTime, fDate, fTime]) then begin
+    if (axe.formatU in [fDateTime, fDate, fTime]) then begin
       Nticks := 1;
       setDeltaDateTime;
       exit;
@@ -5518,8 +5405,8 @@ begin // setDelta
     deltaAxe := abs(deltaAxe);
     N := round((maxi - mini) / deltaAxe);
     AutoTick := (N > 64) or (N < 2);
-    if AutoTick then
-      afficheErreur(erNbreGradManuel, 0)
+    if AutoTick
+    then afficheErreur(erNbreGradManuel, 0)
     else begin
       Expo := floor(Log10(deltaAxe));
 //      index := 0;
@@ -5633,12 +5520,16 @@ var
   Expo, N, index, indexGrad: integer;
   uniteLoc : TUnite;
 begin
-  uniteLoc := Tunite.Create;
-  uniteLoc.NomUnite := axe.uniteGraphe;
-  if uniteLoc.UniteEgale(axe)
-     then FExposant := uniteLoc.coeffSI/axe.coeffSI
-     else FExposant := 1;
-  uniteLoc.Free;
+  if axe=nil
+  then Fexposant := 1
+  else begin
+     uniteLoc := Tunite.Create;
+     uniteLoc.NomUnite := axe.uniteGraphe;
+     if uniteLoc.UniteEgale(axe)
+        then FExposant := uniteLoc.coeffSI/axe.coeffSI
+        else FExposant := 1;
+     uniteLoc.Free;
+  end;
   absMax := abs(maxi);
   Expo := floor(Log10(Maxi - Mini));
   largeur  := (maxi - mini) * dix(-expo);
@@ -5687,7 +5578,7 @@ function Tmonde.FormatMonde(x: double): string;
        infini, zero: Result := '';
        nulle : Result := IntToStr(round(x));
        milli : Result := FloatToStrF(x/1000,ffGeneral,3,3);
-       else Result := IntToStr(round(x)) + pointMedian+'10'+puissToStr(puissanceUnite[unite])
+       else Result := IntToStr(round(x)) + pointMedian+'10'+powerToStr(puissanceUnite[unite])
     end;
   end;
 
@@ -5705,7 +5596,7 @@ function Tmonde.FormatMonde(x: double): string;
        else if Lexposant=1 then Result := Result+'0'
        else if Lexposant=-2 then Result := '0,0'+Result
        else if Lexposant=2 then Result := Result+'00'
-       else Result := Result + pointMedian +'10'+puissToStr(Lexposant)
+       else Result := Result + pointMedian +'10'+powerToStr(Lexposant)
   end;
 
 begin
@@ -5738,6 +5629,7 @@ begin
     Style[i] := Agraphe.Coordonnee[i].styleT;
     Motif[i] := Agraphe.Coordonnee[i].Motif;
     couleurPoint[i] := Agraphe.Coordonnee[i].couleurPoint;
+    codeCouleur[i] := Agraphe.Coordonnee[i].codeCouleur;
   end;
   for m := low(TIndiceMonde) to high(TIndiceMonde) do begin
     Grad[m] := Agraphe.monde[m].Graduation;
@@ -5750,8 +5642,9 @@ begin
   OptionModele := Agraphe.OptionModele;
   SuperposePage := Agraphe.superposePage;
   FilDeFer  := Agraphe.filDeFer;
-  UseDefault := Agraphe.UseDefault;
-  UseDefaultX := Agraphe.UseDefaultX;
+  UseDefaut := Agraphe.UseDefaut;
+  UseDefautX := Agraphe.UseDefautX;
+  UseZoom := Agraphe.UseZoom;
   AutoTick  := Agraphe.AutoTick;
   PasPoint  := Agraphe.PasPoint;
   Indicateur := Agraphe.Indicateur;
@@ -5772,6 +5665,7 @@ begin
     Style[i] := psSolid;
     Motif[i] := motifInit[i];
     couleurPoint[i] := '';
+    codeCouleur[i] := tSigne;
   end;
   for m := low(TIndiceMonde) to high(TIndiceMonde) do begin
     Grad[m] := gLin;
@@ -5784,8 +5678,9 @@ begin
   OptionModele := [];
   SuperposePage := False;
   FilDeFer  := False;
-  UseDefault := False;
-  UseDefaultX := False;
+  UseDefaut := False;
+  UseDefautX := False;
+  UseZoom := false;
   AutoTick  := True;
   PasPoint  := 1;
   Indicateur := nil;
@@ -5806,6 +5701,7 @@ begin
     Agraphe.Coordonnee[i].couleur := couleur[i];
     Agraphe.Coordonnee[i].styleT := Style[i];
     Agraphe.Coordonnee[i].couleurPoint := couleurPoint[i];
+    Agraphe.Coordonnee[i].codeCouleur := codeCouleur[i];
   end;
   for m := low(TindiceMonde) to high(TindiceMonde) do begin
     Agraphe.monde[m].Graduation := Grad[m];
@@ -5820,8 +5716,9 @@ begin
   Agraphe.OptionGraphe := OptionGr;
   Agraphe.OptionModele := OptionModele;
   Agraphe.SuperposePage := SuperposePage;
-  Agraphe.UseDefault := UseDefault;
-  Agraphe.UseDefaultX := UseDefaultX;
+  Agraphe.UseDefaut := UseDefaut;
+  Agraphe.UseDefautX := UseDefautX;
+  Agraphe.UseZoom := UseZoom;
   Agraphe.AutoTick := AutoTick;
   Agraphe.FilDeFer := FilDeFer;
   Agraphe.PasPoint := PasPoint;
@@ -5835,10 +5732,10 @@ var
   Acourbe: Tcourbe;
 begin
   Acourbe := Tcourbe.Create(AX, AY, 0, pred(Nbre), grandeurX, grandeurY);
-  Acourbe.pag := Apage;
+  Acourbe.page := Apage;
   Acourbe.couleur := GetCouleurPages(Apage);
-  Acourbe.styleT := stylePages[Apage mod MaxPages];
-  Acourbe.Motif := MotifPages[Apage mod MaxPages];
+  Acourbe.styleT := stylePages[Apage mod MaxPagesGr];
+  Acourbe.Motif := MotifPages[Apage mod MaxPagesGr];
   if Am <= maxMonde then
     Acourbe.iMondeC := Am;
   courbes.Add(Acourbe);
@@ -5854,7 +5751,7 @@ var
   x0,y0,rayon : integer;
 begin with CurseurOsc[i] do begin
     if mondeC = mondeX then exit;
-    createPen(PstyleReticule, penWidthReticule, PColorReticule);
+    createPen(PstyleReticule, 1, PColorReticule);
     if (i>3) and (Ic>0) then begin
        Yr := courbes[indexCourbe].valY[Ic];
        Xr := courbes[indexCourbe].valX[Ic];
@@ -5876,14 +5773,12 @@ begin with CurseurOsc[i] do begin
          end
          else begin
           segment(limiteCourbe.left + labelYcurseur.Width, Yc, LimiteFenetre.right, Yc);
-          if axeYpositif
-            then segment(Xc, limiteCourbe.top, Xc, limiteCourbe.bottom)
-            else if Xc > labelYcurseur.Width
-              then segment(Xc, 0, Xc, BasCourbe)
+          if Xc > labelYcurseur.Width
+              then segment(Xc, 0, Xc, limiteCourbe.bottom)
               else begin
                 segment(Xc, 0, Xc, labelYcurseur.Top - PaintBox.top - 2);
                 segment(Xc, labelYcurseur.top - PaintBox.top + labelYcurseur.Height +
-                      2, Xc, BasCourbe);
+                      2, Xc, limiteCourbe.bottom);
               end;
          end;
       canvas.pen.mode := pmCOPY;
@@ -5905,7 +5800,7 @@ begin
     if (OgPolaire in OptionGraphe)
         then begin if not(coDeltaY in optionCurseur) then exit end
         else begin if not(coPente in optionCurseur) then exit end;
-    createPen(PstyleTangente, penWidth, PColorTangente);
+    createPen(PstyleTangente, 1, PColorTangente);
     with CurseurOsc[curseurData1] do windowRT(xr, yr, mondeC, xi, yi);
     if (xi<0) or (yi<0) then exit;
     canvas.MoveTo(Xi, Yi);
@@ -5988,6 +5883,51 @@ begin
   end;
 end;
 
+procedure TgrapheReg.PointProcheNew(ax, ay: integer);
+var
+  LindexCourbe : integer;
+
+Function Trouve(aIndexCourbe : integer) : boolean;
+var distanceMin : integer;
+    i,iMin : integer;
+    distance : integer;
+begin with courbes[aIndexCourbe] do begin
+    distanceMin := limiteCourbe.width div 4;
+    iMin := finE div 2;
+    for i := 0 to finE-1 do begin
+        distance := abs(aX - valXe[i]) + abs(aY - valYe[i]);
+        if distance < distanceMin then begin
+           distanceMin := distance;
+           iMin := i;
+        end;
+    end;
+    result := distanceMin<(limiteCourbe.width div 8);
+    if result then with curseurOsc[curseurData1] do begin
+       xC := valXe[iMin];
+       yC := valYe[iMin];
+       MondeRT(xc, yc, mondeC, xr, yr);
+    end;
+end end;
+
+begin
+  traceReticule(curseurData1); // efface
+  if not Trouve(curseurOsc[curseurData1].indexCourbe) then begin
+     for LindexCourbe := 0 to pred(courbes.Count) do
+     with courbes[LindexCourbe] do
+          if (page = pageCourante) and
+             (trLigne in trace) and
+             (finE>0) and
+             (LindexCourbe<>curseurOsc[curseurData1].indexCourbe) and
+             trouve(LindexCourbe) then begin
+                curseurOsc[curseurData1].indexCourbe := LindexCourbe;
+                curseurOsc[curseurData1].mondeC := iMondeC;
+                break;
+             end;
+  end;
+  traceReticule(curseurData1); // retrace
+end; // PointProcheNew
+
+(*
 function TgrapheReg.PointProcheModele(var x, y: integer): integer;
 var
   i: integer;
@@ -6086,7 +6026,8 @@ begin
       y := newY;
   end
   end; // with
-end;
+end; // PointProcheModeleY
+*)
 
 function TgrapheReg.CourbeProche(var x, y: integer): integer;
 var
@@ -6096,10 +6037,33 @@ var
   indexCourbe: integer;
 begin
   Result := -1;
-  distanceMin := 64;
+  distanceMin := limiteCourbe.height div 6;
   for indexCourbe := 0 to pred(courbes.Count) do
     with courbes[indexCourbe] do
-      if pag = pageCourante then begin
+      if page = pageCourante then begin
+        for i := debutC to finC do begin
+          windowRT(valX[i], valY[i], iMondeC, Xi, Yi);
+          distance := abs(X - Xi) + abs(Y - Yi);
+          if distance < distanceMin then begin
+            distanceMin := distance;
+            Result := indexCourbe;
+          end;
+        end;
+      end;
+end;
+
+function TgrapheReg.CourbeProcheLisse(var x, y: integer): integer;
+var
+  i: integer;
+  Xi, Yi: integer;
+  distance, distanceMin: integer;
+  indexCourbe: integer;
+begin
+  Result := -1;
+  distanceMin := limiteCourbe.height div 6;
+  for indexCourbe := 0 to pred(courbes.Count) do
+    with courbes[indexCourbe] do
+      if page = pageCourante then begin
         for i := debutC to finC do begin
           windowRT(valX[i], valY[i], iMondeC, Xi, Yi);
           distance := abs(X - Xi) + abs(Y - Yi);
@@ -6136,7 +6100,7 @@ begin
   distanceMin := 64;
   for indexCourbe := 0 to pred(courbes.Count) do
     with courbes[indexCourbe] do
-      if (indexModele=1) and (pag = pageCourante) and not courbeExp then begin
+      if (indexModele=1) and (page = pageCourante) and not courbeExp then begin
         for i := debutC to finC do begin
           windowRT(valX[i], valY[i], iMondeC, Xi, Yi);
           distance := abs(X - Xi) + abs(Y - Yi);
@@ -6198,9 +6162,11 @@ begin
         Xc := x;
         Yc := y;
       end;
-      TraceCurseur(cCourant); TracePente; // retrace
+      TraceCurseur(cCourant); // retrace
+      TracePente; // retrace
 end end; // setSegmentInt
 
+(*
 procedure TgrapheReg.SetReticuleModele(x, y: integer;selonX,selonY : boolean);
 var
   zz: integer;
@@ -6221,6 +6187,7 @@ begin with CurseurOsc[1] do
       TraceCurseur(1); // retrace
     end;
 end; // setReticuleModele
+*)
 
 procedure TgrapheReg.SetSegmentReal(i: integer);
 begin
@@ -6513,7 +6480,7 @@ begin // GetBorne
   for i := 0 to pred(courbes.Count) do
     with courbes[i] do
       if courbeExp and
-         (pag = pageCourante) and
+         (page = pageCourante) and
          (FinC > DebutC) then begin
         windowRT(valX[debutC], valY[debutC], iMondeC, xi, yi);
         if (abs(xi - x) + abs(yi - y)) < 2*margeBorne then begin
@@ -6594,7 +6561,7 @@ begin with borne do begin
       xb := x;
       yb := y;
       for i := courbes[indexCourbe].debutC to courbes[indexCourbe].finC do
-          pages[courbes[indexCourbe].pag].PointActif[i] := true;
+          pages[courbes[indexCourbe].page].PointActif[i] := true;
     end;
     TraceBorne(xb, yb, style, courbes[indexCourbe].couleur, indexModele);
     // retrace
@@ -6641,10 +6608,10 @@ var
     end;
   end;
 
-  function PointProcheY: integer;
+  function PointProcheY(m : TindiceMonde): integer;
   var
     i: integer;
-  begin with Acourbe, monde[mondeY] do begin
+  begin with Acourbe, monde[m] do begin
       Result := -1;
       case Graduation of
         gLog: distanceMin := power(10,maxi - 0.5);
@@ -6664,12 +6631,9 @@ var
   end;
 
 begin
-  case m of
-    mondeX: Result := pointProcheX;
-    mondeY: Result := pointProcheY;
-    else
-      Result := -1;
-  end;
+   if m=mondeX
+      then Result := pointProcheX
+      else Result := pointProcheY(m)
 end;
 
 procedure TgrapheReg.TraceMotif(xi, yi: integer; motif: Tmotif);
@@ -6678,9 +6642,9 @@ var
   sauveWidth : integer;
   sauveStyle : TpenStyle;
 begin
-  sauveWidth := canvas.pen.width;
+  sauveWidth := canvas.pen.width div penwidth;
   sauveStyle := canvas.pen.style;
-  CreatePen(psSolid, penWidth, canvas.pen.color);
+  CreatePen(psSolid, 1, canvas.pen.color);
   case Motif of
     mCroix: begin
       segment(xi - dimPoint, yi, xi + dimPoint, yi);
@@ -6754,8 +6718,8 @@ begin
   writeIntegerXML(ANode,stMonde,iMonde);
   writeIntegerXML(ANode,'Ident',ord(identification));
   writeIntegerXML(ANode,'TexteLigne',ord(TexteLigne));
-  writeIntegerXML(ANode,'CouleurFond',couleurFond);
-  writeIntegerXML(ANode,stCouleur,pen.color);
+  writeColorXML(ANode,'CouleurFond',couleurFond);
+  writeColorXML(ANode,stCouleur,pen.color);
   writeIntegerXML(ANode,stPenStyle,ord(pen.style));
   writeIntegerXML(ANode,'PenWidth',pen.Width);
   if identification=identCoord then begin
@@ -6819,10 +6783,12 @@ begin
        identification := Tidentification(getIntegerXML(ANode));
        exit;
    end;
+   (*
    if ANode.NodeName='Ident' then begin
        TexteLigne := TtexteLigne(getIntegerXML(ANode));
        exit;
    end;
+   *)
    if ANode.NodeName='CouleurFond' then begin
       couleurFond := getColorXML(ANode);
       exit;
@@ -7070,8 +7036,8 @@ function TgrapheReg.AjusteMonde: boolean;
               Mini := y;
               Result := True;
             end;
-        end;{i}
-      end;{j}
+        end;// for i
+      end;// for j
   end; // AjusteMondePolaire
 
 var
@@ -7102,7 +7068,7 @@ begin
     ((xi = limiteCourbe.left) and (style = bsDebutVert)) or
     (xi<0) or (yi<0) then exit;
   createSolidBrush(couleur);
-  createPen(psSolid, 1, couleur);
+  createPenFin(psSolid, couleur);
   canvas.pen.mode := pmNotXor;
   if style in [bsFin, bsFinVert]
      then dB := -dimBorne
@@ -7116,7 +7082,7 @@ begin
     Points[1] := Point(xi - 2*dB, y1 - dB);
     Points[2] := Point(xi, y1);
     canvas.Polygon(Points);
-    createPen(psDash, 3, couleur);
+    createPen(psDash, 2, couleur);
     segment(xi, LimiteCourbe.top, xi, LimiteCourbe.bottom);
   end
   else if not (ImprimanteEnCours or WMFenCours or ImageEnCours) then begin
@@ -7135,7 +7101,7 @@ begin with CurseurOsc[index], paintBox.Canvas do begin
     if not monde[mondeX].defini or
        not monde[mondeC].defini then exit;
     mondeRT(xc, yc, mondeC, Xr, Yr);
-    createPen(PstyleReticule, penWidthReticule, PColorReticule);
+    createPen(PstyleReticule, 1, PColorReticule);
     Pen.mode := pmNOTXOR;
     if OgPolaire in OptionGraphe
       then begin
@@ -7164,7 +7130,7 @@ var
 begin with paintBox.Canvas do begin
     if not monde[mondeX].defini or
        not monde[curseurOsc[1].mondeC].defini then exit;
-    createPen(PstyleReticule, penWidthReticule, PColorReticule);
+    createPen(PstyleReticule, 1, PColorReticule);
     x1 := curseurOsc[2].Xc;
     y1 := curseurOsc[2].Yc;
     x2 := curseurOsc[1].Xc;
@@ -7216,7 +7182,7 @@ begin
         canvas.Rectangle(XdebutInt,LimiteCourbe.bottom-marge,XfinInt,LimiteFenetre.top+marge);
      end
      else begin
-        createPen(psSolid, 3*penWidth, GetCouleurPages(1));
+        createPen(psSolid, 3, GetCouleurPages(1));
         segment(XdebutInt, LimiteCourbe.bottom, XdebutInt, LimiteCourbe.top);
         segment(XfinInt, LimiteCourbe.bottom, XfinInt, LimiteCourbe.top);
      end;
@@ -7248,7 +7214,7 @@ begin
   indexCourbeEquivalence := -1;
   mondeDerivee := mondeY;
   for i := 0 to pred(courbes.Count) do with courbes[i] do
-      if (pag = pageCourante) and (iMondeC = mondeY) then begin
+      if (page = pageCourante) and (iMondeC = mondeY) then begin
         indexCourbeEquivalence := i;
         break;
       end;
@@ -7268,7 +7234,7 @@ begin
   if courbes[indexCourbeEquivalence].courbeExp then
 // recherche courbe modélisée ou lissée correspondante
     for i := 0 to pred(courbes.Count) do with courbes[i] do
-        if (pag=pageCourante) and (valYder <> nil) and
+        if (page=pageCourante) and (valYder <> nil) and
            (varY=courbes[indexCourbeEquivalence].varY) then begin
           if (indexModele=1) and not (courbeExp) then begin
             indexCourbeEquivalence := i;
@@ -7352,13 +7318,6 @@ begin
   enHaut := y<((limiteCourbe.top+limiteCourbe.bottom) div 2);
 end;
 
-function TgrapheReg.BasCourbe: integer;
-begin
-  if axeYpositif
-     then Result := limiteCourbe.top
-     else Result := limiteCourbe.bottom;
-end;
-
 Procedure TTransfertGraphe.Ecrit(numero : integer);
 var i : integer;
     codeY,Nbre : integer;
@@ -7417,8 +7376,8 @@ begin
     writeln(fichier,ord(traceDefaut));{3}
     writeln(fichier,OrdreLissage);{4}
     writeln(fichier,DimPointVGA);{5}
-    writeln(fichier,ord(UseDefault));{6}
-    writeln(fichier,ord(UseDefaultX));{7}
+    writeln(fichier,ord(UseDefaut));{6}
+    writeln(fichier,ord(UseDefautX));{7}
     writeln(fichier,ord(SuperposePage));{8}
     writeln(fichier,ord(avecEllipse));{9}
     if (indicateur<>nil) and (indicateurDlg<>nil)
@@ -7507,8 +7466,8 @@ begin // lit
              OrdreLissage := strToInt(ligneWin);
              litLigneWin; {5}
              DimPointVGA := strToInt(ligneWin);
-             useDefault := litBooleanWin; {6}
-             useDefaultX := litBooleanWin; {7}
+             useDefaut := litBooleanWin; {6}
+             useDefautX := litBooleanWin; {7}
              superposePage := litBooleanWin; {8}
              avecEllipse := litBooleanWin; {9}
              litLigneWin;{10}
@@ -7587,13 +7546,13 @@ begin
      end
      else begin
          if (alignement and TA_BOTTOM)= TA_BOTTOM
-            then if axeYpositif
+            then (*if axeYpositif
                then y := y + canvas.textHeight(S)
-               else y := y - canvas.textHeight(S)
+               else *)y := y - canvas.textHeight(S)
             else if (alignement and TA_BASELINE)= TA_BASELINE then
-               if axeYpositif
+              (* if axeYpositif
                   then y := y + (canvas.textHeight(S) div 2)
-                  else y := y - (canvas.textHeight(S) div 2);
+                  else *)y := y - (canvas.textHeight(S) div 2);
          if (alignement and TA_CENTER)= TA_CENTER
              then x := x - (canvas.textWidth(S) div 2)
              else if (alignement and TA_RIGHT)= TA_RIGHT
@@ -7646,7 +7605,7 @@ begin
   if oldPen<>0 then deleteObject(oldPen);
   WITH BrushInfo DO BEGIN
     lbStyle := BS_SOLID;
-    lbColor := clBlack;
+    lbColor := couleur;
     lbHatch := 0
   END;
   PenStyle := PS_GEOMETRIC OR PS_ENDCAP_SQUARE OR PS_JOIN_MITER;
@@ -7656,6 +7615,7 @@ begin
 end;
 
 begin
+     awidth := awidth*penwidth;
      if imprimanteMono
         then canvas.pen.Color := clBlack
         else canvas.pen.Color := couleur;
@@ -7665,6 +7625,15 @@ begin
         canvas.pen.Style := astyle;
         canvas.pen.Width := awidth;
      end;
+end;
+
+procedure TgrapheReg.CreatePenFin(aStyle : TpenStyle;couleur : Tcolor);
+begin
+     if imprimanteMono
+        then canvas.pen.Color := clBlack
+        else canvas.pen.Color := couleur;
+     canvas.pen.Style := astyle;
+     canvas.pen.Width := 1;
 end;
 
 procedure TgrapheReg.changeEchelleX(xnew, xold: integer;ismaxi : boolean);
@@ -7685,9 +7654,9 @@ begin with monde[mondeX] do begin
        Mini := Maxi - (limiteCourbe.right - limiteCourbe.left) / A;
        B := limiteCourbe.left - Mini * A;
     end;
-    useDefaultX := true;
-    MaxDefaut := Maxi;
-    MinDefaut := Mini;
+    useDefautX := true;
+    useZoom := false;
+    getMinMaxDefaut;
 end end;
 
 procedure TgrapheReg.changeEchelleY(ynew, yold: integer;isMaxi : boolean);
@@ -7708,9 +7677,9 @@ begin with monde[mondeY] do begin
        Mini := Maxi + (limiteCourbe.bottom - limiteCourbe.top) / A;
        B := limiteCourbe.bottom - Maxi * A;
     end;
-    useDefault := true;
-    MaxDefaut := Maxi;
-    MinDefaut := Mini;
+    useDefaut := true;
+    useZoom := false;
+    getMinMaxDefaut;
 end end;
 
 procedure TgrapheReg.GenereSon;
@@ -7847,7 +7816,7 @@ begin
      end;
      indexCourbe := 0;
      while (indexCourbe<(courbes.count-1)) and
-           (courbes[indexCourbe].pag<>pageCourante) do inc(indexCourbe);
+           (courbes[indexCourbe].page<>pageCourante) do inc(indexCourbe);
      if   (indexCourbe<(courbes.count-1)) and
           (trPoint in courbes[indexCourbe].trace) and
           (courbes[indexCourbe].motif=mPixel) and
@@ -7864,7 +7833,7 @@ procedure TgrapheReg.VersLatex(const NomFichier : string;suffixe : char);
 var NomFichierDebut : string;
 
  procedure TraceMonde(m : TindiceMonde);
- const NbreMax = 128;
+ const NbreMaxLatex = 256;
        separe = crTab;
  var FichierAsc : textFile;
      exposantX,exposantY : double;
@@ -7875,49 +7844,53 @@ var NomFichierDebut : string;
       deltaX : double;
 
       procedure Nettoie;
+
+      procedure ecritxy(x,y : double);
+      begin
+            if not isNan(x) and not isNan(y) then
+            writeln(fichierAsc,FloatToStrLatex(x/exposantX)+separe+
+                               FloatToStrLatex(y/exposantY));
+      end;
+
       var
         ifin: integer;
-        maxi, mini, maxiX, miniX: double;
+        maxiY, miniY, maxiX, miniX: double;
         xdebut,xcourant, ycourant: double;
       begin with courbes[index] do begin
         xdebut := valX[idebut];
         yCourant := valY[idebut];
-        maxi := ycourant;
-        mini := ycourant;
+        maxiY := ycourant;
+        miniY := ycourant;
         maxiX := xdebut;
         miniX := xdebut;
         iFin := iDebut + 1;
         repeat
           yCourant := valY[iFin];
           xCourant := valX[iFin];
-          if yCourant > maxi then begin
-            maxi := ycourant;
+          if yCourant > maxiY then begin
+            maxiY := ycourant;
             maxiX := xCourant;
           end;
-          if yCourant < mini then begin
-            mini := ycourant;
+          if yCourant < miniY then begin
+            miniY := ycourant;
             miniX := xCourant;
           end;
           Inc(iFin);
         until (iFin>finC) or ((xCourant-xDebut)>deltaX); // verticale différente
-        writeln(fichierAsc,FloatToStrLatex(valX[iDebut]/exposantX)+separe+
-                           FloatToStrLatex(valY[iDebut]/exposantY));
+        ecritxy(valX[iDebut],valY[iDebut]);
 // on garde début
-        if (mini-valY[iDebut])*(mini-valY[iFin])>0 then
-            writeln(fichierAsc,FloatToStrLatex(miniX/exposantX)+separe+
-                               FloatToStrLatex(mini/exposantY));
+        if (miniY-valY[iDebut])*(miniY-valY[iFin])>0 then
+            ecritxy(miniX,miniY);
 // on garde mini si en dehors de debut fin
-        if (maxi-valY[iDebut])*(maxi-valY[iFin])>0 then
-            writeln(fichierAsc,FloatToStrLatex(maxiX/exposantX)+separe+
-                               FloatToStrLatex(maxi/exposantY));
-        writeln(fichierAsc,FloatToStrLatex(valX[iFin]/exposantX)+separe+
-                           FloatToStrLatex(valY[iFin]/exposantY));
+        if (maxiY-valY[iDebut])*(maxiY-valY[iFin])>0 then
+            ecritxy(maxiX,maxiY);
+        ecritxy(valX[iFin],valY[iFin]);
 // on garde fin
         idebut := iFin+1; // prochain debut
       end end;
 
     begin
-      deltaX := 2*(monde[mondeX].maxi-monde[mondeX].mini)/NbreMax;
+      deltaX := 2*(monde[mondeX].maxi-monde[mondeX].mini)/NbreMaxLatex;
       idebut := courbes[index].debutC;
       repeat
            Nettoie
@@ -7930,7 +7903,11 @@ var NomFichierDebut : string;
      prefixe : string;
      lignePlot : string;
      latexStr : TstringList;
- begin
+     couleurLoc : TColor;
+     motifLoc : Tmotif;
+     samples : integer;
+     exposantXstr,exposantYstr : string;
+ begin  // traceMonde
       prefixe := '';
       i1 := 0;
       for i := 0 to Courbes.Count - 1 do
@@ -7947,14 +7924,17 @@ var NomFichierDebut : string;
 // else if (OgPolaire in options) then prefixe := 'polar';
 // en cours d'installation dans pgfPlots
       ajouteLigneLatex('\begin{'+prefixe+'axis}[');
-      ajouteLigneLatex('height=8cm,width=12cm');
+      ajouteLigneLatex('height=10cm,width=15cm');
       exposantX := monde[mondeX].Fexposant;
+      if exposantX=1
+         then exposantXStr := ''
+         else exposantXStr := '*10^('+intToStr(round(Log10(exposantX)))+')';
       exposantY := monde[m].Fexposant;
-// TODO texte p. 183 188
-// TODO ligne p 280
+      if exposantY=1
+         then exposantYStr := ''
+         else exposantYStr := '*10^('+intToStr(round(-Log10(exposantY)))+')';
 // title p 177
 // barre d'erreur p 160
-// unité p. 226
 //     ajouteLigneLatex('xscale=0.7, yscale=0.2');
 //     ajouteLigneLatex(',scale only axis');
       if m=mondeY then if (ogZeroGradue in OptionGraphe)
@@ -7963,24 +7943,38 @@ var NomFichierDebut : string;
       if m=mondeDroit then
          ajouteLigneLatex(',axis x line=none,axis y line=right');
       with monde[mondeX] do
-           ajouteLigneLatex(',xmin='+FloatToStrLatex(mini/exposantX)+
+          case Graduation of
+             gLog: ajouteLigneLatex(',xmin='+FloatToStrLatex(power(10,mini/exposantX))+
+                            ',xmax='+FloatToStrLatex(power(10,maxi/exposantX)));
+             gLin: ajouteLigneLatex(',xmin='+FloatToStrLatex(mini/exposantX)+
                             ',xmax='+FloatToStrLatex(maxi/exposantX));
-      with monde[m] do
-           ajouteLigneLatex(',ymin='+FloatToStrLatex(mini/exposantY)+
+             gInv: ;
+             gBits: ;
+             gdB: ;
+      end;
+      with monde[m] do case Graduation of
+             gLog: ajouteLigneLatex(',ymin='+FloatToStrLatex(power(10,mini/exposantY))+
+                            ',ymax='+FloatToStrLatex(power(10,maxi/exposantY)));
+             gdB: ajouteLigneLatex(',ymin='+FloatToStrLatex(power(10,mini/exposantY/20))+
+                            ',ymax='+FloatToStrLatex(power(10,maxi/exposantY/20)));
+             gLin: ajouteLigneLatex(',ymin='+FloatToStrLatex(mini/exposantY)+
                             ',ymax='+FloatToStrLatex(maxi/exposantY));
+             gInv: ;
+             gBits: ;
+      end;
       if OgQuadrillage in OptionGraphe then ajouteLigneLatex(',grid=major');
       if m=mondeY then begin
          Nx := courbes[i1].varX.titreAff;
-         Nx := Nx+courbes[i1].varX.UniteAxe(exposantX);
+         Nx := Nx+courbes[i1].varX.UniteAxe(exposantX,monde[mondeX].arrondiAxe);
       end;
       Ny := courbes[i1].varY.titreAff;
       with monde[m] do
         if graduation=gdB
            then Ny := Ny+' (dB)'
-           else Ny := Ny+courbes[i1].varY.UniteAxe(exposantY);
-      ajouteLigneLatex(',title={'+translateNomTexte(pages[courbes[i1].pag].titrePage)+'}');
-      if m=mondeY then ajouteLigneLatex(',xlabel={'+translateNomTexte(Nx)+'}');
-      ajouteLigneLatex(',ylabel={'+translateNomTexte(Ny)+'}');
+           else Ny := Ny+courbes[i1].varY.UniteAxe(exposantY,arrondiAxe);
+      ajouteLigneLatex(',title={'+translateNomTexte(pages[courbes[i1].page].titrePage)+'}');
+      if m=mondeY then ajouteLigneLatex(',xlabel={$'+translateNomMath(Nx)+'$}');
+      ajouteLigneLatex(',ylabel={$'+translateNomMath(Ny)+'$}');
       ajouteLigneLatex(']');
 // enlever blanc et carac spéciaux
       for i := 0 to Courbes.Count - 1 do with courbes[i] do if iMondeC=m
@@ -7988,31 +7982,56 @@ var NomFichierDebut : string;
           NomFichierCourant := NomFichierDebut+intToStr(i)+'.txt';
           AssignFile(fichierAsc,NomFichierCourant);
           Rewrite(fichierAsc);
-//          writeln(fichierAsc,'#'+pages[page].TitrePage);
-//          writeln(fichierAsc,varX.nom+separe+varY.nom);
-          if (finC-debutC)>NbreMax
+          samples := NbreMaxLatex;
+          if (finC-debutC)>NbreMaxLatex
           then extrait(i)
           else if (trPoint in trace) and (motif=mIncert)
-          then begin for j := debutC to finC do
+          then begin
+              for j := debutC to finC do
               writeln(fichierAsc,FloatToStrLatex(valX[j]/exposantX)+separe+
                                  FloatToStrLatex(valY[j]/exposantY)+separe+
                                  FloatToStrLatex(incertX[j]/exposantX)+separe+
-                                 FloatToStrLatex(incertY[j]/exposantY))
+                                 FloatToStrLatex(incertY[j]/exposantY));
                                  // incertitude non définie ?
+              samples := finC-debutC;
           end
-          else begin for j := debutC to finC do
+          else begin
+              for j := debutC to finC do
               writeln(fichierAsc,FloatToStrLatex(valX[j]/exposantX)+separe+
                                  FloatToStrLatex(valY[j]/exposantY));
+              samples := finC-debutC;
           end;
           closeFile(FichierAsc);
-          lignePlot := '\addplot[draw='+couleurLatex(couleur);
+          if superposePage and (SPcouleur=reperePage)
+              then couleurLoc := GetCouleurPages(page)
+              else couleurLoc := couleur;
+          if (trLigne in trace) and (indexModele<>0) then begin
+          // traçage de la courbe par Tikz
+             if indexModele>0
+                then lignePlot := fonctionTheorique[indexModele].expressionLatex(exposantXstr)
+                else lignePlot := fonctionSuperposee[-indexModele].expressionLatex(exposantXstr);
+             if lignePlot<>'' then begin
+                 if exposantYstr<>''  then lignePlot := '('+lignePlot+')'+exposantYStr;  // + /10^(exposantY)
+                 lignePlot := '\addplot['+
+                 'domain='+floatToStrLatex(valX[debutC]/exposantX)+':'+floatToStrLatex(valX[finc]/exposantX)+
+                 ','+couleurLatex(couleurLoc)+',samples='+intToStr(samples)+']{'+lignePlot+'};';
+                 ajouteLigneLatex(lignePlot);
+                 ajouteLigneLatex('% En cas de problème avec la ligne précédente décommenter la ligne suivante');
+                 lignePlot := '%';
+             end;
+          end
+          else lignePlot := '';
+          lignePlot := lignePlot+'\addplot[draw='+couleurLatex(couleurLoc);
           if (trLigne in trace)
              then if (trPoint in trace)
                 then
-                else lignePlot := lignePLot+',mark=none,smooth'
+                else lignePlot := lignePlot+',mark=none,smooth'
              else lignePlot := lignePlot+',only marks';
+          if superposePage and (motif <= mCarrePlein) and (SPmotif=reperePage)
+              then motifLoc := motifPages[page mod MaxPagesGr]
+              else motifLoc := motif;
           if trPoint in trace then begin
-               case motif of
+               case motifLoc of
                     mCroix, mCroixDiag, mCercle, mCarre, mLosange,
                     mCerclePlein, mCarrePlein,mPixel : begin
                        lignePlot := lignePlot+',mark='+MotifLatex[motif];
@@ -8044,9 +8063,14 @@ var NomFichierDebut : string;
              for j := 0 to pred(latexStr.Count) do
                  ajouteLigneLatex(latexStr[j]);
       end;
+      latexStr.Clear;
+      for i := 0 to pred(Dessins.Count) do dessins[i].drawLatex(latexStr);
+      if latexStr.Count>0 then
+         for i := 0 to pred(latexStr.Count) do
+             ajouteLigneLatex(latexStr[i]);
       latexStr.free;
       ajouteLigneLatex('\end{'+prefixe+'axis}');
- end;
+ end; // traceMonde
 
  var avecAxeDroit : boolean;
      i : integer;
@@ -8057,22 +8081,6 @@ var NomFichierDebut : string;
       NomFichierDebut := ExtractFilePath(NomFichier)+NomFichierDebut+suffixe;
       ajouteLigneLatex('');
       ajouteLigneLatex('\begin{tikzpicture}');
-//      if (OgAnalyseurLogique in optionGraphe) then ;
-(*
-\usetikzlibrary{calc}
-  \begin{axis}[name=plot1,height=3cm,width=3cm]
-    \addplot coordinates {(0,0) (1,1) (2,2)};
-  \end{axis}
-  \begin{axis}[name=plot2,at={($(plot1.south)-(0,1cm)$)},anchor=north,height=3cm,width=3cm]
-    \addplot coordinates {(0,2) (1,1) (2,0)};
-  \end{axis}
-  \begin{axis}[name=plot3,at={($(plot2.south)-(0,1cm)$)},anchor=north,height=3cm,width=3cm]
-    \addplot coordinates {(0,2) (1,1) (2,1)};
-  \end{axis}
-  \begin{axis}[name=plot4,at={($(plot3.south)-(0,1cm)$)},anchor=north,height=3cm,width=3cm]
-    \addplot coordinates {(0,2) (1,1) (1,0)};
-  \end{axis}
-*)
       avecAxeDroit := false;
       for i := 0 to Courbes.Count - 1 do
           with courbes[i] do if iMondeC=mondeDroit then begin
@@ -8081,8 +8089,6 @@ var NomFichierDebut : string;
           end;
       traceMonde(mondeY);
       if avecAxeDroit then traceMonde(mondeDroit);
-      for i := 0 to pred(Dessins.Count) do
-          dessins[i].drawLatex;
       ajouteLigneLatex('\end{tikzpicture}');
       ajouteLigneLatex('');
   end;// versLatex
@@ -8210,7 +8216,7 @@ begin
    end;
 end end;
 
-procedure TDessin.SetPourCent(var i: integer);
+procedure TDessin.SetPourCent(var i: integer;TexteLoc : TstringList);
   var
     posPourCent: integer;
     LigneTexte:  string;
@@ -8337,20 +8343,18 @@ end; // SetPourCent
 procedure TGrapheReg.VersFichier(NomFichier : string);
 var extension : string;
 begin
-try
+  try
      extension := AnsiUpperCase(extractFileExt(nomFichier));
      if extension='' then begin
-         nomFichier := ChangeFileExt(nomFichier,'.WMF');
-         extension := '.WMF';
+         nomFichier := ChangeFileExt(nomFichier,'.PNG');
+         extension := '.PNG';
      end;
-     if (extension='.WMF') or (extension='.EMF')
-             then versMetaFile(nomFichier)
-             else if extension='.BMP'
-             then versBitmap(nomFichier)
-             else if extension='.PNG'
-                 then VersPng(nomFichier)
-                 else if (extension='.JPG')
-                     then VersJpeg(nomFichier)
+     if extension='.BMP'
+        then versBitmap(nomFichier)
+        else if extension='.PNG'
+             then VersPng(nomFichier)
+             else if (extension='.JPG')
+                  then VersJpeg(nomFichier)
   except
   end;
 end;
@@ -8358,7 +8362,6 @@ end;
 procedure TgrapheReg.VersPressePapier(grapheCB : TgrapheClipBoard);
 begin
      case grapheCB of
-          gcEmf : VersMetaFile('');
           gcBitmap : VersBitmap('');
           gcJpeg : VersJpeg('');
           gcPng : VersPng('');

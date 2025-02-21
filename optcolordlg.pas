@@ -103,7 +103,7 @@ procedure TOptionCouleurDlg.FormActivate(Sender: TObject);
 var i : integer;
 begin
      inherited;
-     PageSE.MaxValue := MaxPages;
+     PageSE.MaxValue := MaxPagesGr;
      PageSE.Value := 1;
      PageSEChange(Sender);
      CourbeSE.Value := 1;
@@ -115,7 +115,7 @@ begin
      FondReticuleColor.selected := FondReticule;
      FondColor.selected := FondReticule;
      ReticuleCB.itemIndex := ord(PstyleReticule);
-     widthEcranSE.value := penWidthVGA;
+     widthEcranSE.value := penWidthCourbe;
      penWidthAxeSE.value := penWidthGrid;
      tailleTickSE.value := tailleTick;
      AxeColorCombo.selected := couleurGrille;
@@ -129,7 +129,10 @@ end;
 
 procedure TOptionCouleurDlg.FormCreate(Sender: TObject);
 begin
- //ResizeButtonImagesforHighDPI(self);
+  VirtualImageListPoint.height := VirtualImageListSize;
+  VirtualImageListPoint.width := VirtualImageListSize;
+  VirtualImageListLigne.height := VirtualImageListSize;
+  VirtualImageListLigne.width := VirtualImageListSize;
 end;
 
 procedure TOptionCouleurDlg.SetModif(Sender: TObject);
@@ -153,7 +156,7 @@ begin
     FondReticule := FondReticuleColor.selected;
     FondReticule := FondColor.selected;
     PstyleReticule := TpenStyle(ReticuleCB.itemIndex);
-    penWidthVGA := widthEcranSE.value;
+    penWidthCourbe := widthEcranSE.value;
     penWidthGrid := penwidthaxeSE.value;
     tailleTick := tailleTickSE.value;
     reperePage := TreperePage(reperePageRG.itemIndex);

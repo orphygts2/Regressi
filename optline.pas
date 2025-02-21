@@ -86,6 +86,8 @@ end end;
 procedure TOptionLigneDlg.FormCreate(Sender: TObject);
 begin
     ListeVar := TstrListe.create;
+    VirtualImageList1.height := VirtualImageListSize;
+    VirtualImageList1.width := VirtualImageListSize;
 end;
 
 procedure TOptionLigneDlg.FormDestroy(Sender: TObject);

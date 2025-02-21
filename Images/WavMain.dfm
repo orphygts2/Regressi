@@ -3,8 +3,8 @@ object WaveForm: TWaveForm
   Top = 285
   HelpContext = 46
   Caption = 'Lecture de fichier son'
-  ClientHeight = 910
-  ClientWidth = 1984
+  ClientHeight = 905
+  ClientWidth = 1914
   Color = clWindow
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -23,8 +23,8 @@ object WaveForm: TWaveForm
   TextHeight = 36
   object PaintBox: TPaintBox
     Left = 0
-    Top = 123
-    Width = 1984
+    Top = 111
+    Width = 1914
     Height = 366
     Margins.Left = 6
     Margins.Top = 6
@@ -36,12 +36,13 @@ object WaveForm: TWaveForm
     OnMouseUp = PaintBoxMouseUp
     OnPaint = PaintBoxPaint
     ExplicitTop = 136
+    ExplicitWidth = 1984
   end
   object PaintBoxZoom: TPaintBox
     Left = 0
-    Top = 499
-    Width = 1984
-    Height = 411
+    Top = 487
+    Width = 1914
+    Height = 418
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -49,12 +50,13 @@ object WaveForm: TWaveForm
     Align = alClient
     OnPaint = PaintBoxZoomPaint
     ExplicitTop = 512
+    ExplicitWidth = 1984
     ExplicitHeight = 398
   end
   object Splitter: TSplitter
     Left = 0
-    Top = 489
-    Width = 1984
+    Top = 477
+    Width = 1914
     Height = 10
     Cursor = crVSplit
     Margins.Left = 6
@@ -65,11 +67,12 @@ object WaveForm: TWaveForm
     Color = clHighlight
     ParentColor = False
     ExplicitTop = 502
+    ExplicitWidth = 1984
   end
   object BoutonsPanel: TPanel
     Left = 0
-    Top = 75
-    Width = 1984
+    Top = 63
+    Width = 1914
     Height = 48
     Margins.Left = 6
     Margins.Top = 6
@@ -78,6 +81,7 @@ object WaveForm: TWaveForm
     Align = alTop
     Color = clMenuBar
     TabOrder = 0
+    ExplicitWidth = 1900
     object DureeTot: TLabel
       Left = 251
       Top = 1
@@ -223,14 +227,14 @@ object WaveForm: TWaveForm
   object ToolBar: TToolBar
     Left = 0
     Top = 0
-    Width = 1984
-    Height = 75
+    Width = 1914
+    Height = 63
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
     AutoSize = True
-    ButtonHeight = 75
+    ButtonHeight = 63
     ButtonWidth = 151
     Color = clBtnFace
     GradientEndColor = clSkyBlue
@@ -240,6 +244,7 @@ object WaveForm: TWaveForm
     ShowCaptions = True
     TabOrder = 1
     Wrapable = False
+    ExplicitWidth = 1900
     object OpenFileBtn: TToolButton
       Left = 0
       Top = 0
@@ -297,7 +302,7 @@ object WaveForm: TWaveForm
     object ModeBtn: TToolButton
       Left = 604
       Top = 0
-      Hint = 'Configuration de l'#39'enregistrement'
+      Hint = 'Choix de la source et options pour l'#39'enregistrement'
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -335,8 +340,29 @@ object WaveForm: TWaveForm
       ImageName = 'Item2'
       OnClick = SaveFileBtnClick
     end
-    object ExitBtn: TToolButton
+    object LabelAttente: TLabel
       Left = 1057
+      Top = 0
+      Width = 559
+      Height = 63
+      Margins.Left = 6
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
+      Caption = ' Traitement en cours, patientez ... '
+      Color = clBtnFace
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -38
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentColor = False
+      ParentFont = False
+      Transparent = False
+      Visible = False
+    end
+    object ExitBtn: TToolButton
+      Left = 1616
       Top = 0
       Hint = '|Quitter'
       Margins.Left = 6
@@ -353,22 +379,22 @@ object WaveForm: TWaveForm
     DefaultExt = 'wav'
     Filter = 'Fichiers WAV|*.wav'
     FilterIndex = 0
-    Left = 392
-    Top = 96
+    Left = 1064
+    Top = 224
   end
   object SaveDialog: TSaveDialog
     DefaultExt = 'wav'
     Filter = 'Fichier son|*.wav'
     Options = [ofHideReadOnly, ofNoChangeDir, ofEnableSizing]
-    Left = 448
-    Top = 96
+    Left = 944
+    Top = 224
   end
   object Timer1: TTimer
     Enabled = False
     Interval = 110
     OnTimer = Timer1Timer
-    Left = 512
-    Top = 96
+    Left = 816
+    Top = 224
   end
   object ImageCollection1: TImageCollection
     Images = <
@@ -601,8 +627,8 @@ object WaveForm: TWaveForm
         Name = 'Item12'
       end>
     ImageCollection = ImageCollection1
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 216
     Top = 348
   end

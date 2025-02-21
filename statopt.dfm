@@ -6,8 +6,8 @@ object StatOptDlg: TStatOptDlg
   BorderIcons = [biSystemMenu, biHelp]
   BorderStyle = bsDialog
   Caption = 'Statistique'
-  ClientHeight = 852
-  ClientWidth = 922
+  ClientHeight = 879
+  ClientWidth = 920
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,7 +20,7 @@ object StatOptDlg: TStatOptDlg
   TextHeight = 36
   object LabelNombre: TLabel
     Left = 16
-    Top = 254
+    Top = 260
     Width = 94
     Height = 36
     Margins.Left = 6
@@ -31,7 +31,7 @@ object StatOptDlg: TStatOptDlg
   end
   object LabelAmplitude: TLabel
     Left = 16
-    Top = 310
+    Top = 340
     Width = 119
     Height = 36
     Margins.Left = 6
@@ -48,7 +48,7 @@ object StatOptDlg: TStatOptDlg
   end
   object LabelDebut: TLabel
     Left = 14
-    Top = 354
+    Top = 384
     Width = 71
     Height = 36
     Margins.Left = 6
@@ -61,7 +61,7 @@ object StatOptDlg: TStatOptDlg
     Left = 708
     Top = 20
     Width = 200
-    Height = 54
+    Height = 60
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -79,7 +79,7 @@ object StatOptDlg: TStatOptDlg
     Left = 708
     Top = 128
     Width = 200
-    Height = 54
+    Height = 60
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -96,7 +96,7 @@ object StatOptDlg: TStatOptDlg
     Left = 708
     Top = 238
     Width = 200
-    Height = 54
+    Height = 60
     HelpContext = 803
     Margins.Left = 6
     Margins.Top = 6
@@ -114,7 +114,7 @@ object StatOptDlg: TStatOptDlg
     Left = 2
     Top = 0
     Width = 448
-    Height = 226
+    Height = 240
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -132,7 +132,7 @@ object StatOptDlg: TStatOptDlg
   end
   object NombreSpin: TSpinEdit
     Left = 152
-    Top = 238
+    Top = 250
     Width = 102
     Height = 56
     Margins.Left = 6
@@ -152,7 +152,7 @@ object StatOptDlg: TStatOptDlg
   end
   object EditAmplitude: TEdit
     Left = 152
-    Top = 294
+    Top = 324
     Width = 180
     Height = 44
     Margins.Left = 6
@@ -169,7 +169,7 @@ object StatOptDlg: TStatOptDlg
   end
   object EditCible: TEdit
     Left = 152
-    Top = 394
+    Top = 424
     Width = 180
     Height = 44
     Margins.Left = 6
@@ -180,7 +180,7 @@ object StatOptDlg: TStatOptDlg
   end
   object CibleCB: TCheckBox
     Left = 16
-    Top = 404
+    Top = 434
     Width = 98
     Height = 34
     Margins.Left = 6
@@ -218,7 +218,7 @@ object StatOptDlg: TStatOptDlg
   end
   object EditDebut: TEdit
     Left = 152
-    Top = 344
+    Top = 374
     Width = 180
     Height = 44
     Margins.Left = 6
@@ -229,9 +229,9 @@ object StatOptDlg: TStatOptDlg
   end
   object GrapheGB: TGroupBox
     Left = 0
-    Top = 472
-    Width = 922
-    Height = 156
+    Top = 485
+    Width = 920
+    Height = 160
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -239,6 +239,8 @@ object StatOptDlg: TStatOptDlg
     Align = alBottom
     Caption = 'Affichage graphique'
     TabOrder = 10
+    ExplicitTop = 484
+    ExplicitWidth = 906
     object int2SigmaCB: TCheckBox
       Left = 208
       Top = 32
@@ -386,9 +388,9 @@ object StatOptDlg: TStatOptDlg
   end
   object GroupBox1: TGroupBox
     Left = 0
-    Top = 628
-    Width = 922
-    Height = 224
+    Top = 645
+    Width = 920
+    Height = 234
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -396,11 +398,13 @@ object StatOptDlg: TStatOptDlg
     Align = alBottom
     Caption = 'Notations'
     TabOrder = 11
+    ExplicitTop = 644
+    ExplicitWidth = 906
     object Memo1: TMemo
       Left = 2
       Top = 38
-      Width = 918
-      Height = 184
+      Width = 916
+      Height = 194
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -408,12 +412,12 @@ object StatOptDlg: TStatOptDlg
       Align = alClient
       Lines.Strings = (
         'ICmxx : intervalle de confiance sur la moyenne '#224' xx %'
-        #963' : '#233'cart type'
+        's : '#233'cart type d'#39#233'chantillon'
         'inexactitude : '#233'cart entre cible et moyenne'
         'CV : coefficient de variation  = ecart type / moyenne'
-        'U(m,xx%) : incertitude sur la moyenne '#224' xx %'
-        '')
+        #963'(moy) : '#233'cart type sur la moyenne')
       TabOrder = 0
+      ExplicitWidth = 902
     end
   end
   object EffectifGB: TGroupBox

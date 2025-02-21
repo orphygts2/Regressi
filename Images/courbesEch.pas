@@ -30,6 +30,8 @@ type
     OKBtn: TBitBtn;
     BitBtn2: TBitBtn;
     PolaireCB: TCheckBox;
+    OrthoCB: TCheckBox;
+    modifPointCB: TCheckBox;
     procedure FormActivate(Sender: TObject);
     procedure OKBtnClick(Sender: TObject);
     procedure PolaireCBClick(Sender: TObject);
@@ -65,6 +67,7 @@ begin with courbesForm do begin
          echelleX := ePolaire;
          echelleY := ePolaire;
       end;
+      orthonorme := orthoCB.checked;
 
       try
       MaxiX := StrToFloatWin(EditX.text);
@@ -106,8 +109,8 @@ begin
      labelX.caption := 'axe horizontal';
      labelY.caption := 'axe vertical';
   end;
-  logxcb.Visible := not  polaireCB.Checked;
-  logycb.Visible := not  polaireCB.Checked;
+  logxcb.Visible := not polaireCB.Checked;
+  logycb.Visible := not polaireCB.Checked;
 end;
 
 end.

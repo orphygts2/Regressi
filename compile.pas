@@ -4,7 +4,7 @@ interface
 
 uses SysUtils, Windows, Classes, Forms, Math, Graphics, contnrs,
    constreg, maths, regutil, uniteKer, fft, statcalc, indicateurU,
-   System.Types;
+   System.Types, clipBrd;
 
 // S'inspire fortement de la bibliothèque MODULOG produite par l'ALE Sup :
 // V. Chauve, P. Cousot, H. Lehning, D. Monasse, C. Potier, R. Rolland, R. Smadja
@@ -62,6 +62,7 @@ type
       reelle, imaginaire, argument, angle,
       DateTime, mois, jour, annee, heure,
       SexaToDeci, UtilisateurToRadian, FonctInconnue);
+      // moyenne,efficace sur une période, MoyenneAll,efficaceAll sur tout le signal
    TCodeFonctionGlb = (Minimum, Position, Moyenne, MoyenneAll, MoyenneFFT,
       Somme, SommeFFT, Efficace, EfficaceAll, Initial, Frequence,
       FrequenceInstantanee, RmsInstantanee, Phase,
@@ -106,7 +107,7 @@ type
       calcul:     Pelement; // résultat de la compilation de expression
       depend:     TsetGrandeur;
       genreC:     TgenreCalcul;
-      isSysteme, ContientCalculGlb: boolean;
+      isSysteme, ContientCalculGlb,bruitPresent: boolean;
       constructor Create;
       function compileF(var posErreur, LongErreur: integer;
          Ajuste: boolean; GenreParam: TgenreGrandeur;
@@ -168,6 +169,7 @@ type
       function IncertCalculee : boolean;
       procedure CalculIncertitudeExp(var Avaleur : double); // procedure car on peut ne pas toucher avaleur (donnée entrée au clavier)
       procedure CalculIncertitudeFonct(var Avaleur : double);
+      Function ValeurNum(isLatex : boolean) : String;
       destructor Destroy; override;
    end;
 
@@ -186,7 +188,6 @@ type
       VariableEgalAbscisse: boolean;
       Amplitude, Phase, PeriodeOuFrequence: TcodeGrandeur; // codeParam
       ResiduStat:   TcalculStatistiqueResidu;
-      Residu:       Tvecteur;
       SommeCarreY,sigmaY,chi2Relatif : double;
       NbreParamModele : integer;
       NbrePointsModele : integer;
@@ -206,6 +207,7 @@ type
       procedure CalculResidu(mC: integer);
       function chi2Permis : boolean;
       function expressionNumerique : string;
+      Function expressionLatex(exposantX : string) : string;
       procedure CherchePenteOrigine(var indexPente,indexOrigine : integer);
       destructor Destroy; override;
    end;
@@ -276,7 +278,6 @@ type
       Numero: TcodePage;
       Stat, statK, statV: TcalculStatistique;
       Stat2: TstatistiqueDeuxVar;
-      MajCornishAfaire: boolean;
       ValeurParam: array[ParamNormal..ParamDiff2] of tableauParam;
       CovarianceParam : TmatriceParam;
       incertParam, incert95Param : tableauParam;
@@ -351,7 +352,8 @@ type
       function EffacePage(xdebut, ydebut, xfin, yfin: double;
          indexX, indexY: integer): boolean;
       procedure VerifIntervalles;
-      function ParamNum(k : TcodeGrandeur) : String;
+  //    function ParamNum(k : TcodeGrandeur) : String;
+ //     function ParamLatex(k : TcodeGrandeur) : String;
       procedure ResetDebutFin(i: TcodeIntervalle);
       procedure ResetPointActif;
       property PointActif[index: integer]: boolean
@@ -431,7 +433,7 @@ var
    FonctionSuperposee, FonctionSuperposeeGlb: array[1..MaxIntervalles] of Tmodele;
    NbreModele, NbreFonctionSuper, NbreFonctionSuperGlb, NbreModeleGlb: shortint;
    HarmoniqueAff: boolean;
-   NbreHarmoniqueOptimise, bruitPresent: boolean;
+   NbreHarmoniqueOptimise, bruitPresentGlb: boolean;
    FonctionPagePermise: boolean;
    NomFichierData: string;
 
@@ -489,13 +491,13 @@ function ParamEtPrecGlb(k: TcodeGrandeur;incertType : boolean): String;
 var
    PointeurUn, PointeurPi: Pelement;
    logSimulation: boolean;
-   indexTri:      TcodeGrandeur;
+   indexTri: TcodeGrandeur;
    prevenirFonctionDeParam: boolean;
-   ListeBoucle:   TlisteBoucle;
-   CodeErreurC:   string;
-   modeleDependant : boolean;
-   NonDefinieNulle : boolean = false;
-   chiffreSignif : TchiffreSignif = CSeduscol;
+   ListeBoucle: TlisteBoucle;
+   CodeErreurC: string;
+   modeleDependant: boolean;
+   NonDefinieNulle: boolean = false;
+   chiffreSignif: TchiffreSignif = CSeduscol;
 
 procedure Libere(var expr: Pelement);
 procedure DeriveeForm(F: Tfonction; xx: Tgrandeur;
@@ -512,12 +514,12 @@ const
       'intégrale', 'texte', '', 'prédéfinie', 'Euler', 'décalage', 'Python', 'Python');
 
    NomFonctionGlb: array[TCodeFonctionGlb] of string =
-      ('MIN', 'POS', 'MOYP','MOY', 'MOYF', 'SOMME', 'SOMMEF', 'EFF', 'EFFTOUT','INIT', 'FREQ', 'FREQINST', 'EFFINST',
+      ('MIN', 'POS', 'MOYP', 'MOY', 'MOYF', 'SOMME', 'SOMMEF', 'EFF', 'EFFTOUT','INIT', 'FREQ', 'FREQINST', 'EFFINST',
       'PHASE', 'STDEV', 'PENTE', 'ORIGINE', 'CNP', 'CRENEAU', 'TRIANGLE','BitRand',
       'FILTRE', 'FILTRE', 'ENV', 'HARM', 'CORR', 'SOLVE', '', '',
       'DIFF', 'DIFF2', 'AIRE', 'LISSEF','LISSEC', 'PAGE', 'TCORR', 'PHASEC',
       'INTG', 'INTG', 'INTGD', 'POISSON', 'GAUSS', 'BINOM', 'BESSEL', 'PEIGNE', 'MODUL',
-      '', '','PYTHON', 'PYPARAM','', 'MAX');
+      '', '','PYTHON', 'PYPARAM','', 'MAX'); // MOYP,EFF sur une période MOY EFFTOUT sur tout le signal
 
    NomFonction: array[TCodeFonction] of string =
       ('ABS', 'SIGN', 'ECH', 'OPP', 'INV',
@@ -529,13 +531,25 @@ const
       'RE', 'IM', 'ARG', '',
       'TODATE', 'EXTMOIS', 'EXTJOUR', 'EXTANNEE', 'EXTHEURE', 'DEGDEC', '', '');
 
+   NomFonctionLatex: array[TCodeFonction] of string =
+      ('abs', 'sign', '', '', '',
+      'atan', 'int', 'ceil', 'floor', 'frac', 'round',
+      '', 'sqrt', 'exp', 'ln', 'log10',
+      'sin', 'cos', 'tan', '', '', '', '', '','',
+      'asin', 'acos', '', '', '',
+      'cosh', 'sinh', 'tanh', '', '','','',
+      '', '', '', '',
+      '', '', '', '', '', '', '', '');
+
      NomOperateurLogique : array[ToperateurLogique] of string = ('XOR','AND','OR','NAND','MOD');
+
+     ZeroParam: array[ParamGlb..paramDiff2] of TcodeGrandeur = (parametre0Glb, parametre0,0,0);
 
 implementation
 
 const
      AliasFonctionGlb: array[TCodeFonctionGlb] of string =
-      ('MIN', 'POS', 'AVG','MEAN', 'MEANF', 'SUM', 'SUMF', 'RMS', 'RMSALL', 'INIT', 'FREQ', 'FREQINST', 'RMSINST',
+      ('MIN', 'POS', 'AVG', 'MEAN', 'MEANF', 'SUM', 'SUMF', 'RMS', 'RMSALL', 'INIT', 'FREQ', 'FREQINST', 'RMSINST',
       'PHASE', 'STDEV', 'SLOPE', 'ORIGIN', 'CNP', 'CRENEAU', 'TRIANGLE','BitAlea',
       'FILTER', 'FILTER', 'ENV', 'HARM', 'CORR', 'SOLVE', '', '',
       'DIFF', 'DIFF2', 'AIRE', 'LISSEG','LISSE', 'PAGE', 'TCORR', 'PHASEC',
@@ -553,8 +567,6 @@ const
    PosMin = 3;
    posMax = 4;
    NbreIncertMax = 128;
-   ZeroParam: array[ParamGlb..paramDiff2] of TcodeGrandeur =
-      (parametre0Glb, parametre0,0,0);
 
 var
    AdresseFonction: array[TcodeFonction] of TFonctionMath;
@@ -1697,7 +1709,7 @@ var
             position: compilePosition;
             pythonVar,pythonConst: Empile(GenFonctionGlb(code, nil, nil, nil, nil, nil));
             // efficace avec option AC, N=nombre de périodes ?
-            moyenneAll, maximum, minimum, somme, moyenneFFT, sommeFFT, ecarttype:
+            moyenne,moyenneAll, maximum, minimum, somme, moyenneFFT, sommeFFT, ecarttype:
                compileMaxMin; // nomfonct(expression)
             else
                compileGlbVariab; // nomfonct(nomVariable)
@@ -2317,6 +2329,7 @@ var
    index, indexP: TcodeGrandeur;
 begin // CompileF
    Result := True;
+   BruitPresent := false;
    if expression = '' then begin
       posErreur  := 0;
       LongErreur := 1;
@@ -2482,7 +2495,7 @@ var
          end;
          increment := increment div 3;
       until increment = 0;
-   end;{trier}
+   end; // trier
 
    procedure CalculLoc(debut, fin: integer; const Min: double);
    var
@@ -2496,8 +2509,8 @@ var
       for i := debut to fin do begin
          setTemps(x[i]*coeff_x);
          Y[i] := calcule(calcul);
-      end;{i}
-   end;{ CalculLoc }
+      end;
+   end;// CalculLoc
 
 const
    NbreMin = 192;
@@ -3265,7 +3278,6 @@ begin
    NbreHarmoniqueAff := 0;
    HarmoniqueAff := False;
    ListeConstAff := TStringList.Create;
-   TexteModele := TStringList.Create;
    ResetEnTete;
    FinOldGrandeurs := 0;
    DebutOldGrandeurs := 0;
@@ -3312,7 +3324,7 @@ procedure DebutCompileG;
 var
    i, N: integer;
 begin
-   bruitPresent := False;
+   bruitPresentGlb := False;
    ListeBoucle.Clear;
    PrevenirFonctionDeParam := False;
    DebutOldGrandeurs := FinOldGrandeurs;
@@ -3325,6 +3337,8 @@ begin
 //         if (pos('mol',grandeurs[i].nomUnite)>0) then uniteSIglb := false; // chimie !
       end; // grandeurs expérimentales au début
    end;
+   for i := 0 to pred(NbreGrandeurs) do
+       bruitPresentGlb := bruitPresentGlb or grandeurs[i].fonct.bruitPresent;
    for i := pred(NbreGrandeurs) downto N do
       libereGrandeurE(i);
    if LogSimulation then begin
@@ -3354,8 +3368,8 @@ begin
          indexG := i;
          if uniteDonnee
             then begin
-                 withRadian := withRadian or uniteEgale(uniteToleree[indexRadian]);
-                 withDegre := withDegre or uniteEgale(uniteToleree[indexDegre]);
+                 withRadian := withRadian or uniteEgale(uniteRadian);
+                 withDegre := withDegre or uniteEgale(uniteDegre)
             end
             else SetUnite;
          if (genreG <> variable) then
@@ -3940,8 +3954,11 @@ begin  // ChercheUniteParametre
       uniteY.recopieUnite(grandeurs[FonctionTheorique[m].indexY]);
       for i := 1 to NbreParam[ParamNormal] do begin
          k := ParamToIndex(paramNormal, i);
-         if k in FonctionTheorique[m].depend then
-            Parametres[ParamNormal, i].verifTaux(uniteY, uniteX);
+         if k in FonctionTheorique[m].depend then begin
+            if FonctionTheorique[m].lineaireVar then
+               Parametres[ParamNormal, i].verifTaux(uniteY, uniteX);
+            Parametres[ParamNormal, i].verifUniteDonnee(uniteY);
+         end;
       end;
    end;
    finally
@@ -4159,7 +4176,8 @@ begin with pages[pageCourante] do begin
       residuStat.setValeur(NbreR,NbreParamModele);
       if not residuStat.statOK then exit;
       i := 0;
-      residuStat.avecIncert := grandeurs[indexY].incertDefinie;
+      residuStat.avecIncert := grandeurs[indexY].incertDefinie and
+                               (grandeurs[indexY].incertCalcA.expression<>'0');
       for j := debut[mC] to fin[mC] do begin
          residuStat.residus[i] := valeurVar[indexY, j]-valeurTheorique[mC, j];
          residuStat.X[i] := valeurVar[indexX, j];

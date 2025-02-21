@@ -6,8 +6,8 @@ object OptiqueForm: TOptiqueForm
   VertScrollBar.Visible = False
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   Caption = 'Lecture d'#39'intensit'#233' lumineuse ; mesure d'#39'angle, de distance'
-  ClientHeight = 1774
-  ClientWidth = 2108
+  ClientHeight = 1738
+  ClientWidth = 2024
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
@@ -27,8 +27,8 @@ object OptiqueForm: TOptiqueForm
   TextHeight = 36
   object StatusBar: TStatusBar
     Left = 0
-    Top = 1734
-    Width = 2108
+    Top = 1698
+    Width = 2024
     Height = 40
     Margins.Left = 6
     Margins.Top = 6
@@ -36,29 +36,29 @@ object OptiqueForm: TOptiqueForm
     Margins.Bottom = 6
     Panels = <>
     SimplePanel = True
-    ExplicitTop = 1733
-    ExplicitWidth = 2094
+    ExplicitTop = 1711
+    ExplicitWidth = 2206
   end
   object ToolBar: TToolBar
     Left = 0
     Top = 0
-    Width = 2108
-    Height = 56
+    Width = 2024
+    Height = 65
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
     Margins.Bottom = 6
-    ButtonHeight = 42
-    ButtonWidth = 177
+    AutoSize = True
+    ButtonHeight = 63
+    ButtonWidth = 141
     EdgeBorders = [ebBottom]
     GradientEndColor = clSkyBlue
     HotTrackColor = clAqua
     Images = VirtualImageList1
-    List = True
     ShowCaptions = True
     TabOrder = 1
     Wrapable = False
-    ExplicitWidth = 2094
+    ExplicitWidth = 2206
     object OpenFileBtn: TToolButton
       Left = 0
       Top = 0
@@ -67,29 +67,31 @@ object OptiqueForm: TOptiqueForm
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'Charger'
+      AutoSize = True
+      Caption = 'Charger '
       ImageIndex = 10
       ImageName = 'Item11'
       OnClick = OpenFileBtnClick
     end
     object SaveBtn: TToolButton
-      Left = 177
+      Left = 109
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'Enregistrer'
+      AutoSize = True
+      Caption = 'Enregistrer '
       Enabled = False
       ImageIndex = 8
       ImageName = 'Item9'
       OnClick = SaveBtnClick
     end
     object EditBidon: TEdit
-      Left = 354
+      Left = 251
       Top = 0
       Width = 2
-      Height = 42
+      Height = 63
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -98,135 +100,54 @@ object OptiqueForm: TOptiqueForm
       Text = 'EditBidon'
       OnKeyDown = EditBidonKeyDown
     end
-    object ToolButton1: TToolButton
-      Left = 356
-      Top = 0
-      Width = 16
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'ToolButton1'
-      ImageIndex = 7
-      ImageName = 'Item8'
-      Style = tbsSeparator
-    end
-    object VideoDevices: TComboBox
-      Left = 372
-      Top = 0
-      Width = 344
-      Height = 44
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alTop
-      Style = csDropDownList
-      TabOrder = 1
-      OnChange = VideoDevicesChange
-    end
-    object CameraBtn: TToolButton
-      Left = 716
-      Top = 0
-      Hint = 'Mise '#224' jour de la liste des cam'#233'ras connect'#233'es'
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'Cherche'
-      ImageIndex = 4
-      ImageName = 'Item5'
-      OnClick = CameraBtnClick
-    end
-    object ConnectBtn: TToolButton
-      Left = 893
-      Top = 0
-      Hint = 'Connecter une webcam'
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'Connect.'
-      Enabled = False
-      ImageIndex = 4
-      ImageName = 'Item5'
-      Style = tbsCheck
-      OnClick = ConnectBtnClick
-    end
-    object ConfigVideoBtn: TToolButton
-      Left = 1070
-      Top = 0
-      Hint = 'Options de la webcam'
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'Options'
-      Enabled = False
-      ImageIndex = 4
-      ImageName = 'Item5'
-      OnClick = ConfigVideoBtnClick
-    end
     object AcquireBtn: TToolButton
-      Left = 1247
+      Left = 253
       Top = 0
-      Hint = 'Acquisition d'#39'une image '#224' partir de la webcam'
+      Hint = 'Acquisition d'#39'une image '#224' partir de la cam'#233'ra'
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'Acquisition'
-      Enabled = False
-      ImageIndex = 5
-      ImageName = 'Item6'
+      AutoSize = True
+      Caption = 'Acquisition '
+      ImageIndex = 4
+      ImageName = 'Item5'
       OnClick = AcquireBtnClick
     end
-    object ToolButton3: TToolButton
-      Left = 1424
-      Top = 0
-      Width = 16
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'ToolButton3'
-      ImageIndex = 7
-      ImageName = 'Item8'
-      Style = tbsSeparator
-    end
     object RegressiBtn: TToolButton
-      Left = 1440
+      Left = 398
       Top = 0
+      Hint = 'Traitements des donn'#233'es par Regressi'
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
-      Caption = 'Traitements'
+      AutoSize = True
+      Caption = 'Traiter '
       Enabled = False
       ImageIndex = 2
       ImageName = 'Item3'
       OnClick = RegressiBtnClick
     end
-    object ToolButton2: TToolButton
-      Left = 1617
+    object PythonBtn: TToolButton
+      Left = 488
       Top = 0
-      Width = 16
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Caption = 'ToolButton2'
-      ImageIndex = 7
-      ImageName = 'Item8'
-      Style = tbsSeparator
+      Hint = 'Exporter les donn'#233'es sous forme de liste Python'
+      AutoSize = True
+      Caption = 'Python '
+      Enabled = False
+      ImageIndex = 9
+      ImageName = 'Item10'
+      OnClick = PythonBtnClick
     end
     object ExitBtn: TToolButton
-      Left = 1633
+      Left = 588
       Top = 0
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
       Margins.Bottom = 6
+      AutoSize = True
       Caption = 'Fermer'
       ImageIndex = 6
       ImageName = 'Item7'
@@ -235,9 +156,9 @@ object OptiqueForm: TOptiqueForm
   end
   object PanelBoutons: TPanel
     Left = 0
-    Top = 56
+    Top = 65
     Width = 300
-    Height = 1678
+    Height = 1633
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -245,10 +166,9 @@ object OptiqueForm: TOptiqueForm
     Align = alLeft
     ShowCaption = False
     TabOrder = 2
-    ExplicitHeight = 1677
     object LissageGB: TGroupBox
       Left = 1
-      Top = 441
+      Top = 1
       Width = 298
       Height = 160
       Margins.Left = 6
@@ -257,7 +177,7 @@ object OptiqueForm: TOptiqueForm
       Margins.Bottom = 6
       Align = alTop
       Caption = 'Lissage'
-      TabOrder = 5
+      TabOrder = 0
       object Label1: TLabel
         Left = 16
         Top = 44
@@ -311,7 +231,7 @@ object OptiqueForm: TOptiqueForm
     end
     object EchelleGB: TGroupBox
       Left = 1
-      Top = 601
+      Top = 161
       Width = 298
       Height = 340
       Margins.Left = 6
@@ -320,7 +240,7 @@ object OptiqueForm: TOptiqueForm
       Margins.Bottom = 6
       Align = alTop
       Caption = 'Echelle OA'
-      TabOrder = 6
+      TabOrder = 1
       object UniteLabel: TLabel
         Left = 10
         Top = 200
@@ -463,7 +383,7 @@ object OptiqueForm: TOptiqueForm
     end
     object LargeurGB: TGroupBox
       Left = 1
-      Top = 941
+      Top = 501
       Width = 298
       Height = 96
       Margins.Left = 6
@@ -472,7 +392,7 @@ object OptiqueForm: TOptiqueForm
       Margins.Bottom = 6
       Align = alTop
       Caption = 'Largeur du trac'#233
-      TabOrder = 7
+      TabOrder = 2
       object LargeurSE: TSpinEdit
         Left = 16
         Top = 36
@@ -492,7 +412,7 @@ object OptiqueForm: TOptiqueForm
     end
     object CouleursGB: TGroupBox
       Left = 1
-      Top = 1037
+      Top = 597
       Width = 298
       Height = 96
       Margins.Left = 6
@@ -502,7 +422,7 @@ object OptiqueForm: TOptiqueForm
       Align = alTop
       Caption = 'Couleurs exploit'#233'es'
       Enabled = False
-      TabOrder = 8
+      TabOrder = 3
       object BlueBtn: TBitBtn
         Left = 144
         Top = 36
@@ -594,7 +514,7 @@ object OptiqueForm: TOptiqueForm
     end
     object gammaGB: TGroupBox
       Left = 1
-      Top = 1133
+      Top = 693
       Width = 298
       Height = 96
       Margins.Left = 6
@@ -604,7 +524,7 @@ object OptiqueForm: TOptiqueForm
       Align = alTop
       Caption = 'Gamma'
       Enabled = False
-      TabOrder = 9
+      TabOrder = 4
       object GammaBtn: TSpinButton
         Left = 174
         Top = 36
@@ -653,141 +573,9 @@ object OptiqueForm: TOptiqueForm
         OnKeyPress = EchelleEditKeyPress
       end
     end
-    object BrightnessGB: TGroupBox
-      Left = 1
-      Top = 353
-      Width = 298
-      Height = 88
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alTop
-      Caption = 'Luminosit'#233
-      TabOrder = 4
-      Visible = False
-      object tbrBrightness: TTrackBar
-        Left = 0
-        Top = 32
-        Width = 200
-        Height = 80
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        TabOrder = 0
-        ThumbLength = 36
-        TickMarks = tmBoth
-        TickStyle = tsNone
-        OnChange = tbrContrastChange
-      end
-      object btnBrightness: TButton
-        Left = 188
-        Top = 38
-        Width = 64
-        Height = 34
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Caption = 'R'#224'Z'
-        TabOrder = 1
-        OnClick = btnContrastClick
-      end
-    end
-    object ContrastGB: TGroupBox
-      Tag = 1
-      Left = 1
-      Top = 265
-      Width = 298
-      Height = 88
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alTop
-      Caption = 'Contraste'
-      TabOrder = 3
-      Visible = False
-      object tbrContrast: TTrackBar
-        Tag = 1
-        Left = 0
-        Top = 32
-        Width = 200
-        Height = 80
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        TabOrder = 0
-        ThumbLength = 36
-        TickMarks = tmBoth
-        TickStyle = tsNone
-        OnChange = tbrContrastChange
-      end
-      object btnContrast: TButton
-        Tag = 1
-        Left = 188
-        Top = 38
-        Width = 64
-        Height = 34
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Caption = 'R'#224'Z'
-        TabOrder = 1
-        OnClick = btnContrastClick
-      end
-    end
-    object GainGB: TGroupBox
-      Tag = 9
-      Left = 1
-      Top = 1
-      Width = 298
-      Height = 88
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alTop
-      Caption = 'Gain'
-      TabOrder = 0
-      Visible = False
-      object tbrGain: TTrackBar
-        Tag = 9
-        Left = 0
-        Top = 32
-        Width = 200
-        Height = 80
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        TabOrder = 0
-        ThumbLength = 36
-        TickMarks = tmBoth
-        TickStyle = tsNone
-        OnChange = tbrContrastChange
-      end
-      object btnGain: TButton
-        Tag = 9
-        Left = 188
-        Top = 38
-        Width = 64
-        Height = 34
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Caption = 'R'#224'Z'
-        TabOrder = 1
-        OnClick = btnContrastClick
-      end
-    end
     object MesureRG: TRadioGroup
       Left = 1
-      Top = 1229
+      Top = 789
       Width = 298
       Height = 180
       Hint = 'Type de mesure'
@@ -802,12 +590,12 @@ object OptiqueForm: TOptiqueForm
         'Intensit'#233
         'Angle'
         'Distance')
-      TabOrder = 10
+      TabOrder = 5
       OnClick = MesureRGClick
     end
     object couleurGB: TGroupBox
       Left = 1
-      Top = 1587
+      Top = 1542
       Width = 298
       Height = 90
       Hint = 'Couleur de trac'#233' des angles'
@@ -817,13 +605,13 @@ object OptiqueForm: TOptiqueForm
       Margins.Bottom = 6
       Align = alBottom
       Caption = 'Couleur de trac'#233
-      TabOrder = 12
-      ExplicitTop = 1586
+      TabOrder = 7
+      ExplicitTop = 1555
       object CouleurCB: TColorBox
         Left = 8
         Top = 34
         Width = 250
-        Height = 38
+        Height = 22
         Hint = 'Couleur de la courbe courante'
         Margins.Left = 6
         Margins.Top = 6
@@ -838,7 +626,7 @@ object OptiqueForm: TOptiqueForm
     end
     object ValeurMesureGB: TGroupBox
       Left = 1
-      Top = 1409
+      Top = 969
       Width = 298
       Height = 152
       Margins.Left = 6
@@ -847,7 +635,7 @@ object OptiqueForm: TOptiqueForm
       Margins.Bottom = 6
       Align = alTop
       Caption = 'Valeur'
-      TabOrder = 11
+      TabOrder = 6
       object AngleLabelbis: TLabel
         Left = 40
         Top = 48
@@ -860,102 +648,12 @@ object OptiqueForm: TOptiqueForm
         Caption = 'Label'
       end
     end
-    object SaturationGB: TGroupBox
-      Tag = 3
-      Left = 1
-      Top = 89
-      Width = 298
-      Height = 88
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alTop
-      Caption = 'Saturation'
-      TabOrder = 1
-      Visible = False
-      object tbrSaturation: TTrackBar
-        Tag = 3
-        Left = 0
-        Top = 32
-        Width = 200
-        Height = 80
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        TabOrder = 0
-        ThumbLength = 36
-        TickMarks = tmBoth
-        TickStyle = tsNone
-        OnChange = tbrContrastChange
-      end
-      object btnSaturation: TButton
-        Tag = 3
-        Left = 188
-        Top = 38
-        Width = 64
-        Height = 34
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Caption = 'R'#224'Z'
-        TabOrder = 1
-        OnClick = btnContrastClick
-      end
-    end
-    object GammaVideoGB: TGroupBox
-      Tag = 5
-      Left = 1
-      Top = 177
-      Width = 298
-      Height = 88
-      Margins.Left = 6
-      Margins.Top = 6
-      Margins.Right = 6
-      Margins.Bottom = 6
-      Align = alTop
-      Caption = 'Gamma'
-      TabOrder = 2
-      Visible = False
-      object tbrGamma: TTrackBar
-        Tag = 5
-        Left = 0
-        Top = 32
-        Width = 200
-        Height = 80
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        TabOrder = 0
-        ThumbLength = 36
-        TickMarks = tmBoth
-        TickStyle = tsNone
-        OnChange = tbrContrastChange
-      end
-      object btnGamma: TButton
-        Tag = 5
-        Left = 188
-        Top = 38
-        Width = 64
-        Height = 34
-        Margins.Left = 6
-        Margins.Top = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
-        Caption = 'R'#224'Z'
-        TabOrder = 1
-        OnClick = btnContrastClick
-      end
-    end
   end
   object Panel2: TPanel
     Left = 300
-    Top = 56
-    Width = 1808
-    Height = 1678
+    Top = 65
+    Width = 1724
+    Height = 1633
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -963,12 +661,12 @@ object OptiqueForm: TOptiqueForm
     Align = alClient
     ShowCaption = False
     TabOrder = 3
-    ExplicitWidth = 1794
-    ExplicitHeight = 1677
+    ExplicitWidth = 1906
+    ExplicitHeight = 1646
     object IntensitePB: TPaintBox
       Left = 1
-      Top = 1175
-      Width = 1806
+      Top = 1144
+      Width = 1918
       Height = 502
       Margins.Left = 6
       Margins.Top = 6
@@ -1030,8 +728,8 @@ object OptiqueForm: TOptiqueForm
     object PanelImage: TPanel
       Left = 1
       Top = 1
-      Width = 1806
-      Height = 1174
+      Width = 1918
+      Height = 1143
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -1045,8 +743,8 @@ object OptiqueForm: TOptiqueForm
       ParentFont = False
       ShowCaption = False
       TabOrder = 0
-      ExplicitWidth = 1792
-      ExplicitHeight = 1173
+      ExplicitWidth = 1904
+      ExplicitHeight = 1142
       object Image: TImage
         Left = 0
         Top = 0
@@ -1134,16 +832,17 @@ object OptiqueForm: TOptiqueForm
     end
   end
   object SaveDialog: TSaveDialog
+    Filter = 'png|*.png|bitmap|*.bmp|Jpeg|*.jpg'
     Left = 443
     Top = 245
   end
   object OpenPictureDialog: TOpenPictureDialog
     Filter = 
-      'Tous |*.gif;*.png;*.jpg;*.jpeg;*.bmp;*.jpg;*.jpeg;*.gif;*.png|Im' +
-      'age GIF|*.gif|Portable Network Graphics|*.png|Fichier image JPEG' +
-      '|*.jpg;*.jpeg|Bitmaps|*.bmp'
-    Left = 355
-    Top = 149
+      'Tous |*.gif;*.png;*.jpg;*.jpeg;*.bmp|Image GIF|*.gif|Portable Ne' +
+      'twork Graphics|*.png|Fichier image JPEG|*.jpg;*.jpeg|Bitmaps|*.b' +
+      'mp'
+    Left = 707
+    Top = 245
   end
   object ImageCollection1: TImageCollection
     Images = <
@@ -1361,8 +1060,8 @@ object OptiqueForm: TOptiqueForm
         Name = 'Item11'
       end>
     ImageCollection = ImageCollection1
-    Width = 32
-    Height = 32
+    Width = 20
+    Height = 20
     Left = 789
     Top = 793
   end

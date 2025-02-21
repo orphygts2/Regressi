@@ -21,7 +21,7 @@ object SavePositionDlg: TSavePositionDlg
   PixelsPerInch = 192
   TextHeight = 36
   object OKBtn: TBitBtn
-    Left = 712
+    Left = 720
     Top = 16
     Width = 200
     Height = 54
@@ -39,7 +39,7 @@ object SavePositionDlg: TSavePositionDlg
     IsControl = True
   end
   object CancelBtn: TBitBtn
-    Left = 712
+    Left = 720
     Top = 128
     Width = 200
     Height = 54
@@ -227,7 +227,7 @@ object SavePositionDlg: TSavePositionDlg
     end
   end
   object HelpBtn: TBitBtn
-    Left = 712
+    Left = 720
     Top = 240
     Width = 200
     Height = 50

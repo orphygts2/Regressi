@@ -5,12 +5,9 @@ interface
 uses Windows, Classes, Forms, Controls, StdCtrls,
      Buttons, ExtCtrls, regutil, shellApi, dialogs,
      constreg, graphfft, Graphics, Vcl.Imaging.pngimage;
-     // system.SysUtils, Vcl.Imaging.pngimage;
-     // System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent;
 
 type
   TAboutBox = class(TForm)
-    PanelCop: TPanel;
     OKButton: TBitBtn;
     ProgramIcon: TImage;
     ProductName: TLabel;
@@ -19,10 +16,8 @@ type
     Email: TLabel;
     Label1: TLabel;
     VersionBtn: TBitBtn;
-    DebugLabel: TLabel;
     Image1: TImage;
-    Label3: TLabel;
-    Win64Label: TLabel;
+    Label2: TLabel;
     procedure VersionBtnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
@@ -38,24 +33,17 @@ implementation
 
 procedure TAboutBox.VersionBtnClick(Sender: TObject);
 begin
-  if ShellExecute(Handle, 'open', 'https://jean-michel-millet.pagesperso-orange.fr/miseajour2008.html', nil, nil, SW_SHOW) <= 32 then
-     ShowMessage(stNoAcces+' site jean-michel-millet.pagesperso-orange.fr')
+  if ShellExecute(Handle, 'open', 'https://regressi.fr/miseajour2008.html', nil, nil, SW_SHOW) <= 32 then
+     ShowMessage(stNoAcces+' site https://regressi.fr/WordPress')
 end;
 
 procedure TAboutBox.FormCreate(Sender: TObject);
 begin
 {$IFDEF win64}
     productName.Caption := 'Regressi/ffmpeg 64 bits';
-    Win64Label.Visible := true;
 {$ELSE}
-    Win64Label.Visible := false;
+    productName.Caption := 'Regressi/ffmpeg 32 bits';
 {$ENDIF}
-{$IFDEF Debug}
-    DebugLabel.Visible := true;
-{$ELSE}
-    DebugLabel.Visible := false;
-{$ENDIF}
-   ResizeButtonImagesforHighDPI(self);
 end;
 
 end.

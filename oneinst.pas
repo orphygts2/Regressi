@@ -3,7 +3,7 @@ unit oneinst;
 interface
 
 uses
-  Windows, Forms, Messages, clipBrd, regutil;
+  Windows, Forms, Messages, clipBrd;
 
 var premierAppel : boolean = true;   
 
@@ -109,8 +109,5 @@ begin
 end;
 
 initialization
-{$IFDEF Debug}
-   ecritDebug('initialization oneinst');
-{$ENDIF}
   EnsureSingleInstance
 end.

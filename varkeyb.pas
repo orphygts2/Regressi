@@ -32,6 +32,7 @@ type
     procedure HelpBtnClick(Sender: TObject);
     procedure IncrementAutoCBClick(Sender: TObject);
     procedure GridVariabKeyPress(Sender: TObject; var Key: Char);
+    procedure GridConstKeyPress(Sender: TObject; var Key: Char);
   private
   public
     grapheMinMax : boolean;
@@ -51,8 +52,8 @@ var i,Acol,Arow : integer;
 begin
      with GridVariab do begin
          cells[0,0] := stSymbole;
-         cells[2,0] := stSignif;
          cells[1,0] := stUnite;
+         cells[2,0] := stSignif;
          cells[3,0] := stMinimum;
          cells[4,0] := stMaximum;
          for i := 1 to 4 do begin
@@ -64,8 +65,6 @@ begin
                  cells[col,row] := '';
          col := 0;
          row := 1;
-   //      DefaultRowHeight := hauteurColonne;
-   //      defaultColWidth := largeurUnCarac*8;
      end;
      with gridConst do begin
          cells[0,0] := stSymbole;
@@ -76,10 +75,7 @@ begin
                cells[col,row] := '';
         col := 0;
         row := 1;
-   //     DefaultRowHeight := hauteurColonne;
-   //     defaultColWidth := largeurUnCarac*8;
      end;
- //    ResizeButtonImagesforHighDPI(self);
 end;
 
 procedure TNewClavierDlg.OKBtnClick(Sender: TObject);
@@ -186,6 +182,7 @@ begin
 end;
 
 procedure TNewClavierDlg.FormActivate(Sender: TObject);
+var hauteurCol : integer;
 begin
      inherited;
      gridVariab.col := 0;
@@ -194,7 +191,24 @@ begin
      gridConst.row := 1;
      TriCB.Checked := not DataTrieGlb;
      MemoClavier.clear;
+     HauteurCol := Font.Size * Screen.PixelsPerInch div 46;
+     GridVariab.DefaultRowHeight := hauteurCol;
+     GridConst.DefaultRowHeight := hauteurCol;
+     GridVariab.DefaultColWidth := GridVariab.Width div GridVariab.colCount;
+     GridConst.DefaultColWidth := GridConst.Width div GridConst.colCount;
+(*  When there is no caret visible when editing a cell in the grid, this is because
+    the font size is too high in relationship to the height of the cell.
+    This is a behavior that is actually something in Windows.
+    When in a Windows multiline edit control, the font size in relationship to
+    the editor height is too large, it won't display the caret.
+    To avoid this, either decrease the font size or keep increase the row height.
+*)
      GridVariab.SetFocus;
+end;
+
+procedure TNewClavierDlg.GridConstKeyPress(Sender: TObject; var Key: Char);
+begin
+    if (gridConst.col=0) and not isCaracGrandeur(key) and not charInset(key,charNavigationHB) then key := #0;
 end;
 
 procedure TNewClavierDlg.GridVariabKeyDown(Sender: TObject; var Key: Word;
@@ -211,7 +225,9 @@ end;
 
 procedure TNewClavierDlg.GridVariabKeyPress(Sender: TObject; var Key: Char);
 begin
-    if (gridVariab.col=0) and not isCaracGrandeur(key) then key := #0;
+    if (gridVariab.col=0) and
+       not isCaracGrandeur(key) and
+       not charInset(key,charNavigationHB) then key := #0;
 end;
 
 procedure TNewClavierDlg.HelpBtnClick(Sender: TObject);
@@ -225,3 +241,5 @@ begin
 end;
 
 end.
+
+

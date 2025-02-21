@@ -1,10 +1,11 @@
 object ChoixTangenteDlg: TChoixTangenteDlg
   Left = 403
   Top = 167
+  AutoSize = True
   BorderStyle = bsDialog
   Caption = 'Trac'#233' de tangentes'
-  ClientHeight = 432
-  ClientWidth = 540
+  ClientHeight = 414
+  ClientWidth = 548
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
@@ -14,12 +15,11 @@ object ChoixTangenteDlg: TChoixTangenteDlg
   FormStyle = fsStayOnTop
   Position = poScreenCenter
   OnActivate = FormActivate
-  OnCreate = FormCreate
   PixelsPerInch = 192
   TextHeight = 36
   object OptionsBtn: TSpeedButton
     Left = 468
-    Top = 80
+    Top = 64
     Width = 54
     Height = 54
     Hint = 'Options|Stoechiom'#233'trie, couleur ...'
@@ -29,27 +29,9 @@ object ChoixTangenteDlg: TChoixTangenteDlg
     Margins.Bottom = 6
     AllowAllUp = True
     GroupIndex = 1
-    Glyph.Data = {
-      76020000424D7602000000000000760000002800000040000000100000000100
-      0400000000000002000000000000000000001000000000000000000000000000
-      80000080000000808000800000008000800080800000C0C0C000808080000000
-      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333303333
-      333333333338FF33333333333338FF3333333333333033333333333333000333
-      3333333333888F333333333333888F3333333333330003333333333333070333
-      3333333F33888FF33F33333F33888FF33F333333330703333333333333000333
-      33333383F888883F83333383F888883F833333B33B000B33B3333333330F0333
-      33333338838F8F88F3333338838F8F88F333333BBB0B0BBB33333333330F0333
-      33333338338383F83F333338338383F83F33333BBB0F0BBB3333333330F8F033
-      3333338F3838F83F8F33338F3838F83F8F3333BBB0F8F0BBB33333330FF8FF03
-      33333F838F38F38F83FF3F838F38F38F83FF33BB0FB8BF0BB33333330FF8FF03
-      3333883F8F38338F3883883F8F38338F3883BBBB0BF8FB0BBBB333330FFFFF03
-      3333338F83F333838F33338F83F333838F3333BB0FBFBF0BB333333330FFF033
-      33333383F83FF83383333383F83FF833833333BBB0FBF0BBB333333333000333
-      33333338FF888338F3333338FF888338F333333BBB000BBB3333333333333333
-      3333333883FF3F883F33333883FF3F883F33333BBBBBBBBB3333333333333333
-      33333383388388338333338338838833833333B33BBBBB33B333333333333333
-      333333333338F333333333333338F33333333333333B33333333333333333333
-      3333333333383333333333333338333333333333333B33333333}
+    ImageIndex = 10
+    ImageName = 'Item11'
+    Images = FRegressiMain.VirtualImageList1
     NumGlyphs = 4
     ParentShowHint = False
     ShowHint = True
@@ -57,7 +39,7 @@ object ChoixTangenteDlg: TChoixTangenteDlg
   end
   object CancelBtn: TBitBtn
     Left = 248
-    Top = 80
+    Top = 64
     Width = 200
     Height = 54
     Margins.Left = 6
@@ -73,7 +55,7 @@ object ChoixTangenteDlg: TChoixTangenteDlg
   end
   object TangenteCB: TComboBox
     Left = 8
-    Top = 16
+    Top = 0
     Width = 522
     Height = 44
     Margins.Left = 6
@@ -92,7 +74,7 @@ object ChoixTangenteDlg: TChoixTangenteDlg
   end
   object OKBtn: TBitBtn
     Left = 16
-    Top = 80
+    Top = 64
     Width = 200
     Height = 54
     Margins.Left = 6
@@ -106,7 +88,7 @@ object ChoixTangenteDlg: TChoixTangenteDlg
   end
   object SupprCB: TCheckBox
     Left = 16
-    Top = 146
+    Top = 130
     Width = 518
     Height = 34
     Margins.Left = 6
@@ -118,8 +100,8 @@ object ChoixTangenteDlg: TChoixTangenteDlg
   end
   object OptionsPC: TPageControl
     Left = 0
-    Top = 192
-    Width = 540
+    Top = 174
+    Width = 548
     Height = 240
     Margins.Left = 6
     Margins.Top = 6
@@ -128,8 +110,6 @@ object ChoixTangenteDlg: TChoixTangenteDlg
     ActivePage = TabSheet3
     Align = alBottom
     TabOrder = 4
-    ExplicitTop = 191
-    ExplicitWidth = 526
     object TabSheet1: TTabSheet
       Margins.Left = 6
       Margins.Top = 6
@@ -396,7 +376,6 @@ object ChoixTangenteDlg: TChoixTangenteDlg
             ImageIndex = 4
             SelectedImageIndex = 4
           end>
-        ItemHeight = 39
         TabOrder = 2
       end
       object TangenteColor: TColorBox

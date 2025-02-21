@@ -3,7 +3,7 @@ unit options;
 interface
 
 uses Windows, Classes, Graphics, Forms, Controls, Buttons,
-  StdCtrls, ExtCtrls, Spin, sysUtils, ComCtrls, registry, Dialogs,
+  StdCtrls, ExtCtrls, Spin, sysUtils, ComCtrls, Dialogs,
   ImgList, Mask, inifiles, CheckLst, constreg,
   Vcl.htmlHelpViewer,
   maths, regutil, uniteker, compile, shlObj,
@@ -159,6 +159,7 @@ type
     RazDllPythonPath: TSpeedButton;
     Label22: TLabel;
     Label23: TLabel;
+    Label24: TLabel;
     procedure NbreSpinButtonDownClick(Sender: TObject);
     procedure NbreSpinButtonUpClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -210,7 +211,8 @@ type
   public
     modifPreferences,modifDerivee,modifUniteSI,
     modifPolice,modifGraphe : boolean;
-    Procedure ResetConfig;
+    procedure ResetConfig;
+    procedure sauveOptions;
   end;
 
 var
@@ -384,9 +386,7 @@ begin
       ModifDerivee := true;
 end;
 
-procedure TOptionsDlg.OKBtnClick(Sender: TObject);
-
-procedure SauveOptions;
+procedure TOptionsDlg.SauveOptions;
 var i : integer;
     Rini : TMemIniFile;
 begin
@@ -399,7 +399,7 @@ begin
     RIni.writeString(stGraphe,stFonte,FontName);
     Rini.WriteInteger(stPenStyle,stTangente,ord(PstyleTangente));
     Rini.WriteInteger(stColor,stTangente,pcolorTangente);
-    Rini.WriteInteger(stColor,'MethTangente',CouleurMethodeTangente);
+    Rini.WriteInteger(stColor,stMethTangente,CouleurMethodeTangente);
     Rini.WriteInteger(stPenStyle,stReticule,ord(PstyleReticule));
     Rini.WriteInteger(stColor,stReticule,pcolorReticule);
     Rini.WriteInteger(stColor,'FondReticule',FondReticule);
@@ -413,7 +413,7 @@ begin
     Rini.writeBool(stCalcul,'Cosinus',ModeleCosinus);
     Rini.writeBool(stGraphe,'Clavier',ClavierAvecGraphe);
     Rini.writeInteger('Point','Taille',dimPointVGA);
-    Rini.writeInteger(stColor,'Axe',couleurGrille);
+    Rini.writeInteger(stColor,stAxes,couleurGrille);
     Rini.writeInteger(sectionDerivee,identDegre,DegreDerivee);
     Rini.writeInteger(stGraphe,'ReperePage',ord(reperePage));
     Rini.writeInteger(stFormat,'Chiffres',Precision);
@@ -430,6 +430,7 @@ begin
     Rini.writeBool(stFFT,'Optimise',NbreHarmoniqueOptimise);
     Rini.writeInteger(stFFT,'Precision',round(precisionFFT*1000));
     Rini.writeBool(stFFT,'HarmAff',HarmoniqueAff);
+    Rini.writeBool(stFFT,'Periodique',FFTperiodique);
     Rini.writeBool(stGraphe,'VisuAjuste',VisualisationAjustement);
     Rini.writeBool(stGraphe,stEllipse,avecEllipse);
     Rini.writeBool(stRegressi,'Chi2',avecChi2);
@@ -450,7 +451,7 @@ begin
     Rini.WriteBool(stRegressi,'Italique',UseItalic);
     Rini.WriteBool(stRegressi,'MathPlayer',UseMathPlayer);
     Rini.writeInteger(stPrint,stFonte,FontSizeImpr);
-    Rini.writeInteger(stGraphe,'WidthEcran',penWidthVGA);
+    Rini.writeInteger(stGraphe,'WidthEcran',penWidthCourbe);
     Rini.writeInteger(stGraphe,'WidthGrid',penWidthGrid);
     Rini.writeInteger(stGraphe,'TailleTick',tailleTick);
     Rini.DeleteKey(stPrint,'Bold');
@@ -471,6 +472,7 @@ begin
     Rini.WriteString(stFonte,'Name',FontName);
     Rini.WriteInteger(stGraphe,'TracePoint',ord(traceDefaut));
     Rini.WriteInteger(stRegressi,'LargeurColText',largeurColonneTexte);
+    Rini.writeInteger(stCalcul,'NMC',NbreMC);
     for i := 0 to pred(NbreCouleur) do begin
         Rini.writeInteger(stColor,'C'+IntToStr(i),couleurPages[i]);
         Rini.writeInteger(stPenStyle,'C'+IntToStr(i),ord(stylePages[i]));
@@ -488,7 +490,9 @@ begin
     end;
 end;
 
-begin // OKBtnClick
+
+procedure TOptionsDlg.OKBtnClick(Sender: TObject);
+begin
      modifConfig := true;
      UniteParenthese := uniteParCB.checked;
      DataTrieGlb := TriCB.Checked;
@@ -635,7 +639,6 @@ begin
 {$IFDEF Debug}
    ecritDebug('Fin formCreate Options');
 {$ENDIF}
-   ResizeButtonImagesforHighDPI(self);
 end; // FormCreate
 
 procedure TOptionsDlg.HelpBtnClick(Sender: TObject);
@@ -806,8 +809,8 @@ begin
   OrdreFiltrage := ini.ReadInteger(stCalcul,'OrdreFiltrage',OrdreFiltrage);
   CoeffEllipseRG.itemIndex := ini.ReadInteger(stGraphe,'CoeffEllipse',0);
   PcolorTangente := ini.ReadInteger(stColor,stTangente,PcolorTangente);
-  CouleurMethodeTangente := ini.ReadInteger(stColor,'MethTangente',CouleurMethodeTangente);
-  PstyleReticule := TpenStyle(ini.ReadInteger(stPenStyle,'Reticule',ord(PstyleReticule)));
+  CouleurMethodeTangente := ini.ReadInteger(stColor,stMethTangente,CouleurMethodeTangente);
+  PstyleReticule := TpenStyle(ini.ReadInteger(stPenStyle,stReticule,ord(PstyleReticule)));
   PcolorReticule := ini.ReadInteger(stColor,stReticule,PcolorReticule);
   FondReticule := ini.ReadInteger(stColor,'FondReticule',FondReticule);
   precision := ini.ReadInteger(stFormat,'Chiffres',precision);
@@ -821,11 +824,13 @@ begin
   ModeleDecibel := ini.ReadBool(stCalcul,'Decibel',ModeleDecibel);
   ModeleFacteurQualite := ini.ReadBool(stCalcul,'Qualite',ModeleFacteurQualite);
   NbreHarmoniqueOptimise := ini.ReadBool(stFFT,'Optimise',NbreHarmoniqueOptimise);
+  NbreMC := ini.ReadInteger(stCalcul,'NMC',NbreMC);
   z := ini.readInteger(stFFT,'Precision',5);
   largeurColonneTexte := ini.ReadInteger(stRegressi,'LargeurColText',largeurColonneTexte);
   if z<3 then z := 3; if z>100 then z := 100;
   precisionFFT := z/1000;
   HarmoniqueAff := ini.ReadBool(stFFT,'HarmAff',HarmoniqueAff);
+  FFTperiodique := ini.readBool(stFFT,'Periodique',FFTperiodique);
   litRepertoire(ini,stAVI,VideoDir);
   litRepertoire(ini,'Data',DataDir);
   litRepertoire(ini,'Images',imagesDir);
@@ -857,7 +862,7 @@ begin
   if texteGrapheSize>8 then texteGrapheSize := 3;
   NbreTexteMax := ini.ReadInteger(stGraphe,'NbreTexte',NbreTexteMax);
   DimPointVGA := ini.ReadInteger('Point','Taille',3);
-  penWidthVGA := 1;
+  penWidthCourbe := 1;
   penWidthGrid := ini.readInteger(stGraphe,'WidthGrid',penWidthGrid);
   tailleTick := ini.readInteger(stGraphe,'TailleTick',tailleTick);
   fontSizeImpr := ini.ReadInteger(stPrint,stFonte,fontSizeImpr);
@@ -878,8 +883,8 @@ begin
   WithPvaleur := Ini.ReadBool(stGraphe,'Pvaleur',WithPvaleur);
   AffIncertParam := TAffIncertParam(Ini.readInteger(stGraphe,'AffIncertParam',ord(i95)));
   ReperePage := TreperePage(Ini.ReadInteger(stGraphe,'ReperePage',ord(SPcouleur)));
-  WithBandeConfiance := Ini.ReadBool(stGraphe,'BandeConfiance',WithBandeConfiance);
-  WithBandePrediction := Ini.ReadBool(stGraphe,'BandePrediction',WithBandePrediction);
+  WithBandeConfiance := Ini.ReadBool(stGraphe,'BandeConfiance',false);
+  WithBandePrediction := Ini.ReadBool(stGraphe,'BandePrediction',false);
   couleurNonExp :=  Ini.ReadInteger(stColor,'NonExp',couleurNonExp);
   TraceDefaut := TTraceDefaut(Ini.ReadInteger(stGraphe,'TracePoint',ord(traceDefaut)));
   for i := 0 to pred(NbreCouleur) do begin
@@ -895,7 +900,7 @@ begin
       couleurModele[i] := Ini.ReadInteger(stColor,'M'+IntToStr(i),couleurModele[i]);
       couleurModele[-i] := Ini.ReadInteger(stColor,'S'+IntToStr(i),couleurModele[-i]);
   end;
-  couleurGrille := Ini.ReadInteger(stColor,'Axe',couleurGrille);
+  couleurGrille := Ini.ReadInteger(stColor,stAxes,couleurGrille);
   finally
   ini.free;
   end;
@@ -914,8 +919,8 @@ begin
   ClavierAvecGraphe := Rini.readBool(stGraphe,'Clavier',ClavierAvecGraphe);
   PstyleTangente := TpenStyle(Rini.ReadInteger(stPenStyle,stTangente,ps_Dot));
   PcolorTangente := Rini.ReadInteger(stColor,stTangente,clBlack);
-  PstyleReticule := TpenStyle(Rini.ReadInteger(stPenStyle,stReticule,ps_Dot));
-  PcolorReticule := Rini.ReadInteger(stColor,stReticule,clBlack);
+  PstyleReticule := TpenStyle(Rini.ReadInteger(stPenStyle,stReticule,ord(PstyleReticule)));
+  PcolorReticule := Rini.ReadInteger(stColor,stReticule,pColorReticule);
   FondReticule := Rini.ReadInteger(stColor,'FondReticule',clInfoBk);
   OrdreFiltrage := Rini.ReadInteger(stCalcul,'OrdreFiltrage',OrdreFiltrage);
   CoeffEllipseRG.itemIndex := Rini.ReadInteger(stGraphe,'CoeffEllipse',0);
@@ -939,6 +944,7 @@ begin
   ExtrapoleDerivee := Rini.ReadBool(sectionDerivee,'Extrapole',true);
   NbreHarmoniqueOptimise := Rini.ReadBool(stFFT,'Optimise',false);
   HarmoniqueAff := Rini.ReadBool(stFFT,'HarmAff',HarmoniqueAff);
+  FFTperiodique := Rini.readBool(stFFT,'Periodique',FFTperiodique);
   z := Rini.readInteger(stFFT,'Precision',5);
   if z<3 then z := 3; if z>100 then z := 100;
   precisionFFT := z/1000;
@@ -950,7 +956,7 @@ begin
   fontSizeImpr := Rini.ReadInteger(stPrint,stFonte,10);
   couleurExp := Rini.ReadInteger(stColor,'Exp.',couleurExp);
   fontSizeImpr := 2*(fontSizeImpr div 2);
-  penWidthVGA := 1;
+  penWidthCourbe := 1;
   penWidthGrid := Rini.readInteger(stGraphe,'WidthGrid',1);
   tailleTick := Rini.readInteger(stGraphe,'TailleTick',1);
   if (fontSizeImpr<8) or (fontSizeImpr>12) then fontSizeImpr := 10;
@@ -961,7 +967,8 @@ begin
   DegreDerivee := Rini.ReadInteger(sectionDerivee,identDegre,2);
   if degreDerivee<1 then degreDerivee := 1;
   if degreDerivee>3 then degreDerivee := 3;
-   TraceDefaut := TTraceDefaut(Rini.ReadInteger(stGraphe,'TracePoint',ord(tdPoint)));
+  NbreMC := Rini.ReadInteger(stCalcul,'NMC',NbreMC);
+  TraceDefaut := TTraceDefaut(Rini.ReadInteger(stGraphe,'TracePoint',ord(tdPoint)));
   AjustageAutoLinCB.checked := Rini.ReadBool(stRegressi,'AjusteAutoLin',true);
   AjustageAutoGrCB.checked := Rini.ReadBool(stRegressi,'AjusteAutoGr',false);
   GraduationPi := Rini.ReadBool(stRegressi,'GraduationPi',true);
